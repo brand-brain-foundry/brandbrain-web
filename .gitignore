@@ -44,3 +44,6 @@ next-env.d.ts
 .turno-readonly
 .needs-zavala
 .claude/settings.local.json
+
+# .env.example lleva solo NOMBRES de variables (sin valores): se trackea a propósito (S-1)
+!.env.example
