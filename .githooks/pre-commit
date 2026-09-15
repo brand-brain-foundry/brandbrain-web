@@ -1,0 +1,58 @@
+#!/bin/bash
+# pre-commit — brandbrain-web (D-SEC-04 + D-BBW-06)
+# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía.
+# Semántica FAIL-CLOSED: error del tool = commit cancelado. Único skip: gitleaks ausente (aviso).
+# gitleaks 8.30.x: --exit-code 2 = leaks; 0 = limpio; otro = error del tool. Sin -q (bug gitleaks).
+
+set -uo pipefail
+
+if ! command -v gitleaks &>/dev/null; then
+  echo "[pre-commit] gitleaks no encontrado — skip (instalar: brew install gitleaks)" >&2
+else
+  gitleaks protect --staged --no-banner --exit-code 2 --redact --verbose
+  GL_STATUS=$?
+  if [ "$GL_STATUS" -eq 2 ]; then
+    echo "" >&2
+    echo "[pre-commit] S-4: gitleaks detectó secreto en staged files — commit cancelado" >&2
+    echo "  Eliminar el secreto, luego: git add <archivo> && git commit" >&2
+    exit 1
+  elif [ "$GL_STATUS" -ne 0 ]; then
+    echo "" >&2
+    echo "[pre-commit] S-4 FAIL-CLOSED: error del tool gitleaks (exit $GL_STATUS) — commit cancelado" >&2
+    exit 1
+  fi
+fi
+
+# ─── GUARDIAS DEL SISTEMA DE DISEÑO (copia por contrato D-BBW-06, activas desde antes del primer token) ──
+if ! command -v pnpm &>/dev/null; then
+  echo "[pre-commit] FAIL-CLOSED: pnpm no encontrado — no se pueden ejecutar las guardias — commit cancelado" >&2
+  exit 1
+fi
+
+pnpm exec tsx scripts/lint/check-color-tokens.ts --staged
+COLOR_STATUS=$?
+if [ "$COLOR_STATUS" -eq 1 ]; then
+  echo "" >&2
+  echo "[pre-commit] guardia de color: HEX crudo nuevo en staged files — commit cancelado" >&2
+  echo "  Usar un token, o // COLOR-ALLOW: <razón> si es legítimo." >&2
+  exit 1
+elif [ "$COLOR_STATUS" -ne 0 ]; then
+  echo "" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia de color (exit $COLOR_STATUS) — commit cancelado" >&2
+  exit 1
+fi
+
+pnpm exec tsx scripts/lint/check-typography-tokens.ts --staged
+TYPO_STATUS=$?
+if [ "$TYPO_STATUS" -eq 0 ]; then
+  exit 0
+elif [ "$TYPO_STATUS" -eq 1 ]; then
+  echo "" >&2
+  echo "[pre-commit] guardia de tipografía: font-size/font-weight crudo nuevo en staged files — commit cancelado" >&2
+  echo "  Usar un token, o // TYPO-ALLOW: <razón> si es legítimo." >&2
+  exit 1
+else
+  echo "" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia de tipografía (exit $TYPO_STATUS) — commit cancelado" >&2
+  exit 1
+fi

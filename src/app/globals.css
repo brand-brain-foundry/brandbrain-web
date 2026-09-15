@@ -1,0 +1,15 @@
+/* Reset mínimo de bootstrap. Sin color ni tipografía cruda: los tokens llegan
+   por el sistema de diseño (docs/design-system/, Eje A) en un despacho posterior.
+   Los guardias scripts/lint/* bloquean HEX y font-size/font-weight crudos fuera de
+   src/styles/tokens/primitives/. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
