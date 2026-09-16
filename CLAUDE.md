@@ -20,11 +20,12 @@ git -C /Volumes/PK/BBF/Repos/bbf-command-hub pull
 ## Barrera anti-inyección (D-DOC-06)
 @/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/rules/anti-inyeccion.md
 
-## Contrato de hosting (puerto intercambiable), registro de puertos, modelo de contenido y pesos por familia
+## Contrato de hosting (puerto intercambiable), registro de puertos, modelo de contenido, pesos por familia y excepciones del sistema
 @docs/system/DEPLOY_CONTRACT.md
 @docs/system/PORTS.md
 @docs/system/CONTENT_MODEL.md
 @docs/system/TYPOGRAPHY_WEIGHTS.md
+@docs/system/DESIGN_EXCEPTIONS.md
 
 ## Reglas duras
 - **Push a `main` = solo por PR.** Trabajar en rama, `gh pr create`, merge `[ZAVALA-MANUAL]`. Jamás `git push origin main`.
@@ -32,15 +33,18 @@ git -C /Volumes/PK/BBF/Repos/bbf-command-hub pull
   Si un valor aparece en contexto: ADVIERTE, NO lo repitas, NO lo registres → rotar. `.env*` está en deny.
 - **Una sola fuente de verdad por dato:** dominio, locales, nombre y contacto SOLO en `src/config/site.ts`.
 - **Nada que exija servidor** (lista en `DEPLOY_CONTRACT.md` §5). Cambiarlo es firma de Zavala (D-BBW-03).
-- **Guardias activas desde el día 0:** `pnpm check` (typecheck + lint + guardias de color, tipografía y pesos).
+- **Guardias activas desde el día 0:** `pnpm check` (typecheck + lint + guardias de color, tipografía, pesos y contenido).
   El pre-commit las ejecuta fail-closed. Escape por línea: `// COLOR-ALLOW:` / `// TYPO-ALLOW:` / `// WEIGHT-ALLOW:` con razón.
   Sin baseline: **cualquier** HEX o font-size/font-weight crudo fuera de `src/styles/tokens/primitives/` rompe el commit.
 - **Pesos por familia (fase 5):** las dos familias tienen ejes incompatibles (display 25–500, text 300–700). Todo `--bbf-weight-*` lleva
   familia y cae en su rango declarado; un componente pide `--bbf-type-<rol>-weight`, nunca un número (`docs/system/TYPOGRAPHY_WEIGHTS.md`).
-- **Contenido en su capa (fase 5):** los textos viven en `content/<locale>/…` y llegan por el puerto `src/content/` (`getPage`).
-  Cero literales en componentes. Solo locales publicados: crear `content/en/` = declarar EN (D-BBW-15). `docs/system/CONTENT_MODEL.md`.
-- **Sistema de diseño (fase 4, D-BBW-14):** todo valor deriva por fórmula desde una madre en `src/styles/tokens/primitives/`
-  (Eje A, `docs/design-system/`). Dos familias tipográficas y ni una más: display por Typekit (puerto), texto auto-hospedada.
+- **Contenido en su capa (fase 5, modelo granular fase 6a):** los textos viven en `content/<locale>/…` (`global.json` + `pages/`) y llegan por
+  el puerto `src/content/` (`getGlobal`, `getPage`). Cada texto su llave, por rol; esquema estricto (llave desconocida o HTML = error);
+  enlaces por llave de `site.links`; marcadores `[[PENDIENTE: …]]` hasta que haya copy. Cero literales en componentes. Solo locales
+  publicados: crear `content/en/` = declarar EN (D-BBW-15, la guardia lo bloquea). `docs/system/CONTENT_MODEL.md`.
+- **Sistema de diseño (fase 4, D-BBW-14; residuales resueltos fase 6a, D-BBW-16):** todo valor deriva por fórmula desde una madre en
+  `src/styles/tokens/primitives/` (Eje A, `docs/design-system/`). Lo que no cae en la fórmula se ajusta al peldaño más cercano; una
+  excepción exige valor + razón + registro en `docs/system/DESIGN_EXCEPTIONS.md` (hoy: EXC-BBW-01, tamaño del display). Dos familias tipográficas y ni una más: display por Typekit (puerto), texto auto-hospedada.
   Nombres de fuente SOLO en `primitives/typography.css`. `react/jsx-no-literals` activa: cero texto de negocio en componentes.
 - Prefijo de artefactos `BBW-`. Despachos y outputs viven en el hub: `repos/brandbrain-web/`.
 

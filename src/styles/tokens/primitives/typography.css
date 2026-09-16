@@ -1,5 +1,5 @@
 /**
- * primitives/typography.css — Tier 1 · TIPOGRAFÍA (D-BBW-14 · D-SBWEB-TOKENS · D-DS-AXIOMA-AGNOSTICO)
+ * primitives/typography.css — Tier 1 · TIPOGRAFÍA (D-BBW-14 · D-BBW-16 · D-SBWEB-TOKENS · D-DS-AXIOMA-AGNOSTICO)
  * ÚNICO archivo del repo donde puede aparecer un font-size/font-weight crudo (guardia: scripts/lint/check-typography-tokens.ts)
  * y ÚNICO sitio donde se escribe un nombre de familia tipográfica (criterio de éxito 4 del despacho de fase 4).
  *
@@ -15,9 +15,16 @@
  *   min(n) = text-min × 1.333^n                (móvil, todos los n)
  *   max(n) = text-max × φ^n  (n > 0)  ·  text-max × 1.333^n  (n < 0)   (los tamaños menores no encogen con φ)
  *   size(n) = clamp(min(n), min(n) + (max(n) − min(n)) × pendiente, max(n))    con pendiente = (100vw − vw-min) / (vw-max − vw-min)
- * Cambiar una madre o un ratio regenera toda la escala. Valores del N0 que NO caen en la escala: reportados en el output de fase 4, no forzados.
+ * Cambiar una madre o un ratio regenera toda la escala.
  *
- * CLASE (D-DOC-13): fórmula y ratios = estático · madres (min/max/vw), familias y rangos/pesos de eje = dinámico · archivo = plantilla.
+ * RESIDUALES DEL N0 RESUELTOS (D-BBW-16, fase 6a; tabla antes/después en OUTPUT-BBW-2026-09-16-fase6a §3):
+ *   · cuerpo 14→15 = paso 0 (madre) · nav 9.5→11.5 → paso −1 (10.5→11.3) · nav de la hoja 20→30 → paso 2 (comparado en su rango real
+ *     ≤ 780 px: 24.9→30.5, |Δ| ≤ 3.7 px) · display 62→124 = EXCEPCIÓN EXC-BBW-01 (bloque abajo).
+ *   · PENDIENTES DE ZAVALA (sin peldaño razonable, no ajustados; siguen provisionales en semantic/typography.css):
+ *     lead "Technologist" 24→49 (paso 2 = −20 % en escritorio; paso 3 = +30 %) · legal/estado 9→10 (paso −2 = 7.9→8.4 px, por debajo
+ *     del suelo de 9 px que el diseño respeta; paso −1 = +13…+20 %). Ver docs/system/DESIGN_EXCEPTIONS.md §2 (candidatas).
+ *
+ * CLASE (D-DOC-13): fórmula y ratios = estático · madres (min/max/vw), familias, rangos/pesos de eje y la excepción = dinámico · archivo = plantilla.
  */
 :root {
   /* ── Familias ───────────────────────────────────────────────────────────────────────────────── */
@@ -61,6 +68,20 @@
   --bbf-size-4: clamp(calc(var(--bbf-size-4-min) * 1px), calc(var(--bbf-size-4-min) * 1px + (var(--bbf-size-4-max) - var(--bbf-size-4-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-4-max) * 1px));
   --bbf-size-5: clamp(calc(var(--bbf-size-5-min) * 1px), calc(var(--bbf-size-5-min) * 1px + (var(--bbf-size-5-max) - var(--bbf-size-5-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-5-max) * 1px));
 
+  /* ── EXCEPCIÓN EXC-BBW-01 · tamaño del display (D-BBW-16 · registro: docs/system/DESIGN_EXCEPTIONS.md) ──────────────────────
+     VALOR: 62 → 124 px con pendiente propia 8.4vw (N0 §2.2: `min(clamp(62px, 8.4vw, 124px), 14.6vw)`), fuera de la escala
+     (cae entre el paso 4, 44→103, y el paso 5, 59→166: el display del diseño es ×2 de fluido, el cuerpo ×1.07).
+     RAZÓN: un titular de marca se calibra ópticamente, no matemáticamente; ahí el valor exacto es intención, no ruido (Zavala,
+     2026-09-16). Se conserva la pendiente del diseño y no la del sistema porque con la del sistema el display mediría 84 px a
+     738 px de ancho (+22 px sobre los 62 del diseño): no sería conservar el valor.
+     LO QUE NO ES TOKEN: el tope `14.6vw` del diseño es una guarda de ajuste al ancho (que la palabra quepa por debajo de ~425 px);
+     es responsabilidad del componente del titular (reserva de ancho, docs/system/TYPOGRAPHY_WEIGHTS.md §3), no un tamaño.
+     REGLA (D-BBW-16): toda excepción = valor + razón + registro. Una excepción sin razón escrita es un agujero. ────────────── */
+  --bbf-size-display-min: 62;
+  --bbf-size-display-max: 124;
+  --bbf-size-display-slope: 8.4vw;
+  --bbf-size-display: clamp(calc(var(--bbf-size-display-min) * 1px), var(--bbf-size-display-slope), calc(var(--bbf-size-display-max) * 1px));
+
   /* ── Pesos: DOS ESCALAS INCOMPATIBLES (hallazgo de fase 5, HAL-BBW-08). Cada familia tiene su propio eje `wght`:
      · display `modulator-vf`: el kit sirve 25–500 (medido en vivo 2026-09-16). Su máximo, 500, es lo que la web llama "medium":
        pedir 700 sobre ella se RECORTA en silencio al máximo.
@@ -87,14 +108,18 @@
   --bbf-weight-text-regular: 400;
   --bbf-weight-text-medium: 500;
 
-  /* ── Interletrado: madre × N (N0 §2.2: 0.12 / 0.24 / 0.28 / 0.32 em caen en la escala; 0.01 / 0.15 / 0.34 NO → reportados) ── */
+  /* ── Interletrado: madre × N. Los 7 valores del N0 (§2.2) resueltos (D-BBW-16, empate → peldaño superior):
+     display 0.01 → ×0 (Δ −0.01em = 1.2 px por glifo a 124 px) · hoja 0.12 → ×3 · claims 0.15 → ×4 (+0.01) · legal 0.24 → ×6 ·
+     nav 0.28 / 0.32 → ×7 / ×8 · estado 0.34 → ×9 (+0.02em = 0.2 px a 10 px). Ningún residual queda sin peldaño. ── */
   --bbf-tracking-base: 0.04em;
+  --bbf-tracking-0: calc(var(--bbf-tracking-base) * 0);
   --bbf-tracking-1: var(--bbf-tracking-base);
   --bbf-tracking-3: calc(var(--bbf-tracking-base) * 3);
   --bbf-tracking-4: calc(var(--bbf-tracking-base) * 4);
   --bbf-tracking-6: calc(var(--bbf-tracking-base) * 6);
   --bbf-tracking-7: calc(var(--bbf-tracking-base) * 7);
   --bbf-tracking-8: calc(var(--bbf-tracking-base) * 8);
+  --bbf-tracking-9: calc(var(--bbf-tracking-base) * 9);
 
   /* ── Interlineado: los dos valores del N0 (display 1.02, mono 1); sin fórmula posible entre dos puntos → madres ── */
   --bbf-leading-none: 1;

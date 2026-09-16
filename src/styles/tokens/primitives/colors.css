@@ -12,6 +12,11 @@
  *   Cambiar una madre regenera su rampa completa (axioma agnóstico). Desviaciones vs. valores crudos del N0: aceptadas por
  *   forma B pura y REPORTADAS en el output del turno de fase 4 (no se corrigen a mano).
  *
+ * FAMILIA `aqua` (tintes de las partículas del N0, sin madre): RETIRADA como familia (D-BBW-16, fase 6a). Sus 7 tintes entran por
+ *   la rampa `mint` existente, al paso más cercano en L: rgb(236,252,250) → mint-50 · rgb(212,236,234) / (214,246,244) /
+ *   (206,240,238) → mint-100 · rgb(160,222,220) / (140,215,215) → mint-200 · rgb(90,170,180) → mint-400. Distancia OKLab
+ *   compuesta sobre negro a la alfa de cada tinte: 0.009–0.035 (umbral de detección ≈ 0.02; partículas de 1–21 px, difuminadas y en
+ *   movimiento). Las alfas (0.04–0.8) son parámetro de opacidad del componente, no color: la matriz trata opacity como enum (fase 6b).
  * CLASE (D-DOC-13): la fórmula y los extremos = estático · las tres madres = dinámico · el archivo = plantilla.
  */
 :root {

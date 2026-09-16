@@ -1,7 +1,16 @@
 {
-  "title": "Página en construcción",
-  "intro": [
-    "Este sitio se está construyendo. El contenido de la página llegará con la siguiente fase.",
-    "Este texto es un marcador de posición que demuestra que el contenido vive fuera de los componentes."
+  "meta": {
+    "title": "[[PENDIENTE: título del documento, pestaña del navegador y buscadores]]",
+    "description": "[[PENDIENTE: descripción para buscadores, una o dos frases]]"
+  },
+  "sections": [
+    {
+      "type": "hero",
+      "id": "hero",
+      "display": "[[PENDIENTE: palabra de marca del titular]]",
+      "lead": "[[PENDIENTE: línea que acompaña al titular]]",
+      "claimPrimary": "[[PENDIENTE: primera afirmación del lockup]]",
+      "claimSecondary": "[[PENDIENTE: segunda afirmación del lockup]]"
+    }
   ]
 }

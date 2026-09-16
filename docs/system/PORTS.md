@@ -3,12 +3,12 @@ id: BBW-PORTS
 title: "Registro de puertos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.2
+version: 1.3
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
 updated: 2026-09-16
-verified_against_code: 2026-09-16@feat/fase5-nomenclatura-pesos-y-capa-de-contenido (v1.2: puerto de contenido declarado con su adaptador de archivos, src/content; v1.1: puerto de tipografía corregido contra la documentación oficial de Adobe Fonts, leída en vivo 2026-09-16)
+verified_against_code: 2026-09-16@feat/fase6a-residuales-y-modelo-de-contenido (v1.3: enlaces salientes declarados en site.ts, que NO son puertos; v1.2: puerto de contenido declarado con su adaptador de archivos, src/content; v1.1: puerto de tipografía corregido contra la documentación oficial de Adobe Fonts, leída en vivo 2026-09-16)
 supersedes: []
 superseded_by: null
 related: [BBW-DEPLOY-CONTRACT, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-10, D-BBW-13, D-BBW-14]
@@ -34,10 +34,19 @@ tags: [puertos, actores-externos, adaptadores, brandbrain-web]
 
 **Lo que NO es un puerto:** la familia de texto (Space Grotesk) se auto-hospeda desde el build (`src/styles/fonts/text.ts`, OFL 1.1): ningún actor externo en runtime, por eso no tiene fila.
 
+## Enlaces salientes (no son puertos)
+
+`src/config/site.ts` declara `site.links` (fase 6a): destinos a los que la web **enlaza** (`<a href>`), nombrados por rol. Un enlace saliente
+no es un actor externo: la página no le hace ninguna petición en runtime, no depende de que responda y no hay adaptador que cambiar. Por eso
+no tienen fila arriba, pero se listan aquí para que la comprobación del criterio 5(b) (hosts que aparecen en `src/`) siga siendo un
+subconjunto de lo declarado: `sivarbrains.com` (agencia) · `branddesignerpro.com` (trabajos con IA) · `www.linkedin.com` · `github.com` ·
+`mailto:` al buzón oficial. El contenido (`content/`) nunca escribe una URL: referencia la llave y el puerto de contenido la valida.
+Valores del inventario N0 §2.4, pendientes de confirmación por Zavala (P-BBW-19).
+
 ## Previstos, sin fila todavía (no se inventan)
 
 - **Medios** (N0 §5): `public/` servido por el host; alternativa origen externo (R2). Sin decisión firmada → sin fila.
 - **Analítica**: descartado por el N0 (sin necesidad medida).
 
 ---
-*BBW-PORTS v1.2 · `docs/system/PORTS.md` · 2026-09-16 (v1.0 mismo día; v1.1 corrige el puerto de tipografía contra la doc oficial de Adobe; v1.2 añade el puerto de contenido, fase 5) · nace en la fase 4 (`DESPACHO-BBW-2026-09-16-fase4-tokens-y-sistema-de-diseno`)*
+*BBW-PORTS v1.3 · `docs/system/PORTS.md` · 2026-09-16 (v1.0 mismo día; v1.1 corrige el puerto de tipografía contra la doc oficial de Adobe; v1.2 añade el puerto de contenido, fase 5; v1.3 enlaces salientes, fase 6a) · nace en la fase 4 (`DESPACHO-BBW-2026-09-16-fase4-tokens-y-sistema-de-diseno`)*
