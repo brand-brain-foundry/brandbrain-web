@@ -1,0 +1,17 @@
+/**
+ * primitives/shadows.css — Tier 1 · SOMBRAS (D-93 vía doctrina copiada; D-DS-AXIOMA-AGNOSTICO)
+ * Composición por fórmula: color = tinta del sistema con alfa (color-mix), desplazamiento y desenfoque = pasos de la escala de
+ * espaciado. N0 §2.2: `0 2px {16,20,24,40}px rgba(0,0,0,.9–.95)` → offset ×½, blur ×4/×5/×6/×10 (caen); 14 / 18 / 22 px NO caen → reportados.
+ * CLASE (D-DOC-13): fórmula = estático · alfas (0.9 / 0.95) = dinámico · archivo = plantilla.
+ */
+:root {
+  --bbf-shadow-alpha-strong: 95%;
+  --bbf-shadow-alpha-soft: 90%;
+  --bbf-shadow-ink-strong: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-strong), transparent);
+  --bbf-shadow-ink-soft: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-soft), transparent);
+
+  --bbf-shadow-sm: 0 var(--bbf-space-half) var(--bbf-space-4) var(--bbf-shadow-ink-strong);
+  --bbf-shadow-md: 0 var(--bbf-space-half) var(--bbf-space-5) var(--bbf-shadow-ink-strong);
+  --bbf-shadow-lg: 0 var(--bbf-space-half) var(--bbf-space-6) var(--bbf-shadow-ink-soft);
+  --bbf-shadow-xl: 0 var(--bbf-space-1) var(--bbf-space-10) var(--bbf-shadow-ink-soft);
+}

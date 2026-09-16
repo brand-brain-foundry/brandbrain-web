@@ -1,0 +1,28 @@
+/**
+ * semantic/typography.css — Tier 2 · TIPOGRAFÍA POR ROL
+ * Roles que la landing necesitará (N0 §2.2/§2.3): display (la palabra de marca), lead (línea monoespaciada/“Technologist”),
+ * body (claims), small (nav), micro (legal/estado). Cada rol apunta a un paso de la escala derivada; ningún tamaño se escribe aquí.
+ * CLASE (D-DOC-13): estático (roles); paso asignado = dinámico.
+ */
+:root {
+  --bbf-type-display-family: var(--bbf-font-display);
+  --bbf-type-display-size: var(--bbf-size-4);
+  --bbf-type-display-leading: var(--bbf-leading-display);
+  --bbf-type-display-tracking: var(--bbf-tracking-1);
+
+  --bbf-type-lead-family: var(--bbf-font-text);
+  --bbf-type-lead-size: var(--bbf-size-2);
+  --bbf-type-lead-leading: var(--bbf-leading-none);
+  --bbf-type-lead-tracking: var(--bbf-tracking-7);
+
+  --bbf-type-body-family: var(--bbf-font-text);
+  --bbf-type-body-size: var(--bbf-size-0);
+  --bbf-type-body-weight: var(--bbf-weight-regular);
+  --bbf-type-body-tracking: var(--bbf-tracking-4);
+
+  --bbf-type-small-size: var(--bbf-size-n1);
+  --bbf-type-small-tracking: var(--bbf-tracking-7);
+
+  --bbf-type-micro-size: var(--bbf-size-n2);
+  --bbf-type-micro-tracking: var(--bbf-tracking-6);
+}

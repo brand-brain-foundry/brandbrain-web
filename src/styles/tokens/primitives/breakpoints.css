@@ -1,0 +1,10 @@
+/**
+ * primitives/breakpoints.css — Tier 1 · PUNTOS DE CORTE
+ * N0 §2.2: UN solo breakpoint, `max-width: 780px` (burger/hoja vs. nav). Se declara como madre.
+ * LIMITACIÓN CONOCIDA: una custom property NO puede usarse dentro de `@media (...)` (CSS no lo permite). Quien escriba la
+ * media query en fase 6 tendrá que repetir el literal o introducir `@custom-media` (PostCSS). Esa elección es de fase 6 y se
+ * registra aquí para que no se tome por descuido. CLASE (D-DOC-13): dinámico (el valor) · la nota = estático.
+ */
+:root {
+  --bbf-bp-nav: 780px;
+}

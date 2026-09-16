@@ -1,0 +1,28 @@
+/**
+ * primitives/spacing.css — Tier 1 · ESPACIADO (D-SPACING-SCALE vía doctrina copiada, D-DS-AXIOMA-AGNOSTICO)
+ * Madre `--bbf-space-base` + `calc(× N)`. El N0 (§2.2) no trae escala (23 clamp() distintos): se adopta la madre de la
+ * doctrina (4px) y cada valor del N0 se mapea al paso más cercano en el output de fase 4 (los que no caen, reportados).
+ * Áreas táctiles del N0: 44 / 48 / 56 px = ×11 / ×12 / ×14 → caen exactas.
+ * CLASE (D-DOC-13): fórmula = estático · madre = plantilla (valor de la casa, no de la marca) · archivo = plantilla.
+ */
+:root {
+  --bbf-space-base: 4px;
+  --bbf-space-half: calc(var(--bbf-space-base) / 2);
+  --bbf-space-1: var(--bbf-space-base);
+  --bbf-space-2: calc(var(--bbf-space-base) * 2);
+  --bbf-space-3: calc(var(--bbf-space-base) * 3);
+  --bbf-space-4: calc(var(--bbf-space-base) * 4);
+  --bbf-space-5: calc(var(--bbf-space-base) * 5);
+  --bbf-space-6: calc(var(--bbf-space-base) * 6);
+  --bbf-space-7: calc(var(--bbf-space-base) * 7);
+  --bbf-space-8: calc(var(--bbf-space-base) * 8);
+  --bbf-space-9: calc(var(--bbf-space-base) * 9);
+  --bbf-space-10: calc(var(--bbf-space-base) * 10);
+  --bbf-space-11: calc(var(--bbf-space-base) * 11);
+  --bbf-space-12: calc(var(--bbf-space-base) * 12);
+  --bbf-space-14: calc(var(--bbf-space-base) * 14);
+  --bbf-space-16: calc(var(--bbf-space-base) * 16);
+  --bbf-space-18: calc(var(--bbf-space-base) * 18);
+  --bbf-space-20: calc(var(--bbf-space-base) * 20);
+  --bbf-space-24: calc(var(--bbf-space-base) * 24);
+}

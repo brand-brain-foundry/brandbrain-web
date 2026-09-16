@@ -1,0 +1,20 @@
+/**
+ * semantic/colors.css — Tier 2 · COLOR POR ROL (D-SBWEB-SEMANTIC-MATRIX vía doctrina copiada)
+ * Nombres por ROL, nunca por valor. Solo lo que la landing necesitará (N0 §2.3): una superficie (tinta), texto sobre ella en
+ * cuatro niveles, acento y su brillo. Nada especulativo: sin surface alternas, sin feedback, sin bordes.
+ * Los niveles de texto se toman de la RAMPA (L), no de alfas: el N0 usaba rgba() sobre negro, que compuesto equivale a un paso
+ * de la rampa mint (tabla de mapeo con residuales en el output de fase 4).
+ * CLASE (D-DOC-13): estático (los roles); a qué paso apunta cada rol = dinámico.
+ */
+:root {
+  --bbf-surface-base: var(--bbf-color-ink-900);
+
+  --bbf-text-on-base: var(--bbf-color-mint-100);
+  --bbf-text-on-base-secondary: var(--bbf-color-mint-200);
+  --bbf-text-on-base-muted: var(--bbf-color-mint-400);
+  --bbf-text-on-base-faint: var(--bbf-color-mint-700);
+
+  --bbf-accent: var(--bbf-color-accent-300);
+  --bbf-accent-glow: var(--bbf-color-accent-400);
+  --bbf-accent-glow-soft: var(--bbf-color-accent-700);
+}

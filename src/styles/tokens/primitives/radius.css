@@ -1,0 +1,8 @@
+/**
+ * primitives/radius.css — Tier 1 · RADIO
+ * El N0 (§2.2) trae UN solo valor: `border-radius: 50%` ×53 (todo es círculo). No hay escala que derivar: una madre sin pasos.
+ * CLASE (D-DOC-13): plantilla (el archivo); el valor es de la marca (dinámico).
+ */
+:root {
+  --bbf-radius-full: 50%;
+}

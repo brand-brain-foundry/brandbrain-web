@@ -1,0 +1,31 @@
+/**
+ * primitives/motion.css — Tier 1 · MOVIMIENTO (D-98 / D-MOTION-SCALE vía doctrina copiada; D-DS-AXIOMA-AGNOSTICO)
+ * Madre de duración + `calc(× k)`; madre de escalonado + `calc(× N)`; una curva firma (ancla, no derivable).
+ * N0 §2.2: 360 / 720 / 2400 ms = ×1.5 / ×3 / ×10 (caen); 340 / 420 / 460 / 520 / 620 / 640 / 900 / 1000 / 1100 / 2000 ms NO caen → reportados.
+ * Escalonado del N0: +80 ms (cae, ×1) y +110 ms (no cae → reportado). Easing firma: `cubic-bezier(.16,1,.3,1)` ×25 (la curva de toda la UI).
+ * `prefers-reduced-motion`: se colapsa la MADRE, y con ella toda la escala (no se anula pieza a pieza).
+ * CLASE (D-DOC-13): fórmula y override de accesibilidad = estático · madres (240 ms, 80 ms) = plantilla · curva firma = dinámico.
+ */
+:root {
+  --bbf-duration-base: 240ms;
+  --bbf-duration-fast: var(--bbf-duration-base);
+  --bbf-duration-medium: calc(var(--bbf-duration-base) * 1.5);
+  --bbf-duration-slow: calc(var(--bbf-duration-base) * 3);
+  --bbf-duration-ambient: calc(var(--bbf-duration-base) * 10);
+
+  --bbf-stagger-base: 80ms;
+  --bbf-stagger-1: var(--bbf-stagger-base);
+  --bbf-stagger-2: calc(var(--bbf-stagger-base) * 2);
+  --bbf-stagger-3: calc(var(--bbf-stagger-base) * 3);
+
+  --bbf-ease-signature: cubic-bezier(0.16, 1, 0.3, 1);
+  --bbf-ease-linear: linear;
+  --bbf-ease-in-out: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --bbf-duration-base: 0.01ms;
+    --bbf-stagger-base: 0ms;
+  }
+}
