@@ -1,6 +1,6 @@
 #!/bin/bash
 # pre-commit — brandbrain-web (D-SEC-04 + D-BBW-06)
-# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia de pesos por familia (fase 5).
+# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia de pesos por familia (fase 5). 5) guardia de contenido (fase 6a).
 # Semántica FAIL-CLOSED: error del tool = commit cancelado. Único skip: gitleaks ausente (aviso).
 # gitleaks 8.30.x: --exit-code 2 = leaks; 0 = limpio; otro = error del tool. Sin -q (bug gitleaks).
 
@@ -58,15 +58,29 @@ fi
 # Guardia propia del repo (no es copia por contrato): pesos por familia y rango (docs/system/TYPOGRAPHY_WEIGHTS.md).
 pnpm exec tsx scripts/lint/check-weight-tokens.ts
 WEIGHT_STATUS=$?
-if [ "$WEIGHT_STATUS" -eq 0 ]; then
-  exit 0
-elif [ "$WEIGHT_STATUS" -eq 1 ]; then
+if [ "$WEIGHT_STATUS" -eq 1 ]; then
   echo "" >&2
   echo "[pre-commit] guardia de pesos: peso sin familia, fuera de rango o wght crudo — commit cancelado" >&2
   echo "  Usar --bbf-weight-<familia>-* dentro del rango declarado, o // WEIGHT-ALLOW: <razón> si es legítimo." >&2
   exit 1
-else
+elif [ "$WEIGHT_STATUS" -ne 0 ]; then
   echo "" >&2
   echo "[pre-commit] FAIL-CLOSED: error de la guardia de pesos (exit $WEIGHT_STATUS) — commit cancelado" >&2
+  exit 1
+fi
+
+# Guardia propia del repo (fase 6a): el árbol completo de content/ cumple el esquema (docs/system/CONTENT_MODEL.md).
+pnpm exec tsx scripts/lint/check-content.ts
+CONTENT_STATUS=$?
+if [ "$CONTENT_STATUS" -eq 0 ]; then
+  exit 0
+elif [ "$CONTENT_STATUS" -eq 1 ]; then
+  echo "" >&2
+  echo "[pre-commit] guardia de contenido: content/ no cumple el modelo — commit cancelado" >&2
+  echo "  El mensaje nombra la llave exacta; corregir el JSON (nunca el esquema para que encaje)." >&2
+  exit 1
+else
+  echo "" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia de contenido (exit $CONTENT_STATUS) — commit cancelado" >&2
   exit 1
 fi
