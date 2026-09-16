@@ -3,12 +3,12 @@ id: BBW-PORTS
 title: "Registro de puertos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.0
+version: 1.1
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
 updated: 2026-09-16
-verified_against_code: 2026-09-16@feat/fase4-tokens-y-sistema-de-diseno
+verified_against_code: 2026-09-16@feat/fase4-tokens-y-sistema-de-diseno (v1.1: puerto de tipografía corregido contra la documentación oficial de Adobe Fonts, leída en vivo 2026-09-16)
 supersedes: []
 superseded_by: null
 related: [BBW-DEPLOY-CONTRACT, BBW-PLAN-CONSTRUCCION, D-BBW-10, D-BBW-13, D-BBW-14]
@@ -28,7 +28,7 @@ tags: [puertos, actores-externos, adaptadores, brandbrain-web]
 | Puerto | Actor externo (hoy) | Decisión | Adaptador actual (dónde vive) | Hosts en runtime | Alternativa prevista | Qué exigiría cambiar |
 |---|---|---|---|---|---|---|
 | **Despliegue** | Cloudflare (conectado al repo de GitHub por su aplicación; sin credenciales en el repo) | D-BBW-10 | Panel de Cloudflare. El repo solo cumple el contrato `pnpm build` → `out/` (`DEPLOY_CONTRACT.md`) | ninguno en `src/` (el host sirve `out/`) | Cualquier host estático (Netlify, GitHub Pages, otro CDN) | Cambiar de panel y el registro DNS. **Cero cambios en el repo.** Estado: firmado, **no conectado** (cutover = fase 8). |
-| **Tipografía display** | Adobe Typekit, kit `ntm5vqh` (kit de Zavala; el identificador no es secreto, el kit está atado a una lista de dominios) | D-BBW-14 | `src/styles/fonts/display.ts` (id del kit, URL de la hoja, hosts) → `<link>` en `src/app/[locale]/layout.tsx`. Familias nombradas solo en el token `--bbf-font-display` | `https://use.typekit.net` · `https://p.typekit.net` | Auto-hospedar el display si un día se licencia (mismo mecanismo que el texto: `next/font/local`) | Sustituir `display.ts` por un `localFont` y cambiar el valor del token `--bbf-font-display`. Nada más. **`[ZAVALA-MANUAL]`: dar de alta `brandbrainfoundry.com` en el kit** antes del cutover; comprobación: `curl -sI -H 'Referer: https://brandbrainfoundry.com/' https://use.typekit.net/ntm5vqh.css` → 200 y la fuente carga en el navegador desde el dominio de producción. Fase 7: la política de seguridad de contenido debe permitir los dos hosts. |
+| **Tipografía display** | Adobe Fonts (Typekit), proyecto web `ntm5vqh` (proyecto de Zavala; el identificador no es secreto). **Sin lista de dominios:** el embed funciona en cualquier sitio, sin límite de webs (Adobe, *Domains*, helpx.adobe.com/fonts/web/web-design-and-development/domains.html, 2022-11-16: *"You don't need to specify a list of domain names for your web projects"*). No hay tarea manual de alta de dominio. | D-BBW-14 | `src/styles/fonts/display.ts` (id del proyecto, URL de la hoja, hosts) → `<link>` en `src/app/[locale]/layout.tsx`. Familias nombradas solo en el token `--bbf-font-display` | `https://use.typekit.net` · `https://p.typekit.net` | **Cambiar de familia display** a una cuya licencia permita auto-hospedar (OFL u otra licencia web perpetua comprada a la fundición), cargada como el texto (`next/font/local`). **Auto-hospedar los archivos de Adobe NO es alternativa:** la licencia web de Adobe Fonts exige el embed code y no permite alojamiento local (Adobe, *Web fonts from Adobe Fonts*, helpx.adobe.com/fonts/web/font-licensing/webfont-licensing.html, 2025-11-14: *"Adobe doesn't offer the ability to host fonts locally … If local hosting (also known as self-hosting) is needed, you must purchase a license from the foundry or from an authorized reseller"*; *"The web font license requires that fonts be added to your website by the embed code provided"*). | Sustituir `display.ts` por un `localFont` sobre la familia nueva y cambiar el valor del token `--bbf-font-display`. Nada más. Fase 7: la política de seguridad de contenido debe permitir los dos hosts. Comprobación en el cutover: desde el dominio de producción, `document.fonts.load('400 20px "modulator-vf"')` → `loaded`. |
 | **Contacto** | Ninguno en runtime: `mailto:` al buzón oficial | D-BBW-13(a) | `site.contact.mailto` en `src/config/site.ts` (fuente única) | ninguno | Formulario → exige un endpoint fuera del repo (Worker/función que verifique y envíe); el repo solo conocería una URL pública | Añadir el endpoint como adaptador con su fila aquí, y una decisión firmada (D-BBW-09: "por visitante o por segundo"). |
 
 **Lo que NO es un puerto:** la familia de texto (Space Grotesk) se auto-hospeda desde el build (`src/styles/fonts/text.ts`, OFL 1.1): ningún actor externo en runtime, por eso no tiene fila.
@@ -40,4 +40,4 @@ tags: [puertos, actores-externos, adaptadores, brandbrain-web]
 - **Analítica**: descartado por el N0 (sin necesidad medida).
 
 ---
-*BBW-PORTS v1.0 · `docs/system/PORTS.md` · 2026-09-16 · nace en la fase 4 (`DESPACHO-BBW-2026-09-16-fase4-tokens-y-sistema-de-diseno`)*
+*BBW-PORTS v1.1 · `docs/system/PORTS.md` · 2026-09-16 (v1.0 mismo día; v1.1 corrige el puerto de tipografía contra la doc oficial de Adobe) · nace en la fase 4 (`DESPACHO-BBW-2026-09-16-fase4-tokens-y-sistema-de-diseno`)*
