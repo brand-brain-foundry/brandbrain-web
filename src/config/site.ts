@@ -21,7 +21,7 @@ const contactMailto = `mailto:${contactEmail}`;
 /**
  * Enlaces de identidad (a dónde apunta la web fuera de sí misma), nombrados por ROL, nunca por lo que muestran.
  * Destinos salientes: NO son actores externos (ninguna petición en runtime desde la página) → no son puertos (PORTS.md §"Enlaces salientes").
- * Valores tomados del inventario del N0 (OUTPUT-BBW-2026-09-16-N0 §2.4, export de diseño): pendientes de confirmación por Zavala (P-BBW-19).
+ * Valores tomados del inventario del N0 (OUTPUT-BBW-2026-09-16-N0 §2.4) y CONFIRMADOS COMO DEFINITIVOS por Zavala el 2026-09-16 (P-BBW-19, fase 6a-bis).
  */
 const links = {
   /** la agencia hermana (hoy: sivarbrains.com) */

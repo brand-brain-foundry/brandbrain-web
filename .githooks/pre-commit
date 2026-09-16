@@ -55,13 +55,13 @@ elif [ "$TYPO_STATUS" -ne 0 ]; then
   exit 1
 fi
 
-# Guardia propia del repo (no es copia por contrato): pesos por familia y rango (docs/system/TYPOGRAPHY_WEIGHTS.md).
+# Guardia propia del repo (no es copia por contrato): pesos por familia y rango (docs/system/TYPOGRAPHY_WEIGHTS.md) + escala de tamaño contra el suelo y consumo de la escala por los roles (fase 6a-bis, D-BBW-17/D-BBW-18).
 pnpm exec tsx scripts/lint/check-weight-tokens.ts
 WEIGHT_STATUS=$?
 if [ "$WEIGHT_STATUS" -eq 1 ]; then
   echo "" >&2
-  echo "[pre-commit] guardia de pesos: peso sin familia, fuera de rango o wght crudo — commit cancelado" >&2
-  echo "  Usar --bbf-weight-<familia>-* dentro del rango declarado, o // WEIGHT-ALLOW: <razón> si es legítimo." >&2
+  echo "[pre-commit] guardia tipográfica propia: peso sin familia / fuera de rango / wght crudo, o tamaño bajo el suelo / fuera de la escala — commit cancelado" >&2
+  echo "  Pesos: --bbf-weight-<familia>-* dentro del rango declarado (o // WEIGHT-ALLOW: <razón>). Tamaños: todo rol consume var(--bbf-size-*) y nada baja de --bbf-text-floor." >&2
   exit 1
 elif [ "$WEIGHT_STATUS" -ne 0 ]; then
   echo "" >&2

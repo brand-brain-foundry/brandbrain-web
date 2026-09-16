@@ -3,12 +3,12 @@ id: BBW-TYPOGRAPHY-WEIGHTS
 title: "Pesos por familia y animación de peso del titular — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.0
+version: 1.1
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
 updated: 2026-09-16
-verified_against_code: 2026-09-16@feat/fase5-nomenclatura-pesos-y-capa-de-contenido (rangos medidos: kit ntm5vqh `modulator-vf` wght 25–500 en vivo 2026-09-16; Space Grotesk variable wght 300–700, archivo auto-hospedado)
+verified_against_code: 2026-09-16@feat/fase6a-bis-escala-tipografica (guardia R5/R6 demostrada fallando y pasando; rangos medidos: kit ntm5vqh `modulator-vf` wght 25–500 en vivo 2026-09-16; Space Grotesk variable wght 300–700, archivo auto-hospedado)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-14, D-DS-AXIOMA-AGNOSTICO]
@@ -45,7 +45,7 @@ resuelve el peso por familia**.
 **Guardias (dos, complementarias):** `scripts/lint/check-typography-tokens.ts` (copia por contrato, CONTRATO-04) bloquea
 `font-weight: <número>` fuera de primitivos; `scripts/lint/check-weight-tokens.ts` (propia del repo, fase 5) exige familia en todo
 `--bbf-weight-*`, comprueba que cada valor cae en el rango de su familia, que el descriptor de `text.ts` coincide con el rango del token,
-y bloquea `wght` numérico crudo en `font-variation-settings`. Ambas corren en `pnpm guard` y en el pre-commit (fail-closed).
+y bloquea `wght` numérico crudo en `font-variation-settings`; **desde la fase 6a-bis (D-BBW-17 · D-BBW-18) la misma guardia propia cubre la escala de tamaño**: cada paso y excepción del canon evaluados contra el suelo `--bbf-text-floor` en ambos polos (R5) y cada `--bbf-type-<rol>-size` obligado a consumir un `--bbf-size-*` del canon (R6), sin guardia nueva (regla de la segunda necesidad, D-DOC-13 §3). Ambas corren en `pnpm guard` y en el pre-commit (fail-closed).
 
 ## §3 — Restricciones para la animación de peso del titular (fase 6 la construye; esto la acota)
 

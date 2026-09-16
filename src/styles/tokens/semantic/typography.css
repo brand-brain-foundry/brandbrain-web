@@ -1,15 +1,21 @@
 /**
  * semantic/typography.css — Tier 2 · TIPOGRAFÍA POR ROL (D-SBWEB-SEMANTIC-MATRIX como patrón: concepto = ROL de uso; propiedad =
  * aspecto CSS: family / size / weight / leading / tracking).
- * Roles (N0 §2.2/§2.3): display (la palabra de marca), lead (la línea que acompaña al display), body (claims), label (nav: texto
- * corto en mayúsculas con interletrado), menu (los mismos enlaces en la hoja a pantalla completa, ≤ 780 px), legal (legal/estado).
+ * Roles (N0 §2.2/§2.3): display (la palabra de marca), lead (la línea que acompaña al display), body (texto corrido: el paso cero de
+ * la escala, D-BBW-17; hoy sin consumidor visible, lo traerán los artículos), claim (las dos frases de la landing, un paso por debajo
+ * del cuerpo), label (nav: texto corto en mayúsculas con interletrado), menu (los mismos enlaces en la hoja a pantalla completa,
+ * ≤ 780 px), legal (legal/estado).
  * Fase 5 (F1): `small` → `label` y `micro` → `legal`: nombraban la MAGNITUD del valor, no la intención. Cada rol apunta a un paso
  * de la escala y a un peso DE SU FAMILIA: un componente pide `--bbf-type-<rol>-weight`, nunca un número (las dos familias tienen
  * escalas de peso incompatibles, primitives/typography.css). El rol display expone además los dos extremos de su animación
  * (`-weight-from` / `-weight-to`, primitives/motion.css): con movimiento reducido ambos valen el reposo.
  * Fase 6a (D-BBW-16): display-size → EXC-BBW-01 (`--bbf-size-display`, excepción registrada) · display-tracking → ×0 · menu nace
- * con el residual de la hoja (paso 2, tracking ×3). PROVISIONALES, pendientes de Zavala (sin peldaño razonable): lead-size y
- * legal-size conservan la asignación de la fase 4 hasta la firma (docs/system/DESIGN_EXCEPTIONS.md §2).
+ * con el residual de la hoja (paso 2, tracking ×3).
+ * Fase 6a-bis (D-BBW-17 · D-BBW-18): escala re-anclada (18 → 20 px, 1,2 / 1,25). Los claims que eran `body` en paso 0 pasan a ser el
+ * rol `claim` en paso −1 (cambian de nombre, no de medida: 15 → 16 frente a 14 → 15 del diseño); `body` queda como texto corrido en
+ * paso 0. `label` y `legal` suben al paso −2 (12,5 → 12,8) por el suelo de legibilidad; `legal` deja de ser provisional (HAL-BBW-09,
+ * parte legal, cerrado). `lead` SIGUE PROVISIONAL: no cae en ningún paso con ningún juego de anclajes (docs/system/DESIGN_EXCEPTIONS.md §2).
+ * Todo `--bbf-type-<rol>-size` consume un `--bbf-size-*` del canon (guardia R6): ningún tamaño escrito a mano.
  * CLASE (D-DOC-13): estático (roles y propiedades); paso y peso asignados = dinámico.
  */
 :root {
@@ -22,18 +28,25 @@
   --bbf-type-display-tracking: var(--bbf-tracking-0);
 
   --bbf-type-lead-family: var(--bbf-font-text);
-  --bbf-type-lead-size: var(--bbf-size-2); /* PROVISIONAL (fase 4): diseño 24→49, paso 2 = −20 % en escritorio → candidata EXC, Zavala */
+  --bbf-type-lead-size: var(--bbf-size-2); /* PROVISIONAL: diseño 24→49 no cae en ningún paso (n2 = +15 % a 706 px, −36 % a 1440) → candidata EXC-BBW-02, Zavala */
   --bbf-type-lead-weight: var(--bbf-weight-text-regular);
   --bbf-type-lead-leading: var(--bbf-leading-none);
   --bbf-type-lead-tracking: var(--bbf-tracking-7);
 
+  /* texto corrido: paso cero de la escala (18 → 20 px). Sin interletrado: el ×4 era de los claims y se va con ellos. */
   --bbf-type-body-family: var(--bbf-font-text);
   --bbf-type-body-size: var(--bbf-size-0);
   --bbf-type-body-weight: var(--bbf-weight-text-regular);
-  --bbf-type-body-tracking: var(--bbf-tracking-4);
+  --bbf-type-body-tracking: var(--bbf-tracking-0);
+
+  /* claims de la landing: un paso por debajo del cuerpo (15 → 16; diseño 14 → 15) */
+  --bbf-type-claim-family: var(--bbf-font-text);
+  --bbf-type-claim-size: var(--bbf-size-n1);
+  --bbf-type-claim-weight: var(--bbf-weight-text-regular);
+  --bbf-type-claim-tracking: var(--bbf-tracking-4);
 
   --bbf-type-label-family: var(--bbf-font-text);
-  --bbf-type-label-size: var(--bbf-size-n1);
+  --bbf-type-label-size: var(--bbf-size-n2);
   --bbf-type-label-weight: var(--bbf-weight-text-regular);
   --bbf-type-label-tracking: var(--bbf-tracking-7);
 
@@ -43,7 +56,7 @@
   --bbf-type-menu-tracking: var(--bbf-tracking-3);
 
   --bbf-type-legal-family: var(--bbf-font-text);
-  --bbf-type-legal-size: var(--bbf-size-n2); /* PROVISIONAL (fase 4): diseño 9→10, paso −2 = 7.9→8.4 px bajo el suelo de 9 px → Zavala */
+  --bbf-type-legal-size: var(--bbf-size-n2);
   --bbf-type-legal-weight: var(--bbf-weight-text-regular);
   --bbf-type-legal-tracking: var(--bbf-tracking-6);
 }
