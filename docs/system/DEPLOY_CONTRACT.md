@@ -3,16 +3,16 @@ id: BBW-DEPLOY-CONTRACT
 title: "Contrato de puerto de despliegue — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.0
+version: 1.1
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-15
-updated: 2026-09-15
-verified_against_code: 2026-09-15@chore/bootstrap
+updated: 2026-09-16
+verified_against_code: 2026-09-16@feat/fase4-tokens-y-sistema-de-diseno (contrato de puerto sin cambios desde 2026-09-15; solo cambia el actor)
 supersedes: []
 superseded_by: null
-related: [D-BBW-02, D-BBW-03, D-BBW-04, D-BBW-05, D-BBW-07]
-summary: "Qué produce este repo, qué exige de cualquier host y qué NO vive aquí. El hosting es un puerto intercambiable: migrar de proveedor = cambiar de panel + un registro en Cloudflare, cero cambios de código."
+related: [D-BBW-02, D-BBW-03, D-BBW-04, D-BBW-05, D-BBW-07, D-BBW-09, D-BBW-10, D-BBW-11, BBW-PORTS]
+summary: "Qué produce este repo, qué exige de cualquier host y qué NO vive aquí. El hosting es un puerto intercambiable: migrar de proveedor = cambiar de panel + un registro DNS, cero cambios de código. v1.1 (2026-09-16): el actor de despliegue es Cloudflare conectado al repo (D-BBW-10, enmienda D-BBW-04); Hostinger queda solo como correo y registro de dominios (D-BBW-11). El contrato de puerto no cambia."
 tags: [deploy, hosting, contrato, portabilidad]
 ---
 
@@ -44,9 +44,9 @@ tags: [deploy, hosting, contrato, portabilidad]
 | Cosa | Dónde vive | Por qué no aquí |
 |---|---|---|
 | DNS, certificados TLS, redirecciones (`cerebrosdemarca.com` → canónico, `/` → `/es/`), caché de edge | **Cloudflare** (D-BBW-05, D-BBW-07) | Son propiedad del dominio, no del código. Cambiar de host no las toca. |
-| Adaptador de despliegue (GitHub App de Hostinger, auto-deploy desde `main`) | **Panel del host** (D-BBW-04) | Un workflow o token del host dentro del repo acopla el código al proveedor. |
+| Adaptador de despliegue (aplicación de GitHub de Cloudflare, auto-deploy desde `main`) | **Panel de Cloudflare** (D-BBW-10, enmienda D-BBW-04) | Un workflow o token del host dentro del repo acopla el código al proveedor. Sin credenciales en el repo. |
 | Valores de variables de entorno | **Panel del host / Secret Manager** (S-1) | El repo solo conoce **nombres** (`.env.example`). Hoy no necesita ninguno en runtime. |
-| Correo (MX y afines de `brandbrainfoundry.com`) | Cloudflare DNS → Hostinger mail | Fuera de ámbito de la web. No se toca en ninguna fase. |
+| Correo (MX y afines de `brandbrainfoundry.com`) | Cloudflare DNS → Hostinger mail (D-BBW-11: Hostinger = correo + registro de dominios, **no** hosting web) | Fuera de ámbito de la web. No se toca en ninguna fase; el cutover recrea los registros contra la línea base medida. |
 
 ## 4. Capas, dueño y qué cambia al migrar de proveedor
 
@@ -54,8 +54,8 @@ tags: [deploy, hosting, contrato, portabilidad]
 |---|---|---|---|
 | Código y contenido | GitHub `brand-brain-foundry/brandbrain-web` | Ninguno | **ninguno** |
 | Build (`pnpm build` → `out/`) | El runner del host | Reproducir el mismo comando en el host nuevo | **ninguno** |
-| Servir estático | Host (Hostinger hoy) | Conectar el host nuevo al repo, apuntar a `out/` | **ninguno** |
-| Adaptador de despliegue | GitHub App del host, en el panel | Desinstalar App antigua, instalar la nueva (scope: solo este repo) | **ninguno** |
+| Servir estático | Cloudflare (D-BBW-10; firmado, **no conectado** hasta el cutover) | Conectar el host nuevo al repo, apuntar a `out/` | **ninguno** |
+| Adaptador de despliegue | Aplicación de GitHub de Cloudflare, en su panel | Desinstalar la aplicación antigua, instalar la nueva (scope: solo este repo) | **ninguno** |
 | DNS / TLS / redirects / caché | Cloudflare | Cambiar el registro que apunta al host | **ninguno** |
 | Variables de entorno (nombres) | `.env.example` en el repo; valores en el panel | Volver a cargar valores en el panel nuevo | **ninguno** |
 
@@ -67,7 +67,7 @@ La columna que importa es la última. Si alguna fila deja de leer **ninguno**, e
 - **SDK o cliente del proveedor** de hosting en `dependencies`.
 - **Archivos de config propietarios del host** en la raíz (p. ej. `vercel.json`, `netlify.toml`, `.htaccess` generados por panel, `app.yaml`).
 - **Workflows de CI que conozcan al host** (tokens, CLI del proveedor, FTP). El deploy lo dispara el host observando `main`, no el repo empujando al host.
-- **URLs del host** (subdominios `*.hostingersite.com`, IPs) escritas en código o contenido. El único dominio conocido es `site.url` en `src/config/site.ts`.
+- **URLs del host** (subdominios `*.pages.dev` / `*.workers.dev`, IPs) escritas en código o contenido. El único dominio conocido es `site.url` en `src/config/site.ts`. Los actores externos que sí aparecen en `src/` pasan por un puerto declarado en `docs/system/PORTS.md`.
 - **Valores** de variables de entorno en el repo (S-1/S-6).
 - **Duplicar el árbol de rutas** para servir ES sin prefijo (viola I-2; el prefijo es obligatorio en export estático, D-BBW-07).
 
@@ -83,4 +83,4 @@ La columna que importa es la última. Si alguna fila deja de leer **ninguno**, e
 Cambios de código durante los 6 pasos: **cero**. Si hubo alguno, documentarlo como HAL-BBW y corregir el contrato o el código.
 
 ---
-*D-BBW-02..07 · `docs/system/DEPLOY_CONTRACT.md` · 2026-09-15*
+*D-BBW-02..07 + D-BBW-09/10/11 · `docs/system/DEPLOY_CONTRACT.md` · v1.1 · 2026-09-16 (v1.0: 2026-09-15)*

@@ -1,0 +1,10 @@
+/**
+ * semantic/spacing.css — Tier 2 · ESPACIADO POR ROL
+ * Solo dos roles medidos en el N0: margen de página (`clamp(20px, 3.4vw, 46px)` ×3, el único clamp repetido) y área táctil
+ * mínima (44 px, WCAG 2.5.8 / HIG). El margen se compone de pasos: 20 = ×5 cae; 46 NO cae → ×12 (48 px), residual reportado.
+ * CLASE (D-DOC-13): estático (roles; 44 px es umbral universal); fluidez 3.4vw = dinámico.
+ */
+:root {
+  --bbf-space-page: clamp(var(--bbf-space-5), 3.4vw, var(--bbf-space-12));
+  --bbf-space-touch-min: var(--bbf-space-11);
+}

@@ -1,0 +1,19 @@
+/**
+ * tokens/index.css — orquestador del sistema de tokens (Eje A, docs/design-system/EJE-A-derivacion-de-tokens.md).
+ * ORDEN CRÍTICO: primitivos antes que semánticos (los semánticos solo referencian por var(); el orden importa cuando un
+ * mismo nombre se redeclara — el override de prefers-reduced-motion vive dentro de primitives/motion.css y ya carga después
+ * de su madre). No reordenar sin firma. Tier 3 (components/) no existe: nace con el primer componente (fase 6).
+ */
+@import "./primitives/colors.css";
+@import "./primitives/typography.css";
+@import "./primitives/spacing.css";
+@import "./primitives/radius.css";
+@import "./primitives/shadows.css";
+@import "./primitives/motion.css";
+@import "./primitives/z-index.css";
+@import "./primitives/breakpoints.css";
+
+@import "./semantic/colors.css";
+@import "./semantic/typography.css";
+@import "./semantic/spacing.css";
+@import "./semantic/layers.css";

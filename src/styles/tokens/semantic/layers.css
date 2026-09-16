@@ -1,0 +1,15 @@
+/**
+ * semantic/layers.css — Tier 2 · CAPAS DE APILAMIENTO POR ROL (N0 §2.2: fondo 0 · vídeo 1 · viñeta 2 · motas 3 · burbujas 4 ·
+ * lockup/barra 8 · logo/nav 9 · hoja 10 · burger 11). Ocho roles, ocho pasos. CLASE (D-DOC-13): plantilla (roles de un hero
+ * con fondo animado; otro producto cambia la lista).
+ */
+:root {
+  --bbf-layer-bg: var(--bbf-z-0);
+  --bbf-layer-media: var(--bbf-z-1);
+  --bbf-layer-veil: var(--bbf-z-2);
+  --bbf-layer-particles: var(--bbf-z-3);
+  --bbf-layer-content: var(--bbf-z-4);
+  --bbf-layer-chrome: var(--bbf-z-5);
+  --bbf-layer-sheet: var(--bbf-z-6);
+  --bbf-layer-toggle: var(--bbf-z-7);
+}

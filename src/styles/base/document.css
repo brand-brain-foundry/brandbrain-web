@@ -1,0 +1,14 @@
+/* base/document.css — el documento consume el sistema: superficie, tinta y familia de texto por rol. Sin literales. */
+html {
+  color-scheme: dark;
+  background: var(--bbf-surface-base);
+}
+
+body {
+  background: var(--bbf-surface-base);
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-body-weight);
+  -webkit-font-smoothing: antialiased;
+}

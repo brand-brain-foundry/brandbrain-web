@@ -1,0 +1,17 @@
+/**
+ * primitives/z-index.css — Tier 1 · APILAMIENTO
+ * Madre `--bbf-z-step` + `calc(× N)`: pasos separados para que un componente pueda intercalar sin renumerar.
+ * N0 §2.2 usa 0..11 consecutivos; los ROLES (fondo, medio, velo, partículas, contenido, cromo, hoja, conmutador) viven en
+ * semantic/layers.css. CLASE (D-DOC-13): estático (fórmula y madre son criterio técnico, no de marca).
+ */
+:root {
+  --bbf-z-step: 10;
+  --bbf-z-0: 0;
+  --bbf-z-1: var(--bbf-z-step);
+  --bbf-z-2: calc(var(--bbf-z-step) * 2);
+  --bbf-z-3: calc(var(--bbf-z-step) * 3);
+  --bbf-z-4: calc(var(--bbf-z-step) * 4);
+  --bbf-z-5: calc(var(--bbf-z-step) * 5);
+  --bbf-z-6: calc(var(--bbf-z-step) * 6);
+  --bbf-z-7: calc(var(--bbf-z-step) * 7);
+}

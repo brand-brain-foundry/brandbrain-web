@@ -1,0 +1,72 @@
+/**
+ * primitives/colors.css — Tier 1 · COLOR (D-BBW-02 · D-SBWEB-TOKENS · D-COLOR-SPACE forma B pura · D-DS-AXIOMA-AGNOSTICO)
+ * ÚNICO archivo del repo donde puede aparecer un valor de color crudo (guardia: scripts/lint/check-color-tokens.ts).
+ *
+ * FÓRMULA (forma B pura, uniforme para todas las familias):
+ *   · Madre = (L, C, H) OKLCH del valor crudo del inventario N0 (OUTPUT-BBW-2026-09-16-N0 §2.2). Se ancla EXACTA en su paso.
+ *   · H y C FIJOS = madre en toda la rampa. Solo L varía.
+ *   · L por interpolación lineal a trozos: paso 50 → L_MAX; paso madre → L_madre; paso 900 → L_MIN.
+ *     Si la madre cae en el paso 900 (ink, L=0), la madre ES el extremo oscuro.
+ *   · Paso de la madre k = ceil((L_MAX − L_madre) / (L_MAX − L_MIN) × 9), acotado a 9.
+ *   · Fracciones de cada paso = (distancia al paso madre) / (pasos hasta el extremo). Constantes de fórmula, no valores.
+ *   Cambiar una madre regenera su rampa completa (axioma agnóstico). Desviaciones vs. valores crudos del N0: aceptadas por
+ *   forma B pura y REPORTADAS en el output del turno de fase 4 (no se corrigen a mano).
+ *
+ * CLASE (D-DOC-13): la fórmula y los extremos = estático · las tres madres = dinámico · el archivo = plantilla.
+ */
+:root {
+  /* ── Extremos de la rampa (criterio técnico: mismos para todas las familias) ─────────────────── */
+  --bbf-color-l-max: 0.98;
+  --bbf-color-l-min: 0.2;
+
+  /* ── Familia `ink` · madre #000000 → oklch(0 0 0) · paso madre: 900 · origen: N0 §2.2 `#000` ×7 (fondo base, máscaras) ── */
+  --bbf-color-ink-l: 0;
+  --bbf-color-ink-c: 0;
+  --bbf-color-ink-h: 0;
+  --bbf-color-ink-span-up: calc(var(--bbf-color-l-max) - var(--bbf-color-ink-l));
+  --bbf-color-ink-span-down: calc(var(--bbf-color-ink-l) - var(--bbf-color-l-min));
+  --bbf-color-ink-50: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 1) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-100: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.8889) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-200: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.7778) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-300: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.6667) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-400: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.5556) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-500: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.4444) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-600: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.3333) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-700: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.2222) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-800: oklch(calc(var(--bbf-color-ink-l) + var(--bbf-color-ink-span-up) * 0.1111) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+  --bbf-color-ink-900: oklch(var(--bbf-color-ink-l) var(--bbf-color-ink-c) var(--bbf-color-ink-h));
+
+  /* ── Familia `mint` · madre #e6ecea → oklch(0.938 0.0069 174.4) · paso madre: 100 · origen: N0 §2.2 `#e6ecea` (color base del contenedor; madre de los 6 blancos-verdosos) ── */
+  --bbf-color-mint-l: 0.938;
+  --bbf-color-mint-c: 0.0069;
+  --bbf-color-mint-h: 174.4;
+  --bbf-color-mint-span-up: calc(var(--bbf-color-l-max) - var(--bbf-color-mint-l));
+  --bbf-color-mint-span-down: calc(var(--bbf-color-mint-l) - var(--bbf-color-l-min));
+  --bbf-color-mint-50: oklch(calc(var(--bbf-color-mint-l) + var(--bbf-color-mint-span-up) * 1) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-100: oklch(var(--bbf-color-mint-l) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-200: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.125) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-300: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.25) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-400: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.375) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-500: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.5) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-600: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.625) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-700: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.75) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-800: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.875) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+  --bbf-color-mint-900: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 1) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
+
+  /* ── Familia `accent` · madre #909fff → oklch(0.7309 0.1399 275.6) · paso madre: 300 · origen: N0 §2.2 `#909FFF` ×6 (acento: hover nav, punto de estado, burger, ACCENT) ── */
+  --bbf-color-accent-l: 0.7309;
+  --bbf-color-accent-c: 0.1399;
+  --bbf-color-accent-h: 275.6;
+  --bbf-color-accent-span-up: calc(var(--bbf-color-l-max) - var(--bbf-color-accent-l));
+  --bbf-color-accent-span-down: calc(var(--bbf-color-accent-l) - var(--bbf-color-l-min));
+  --bbf-color-accent-50: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 1) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-100: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 0.6667) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-200: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 0.3333) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-300: oklch(var(--bbf-color-accent-l) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-400: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.1667) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-500: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.3333) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-600: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.5) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-700: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.6667) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-800: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.8333) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-900: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 1) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+}

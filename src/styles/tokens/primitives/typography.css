@@ -1,0 +1,83 @@
+/**
+ * primitives/typography.css — Tier 1 · TIPOGRAFÍA (D-BBW-14 · D-SBWEB-TOKENS · D-DS-AXIOMA-AGNOSTICO)
+ * ÚNICO archivo del repo donde puede aparecer un font-size/font-weight crudo (guardia: scripts/lint/check-typography-tokens.ts)
+ * y ÚNICO sitio donde se escribe un nombre de familia tipográfica (criterio de éxito 4 del despacho de fase 4).
+ *
+ * FAMILIAS (D-BBW-14): dos, ni una más.
+ *   · display  = `modulator-vf` por Adobe Typekit (actor externo en runtime; puerto declarado en docs/system/PORTS.md;
+ *                adaptador src/styles/fonts/display.ts). Respaldo real mientras llega: la familia de texto.
+ *   · text     = Space Grotesk variable (wght 300–700), AUTO-HOSPEDADA (OFL 1.1, src/styles/fonts/LICENSE-OFL.txt),
+ *                cargada por next/font/local (src/styles/fonts/text.ts) que expone `--bbf-font-text-src`.
+ *   Instrument Sans e Instrument Serif: RETIRADAS (no se cargan, no se declaran).
+ *
+ * ESCALA DE TAMAÑO (fórmula, no lista): dos madres unitless (borde móvil y borde escritorio, N0 §2.2: cuerpo `clamp(14px, 1vw, 15px)`)
+ * y dos ratios de criterio técnico (D-BBF-KB-105 φ para escritorio; D-TYPO-RATIO-FIX cuarta justa 1.333 para móvil y tamaños menores).
+ *   min(n) = text-min × 1.333^n                (móvil, todos los n)
+ *   max(n) = text-max × φ^n  (n > 0)  ·  text-max × 1.333^n  (n < 0)   (los tamaños menores no encogen con φ)
+ *   size(n) = clamp(min(n), min(n) + (max(n) − min(n)) × pendiente, max(n))    con pendiente = (100vw − vw-min) / (vw-max − vw-min)
+ * Cambiar una madre o un ratio regenera toda la escala. Valores del N0 que NO caen en la escala: reportados en el output de fase 4, no forzados.
+ *
+ * CLASE (D-DOC-13): fórmula y ratios = estático · madres (min/max/vw) y familias = dinámico · archivo = plantilla.
+ */
+:root {
+  /* ── Familias ───────────────────────────────────────────────────────────────────────────────── */
+  --bbf-font-text: var(--bbf-font-text-src, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
+  --bbf-font-display: "modulator-vf", "modulator-text-vf", var(--bbf-font-text);
+
+  /* ── Madres de tamaño (unitless = px; N0 cuerpo 14→15) y ventana fluida (criterio técnico) ─────── */
+  --bbf-text-min: 14;
+  --bbf-text-max: 15;
+  --bbf-fluid-vw-min: 360;
+  --bbf-fluid-vw-max: 1440;
+  --bbf-ratio-up: 1.618;
+  --bbf-ratio-down: 1.333;
+  /* pendiente fluida: 0 en vw-min, 1×(1px) en vw-max; se multiplica por (max − min) unitless */
+  --bbf-fluid-slope: calc((100vw - var(--bbf-fluid-vw-min) * 1px) / (var(--bbf-fluid-vw-max) - var(--bbf-fluid-vw-min)));
+
+  /* ── Escala derivada: pasos n = −2 … 5 ──────────────────────────────────────────────────────── */
+  --bbf-size-n2-min: calc(var(--bbf-text-min) / pow(var(--bbf-ratio-down), 2));
+  --bbf-size-n2-max: calc(var(--bbf-text-max) / pow(var(--bbf-ratio-down), 2));
+  --bbf-size-n1-min: calc(var(--bbf-text-min) / var(--bbf-ratio-down));
+  --bbf-size-n1-max: calc(var(--bbf-text-max) / var(--bbf-ratio-down));
+  --bbf-size-0-min: var(--bbf-text-min);
+  --bbf-size-0-max: var(--bbf-text-max);
+  --bbf-size-1-min: calc(var(--bbf-text-min) * var(--bbf-ratio-down));
+  --bbf-size-1-max: calc(var(--bbf-text-max) * var(--bbf-ratio-up));
+  --bbf-size-2-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 2));
+  --bbf-size-2-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 2));
+  --bbf-size-3-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 3));
+  --bbf-size-3-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 3));
+  --bbf-size-4-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 4));
+  --bbf-size-4-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 4));
+  --bbf-size-5-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 5));
+  --bbf-size-5-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 5));
+
+  --bbf-size-n2: clamp(calc(var(--bbf-size-n2-min) * 1px), calc(var(--bbf-size-n2-min) * 1px + (var(--bbf-size-n2-max) - var(--bbf-size-n2-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-n2-max) * 1px));
+  --bbf-size-n1: clamp(calc(var(--bbf-size-n1-min) * 1px), calc(var(--bbf-size-n1-min) * 1px + (var(--bbf-size-n1-max) - var(--bbf-size-n1-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-n1-max) * 1px));
+  --bbf-size-0: clamp(calc(var(--bbf-size-0-min) * 1px), calc(var(--bbf-size-0-min) * 1px + (var(--bbf-size-0-max) - var(--bbf-size-0-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-0-max) * 1px));
+  --bbf-size-1: clamp(calc(var(--bbf-size-1-min) * 1px), calc(var(--bbf-size-1-min) * 1px + (var(--bbf-size-1-max) - var(--bbf-size-1-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-1-max) * 1px));
+  --bbf-size-2: clamp(calc(var(--bbf-size-2-min) * 1px), calc(var(--bbf-size-2-min) * 1px + (var(--bbf-size-2-max) - var(--bbf-size-2-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-2-max) * 1px));
+  --bbf-size-3: clamp(calc(var(--bbf-size-3-min) * 1px), calc(var(--bbf-size-3-min) * 1px + (var(--bbf-size-3-max) - var(--bbf-size-3-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-3-max) * 1px));
+  --bbf-size-4: clamp(calc(var(--bbf-size-4-min) * 1px), calc(var(--bbf-size-4-min) * 1px + (var(--bbf-size-4-max) - var(--bbf-size-4-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-4-max) * 1px));
+  --bbf-size-5: clamp(calc(var(--bbf-size-5-min) * 1px), calc(var(--bbf-size-5-min) * 1px + (var(--bbf-size-5-max) - var(--bbf-size-5-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-5-max) * 1px));
+
+  /* ── Pesos: valores de eje variable (no derivables por ratio; madres del N0 §2.2) ───────────── */
+  --bbf-weight-display-min: 100;   /* modulator-vf: eje wght animado por letra, WMIN */
+  --bbf-weight-display-max: 500;   /* WMAX (el kit sirve 25–500) */
+  --bbf-weight-light: 300;         /* Space Grotesk 300–700: puntero del N0 */
+  --bbf-weight-regular: 400;
+  --bbf-weight-medium: 500;
+
+  /* ── Interletrado: madre × N (N0 §2.2: 0.12 / 0.24 / 0.28 / 0.32 em caen en la escala; 0.01 / 0.15 / 0.34 NO → reportados) ── */
+  --bbf-tracking-base: 0.04em;
+  --bbf-tracking-1: var(--bbf-tracking-base);
+  --bbf-tracking-3: calc(var(--bbf-tracking-base) * 3);
+  --bbf-tracking-4: calc(var(--bbf-tracking-base) * 4);
+  --bbf-tracking-6: calc(var(--bbf-tracking-base) * 6);
+  --bbf-tracking-7: calc(var(--bbf-tracking-base) * 7);
+  --bbf-tracking-8: calc(var(--bbf-tracking-base) * 8);
+
+  /* ── Interlineado: los dos valores del N0 (display 1.02, mono 1); sin fórmula posible entre dos puntos → madres ── */
+  --bbf-leading-none: 1;
+  --bbf-leading-display: 1.02;
+}
