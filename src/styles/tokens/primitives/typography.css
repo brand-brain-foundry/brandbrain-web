@@ -1,5 +1,5 @@
 /**
- * primitives/typography.css — Tier 1 · TIPOGRAFÍA (D-BBW-14 · D-BBW-16 · D-SBWEB-TOKENS · D-DS-AXIOMA-AGNOSTICO)
+ * primitives/typography.css — Tier 1 · TIPOGRAFÍA (D-BBW-14 · D-BBW-16 · D-BBW-17 · D-BBW-18 · D-SBWEB-TOKENS · D-DS-AXIOMA-AGNOSTICO)
  * ÚNICO archivo del repo donde puede aparecer un font-size/font-weight crudo (guardia: scripts/lint/check-typography-tokens.ts)
  * y ÚNICO sitio donde se escribe un nombre de familia tipográfica (criterio de éxito 4 del despacho de fase 4).
  *
@@ -10,54 +10,68 @@
  *                cargada por next/font/local (src/styles/fonts/text.ts) que expone `--bbf-font-text-src`.
  *   Instrument Sans e Instrument Serif: RETIRADAS (no se cargan, no se declaran).
  *
- * ESCALA DE TAMAÑO (fórmula, no lista): dos madres unitless (borde móvil y borde escritorio, N0 §2.2: cuerpo `clamp(14px, 1vw, 15px)`)
- * y dos ratios de criterio técnico (D-BBF-KB-105 φ para escritorio; D-TYPO-RATIO-FIX cuarta justa 1.333 para móvil y tamaños menores).
- *   min(n) = text-min × 1.333^n                (móvil, todos los n)
- *   max(n) = text-max × φ^n  (n > 0)  ·  text-max × 1.333^n  (n < 0)   (los tamaños menores no encogen con φ)
+ * ESCALA DE TAMAÑO (fórmula, no lista) — DOS POLOS con proporción de industria (D-BBW-17, fase 6a-bis; enmienda la aplicación de φ):
+ *   Cada polo (ventana fluida 360 → 1440 px, criterio técnico de la fase 4) tiene su tamaño base y su proporción; el navegador
+ *   interpola entre polos con clamp(). Es el método de referencia (Utopia, verificado en vivo 2026-09-16) y la forma que la escala
+ *   ya tenía: lo que cambia son los ANCLAJES. Paso cero = texto corrido real (18 → 20 px: mínimo legible 16 px y rango 17–21 px de
+ *   los sistemas de referencia; es además el par por defecto de Utopia); proporciones 1,2 (polo pequeño) y 1,25 (polo grande),
+ *   dentro del rango 1,2–1,33 que usan esos sistemas. Elegidos entre candidatos contra los tamaños reales del diseño
+ *   (OUTPUT-BBW-2026-09-16-fase6a-bis §2). Los textos pequeños de la landing son pasos NEGATIVOS: cambian de nombre, no de medida.
+ *   min(n) = text-min × ratio-min^n        (polo pequeño, todos los n)
+ *   max(n) = text-max × ratio-max^n        (polo grande, todos los n; una sola proporción por polo, sin caso especial para n < 0)
  *   size(n) = clamp(min(n), min(n) + (max(n) − min(n)) × pendiente, max(n))    con pendiente = (100vw − vw-min) / (vw-max − vw-min)
- * Cambiar una madre o un ratio regenera toda la escala.
+ *   Cambiar una madre o una proporción regenera toda la escala. Cada paso pasa la ampliación al 200 % (WCAG 1.4.4, criterio de
+ *   utopia-core `checkWCAG`: 5 × tamaño(vw/5) ≥ 2 × tamaño(vw)) en toda la ventana; comprobado paso a paso en el output 6a-bis §4.
  *
- * RESIDUALES DEL N0 RESUELTOS (D-BBW-16, fase 6a; tabla antes/después en OUTPUT-BBW-2026-09-16-fase6a §3):
- *   · cuerpo 14→15 = paso 0 (madre) · nav 9.5→11.5 → paso −1 (10.5→11.3) · nav de la hoja 20→30 → paso 2 (comparado en su rango real
- *     ≤ 780 px: 24.9→30.5, |Δ| ≤ 3.7 px) · display 62→124 = EXCEPCIÓN EXC-BBW-01 (bloque abajo).
- *   · PENDIENTES DE ZAVALA (sin peldaño razonable, no ajustados; siguen provisionales en semantic/typography.css):
- *     lead "Technologist" 24→49 (paso 2 = −20 % en escritorio; paso 3 = +30 %) · legal/estado 9→10 (paso −2 = 7.9→8.4 px, por debajo
- *     del suelo de 9 px que el diseño respeta; paso −1 = +13…+20 %). Ver docs/system/DESIGN_EXCEPTIONS.md §2 (candidatas).
+ * SUELO DE LEGIBILIDAD (D-BBW-18): ningún rol de texto baja de `--bbf-text-floor` px en ningún punto de su recorrido. Es madre,
+ *   no número repetido; la guardia scripts/lint/check-weight-tokens.ts (R5/R6) comprueba cada paso declarado, cada excepción y
+ *   cada rol de semantic/typography.css contra él. El paso más pequeño que lo respeta en toda la ventana es n = −2 (12,5 → 12,8).
  *
- * CLASE (D-DOC-13): fórmula y ratios = estático · madres (min/max/vw), familias, rangos/pesos de eje y la excepción = dinámico · archivo = plantilla.
+ * RESIDUALES DEL N0 (D-BBW-16 + D-BBW-17; tabla antes/después en OUTPUT-BBW-2026-09-16-fase6a-bis §3):
+ *   · claims 14 → 15 = paso −1 (15 → 16) · nav 9,5 → 11,5 = paso −2 (12,5 → 12,8; sube por el suelo) · nav de la hoja 20 → 30 = paso 2
+ *     (25,9 → 31,3, comparado en su rango real ≤ 780 px: |Δ| ≤ 3,5 px) · legal/estado 9 → 10 = paso −2 (sube por el suelo; HAL-BBW-09
+ *     cerrado para legal) · display 62 → 124 = EXCEPCIÓN EXC-BBW-01 (bloque abajo).
+ *   · PENDIENTE DE ZAVALA: lead "Technologist" 24 → 49 NO cae en ningún paso con ningún juego de anclajes (es plana hasta 706 px y
+ *     luego proporcional al ancho, como el display; ningún paso lineal la sigue: el mejor, n3, se va +40 % a 706 px y −20 % a 1440).
+ *     Sigue provisional en semantic/typography.css; opciones en docs/system/DESIGN_EXCEPTIONS.md §2.
+ *
+ * CLASE (D-DOC-13): fórmula, criterio del 200 % y suelo = estático · madres (min/max/vw/proporciones/suelo), familias, rangos/pesos
+ * de eje y la excepción = dinámico · archivo = plantilla.
  */
 :root {
   /* ── Familias ───────────────────────────────────────────────────────────────────────────────── */
   --bbf-font-text: var(--bbf-font-text-src, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
   --bbf-font-display: "modulator-vf", "modulator-text-vf", var(--bbf-font-text);
 
-  /* ── Madres de tamaño (unitless = px; N0 cuerpo 14→15) y ventana fluida (criterio técnico) ─────── */
-  --bbf-text-min: 14;
-  --bbf-text-max: 15;
+  /* ── Madres de tamaño (unitless = px): paso cero = texto corrido (D-BBW-17), ventana fluida (criterio técnico) ── */
+  --bbf-text-min: 18;
+  --bbf-text-max: 20;
   --bbf-fluid-vw-min: 360;
   --bbf-fluid-vw-max: 1440;
-  --bbf-ratio-up: 1.618;
-  --bbf-ratio-down: 1.333;
+  --bbf-ratio-min: 1.2;
+  --bbf-ratio-max: 1.25;
+  /* suelo de legibilidad (D-BBW-18): madre única; la escala se comprueba contra él (guardia R5/R6), no se recorta con max() */
+  --bbf-text-floor: 12;
   /* pendiente fluida: 0 en vw-min, 1×(1px) en vw-max; se multiplica por (max − min) unitless */
   --bbf-fluid-slope: calc((100vw - var(--bbf-fluid-vw-min) * 1px) / (var(--bbf-fluid-vw-max) - var(--bbf-fluid-vw-min)));
 
-  /* ── Escala derivada: pasos n = −2 … 5 ──────────────────────────────────────────────────────── */
-  --bbf-size-n2-min: calc(var(--bbf-text-min) / pow(var(--bbf-ratio-down), 2));
-  --bbf-size-n2-max: calc(var(--bbf-text-max) / pow(var(--bbf-ratio-down), 2));
-  --bbf-size-n1-min: calc(var(--bbf-text-min) / var(--bbf-ratio-down));
-  --bbf-size-n1-max: calc(var(--bbf-text-max) / var(--bbf-ratio-down));
+  /* ── Escala derivada: pasos n = −2 … 5 (n = −2 es el último que respeta el suelo) ─────────────── */
+  --bbf-size-n2-min: calc(var(--bbf-text-min) / pow(var(--bbf-ratio-min), 2));
+  --bbf-size-n2-max: calc(var(--bbf-text-max) / pow(var(--bbf-ratio-max), 2));
+  --bbf-size-n1-min: calc(var(--bbf-text-min) / var(--bbf-ratio-min));
+  --bbf-size-n1-max: calc(var(--bbf-text-max) / var(--bbf-ratio-max));
   --bbf-size-0-min: var(--bbf-text-min);
   --bbf-size-0-max: var(--bbf-text-max);
-  --bbf-size-1-min: calc(var(--bbf-text-min) * var(--bbf-ratio-down));
-  --bbf-size-1-max: calc(var(--bbf-text-max) * var(--bbf-ratio-up));
-  --bbf-size-2-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 2));
-  --bbf-size-2-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 2));
-  --bbf-size-3-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 3));
-  --bbf-size-3-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 3));
-  --bbf-size-4-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 4));
-  --bbf-size-4-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 4));
-  --bbf-size-5-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-down), 5));
-  --bbf-size-5-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-up), 5));
+  --bbf-size-1-min: calc(var(--bbf-text-min) * var(--bbf-ratio-min));
+  --bbf-size-1-max: calc(var(--bbf-text-max) * var(--bbf-ratio-max));
+  --bbf-size-2-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-min), 2));
+  --bbf-size-2-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-max), 2));
+  --bbf-size-3-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-min), 3));
+  --bbf-size-3-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-max), 3));
+  --bbf-size-4-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-min), 4));
+  --bbf-size-4-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-max), 4));
+  --bbf-size-5-min: calc(var(--bbf-text-min) * pow(var(--bbf-ratio-min), 5));
+  --bbf-size-5-max: calc(var(--bbf-text-max) * pow(var(--bbf-ratio-max), 5));
 
   --bbf-size-n2: clamp(calc(var(--bbf-size-n2-min) * 1px), calc(var(--bbf-size-n2-min) * 1px + (var(--bbf-size-n2-max) - var(--bbf-size-n2-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-n2-max) * 1px));
   --bbf-size-n1: clamp(calc(var(--bbf-size-n1-min) * 1px), calc(var(--bbf-size-n1-min) * 1px + (var(--bbf-size-n1-max) - var(--bbf-size-n1-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-n1-max) * 1px));
@@ -69,11 +83,12 @@
   --bbf-size-5: clamp(calc(var(--bbf-size-5-min) * 1px), calc(var(--bbf-size-5-min) * 1px + (var(--bbf-size-5-max) - var(--bbf-size-5-min)) * var(--bbf-fluid-slope)), calc(var(--bbf-size-5-max) * 1px));
 
   /* ── EXCEPCIÓN EXC-BBW-01 · tamaño del display (D-BBW-16 · registro: docs/system/DESIGN_EXCEPTIONS.md) ──────────────────────
-     VALOR: 62 → 124 px con pendiente propia 8.4vw (N0 §2.2: `min(clamp(62px, 8.4vw, 124px), 14.6vw)`), fuera de la escala
-     (cae entre el paso 4, 44→103, y el paso 5, 59→166: el display del diseño es ×2 de fluido, el cuerpo ×1.07).
+     VALOR: 62 → 124 px con pendiente propia 8.4vw (N0 §2.2: `min(clamp(62px, 8.4vw, 124px), 14.6vw)`), fuera de la escala.
+     Sobre los anclajes de D-BBW-17 sigue fuera: en el polo pequeño cae entre el paso 6 (53,7) y el 7 (64,5); en el grande entre el
+     paso 8 (119,2) y el 9 (149). El display crece ×2 entre polos y la escala, a cualquier paso, ×1,11 × (1,25/1,2)ⁿ: ningún paso lo sigue.
      RAZÓN: un titular de marca se calibra ópticamente, no matemáticamente; ahí el valor exacto es intención, no ruido (Zavala,
      2026-09-16). Se conserva la pendiente del diseño y no la del sistema porque con la del sistema el display mediría 84 px a
-     738 px de ancho (+22 px sobre los 62 del diseño): no sería conservar el valor.
+     738 px de ancho (+22 px sobre los 62 del diseño): no sería conservar el valor. Pasa el 200 % en su ventana (738 → 1476 px).
      LO QUE NO ES TOKEN: el tope `14.6vw` del diseño es una guarda de ajuste al ancho (que la palabra quepa por debajo de ~425 px);
      es responsabilidad del componente del titular (reserva de ancho, docs/system/TYPOGRAPHY_WEIGHTS.md §3), no un tamaño.
      REGLA (D-BBW-16): toda excepción = valor + razón + registro. Una excepción sin razón escrita es un agujero. ────────────── */
@@ -110,7 +125,8 @@
 
   /* ── Interletrado: madre × N. Los 7 valores del N0 (§2.2) resueltos (D-BBW-16, empate → peldaño superior):
      display 0.01 → ×0 (Δ −0.01em = 1.2 px por glifo a 124 px) · hoja 0.12 → ×3 · claims 0.15 → ×4 (+0.01) · legal 0.24 → ×6 ·
-     nav 0.28 / 0.32 → ×7 / ×8 · estado 0.34 → ×9 (+0.02em = 0.2 px a 10 px). Ningún residual queda sin peldaño. ── */
+     nav 0.28 / 0.32 → ×7 / ×8 · estado 0.34 → ×9 (+0.02em = 0.2 px a 10 px). Ningún residual queda sin peldaño.
+     La fase 6a-bis NO toca esta categoría: el re-anclaje de tamaños no arrastra el interletrado (§5 del despacho). ── */
   --bbf-tracking-base: 0.04em;
   --bbf-tracking-0: calc(var(--bbf-tracking-base) * 0);
   --bbf-tracking-1: var(--bbf-tracking-base);
