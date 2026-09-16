@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "brand-brain-foundry/bbf-command-hub": {
+      "source": { "source": "directory", "path": "/Volumes/PK/BBF/Repos/bbf-command-hub" }
+    }
+  },
+  "enabledPlugins": { "bbf-ops@brand-brain-foundry/bbf-command-hub": true },
+  "permissions": {
+    "allow": [
+      "Read", "Edit", "Write", "Grep", "Glob",
+      "Bash(pnpm install)", "Bash(pnpm build)", "Bash(pnpm typecheck:*)", "Bash(pnpm lint:*)",
+      "Bash(pnpm guard:*)", "Bash(pnpm check:*)", "Bash(pnpm exec:*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git branch:*)",
+      "Bash(git checkout -b *)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git fetch:*)",
+      "Bash(git pull --rebase)", "Bash(gh pr:*)",
+      "Bash(node --version)", "Bash(pnpm --version)",
+      "Bash(cat:*)", "Bash(ls:*)", "Bash(wc:*)", "Bash(head:*)", "Bash(tail:*)", "Bash(find:*)", "Bash(grep:*)", "Bash(rg:*)",
+      "WebFetch(domain:nextjs.org)", "WebFetch(domain:developer.mozilla.org)", "WebFetch(domain:web.dev)",
+      "WebFetch(domain:developers.cloudflare.com)", "WebFetch(domain:www.hostinger.com)"
+    ],
+    "ask": [
+      "Bash(pnpm add:*)", "Bash(pnpm remove:*)", "Bash(rm:*)", "Bash(git push:*)",
+      "Bash(git rebase:*)", "Bash(git merge:*)", "Bash(git reset:*)",
+      "Edit(next.config.ts)", "Edit(package.json)", "Edit(pnpm-lock.yaml)", "Edit(src/config/site.ts)",
+      "Edit(docs/system/DEPLOY_CONTRACT.md)"
+    ],
+    "deny": [
+      "Read(.env)", "Read(.env.*)", "Read(**/.env)", "Read(**/.env.*)",
+      "Edit(.env)", "Edit(.env.*)", "Edit(**/.env)", "Edit(**/.env.*)",
+      "Read(**/*.pem)", "Read(**/*.key)",
+      "Edit(/Volumes/PK/BBF/Repos/bbf-web/**)", "Write(/Volumes/PK/BBF/Repos/bbf-web/**)",
+      "Edit(/Volumes/PK/BBF/Repos/bbf-docs/**)", "Write(/Volumes/PK/BBF/Repos/bbf-docs/**)",
+      "Edit(/Volumes/PK/BBF/Repos/0_info/**)", "Write(/Volumes/PK/BBF/Repos/0_info/**)",
+      "Bash(git push origin main)", "Bash(git push --force:*)", "Bash(git push -f:*)",
+      "Bash(git push origin main --force)", "Bash(git checkout main -- *)",
+      "Bash(rm -rf *)", "Bash(sudo:*)", "Bash(curl:*)", "Bash(wget:*)",
+      "Bash(npm install:*)", "Bash(npm i:*)", "Bash(yarn:*)",
+      "Bash(dd:*)", "Bash(mkfs:*)", "Bash(chmod 777:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Bash",
+        "hooks": [
+          { "type": "command", "command": "/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/hooks/secret-guard.sh" }
+        ]
+      }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/hooks/leak-scan.sh" } ] },
+      { "hooks": [ { "type": "command", "command": "/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/hooks/notify.sh" } ] },
+      { "hooks": [ { "type": "command", "command": "/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/hooks/handoff-state.sh" } ] }
+    ],
+    "Notification": [
+      { "hooks": [ { "type": "command", "command": "/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/hooks/notify.sh" } ] }
+    ],
+    "StopFailure": [
+      { "hooks": [ { "type": "command", "command": "/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/hooks/notify.sh" } ] }
+    ],
+    "PermissionRequest": [
+      { "hooks": [ { "type": "command", "command": "/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/hooks/notify.sh" } ] }
+    ]
+  },
+  "attribution": { "coAuthoredBy": "" }
+}
