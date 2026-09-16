@@ -1,28 +1,41 @@
 /**
- * semantic/typography.css — Tier 2 · TIPOGRAFÍA POR ROL
- * Roles que la landing necesitará (N0 §2.2/§2.3): display (la palabra de marca), lead (línea monoespaciada/“Technologist”),
- * body (claims), small (nav), micro (legal/estado). Cada rol apunta a un paso de la escala derivada; ningún tamaño se escribe aquí.
- * CLASE (D-DOC-13): estático (roles); paso asignado = dinámico.
+ * semantic/typography.css — Tier 2 · TIPOGRAFÍA POR ROL (D-SBWEB-SEMANTIC-MATRIX como patrón: concepto = ROL de uso; propiedad =
+ * aspecto CSS: family / size / weight / leading / tracking).
+ * Roles (N0 §2.2/§2.3): display (la palabra de marca), lead (la línea que acompaña al display), body (claims), label (nav: texto
+ * corto en mayúsculas con interletrado), legal (legal/estado). Fase 5 (F1): `small` → `label` y `micro` → `legal`: nombraban la
+ * MAGNITUD del valor, no la intención (el día que el legal fuera mayor que la nav, el nombre mentiría). Cada rol apunta a un paso
+ * de la escala y a un peso DE SU FAMILIA: un componente pide `--bbf-type-<rol>-weight`, nunca un número (las dos familias tienen
+ * escalas de peso incompatibles, primitives/typography.css). El rol display expone además los dos extremos de su animación
+ * (`-weight-from` / `-weight-to`, primitives/motion.css): con movimiento reducido ambos valen el reposo.
+ * CLASE (D-DOC-13): estático (roles y propiedades); paso y peso asignados = dinámico.
  */
 :root {
   --bbf-type-display-family: var(--bbf-font-display);
   --bbf-type-display-size: var(--bbf-size-4);
+  --bbf-type-display-weight: var(--bbf-weight-display-rest);
+  --bbf-type-display-weight-from: var(--bbf-weight-display-from);
+  --bbf-type-display-weight-to: var(--bbf-weight-display-to);
   --bbf-type-display-leading: var(--bbf-leading-display);
   --bbf-type-display-tracking: var(--bbf-tracking-1);
 
   --bbf-type-lead-family: var(--bbf-font-text);
   --bbf-type-lead-size: var(--bbf-size-2);
+  --bbf-type-lead-weight: var(--bbf-weight-text-regular);
   --bbf-type-lead-leading: var(--bbf-leading-none);
   --bbf-type-lead-tracking: var(--bbf-tracking-7);
 
   --bbf-type-body-family: var(--bbf-font-text);
   --bbf-type-body-size: var(--bbf-size-0);
-  --bbf-type-body-weight: var(--bbf-weight-regular);
+  --bbf-type-body-weight: var(--bbf-weight-text-regular);
   --bbf-type-body-tracking: var(--bbf-tracking-4);
 
-  --bbf-type-small-size: var(--bbf-size-n1);
-  --bbf-type-small-tracking: var(--bbf-tracking-7);
+  --bbf-type-label-family: var(--bbf-font-text);
+  --bbf-type-label-size: var(--bbf-size-n1);
+  --bbf-type-label-weight: var(--bbf-weight-text-regular);
+  --bbf-type-label-tracking: var(--bbf-tracking-7);
 
-  --bbf-type-micro-size: var(--bbf-size-n2);
-  --bbf-type-micro-tracking: var(--bbf-tracking-6);
+  --bbf-type-legal-family: var(--bbf-font-text);
+  --bbf-type-legal-size: var(--bbf-size-n2);
+  --bbf-type-legal-weight: var(--bbf-weight-text-regular);
+  --bbf-type-legal-tracking: var(--bbf-tracking-6);
 }
