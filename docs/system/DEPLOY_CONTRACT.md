@@ -3,16 +3,16 @@ id: BBW-DEPLOY-CONTRACT
 title: "Contrato de puerto de despliegue — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.1
+version: 1.2
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-15
-updated: 2026-09-16
-verified_against_code: 2026-09-16@feat/fase4-tokens-y-sistema-de-diseno (contrato de puerto sin cambios desde 2026-09-15; solo cambia el actor)
+updated: 2026-09-17
+verified_against_code: 2026-09-17@feat/fase6f-previsualizacion-y-fidelidad (contrato de puerto sin cambios desde 2026-09-15; v1.2 añade §7 previsualización por rama, D-BBW-26; `pnpm preview` en scripts/preview/serve.ts)
 supersedes: []
 superseded_by: null
-related: [D-BBW-02, D-BBW-03, D-BBW-04, D-BBW-05, D-BBW-07, D-BBW-09, D-BBW-10, D-BBW-11, BBW-PORTS]
-summary: "Qué produce este repo, qué exige de cualquier host y qué NO vive aquí. El hosting es un puerto intercambiable: migrar de proveedor = cambiar de panel + un registro DNS, cero cambios de código. v1.1 (2026-09-16): el actor de despliegue es Cloudflare conectado al repo (D-BBW-10, enmienda D-BBW-04); Hostinger queda solo como correo y registro de dominios (D-BBW-11). El contrato de puerto no cambia."
+related: [D-BBW-02, D-BBW-03, D-BBW-04, D-BBW-05, D-BBW-07, D-BBW-09, D-BBW-10, D-BBW-11, D-BBW-26, BBW-PORTS]
+summary: "Qué produce este repo, qué exige de cualquier host y qué NO vive aquí. El hosting es un puerto intercambiable: migrar de proveedor = cambiar de panel + un registro DNS, cero cambios de código. v1.1 (2026-09-16): el actor de despliegue es Cloudflare conectado al repo (D-BBW-10, enmienda D-BBW-04); Hostinger queda solo como correo y registro de dominios (D-BBW-11). El contrato de puerto no cambia. v1.2 (2026-09-17, D-BBW-26): §7 previsualización por rama adelantada (Cloudflare Pages con integración Git, sin dominio ni DNS; pasos [ZAVALA-MANUAL]) y comando local `pnpm preview` con rangos HTTP."
 tags: [deploy, hosting, contrato, portabilidad]
 ---
 
@@ -82,5 +82,38 @@ La columna que importa es la última. Si alguna fila deja de leer **ninguno**, e
 
 Cambios de código durante los 6 pasos: **cero**. Si hubo alguno, documentarlo como HAL-BBW y corregir el contrato o el código.
 
+## 7. Previsualización por rama (adelantada, D-BBW-26, 2026-09-17) — `[ZAVALA-MANUAL]`
+
+**Qué es:** la conexión del repo con Cloudflare **solo para previsualizaciones por rama**. No asigna dominio, no toca DNS, no publica producción; el
+cutover (§6 y fase 8 del plan) sigue siendo un despacho propio. **CC no entra en ningún panel**: los pasos los da Zavala. **Cero credenciales en el repo**
+(la conexión es la aplicación de GitHub de Cloudflare, instalada desde el panel de Cloudflare con alcance de un solo repositorio).
+
+**Por qué Pages y no Workers (verificado en la documentación oficial el 2026-09-17):** Cloudflare recomienda Workers para proyectos nuevos
+(*"Start new projects with Workers"*), pero desplegar assets estáticos con Workers exige un archivo de configuración de Wrangler con el directorio
+de assets **dentro del repo**, y §5 lo prohíbe (archivo de configuración propietario del host en la raíz). Pages con integración Git no pide
+ningún archivo: build, salida y rama se declaran en el panel. Si un día Pages dejara de admitir proyectos nuevos, la alternativa es Workers con
+`assets.directory = out`, y ese archivo entraría por decisión firmada como excepción explícita de §5, no por defecto.
+
+**Pasos en el panel (una sola vez):**
+
+| # | Dónde | Qué | Valor |
+|---|---|---|---|
+| 1 | dash.cloudflare.com → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** | Autorizar la aplicación de GitHub de Cloudflare | Alcance: **solo `brand-brain-foundry/brandbrain-web`** (no "todos los repositorios"). Es lo que permite *"deploy your projects, and update your PRs with preview deployments"*. |
+| 2 | Mismo asistente | Nombre del proyecto | `brandbrain-web` (genera el host `brandbrain-web.pages.dev`; es solo la dirección de previsualización, no un dominio propio). |
+| 3 | Mismo asistente | Production branch | `main` |
+| 4 | Mismo asistente | Framework preset | `Next.js (Static HTML Export)` (rellena build y salida; comprobar que quedan como en las filas 5 y 6) |
+| 5 | Mismo asistente | Build command | `pnpm build` (§1; el preset propone `npx next build`, equivalente; se prefiere el comando del contrato) |
+| 6 | Mismo asistente | Build output directory | `out` |
+| 7 | Mismo asistente → Environment variables (build) | Versión de Node y de pnpm | `NODE_VERSION` = `22` (el repo ya trae `.nvmrc` = 22, que Pages también lee) · `PNPM_VERSION` = `10.32.1` (la del campo `packageManager`; la documentación dice que la detección por `pnpm-lock.yaml` no está soportada). **Ningún secreto**: la landing no necesita variables en runtime (§2.4). |
+| 8 | **Save and Deploy** | Primer despliegue de `main` | Verificar `https://brandbrain-web.pages.dev/es/` → 200 con el HTML del build y `/` → `/es/`. **No** añadir dominio personalizado (Custom domains: vacío). |
+| 9 | Proyecto → **Settings** → **Builds** → Preview deployments | Ramas de previsualización | `All non-Production branches` (por defecto). Cada rama obtiene el alias `https://<rama>.brandbrain-web.pages.dev` (minúsculas, no alfanuméricos → guiones) y cada commit su URL con hash; *"Any custom domains … will not be affected by preview deployments"*. |
+
+**Qué queda después:** cada PR lleva un comentario de Cloudflare con su URL de previsualización; `main` se sirve en `brandbrain-web.pages.dev` **sin
+dominio propio** (los dominios siguen redirigiendo a `sivarbrains.com` hasta el cutover). Registrar en el hub (`ESTADO_CANONICO.md` §4) la fecha de la
+conexión y la URL de previsualización cuando existan.
+
+**Local, sin panel:** `pnpm preview` compila y sirve `out/` en `http://127.0.0.1:4173/es/` con rangos HTTP (el vídeo del héroe no carga sin ellos,
+L-51); `pnpm preview:serve` solo sirve. Es herramienta de desarrollo (`scripts/preview/serve.ts`, solo Node): no toca el artefacto.
+
 ---
-*D-BBW-02..07 + D-BBW-09/10/11 · `docs/system/DEPLOY_CONTRACT.md` · v1.1 · 2026-09-16 (v1.0: 2026-09-15)*
+*D-BBW-02..07 + D-BBW-09/10/11 + D-BBW-26 · `docs/system/DEPLOY_CONTRACT.md` · v1.2 · 2026-09-17 (v1.1: 2026-09-16 · v1.0: 2026-09-15)*

@@ -29,4 +29,10 @@
   --bbf-line-on-base: var(--bbf-color-mint-700);
   --bbf-surface-veil: var(--bbf-shadow-ink-soft);
   --bbf-surface-veil-text: var(--bbf-shadow-ink-veil-text);
+
+  /* fase 6f (composición): la viñeta del diseño en dos paradas y la parada media de la máscara del escenario del vídeo (alfas en
+     primitives/shadows.css). El velo global de la 6d (transparente → tinta al 90 % en las esquinas) queda sustituido por la viñeta del diseño. */
+  --bbf-surface-vignette-mid: var(--bbf-shadow-ink-vignette-mid);
+  --bbf-surface-vignette-edge: var(--bbf-shadow-ink-vignette-edge);
+  --bbf-mask-stage-mid: var(--bbf-shadow-ink-stage-mask-mid);
 }

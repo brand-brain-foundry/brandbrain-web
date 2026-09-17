@@ -4,8 +4,9 @@
  * primitives/colors.css, D-BBW-16): mota rgb(212,236,234) → mint-100 · cuerpo de burbuja (160,222,220) y borde (140,215,215) → mint-200 ·
  * aro (90,170,180) → mint-400 · brillo interior (214,246,244) → mint-100 · halo del brillo (206,240,238) → mint-100 · núcleo del brillo
  * (236,252,250) → mint-50. El caveat de la 6a (distinguibles sobre parches planos) se comprueba con las partículas en pantalla en el
- * output de la 6e. Unidad: el suelo 9 px del diseño cae al paso ×2 (8 px, |Δ| 1 px sobre una mota difuminada: imperceptible); la
- * pendiente 0,85vw es madre (como el 3,4vw del margen de página). Las opacidades son parámetro del componente (primitives/particles.css).
+ * output de la 6e. Unidad: el suelo 9 px del diseño cae al paso ×2 (8 px, |Δ| 1 px); la pendiente 0,85vw es madre (como el 3,4vw del
+ * margen de página). Fase 6f: la unidad solo escala el BAMBOLEO; los tamaños son px del inventario (primitives/particles.css).
+ * Las opacidades son parámetro del componente (primitives/particles.css).
  * CLASE (D-DOC-13): estático (roles); paso asignado y unidad = dinámico.
  */
 :root {

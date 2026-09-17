@@ -15,6 +15,7 @@ pnpm install
 pnpm check   # typecheck + lint + guardias de color, tipografía, sistema tipográfico propio (pesos, escala, excepciones, corte), modelo de contenido (+ sustituciones) y medios (maestros ⇔ derivados)
 pnpm media:build  # regenera los derivados de public/ y src/media/generated.ts desde media/masters/ (docs/system/MEDIA.md); nunca se editan a mano
 pnpm build   # → out/ (estático)
+pnpm preview # compila y sirve out/ en http://127.0.0.1:4173/es/ con rangos HTTP (el vídeo lo exige); solo local, sin tocar ningún host
 ```
 
 Operación (despachos, estado, bitácora): hub `bbf-command-hub` → `repos/brandbrain-web/`.

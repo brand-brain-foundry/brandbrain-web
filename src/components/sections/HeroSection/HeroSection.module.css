@@ -1,35 +1,28 @@
-/* HeroSection — Tier 3: solo consume Tier 1/2. Separaciones del lockup = elección de composición (el inventario no las asigna por elemento).
+/* HeroSection — Tier 3: solo consume Tier 1/2.
    Colores: display → on-base (el diseño usa el paso mint-50, sin rol; residual reportado) · lead → on-base · claim 1 → secondary ·
    claim 2 → muted (diseño mint-500, sin rol; residual reportado).
-   Fase 6d · FONDO (D-BBW-24): la sección es el contexto de apilamiento (isolation) y recorta (overflow). Capas por rol: medio (HeroMedia,
-   --bbf-layer-media) · velo (--bbf-layer-veil) · contenido (--bbf-layer-content). El velo compone TRES piezas con tokens que ya existen
-   (N0 §2.2: máscara radial del vídeo, viñeta radial, velo de tinta): la VIÑETA es un degradado radial de transparente en el centro al rol
-   `surface-veil` (tinta al 90 %) en las esquinas; los DEGRADADOS DE TRANSICIÓN llevan los bordes superior e inferior a la superficie opaca en
-   un tramo de la escala (`--bbf-hero-fade` = ×40), para que el medio no tenga borde contra la cabecera ni contra el pie. Ningún alfa ni
-   parada escrita a mano: solo `transparent`, roles de color y un paso de espaciado. Sombras de texto del diseño: el N0 no las asigna por
-   elemento (8 sombras, sin mapeo): no se inventan (reportado; D-BBW-25 las deja como acabado opcional, no garantía).
-   Fase 6e · VELO LOCAL DE LEGIBILIDAD (D-BBW-25): el lockup lleva detrás de su texto (::before, dentro de su propio contexto de apilamiento,
-   por encima de medio, velo global y partículas) un rectángulo de tinta al rol `surface-veil-text` (alfa CALIBRADA al mínimo que cumple,
-   primitives/shadows.css) con borde desenfocado (rol `blur-veil-text`, σ) y un sangrado de 3σ (constante técnica: cobertura 99,87 % en el
-   límite del bloque) para que bajo cada texto la tinta sea exactamente la calibrada. Sin cortes duros: la transición es gaussiana.
-   GUARDA DE ANCHO (EXC-BBW-01/02, fase 6e): titular y rótulo toman `min(tamaño, guarda)` por rol; solo actúa por debajo de ~425 px. */
+   Fase 6f · ESCENARIO (composición leída del export): la sección es el contexto de apilamiento (isolation), recorta (overflow) y es el
+   CONTENEDOR DE TAMAÑO de todas las proporciones del héroe (container-type: size → cqh/cqw/cqmin en los roles de semantic/composition.css);
+   mide al menos una ventana (100svh es estructura: la ventana pequeña, para que el pie superpuesto se vea al cargar en móvil) y crece con
+   `main` (flex con base 0: con base `auto` y contención de tamaño, Chrome resuelve `cqh` a 0 aunque la caja mida la ventana; medido en la 6f). Capas por rol: fondo (HeroGlow) · medio (HeroMedia) · velo (la VIÑETA del diseño, rol --bbf-vignette: elipse transparente en el
+   centro, 26 % de tinta al 80 %, 50 % en el borde) · partículas · contenido. Los fundidos superior e inferior de la 6d desaparecen: la
+   cabecera y el pie van superpuestos al escenario (Header/Footer, position: absolute) y no hay borde que disimular.
+   BLOQUE DE TEXTO: banda absoluta anclada al pie del héroe (rol --bbf-lockup-offset = 14 % del alto entre ×21 y ×38), centrada, con el margen
+   lateral del diseño (rol --bbf-lockup-pad); dentro, el bloque ajusta al contenido (fit-content) y lleva su VELO LOCAL de legibilidad
+   (D-BBW-25, ::before: tinta al rol surface-veil-text calibrada al mínimo que cumple, borde desenfocado σ y sangrado 3σ). Separaciones por
+   rol (--bbf-lockup-gap-*: 0,5 % · 2,4 % · 0,7 % del alto del héroe, con sus extremos en pasos). Sombras de texto del diseño: sin mapeo,
+   no se inventan (D-BBW-25: acabado opcional). Guarda de ancho (EXC-BBW-01/02): min(tamaño, guarda) por rol. */
 .hero {
-  --bbf-hero-gap-lead: var(--bbf-space-4);
-  --bbf-hero-gap-claims: var(--bbf-space-10);
-  --bbf-hero-gap-claim: var(--bbf-space-2);
-  --bbf-hero-fade: var(--bbf-space-40);
-  --bbf-hero-veil-edge: var(--bbf-surface-veil);
-  --bbf-hero-veil-seam: var(--bbf-surface-base);
+  --bbf-hero-veil-text: var(--bbf-surface-veil-text);
+  --bbf-hero-veil-text-blur: var(--bbf-blur-veil-text);
+  --bbf-hero-veil-text-bleed: calc(var(--bbf-hero-veil-text-blur) * 3);
 
   position: relative;
   isolation: isolate;
+  container-type: size;
+  flex: 1 1 0;
+  min-height: 100svh;
   overflow: hidden;
-  display: flex;
-  flex: 1 0 auto;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--bbf-space-page);
   text-align: center;
 }
 
@@ -38,26 +31,31 @@
   inset: 0;
   z-index: var(--bbf-layer-veil);
   pointer-events: none;
-  background:
-    linear-gradient(to bottom, var(--bbf-hero-veil-seam), transparent var(--bbf-hero-fade)),
-    linear-gradient(to top, var(--bbf-hero-veil-seam), transparent var(--bbf-hero-fade)),
-    radial-gradient(ellipse at center, transparent, var(--bbf-hero-veil-edge));
+  background: var(--bbf-vignette);
 }
 
 .lockup {
-  --bbf-hero-veil-text: var(--bbf-surface-veil-text);
-  --bbf-hero-veil-text-blur: var(--bbf-blur-veil-text);
-  --bbf-hero-veil-text-bleed: calc(var(--bbf-hero-veil-text-blur) * 3);
-
-  position: relative;
+  position: absolute;
+  right: 0;
+  bottom: var(--bbf-lockup-offset);
+  left: 0;
   z-index: var(--bbf-layer-content);
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-inline: var(--bbf-lockup-pad);
+}
+
+.block {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
   max-width: 100%;
 }
 
-.lockup::before {
+.block::before {
   content: "";
   position: absolute;
   inset: calc(-1 * var(--bbf-hero-veil-text-bleed));
@@ -80,7 +78,7 @@
 }
 
 .lead {
-  margin: var(--bbf-hero-gap-lead) 0 0;
+  margin: var(--bbf-lockup-gap-lead) 0 0;
   max-width: 100%;
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-lead-family);
@@ -102,11 +100,11 @@
 }
 
 .claimPrimary {
-  margin-top: var(--bbf-hero-gap-claims);
+  margin-top: var(--bbf-lockup-gap-claims);
   color: var(--bbf-text-on-base-secondary);
 }
 
 .claimSecondary {
-  margin-top: var(--bbf-hero-gap-claim);
+  margin-top: var(--bbf-lockup-gap-claim);
   color: var(--bbf-text-on-base-muted);
 }

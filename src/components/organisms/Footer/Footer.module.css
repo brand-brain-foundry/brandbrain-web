@@ -1,26 +1,37 @@
 /* Footer — Tier 3: solo consume Tier 1/2. Punto de estado (N0 §2.3): 4 px = ×1 · separación 6 → ×2 · halo `0 0 10px acento .85` → blur ×3
-   con --bbf-accent-glow (composición prevista en primitives/shadows.css, fase 6a) · círculo por el radio del sistema. Sin pulso (movimiento). */
+   con --bbf-accent-glow (composición prevista en primitives/shadows.css, fase 6a) · círculo por el radio del sistema. Sin pulso (movimiento).
+   Fase 6f (composición leída del export): la BARRA va superpuesta al pie del escenario (position: absolute a --bbf-bar-bottom del borde
+   inferior, margen lateral --bbf-bar-side), en fila INVERTIDA (el aviso, primero en el HTML, queda a la derecha; legal + perfiles a la
+   izquierda) con justificación y separación por rol de vista (semantic/viewport.css: entre extremos en la vista amplia, centrada en la
+   colapsada). Los perfiles solo en la vista amplia (rol --bbf-nav-inline-display): en la colapsada están en la hoja del panel. Las dos
+   líneas no parten (nowrap, estructura); si la barra no cabe (el suelo de 12 px, D-BBW-18, hace el texto más grande que los 9 px del
+   diseño), la fila envuelve y queda centrada. */
 .footer {
-  --bbf-footer-gap: var(--bbf-space-6);
   --bbf-footer-dot-size: var(--bbf-space-1);
   --bbf-footer-dot-gap: var(--bbf-space-2);
   --bbf-footer-dot-glow: 0 0 var(--bbf-space-3) var(--bbf-accent-glow);
 
-  position: relative;
+  position: absolute;
+  right: 0;
+  bottom: var(--bbf-bar-bottom);
+  left: 0;
   z-index: var(--bbf-layer-chrome);
   display: flex;
+  flex-direction: row-reverse;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  column-gap: var(--bbf-footer-gap);
-  row-gap: var(--bbf-space-3);
-  padding: var(--bbf-space-page);
+  justify-content: var(--bbf-bar-justify);
+  column-gap: var(--bbf-bar-gap-view);
+  row-gap: var(--bbf-space-2);
+  padding: 0 var(--bbf-bar-side);
+  pointer-events: none;
 }
 
 .notice,
 .legal {
   margin: 0;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .notice {
@@ -43,10 +54,21 @@
   box-shadow: var(--bbf-footer-dot-glow);
 }
 
+.legalGroup {
+  display: flex;
+  align-items: center;
+  column-gap: var(--bbf-bar-gap-legal);
+}
+
 .legal {
   color: var(--bbf-text-on-base-muted);
   font-family: var(--bbf-type-legal-family);
   font-size: var(--bbf-type-legal-size);
   font-weight: var(--bbf-type-legal-weight);
   letter-spacing: var(--bbf-type-legal-tracking);
+}
+
+.social {
+  display: var(--bbf-nav-inline-display);
+  pointer-events: auto;
 }

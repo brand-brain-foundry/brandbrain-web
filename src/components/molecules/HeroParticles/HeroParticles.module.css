@@ -1,15 +1,16 @@
 /* HeroParticles — Tier 3: solo consume Tier 1/2 (primitives/particles.css · semantic/particles.css · motion · layers · radius · line).
-   Cada partícula trae SOLO números normalizados (--p-x, --p-y, --p-u, --p-phase, --p-kf ∈ 0..1); aquí se llevan a los rangos de los tokens:
-     tamaño   = unidad × (min + (max − min) × u) / referencia        (px del inventario sobre la unidad de referencia)
+   Cada partícula trae SOLO números normalizados (--p-x, --p-y, --p-u, --p-phase, --p-kf, --p-o, --p-d ∈ 0..1); aquí se llevan a los rangos:
+     tamaño   = min + (max − min) × u                                  (px del inventario; fase 6f: ya no se escalan con la unidad)
+     opacidad = op-min + (op-max − op-min) × o                          (por clase; fase 6f)
+     deriva   = drift-x × (2d − 1)                                       (horizontal, ±máx; fase 6f)
      duración = madre × (k-min + (k-max − k-min) × kf)                 (36–87 s; extremos en la retícula)
      fase     = retardo negativo de (fase × duración): el campo arranca ya repartido, no apilado en el origen
-   Recorridos: las motas suben MEDIA caja (token) y se funden en los extremos; las burbujas nacen bajo la caja y la cruzan entera más su
-   propio tamaño (estructural: 100cqh + 100 %), bamboleando ±0,55 unidades (token) con la curva ease-in-out del inventario.
-   `100cqh` = altura de la caja del campo (container-type: size), no del viewport: la partícula sabe dónde está el héroe, no la pantalla.
+   Recorridos: las motas suben MEDIA caja (token) derivando en horizontal y se funden en los extremos; las burbujas nacen bajo la caja y la
+   cruzan entera más su propio tamaño (estructural: 100cqh + 100 %), bamboleando ±0,55 unidades (token, la unidad del diseño) con la curva
+   ease-in-out del inventario. `100cqh` = altura de la caja del campo (container-type: size), no del viewport.
    Sin JavaScript. Movimiento reducido: `animation-play-state` por rol (quietas). Cero valores, cero color, cero texto. */
 .field {
   --bbf-particles-unit: var(--bbf-particle-unit);
-  --bbf-particles-ref: var(--bbf-particle-unit-ref);
   --bbf-particles-wobble: calc(var(--bbf-particles-unit) * var(--bbf-particle-wobble));
 
   position: absolute;
@@ -23,7 +24,9 @@
 .particle {
   /* los --p-* normalizados viven en la propia partícula: las fórmulas que los consumen se declaran AQUÍ (una propiedad personalizada se
      resuelve donde se declara, no donde se lee) */
-  --p-size: calc(var(--bbf-particles-unit) * (var(--p-min) + (var(--p-max) - var(--p-min)) * var(--p-u)) / var(--bbf-particles-ref));
+  --p-size: calc(var(--p-min) + (var(--p-max) - var(--p-min)) * var(--p-u));
+  --p-alpha: calc(var(--p-op-min) + (var(--p-op-max) - var(--p-op-min)) * var(--p-o));
+  --p-dx: calc(var(--bbf-particle-drift-x) * (2 * var(--p-d) - 1));
   --p-k: calc(var(--bbf-particle-k-min) + (var(--bbf-particle-k-max) - var(--bbf-particle-k-min)) * var(--p-kf));
   --p-duration: calc(var(--bbf-duration-base) * var(--p-k));
 
@@ -33,6 +36,7 @@
   width: var(--p-size);
   height: var(--p-size);
   border-radius: var(--bbf-radius-full);
+  opacity: 0;
   animation-duration: var(--p-duration);
   animation-delay: calc(-1 * var(--p-phase) * var(--p-duration));
   animation-timing-function: var(--bbf-ease-linear);
@@ -41,39 +45,40 @@
   will-change: transform, opacity;
 }
 
-/* ── motas: un disco del tinte de mota a su opacidad; suben media caja y se funden en los extremos ── */
+/* ── motas: un disco del tinte de mota (al alfa de tinte) con su opacidad propia; suben media caja y se funden en los extremos ── */
 .mote {
-  --p-alpha: var(--bbf-particle-alpha-mote);
-
-  background: var(--bbf-particle-mote-tint);
-  opacity: 0;
+  background: color-mix(in oklch, var(--bbf-particle-mote-tint) calc(var(--bbf-particle-alpha-mote) * 100%), transparent);
   animation-name: drift;
 }
 
 .moteFine {
   --p-min: var(--bbf-particle-mote-fine-min);
   --p-max: var(--bbf-particle-mote-fine-max);
+  --p-op-min: var(--bbf-particle-op-mote-fine-min);
+  --p-op-max: var(--bbf-particle-op-mote-fine-max);
 }
 
-.moteFineSoft {
-  --p-min: var(--bbf-particle-mote-fine-min);
-  --p-max: var(--bbf-particle-mote-fine-max);
+.moteMid {
+  --p-min: var(--bbf-particle-mote-mid-min);
+  --p-max: var(--bbf-particle-mote-mid-max);
+  --p-op-min: var(--bbf-particle-op-mote-mid-min);
+  --p-op-max: var(--bbf-particle-op-mote-mid-max);
 
-  filter: blur(var(--bbf-particle-blur-1));
+  filter: blur(var(--bbf-particle-blur-2));
 }
 
 .moteSoft {
   --p-min: var(--bbf-particle-mote-soft-min);
   --p-max: var(--bbf-particle-mote-soft-max);
+  --p-op-min: var(--bbf-particle-op-mote-soft-min);
+  --p-op-max: var(--bbf-particle-op-mote-soft-max);
 
-  filter: blur(var(--bbf-particle-blur-2));
+  filter: blur(var(--bbf-particle-blur-4));
 }
 
 /* ── burbujas: esfera por degradado radial (brillo → halo → cuerpo → aro) con brillo interior; el bamboleo va en la esfera interior para
    no mezclar dos transformaciones en un elemento ── */
 .bubble {
-  --p-alpha: 1;
-
   top: 100%;
   animation-name: rise;
 }
@@ -81,6 +86,8 @@
 .bubbleS {
   --p-min: var(--bbf-particle-bubble-s-min);
   --p-max: var(--bbf-particle-bubble-s-max);
+  --p-op-min: var(--bbf-particle-op-bubble-s-min);
+  --p-op-max: var(--bbf-particle-op-bubble-s-max);
   --p-hi: var(--bbf-particle-alpha-bubble-hi-s);
   --p-halo: var(--bbf-particle-alpha-bubble-halo-s);
 }
@@ -88,15 +95,19 @@
 .bubbleM {
   --p-min: var(--bbf-particle-bubble-m-min);
   --p-max: var(--bbf-particle-bubble-m-max);
+  --p-op-min: var(--bbf-particle-op-bubble-m-min);
+  --p-op-max: var(--bbf-particle-op-bubble-m-max);
   --p-hi: var(--bbf-particle-alpha-bubble-hi-m);
   --p-halo: var(--bbf-particle-alpha-bubble-halo-m);
 
-  filter: blur(var(--bbf-particle-blur-4));
+  filter: blur(var(--bbf-particle-blur-1));
 }
 
 .bubbleL {
   --p-min: var(--bbf-particle-bubble-l-min);
   --p-max: var(--bbf-particle-bubble-l-max);
+  --p-op-min: var(--bbf-particle-op-bubble-l-min);
+  --p-op-max: var(--bbf-particle-op-bubble-l-max);
   --p-hi: var(--bbf-particle-alpha-bubble-hi-l);
   --p-halo: var(--bbf-particle-alpha-bubble-halo-l);
 
@@ -125,7 +136,7 @@
 
 @keyframes drift {
   from {
-    transform: translateY(0);
+    transform: translate(0, 0);
     opacity: 0;
   }
 
@@ -134,14 +145,14 @@
   }
 
   to {
-    transform: translateY(calc(-1 * var(--bbf-particle-mote-travel) * 100cqh));
+    transform: translate(var(--p-dx), calc(-1 * var(--bbf-particle-mote-travel) * 100cqh));
     opacity: 0;
   }
 }
 
 @keyframes rise {
   from {
-    transform: translateY(0);
+    transform: translate(0, 0);
     opacity: 0;
   }
 
@@ -150,7 +161,7 @@
   }
 
   to {
-    transform: translateY(calc(-100cqh - 100%));
+    transform: translate(var(--p-dx), calc(-100cqh - 100%));
     opacity: 0;
   }
 }

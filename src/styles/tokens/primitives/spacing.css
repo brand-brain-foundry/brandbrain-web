@@ -11,6 +11,8 @@
  * FASE 6c (piezas dibujadas, N0 §2.3): onda del subrayado 160 = ×40 y onda de la hoja 340 = ×85 (caen exactas; pasos nuevos como token,
  *   ya existían en la fórmula) · alto de la onda 7 / 9 → ×2 (8; |Δ| ≤ 1) · brazos del conmutador 34 → ×9 (36) y su separación 8 = ×2 (cae) ·
  *   icono de marca 46 → ×12 (48, como el margen de página) · icono de perfil 22 → ×6 (24; empate → superior) y 15/16 → ×4 · punto de estado 4 = ×1 (cae).
+ * FASE 6f (composición, export leído): suelo del escenario del vídeo 250 → ×63 (252; empate → superior). Los extremos de los clamp() de la
+ *   disposición caen en pasos ya existentes (½, ×2, ×3, ×4, ×5, ×6, ×8, ×9, ×10, ×18, ×21, ×38).
  * CLASE (D-DOC-13): fórmula = estático · madre = plantilla (valor de la casa, no de la marca) · archivo = plantilla.
  */
 :root {
@@ -36,5 +38,6 @@
   --bbf-space-24: calc(var(--bbf-space-base) * 24);
   --bbf-space-38: calc(var(--bbf-space-base) * 38);
   --bbf-space-40: calc(var(--bbf-space-base) * 40);
+  --bbf-space-63: calc(var(--bbf-space-base) * 63);
   --bbf-space-85: calc(var(--bbf-space-base) * 85);
 }

@@ -13,6 +13,8 @@
   --bbf-motion-media-display: block;
   --bbf-motion-still-display: none;
   --bbf-motion-particles-play-state: running;
+  /* fase 6f: los RESPLANDORES del fondo derivan despacio (tercer medio en movimiento); con movimiento reducido quedan quietos, como las partículas */
+  --bbf-motion-glow-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -20,5 +22,6 @@
     --bbf-motion-media-display: none;
     --bbf-motion-still-display: block;
     --bbf-motion-particles-play-state: paused;
+    --bbf-motion-glow-play-state: paused;
   }
 }

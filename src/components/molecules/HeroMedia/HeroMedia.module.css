@@ -1,11 +1,22 @@
-/* HeroMedia — Tier 3: solo consume Tier 1/2. Capa de medio por rol (semantic/layers.css); cubre la caja del héroe sin deformar (object-fit:
-   cover; 100 % es estructura). Vídeo o imagen fija según el rol de movimiento (semantic/motion.css): nunca los dos. */
+/* HeroMedia — Tier 3: solo consume Tier 1/2. Capa de medio por rol (semantic/layers.css).
+   Fase 6f (composición leída del export): el vídeo NO va a sangre. Es un ESCENARIO 16:9 (rol --bbf-stage-aspect) de alto
+   --bbf-stage-height (max(56 % del héroe, suelo)), centrado en x y anclado al 43 % del alto (--bbf-stage-top), con MÁSCARA radial por rol
+   (--bbf-stage-mask: opaca hasta el 44 % del radio, mitad de tinta al 74 %, transparente en el borde): el pez se funde con el fondo y deja
+   ver los resplandores alrededor. En pantallas estrechas el escenario es más ancho que la ventana y el héroe lo recorta por los lados (el
+   sujeto está centrado; comportamiento del diseño). El vídeo o la imagen fija cubren el escenario sin deformar (object-fit: cover; 100 % y
+   la traslación −50 % son estructura). Vídeo o imagen fija según el rol de movimiento (semantic/motion.css): nunca los dos. */
 .media {
   position: absolute;
-  inset: 0;
+  top: var(--bbf-stage-top);
+  left: 50%;
   z-index: var(--bbf-layer-media);
+  height: var(--bbf-stage-height);
+  aspect-ratio: var(--bbf-stage-aspect);
   overflow: hidden;
+  transform: translate(-50%, -50%);
   pointer-events: none;
+  -webkit-mask-image: var(--bbf-stage-mask);
+  mask-image: var(--bbf-stage-mask);
 }
 
 .video {

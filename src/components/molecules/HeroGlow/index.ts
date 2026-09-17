@@ -1,0 +1,1 @@
+export { HeroGlow } from "./HeroGlow";

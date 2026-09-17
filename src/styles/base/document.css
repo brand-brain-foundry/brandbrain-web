@@ -5,10 +5,14 @@ html {
 }
 
 body {
-  /* columna a toda altura (fase 6b): cabecera · principal (crece) · pie. 100vh es estructura, no valor de diseño. */
+  /* columna a toda altura (fase 6b): principal (crece) con cabecera y pie SUPERPUESTOS (fase 6f: el diseño es un escenario a toda la ventana con
+     el cromo encima; Header/Footer se posicionan contra el documento). 100vh / 100svh es estructura, no valor de diseño: la ventana pequeña
+     hace visible el pie al cargar en móvil. */
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100svh;
   background: var(--bbf-surface-base);
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-body-family);
