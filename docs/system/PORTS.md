@@ -3,12 +3,12 @@ id: BBW-PORTS
 title: "Registro de puertos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.4
+version: 1.5
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
 updated: 2026-09-17
-verified_against_code: 2026-09-17@feat/fase6c-sistema-de-medios-foco-y-piezas (v1.4: puerto de medios declarado con su adaptador —derivados servidos desde el propio sitio— y su contrato docs/system/MEDIA.md; v1.3: enlaces salientes declarados en site.ts, que NO son puertos; v1.2: puerto de contenido declarado con su adaptador de archivos, src/content; v1.1: puerto de tipografía corregido contra la documentación oficial de Adobe Fonts, leída en vivo 2026-09-16)
+verified_against_code: 2026-09-17@feat/fase6d-copy-video-y-fondo (v1.5: vídeo del héroe por el puerto de medios, ffmpeg como herramienta de desarrollo; v1.4: puerto de medios declarado con su adaptador —derivados servidos desde el propio sitio— y su contrato docs/system/MEDIA.md; v1.3: enlaces salientes declarados en site.ts, que NO son puertos; v1.2: puerto de contenido declarado con su adaptador de archivos, src/content; v1.1: puerto de tipografía corregido contra la documentación oficial de Adobe Fonts, leída en vivo 2026-09-16)
 supersedes: []
 superseded_by: null
 related: [BBW-DEPLOY-CONTRACT, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, BBW-MEDIA-CONTRACT, D-BBW-10, D-BBW-13, D-BBW-14, D-BBW-21]
@@ -47,7 +47,7 @@ Valores del inventario N0 §2.4, pendientes de confirmación por Zavala (P-BBW-1
 ## Previstos, sin fila todavía (no se inventan)
 
 - **Analítica**: descartado por el N0 (sin necesidad medida).
-- **Medios (2026-09-17):** ya tiene fila (D-BBW-21, fase 6c). El vídeo del hero tiene contrato (`MEDIA.md` §6) y **no tiene maestro**: no se transcodifica nada hasta que exista (P-BBW-25).
+- **Medios (2026-09-17):** ya tiene fila (D-BBW-21, fase 6c). **Fase 6d (D-BBW-24):** el vídeo del héroe entra por el puerto con un maestro de registro (ya comprimido; se regenera cuando exista el original) y derivados H.264 sin audio + póster; segunda herramienta de desarrollo `ffmpeg` (`MEDIA.md` §4), solo en `pnpm media:build`, cero dependencias de producción; ningún actor nuevo en runtime (los derivados se sirven desde el propio sitio).
 
 ---
-*BBW-PORTS v1.4 · `docs/system/PORTS.md` · 2026-09-17 (v1.0–v1.3 el 2026-09-16: v1.1 corrige el puerto de tipografía contra la doc oficial de Adobe; v1.2 añade el puerto de contenido, fase 5; v1.3 enlaces salientes, fase 6a; v1.4 puerto de medios, fase 6c, D-BBW-21) · nace en la fase 4 (`DESPACHO-BBW-2026-09-16-fase4-tokens-y-sistema-de-diseno`)*
+*BBW-PORTS v1.5 · `docs/system/PORTS.md` · 2026-09-17 (v1.5 vídeo del héroe, fase 6d, D-BBW-24; v1.0–v1.3 el 2026-09-16: v1.1 corrige el puerto de tipografía contra la doc oficial de Adobe; v1.2 añade el puerto de contenido, fase 5; v1.3 enlaces salientes, fase 6a; v1.4 puerto de medios, fase 6c, D-BBW-21) · nace en la fase 4 (`DESPACHO-BBW-2026-09-16-fase4-tokens-y-sistema-de-diseno`)*

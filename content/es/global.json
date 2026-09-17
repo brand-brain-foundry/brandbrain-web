@@ -1,19 +1,39 @@
 {
   "nav": {
     "skipLabel": "[[PENDIENTE: texto del enlace para saltar al contenido principal]]",
-    "toggleLabel": "[[PENDIENTE: nombre accesible del botón que abre y cierra el menú]]",
+    "toggleLabel": "Menú",
     "items": [
-      { "id": "agency", "label": "[[PENDIENTE: etiqueta del enlace a la agencia]]", "link": "agency" },
-      { "id": "works", "label": "[[PENDIENTE: etiqueta del enlace a los trabajos con IA]]", "link": "works" },
-      { "id": "contact", "label": "[[PENDIENTE: etiqueta del enlace de contacto]]", "link": "contact" }
+      {
+        "id": "agency",
+        "label": "Sivar Brains",
+        "link": "agency"
+      },
+      {
+        "id": "works",
+        "label": "IA Works",
+        "link": "works"
+      },
+      {
+        "id": "contact",
+        "label": "Contacto",
+        "link": "contact"
+      }
     ]
   },
   "footer": {
-    "notice": "[[PENDIENTE: aviso corto junto al punto de estado]]",
-    "legal": "[[PENDIENTE: línea legal del pie]]",
+    "notice": "En construcción",
+    "legal": "© All rights reserved",
     "social": [
-      { "id": "linkedin", "label": "[[PENDIENTE: nombre accesible del perfil de LinkedIn]]", "link": "linkedin" },
-      { "id": "github", "label": "[[PENDIENTE: nombre accesible del perfil de GitHub]]", "link": "github" }
+      {
+        "id": "linkedin",
+        "label": "[[PENDIENTE: nombre accesible del perfil de LinkedIn]]",
+        "link": "linkedin"
+      },
+      {
+        "id": "github",
+        "label": "[[PENDIENTE: nombre accesible del perfil de GitHub]]",
+        "link": "github"
+      }
     ]
   }
 }

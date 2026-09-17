@@ -11,10 +11,23 @@ import { fileURLToPath } from 'url';
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 export type LockMaster = { file: string; sha256: string };
-export type LockDerivative = { path: string; master: string; profile: string; sha256: string; width?: number; height?: number };
+export type LockDerivative = {
+  path: string;
+  master: string;
+  profile: string;
+  sha256: string;
+  width?: number;
+  height?: number;
+  /** fase 6d (vídeo y póster): peso real y presupuesto del perfil (la guardia R6 comprueba bytes ≤ budgetBytes) */
+  bytes?: number;
+  budgetBytes?: number;
+  /** fase 6d (vídeo): pistas del derivado verificadas con ffprobe al generar; un fondo decorativo no lleva audio (D-BBW-24) */
+  streams?: string;
+};
 export type LockFile = {
   generatedBy: string;
-  tool: { sharp: string; vips: string };
+  /** `ffmpeg` solo existe cuando hay derivados de vídeo (fase 6d): versión que los generó; la guardia R5 la compara con la instalada */
+  tool: { sharp: string; vips: string; ffmpeg?: string };
   surface: { token: string; srgb: string };
   masters: Record<string, LockMaster>;
   derivatives: Record<string, LockDerivative>;

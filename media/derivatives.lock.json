@@ -14,6 +14,38 @@
       "profile": "ico 16/32/48",
       "sha256": "72c972d9e211b7b6eda67fe0bc764f31e4e6e8e57e43816bde8b37b076dccb97"
     },
+    "heroLoop360": {
+      "budgetBytes": 400000,
+      "bytes": 315107,
+      "height": 360,
+      "master": "heroLoop",
+      "path": "public/hero-loop-640x360.mp4",
+      "profile": "video h264 640×360 crf 23 sin audio ≤ 400000 B",
+      "sha256": "e6a3fa5c142b96bb5c0e3b6bec8861718cfe83236bfe7ef2a4ed8da87c4f923c",
+      "streams": "video:h264 640x360",
+      "width": 640
+    },
+    "heroLoop720": {
+      "budgetBytes": 1000000,
+      "bytes": 891885,
+      "height": 720,
+      "master": "heroLoop",
+      "path": "public/hero-loop-1280x720.mp4",
+      "profile": "video h264 1280×720 crf 23 sin audio ≤ 1000000 B",
+      "sha256": "c823146f12b55c6505ea98d9caae7148375dc77d598fd2de556cf6996fcb7190",
+      "streams": "video:h264 1280x720",
+      "width": 1280
+    },
+    "heroLoopPoster": {
+      "budgetBytes": 60000,
+      "bytes": 35496,
+      "height": 720,
+      "master": "heroLoop",
+      "path": "public/hero-loop-poster-1280x720.jpg",
+      "profile": "poster jpeg 1280×720 q 80 fotograma 0 ≤ 60000 B",
+      "sha256": "70c96e1c6b052d541218213f8b1af2b9f3418b97bba4a9926d797536f2727879",
+      "width": 1280
+    },
     "icon": {
       "height": 274,
       "master": "brandIcon",
@@ -63,13 +95,17 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "bac91e75be8d4a06bf790e6ea4b4f572555eb515a0c2330fb2830b6ad28c0b46"
+    "sha256": "8c9bac2b8c187058f105c7cb9d4fe879913f2e05fb395a7b6e0c6dcda746627f"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
     "brandIcon": {
       "file": "brand-icon.svg",
       "sha256": "4dccf7f987565cb835454cb8ceeaa6f4638a9f23afa462c1b4abbca3670b946d"
+    },
+    "heroLoop": {
+      "file": "hero-loop.mp4",
+      "sha256": "51cca5755257a668b59b4467a4ba1067239c44a7073de9da33b22d3ae04b36fd"
     },
     "iconGithub": {
       "file": "icon-github.svg",
@@ -101,6 +137,7 @@
     "token": "--bbf-surface-base"
   },
   "tool": {
+    "ffmpeg": "8.1.2",
     "sharp": "0.35.4",
     "vips": "8.18.6"
   }

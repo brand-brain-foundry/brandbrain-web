@@ -1,13 +1,24 @@
 /* HeroSection — Tier 3: solo consume Tier 1/2. Separaciones del lockup = elección de composición (el inventario no las asigna por elemento).
    Colores: display → on-base (el diseño usa el paso mint-50, sin rol; residual reportado) · lead → on-base · claim 1 → secondary ·
-   claim 2 → muted (diseño mint-500, sin rol; residual reportado). Sombras de texto del diseño: sin fondo que las justifique hasta la 6c. */
+   claim 2 → muted (diseño mint-500, sin rol; residual reportado).
+   Fase 6d · FONDO (D-BBW-24): la sección es el contexto de apilamiento (isolation) y recorta (overflow). Capas por rol: medio (HeroMedia,
+   --bbf-layer-media) · velo (--bbf-layer-veil) · contenido (--bbf-layer-content). El velo compone TRES piezas con tokens que ya existen
+   (N0 §2.2: máscara radial del vídeo, viñeta radial, velo de tinta): la VIÑETA es un degradado radial de transparente en el centro al rol
+   `surface-veil` (tinta al 90 %) en las esquinas; los DEGRADADOS DE TRANSICIÓN llevan los bordes superior e inferior a la superficie opaca en
+   un tramo de la escala (`--bbf-hero-fade` = ×40), para que el medio no tenga borde contra la cabecera ni contra el pie. Ningún alfa ni
+   parada escrita a mano: solo `transparent`, roles de color y un paso de espaciado. Sombras de texto del diseño: el N0 no las asigna por
+   elemento (8 sombras, sin mapeo): no se inventan (reportado). */
 .hero {
   --bbf-hero-gap-lead: var(--bbf-space-4);
   --bbf-hero-gap-claims: var(--bbf-space-10);
   --bbf-hero-gap-claim: var(--bbf-space-2);
+  --bbf-hero-fade: var(--bbf-space-40);
+  --bbf-hero-veil-edge: var(--bbf-surface-veil);
+  --bbf-hero-veil-seam: var(--bbf-surface-base);
 
   position: relative;
-  z-index: var(--bbf-layer-content);
+  isolation: isolate;
+  overflow: hidden;
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
@@ -15,6 +26,26 @@
   justify-content: center;
   padding: var(--bbf-space-page);
   text-align: center;
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  z-index: var(--bbf-layer-veil);
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, var(--bbf-hero-veil-seam), transparent var(--bbf-hero-fade)),
+    linear-gradient(to top, var(--bbf-hero-veil-seam), transparent var(--bbf-hero-fade)),
+    radial-gradient(ellipse at center, transparent, var(--bbf-hero-veil-edge));
+}
+
+.lockup {
+  position: relative;
+  z-index: var(--bbf-layer-content);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
 }
 
 .display {

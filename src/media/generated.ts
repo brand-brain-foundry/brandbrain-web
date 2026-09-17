@@ -12,6 +12,9 @@ export const media = {
   icon512: { src: "/icon-512.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   icon512Maskable: { src: "/icon-512-maskable.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   share: { src: "/share-1200x630.png", type: "image/png", width: 1200, height: 630, sizes: "1200x630" },
+  heroLoop720: { src: "/hero-loop-1280x720.mp4", type: "video/mp4", width: 1280, height: 720, sizes: "1280x720" },
+  heroLoop360: { src: "/hero-loop-640x360.mp4", type: "video/mp4", width: 640, height: 360, sizes: "640x360" },
+  heroLoopPoster: { src: "/hero-loop-poster-1280x720.jpg", type: "image/jpeg", width: 1280, height: 720, sizes: "1280x720" },
   manifest: { src: "/manifest.webmanifest", type: "application/manifest+json" },
 } as const;
 
