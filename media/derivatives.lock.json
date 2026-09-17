@@ -1,0 +1,107 @@
+{
+  "derivatives": {
+    "appleTouchIcon": {
+      "height": 180,
+      "master": "brandIcon",
+      "path": "public/apple-touch-icon-180.png",
+      "profile": "png 180×180 surface padding 0.1111",
+      "sha256": "d1a1fd7898817d3d1e0c1fa8f39e74a035f5cc44b865cbfd03f1f40f67131ed9",
+      "width": 180
+    },
+    "favicon": {
+      "master": "brandIcon",
+      "path": "public/favicon.ico",
+      "profile": "ico 16/32/48",
+      "sha256": "72c972d9e211b7b6eda67fe0bc764f31e4e6e8e57e43816bde8b37b076dccb97"
+    },
+    "icon": {
+      "height": 274,
+      "master": "brandIcon",
+      "path": "public/icon.svg",
+      "profile": "svg-copy",
+      "sha256": "4dccf7f987565cb835454cb8ceeaa6f4638a9f23afa462c1b4abbca3670b946d",
+      "width": 264
+    },
+    "icon192": {
+      "height": 192,
+      "master": "brandIcon",
+      "path": "public/icon-192.png",
+      "profile": "png 192×192 transparent padding 0",
+      "sha256": "8c1254ba4854125e01b3044549d1e57de58c12ff4af4b34e9993f8e82c1ee6e2",
+      "width": 192
+    },
+    "icon512": {
+      "height": 512,
+      "master": "brandIcon",
+      "path": "public/icon-512.png",
+      "profile": "png 512×512 transparent padding 0",
+      "sha256": "26166140f7410c417a4e1b0bf7532e7c39a86c7281c4bbcd9eedeedcddcf7931",
+      "width": 512
+    },
+    "icon512Maskable": {
+      "height": 512,
+      "master": "brandIcon",
+      "path": "public/icon-512-maskable.png",
+      "profile": "png 512×512 surface padding 0 safe-zone",
+      "sha256": "9883edc0445cf90ad815c462bd4fa7813e0ed8782ee29a1d7fdd003a81350f48",
+      "width": 512
+    },
+    "manifest": {
+      "master": "brandIcon",
+      "path": "public/manifest.webmanifest",
+      "profile": "manifest icon192,icon512,icon512Maskable",
+      "sha256": "f9e2058975a3ab979bb659ef55a970d802637dc17dbdfbd516660949519d396a"
+    },
+    "share": {
+      "height": 630,
+      "master": "brandIcon",
+      "path": "public/share-1200x630.png",
+      "profile": "share 1200×630 icon 0.5",
+      "sha256": "19a331b778968f7be1be9f7cee931d5347a2bf8e9a55dfe5a94ded6220c6fdb2",
+      "width": 1200
+    }
+  },
+  "generated": {
+    "path": "src/media/generated.ts",
+    "sha256": "bac91e75be8d4a06bf790e6ea4b4f572555eb515a0c2330fb2830b6ad28c0b46"
+  },
+  "generatedBy": "scripts/media/build.ts (pnpm media:build)",
+  "masters": {
+    "brandIcon": {
+      "file": "brand-icon.svg",
+      "sha256": "4dccf7f987565cb835454cb8ceeaa6f4638a9f23afa462c1b4abbca3670b946d"
+    },
+    "iconGithub": {
+      "file": "icon-github.svg",
+      "sha256": "2779cce9614ad710d22e9a27fd00c1c385d9ab4df4f7d71468b8d4706d34bb35"
+    },
+    "iconLinkedin": {
+      "file": "icon-linkedin.svg",
+      "sha256": "9baab7408df41919c24f0dbe8fb8807c56cc8d7be66da37d3a2467a1b8c82b08"
+    },
+    "toggleArmBottom": {
+      "file": "toggle-arm-bottom.svg",
+      "sha256": "fa7b5091f19041efaa88014a88bcd30ebe98154426796839693476baba04713c"
+    },
+    "toggleArmTop": {
+      "file": "toggle-arm-top.svg",
+      "sha256": "7399dee05d20bda5470b44dfc1323a1fd7b20463a0020d317ef5817d409ea84e"
+    },
+    "underlineWaveMenu": {
+      "file": "underline-wave-menu.svg",
+      "sha256": "df618e94f2e1a27398682daf198194bc2b25f2b902da217ace67695ec323d8f0"
+    },
+    "underlineWaveNav": {
+      "file": "underline-wave-nav.svg",
+      "sha256": "383705cb1d3f39f811419cd6ddd11e436292a271fe89d7208f23d29c4ebc7e38"
+    }
+  },
+  "surface": {
+    "srgb": "#000000",
+    "token": "--bbf-surface-base"
+  },
+  "tool": {
+    "sharp": "0.35.4",
+    "vips": "8.18.6"
+  }
+}

@@ -13,7 +13,9 @@
     "lint:typo:baseline": "tsx scripts/lint/check-typography-tokens.ts --write-baseline",
     "lint:type-system": "tsx scripts/lint/check-typography-system.ts",
     "lint:content": "tsx scripts/lint/check-content.ts",
-    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:type-system && pnpm lint:content",
+    "lint:media": "tsx scripts/lint/check-media.ts",
+    "media:build": "tsx scripts/media/build.ts",
+    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:type-system && pnpm lint:content && pnpm lint:media",
     "check": "pnpm typecheck && pnpm lint && pnpm guard"
   },
   "dependencies": {
@@ -27,8 +29,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
-    "typescript": "^5",
-    "tsx": "^4.22.3"
+    "sharp": "0.35.4",
+    "tsx": "^4.22.3",
+    "typescript": "^5"
   },
   "packageManager": "pnpm@10.32.1",
   "description": "Web oficial de Brand Brain Foundry — landing estática ES/EN (Next.js output: export). Contrato de hosting: docs/system/DEPLOY_CONTRACT.md",

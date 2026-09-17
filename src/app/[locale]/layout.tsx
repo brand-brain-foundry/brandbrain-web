@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { site, isLocale } from "@/config/site";
 import { getGlobal } from "@/content";
+import { media } from "@/media";
 import { textFont } from "@/styles/fonts/text";
 import { displayFont } from "@/styles/fonts/display";
 import { SkipLink } from "@/components/atoms/SkipLink";
@@ -19,10 +20,21 @@ export function generateStaticParams() {
   return site.publishedLocales.map((locale) => ({ locale }));
 }
 
+// Iconos y manifiesto por el puerto de medios (D-BBW-21, fase 6c): el conjunto vigente (SVG escalable + .ico de respaldo + icono de Apple +
+// manifiesto con 192/512 y recortable). Rutas y dimensiones desde `src/media/generated.ts`; nada escrito a mano. La imagen para compartir
+// existe como derivado y se cablea con los metadatos de la capa semántica (fase 7).
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: site.name,
   description: `${site.name} — ${site.repo}`,
+  manifest: media.manifest.src,
+  icons: {
+    icon: [
+      { url: media.icon.src, type: media.icon.type },
+      { url: media.favicon.src, type: media.favicon.type, sizes: media.favicon.sizes },
+    ],
+    apple: [{ url: media.appleTouchIcon.src, type: media.appleTouchIcon.type, sizes: media.appleTouchIcon.sizes }],
+  },
 };
 
 /**

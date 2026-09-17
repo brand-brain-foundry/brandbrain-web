@@ -1,0 +1,10 @@
+/**
+ * semantic/effects.css — Tier 2 · EFECTOS POR ROL (fase 6c). Desenfoque del fondo de la hoja del panel (N0 §2.2: `backdrop-filter:
+ * blur(22px)`). El desenfoque deriva de la escala de espaciado, como ya hacen las sombras (primitives/shadows.css: desenfoque = paso de
+ * espaciado): 22 → ×6 = 24 px (empate → peldaño superior, misma resolución que la fase 6a dio a 22 en espaciado y en sombras; |Δ| = 2 px).
+ * NO derivable, reportado y NO aplicado: `saturate(0.7)` de la misma hoja — no existe escala de saturación de la que derivarlo.
+ * CLASE (D-DOC-13): estático (rol); paso = dinámico.
+ */
+:root {
+  --bbf-blur-sheet: var(--bbf-space-6);
+}

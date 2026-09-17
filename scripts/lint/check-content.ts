@@ -15,6 +15,9 @@
  *        Llaves desconocidas, HTML, textos vacíos, ids repetidos, tipos de sección desconocidos y llaves de enlace inexistentes
  *        fallan con la ruta exacta ($.footer.social[1].link …).
  *   R4 · Solo `.json` dentro de las colecciones.
+ *   R5 · SUSTITUCIONES (D-BBW-23, fase 6c): todo `{{…}}` de cualquier texto es un identificador DECLARADO en src/content/substitutions.ts
+ *        (`{{brand}}`, `{{domain}}`, `{{year}}`…). Uno no declarado, o cualquier expresión entre llaves (lógica), falla con la ruta exacta.
+ *        Informa cuántas sustituciones declaradas usa el contenido.
  * Informa además cuántos textos hay y cuántos son marcadores `[[PENDIENTE: …]]` (copy pendiente), sin interpretarlos (D-DOC-06).
  * Uso: `pnpm lint:content` · `pnpm guard` · pre-commit.
  */
@@ -31,6 +34,7 @@ import {
   validatePage,
   type Problem,
 } from '../../src/content/schema';
+import { findUndeclaredSubstitutions, substitutions } from '../../src/content/substitutions';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -41,6 +45,8 @@ const fails: Fail[] = [];
 let docs = 0;
 let texts = 0;
 let pending = 0;
+let substituted = 0;
+const DECLARED_RE = new RegExp(`\\{\\{\\s*(?:${Object.keys(substitutions).join('|')})\\s*\\}\\}`, 'g');
 
 function rel(abs: string): string {
   return path.relative(REPO_ROOT, abs).split(path.sep).join('/');
@@ -68,6 +74,8 @@ function report(abs: string, problems: Problem[], doc: unknown): void {
   const all = collectTexts(doc);
   texts += all.length;
   pending += all.filter(isPlaceholder).length;
+  for (const u of findUndeclaredSubstitutions(doc)) fails.push({ rule: 'R5', where: rel(abs), detail: `${u.path}: sustitución no declarada "${u.token}" (declaradas: ${Object.keys(substitutions).join(', ')}; sin lógica, D-BBW-23)` });
+  for (const t of all) substituted += (t.match(DECLARED_RE) ?? []).length;
 }
 
 if (!fs.existsSync(CONTENT_ROOT) || !fs.statSync(CONTENT_ROOT).isDirectory()) {
@@ -126,10 +134,10 @@ for (const locale of published) {
 }
 
 if (fails.length === 0) {
-  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s); ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente).`);
+  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s); ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente), ${substituted} sustitución(es) declarada(s) en uso.`);
   process.exit(0);
 }
 console.error(`[content-gate] ${fails.length} problema(s) en content/ — build roto.`);
 for (const f of fails) console.error(`  ${f.rule} ${f.where}: ${f.detail}`);
-console.error('  Regla: cada texto con su llave (por rol), sin presentación ni HTML, enlaces por llave de site.links, solo locales publicados, solo colecciones del esquema.');
+console.error('  Regla: cada texto con su llave (por rol), sin presentación ni HTML, enlaces por llave de site.links, solo locales publicados, solo colecciones del esquema, sustituciones solo del conjunto declarado.');
 process.exit(1);

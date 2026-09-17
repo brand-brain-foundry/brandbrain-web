@@ -1,0 +1,11 @@
+/**
+ * semantic/lines.css — Tier 2 · GROSOR DE LÍNEA POR ROL (fase 6c). Roles de las piezas dibujadas del diseño (N0 §2.3), sobre la escala
+ * de primitives/line.css: onda del subrayado en reposo (1 px → sm), onda del subrayado en tinta y onda de la hoja (1,3 / 1,4 px → md),
+ * brazos del conmutador (1,5 px → md). Un componente pide `--bbf-line-<rol>`, nunca un grosor.
+ * CLASE (D-DOC-13): estático (roles); paso asignado = dinámico.
+ */
+:root {
+  --bbf-line-underline-base: var(--bbf-line-sm);
+  --bbf-line-underline: var(--bbf-line-md);
+  --bbf-line-toggle: var(--bbf-line-md);
+}

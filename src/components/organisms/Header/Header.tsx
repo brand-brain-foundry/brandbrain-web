@@ -1,13 +1,15 @@
 import { site, type Locale } from "@/config/site";
 import type { GlobalDocument, LinkItem } from "@/content/schema";
+import { iconFor } from "@/media";
 import { BrandMark } from "@/components/atoms/BrandMark";
 import { LinkList, type ResolvedLink } from "@/components/molecules/LinkList";
 import { NavPanel } from "@/components/molecules/NavPanel";
 import styles from "./Header.module.css";
 
-/** El destino de cada enlace vive SOLO en `site.links` (criterio 1); el contenido solo referencia la llave. */
+/** El destino de cada enlace vive SOLO en `site.links` (criterio 1); el contenido solo referencia la llave. Fase 6c: si el puerto de medios
+ * tiene un icono de perfil con el `id` del enlace, viaja con él (el organismo resuelve; el átomo solo pinta). */
 export function resolveLinks(items: LinkItem[]): ResolvedLink[] {
-  return items.map((item) => ({ id: item.id, label: item.label, href: site.links[item.link] }));
+  return items.map((item) => ({ id: item.id, label: item.label, href: site.links[item.link], icon: iconFor(item.id) }));
 }
 
 /**
@@ -27,7 +29,7 @@ export function Header({ locale, global }: { locale: Locale; global: GlobalDocum
         </div>
         <NavPanel toggleLabel={global.nav.toggleLabel}>
           <LinkList items={nav} typeRole="menu" direction="column" />
-          <LinkList items={social} typeRole="legal" />
+          <LinkList items={social} typeRole="legal" iconSize="md" />
         </NavPanel>
       </nav>
     </header>

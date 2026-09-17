@@ -16,3 +16,14 @@ body {
   font-weight: var(--bbf-type-body-weight);
   -webkit-font-smoothing: antialiased;
 }
+
+/* foco (D-BBW-22, fase 6c): UN solo sitio para todo el documento; ningún componente escribe su propio foco. Solo se muestra al navegar con
+   teclado (:focus-visible); el foco por ratón no pinta anillo. Color, anchura y separación por rol; el anillo del navegador queda sustituido. */
+:focus-visible {
+  outline: var(--bbf-focus-ring-width) solid var(--bbf-focus-ring);
+  outline-offset: var(--bbf-focus-ring-offset);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}

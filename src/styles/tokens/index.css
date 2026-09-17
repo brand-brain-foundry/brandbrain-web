@@ -12,9 +12,12 @@
 @import "./primitives/motion.css";
 @import "./primitives/z-index.css";
 @import "./primitives/breakpoints.css";
+@import "./primitives/line.css";
 
 @import "./semantic/colors.css";
 @import "./semantic/typography.css";
 @import "./semantic/spacing.css";
 @import "./semantic/layers.css";
 @import "./semantic/viewport.css";
+@import "./semantic/lines.css";
+@import "./semantic/effects.css";
