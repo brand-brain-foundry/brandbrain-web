@@ -9,11 +9,17 @@
 :root {
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
+  /* fase 6f (composición del pie leída del export): en la vista amplia legal + perfiles a la izquierda y aviso a la derecha; en la
+     colapsada una fila centrada (legal + aviso) y los perfiles viven en la hoja del panel (rol inline-display), no en la barra */
+  --bbf-bar-justify: space-between;
+  --bbf-bar-gap-view: var(--bbf-bar-gap);
 }
 
 @media (max-width: 780px) {
   :root {
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;
+    --bbf-bar-justify: center;
+    --bbf-bar-gap-view: var(--bbf-bar-gap-narrow);
   }
 }

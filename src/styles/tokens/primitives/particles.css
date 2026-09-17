@@ -1,16 +1,19 @@
 /**
- * primitives/particles.css — Tier 1 · PARTÍCULAS DEL FONDO (fase 6e; D-BBW-16 · D-DS-AXIOMA-AGNOSTICO)
+ * primitives/particles.css — Tier 1 · PARTÍCULAS DEL FONDO (fase 6e; D-BBW-16 · D-DS-AXIOMA-AGNOSTICO; fase 6f: a su escala)
  * Madres del inventario N0 (§2.2 y §2.3): motas (31) y burbujas (21) como "misma receta con parámetros aleatorizados". El N0 registra
  * RANGOS y RECUENTOS, no el valor de cada partícula: aquí viven los rangos; el azar reproducible (semilla fija) vive en el componente
  * y solo produce números normalizados 0..1. Ningún consumidor escribe un valor.
- *   · Unidad: el diseño mide las partículas sobre `max(9px, 0.85vw)`; los tamaños de abajo son px SOBRE ESA UNIDAD DE REFERENCIA (9)
- *     y el componente los escala: tamaño = unidad × valor / referencia. El suelo 9 px se resuelve en semantic (paso ×2 = 8 px, |Δ| 1 px).
- *   · Tamaños: motas 1–3,3 px (finas) y 6–9 px (suaves, difuminadas); burbujas 2,5–4,3 · 5,7–9,9 · 15–21 px (tres clases).
+ *   · FASE 6f (export leído para composición): los tamaños del diseño son PÍXELES ABSOLUTOS (1–21 px), no múltiplos de la unidad
+ *     `max(9px, 0.85vw)`: esa unidad solo escala el BAMBOLEO (±0,55 em) y la fase 6e la aplicó también al tamaño (×1,6 a 1728 px, ×2,1 a
+ *     1920: "motas notablemente mayores"). Corregido: tamaños en px aquí, unidad solo para el bamboleo. Y cada partícula lleva además una
+ *     OPACIDAD PROPIA (0,05–0,43 en el diseño) sobre el tinte al 0,8: la 6e usaba 0,8 como opacidad del elemento (×3–8 más brillo).
+ *   · Clases reales del export: motas finas 16 (1–1,9 px, nítidas) · medias 10 (2,3–3,3 px, desenfoque 0,8) · suaves 5 (6–9 px, 4,5) ·
+ *     burbujas S 11 (2,5–4,3, nítidas) · M 7 (5,7–9,9, desenfoque 0,3) · L 3 (15–21, desenfoque 3). Opacidades por clase (mín–máx):
+ *     finas 0,10–0,25 · medias 0,13–0,26 · suaves 0,05–0,09 · S 0,28–0,40 · M 0,31–0,43 · L 0,15–0,16. Deriva horizontal ±2,9vw (máx).
  *   · Desenfoques: 0,3 · 0,8 · 3 · 4,5 px. Están por debajo del cuanto de la escala de espaciado (2 px) y ajustar 0,3 → 1 px sobre una
  *     mota de 1–3 px la convierte en neblina: perceptible → NO se ajusta, se registra como madre (D-BBW-16: lo perceptible se reporta).
- *   · Opacidades: parámetro de opacidad, no color (cabecera de primitives/colors.css: las alfas 0,04–0,8 no son color; la matriz trata la
- *     opacidad como enum). Motas 0,8; burbuja cuerpo 0,12 · borde 0,13 · aro 0,04 · brillo interior 0,2; brillo (núcleo mint-50 / halo
- *     mint-100) por clase: S 0,7/0,46 · M 0,6/0,38 · L 0,44/0,26 (recuentos del N0: 11 · 7 · 3 = las tres clases de burbuja).
+ *   · Alfas de tinte (no color; la matriz trata la opacidad como enum): mota 0,8; burbuja cuerpo 0,12 · borde 0,13 · aro 0,04 · brillo
+ *     interior 0,2; brillo (núcleo mint-50 / halo mint-100) por clase: S 0,7/0,46 · M 0,6/0,38 · L 0,44/0,26.
  *   · Recorridos: motas 8vh → −42vh = MEDIA altura de la caja (0,5); burbujas 12vh → −104vh = la caja entera más su tamaño (estructural,
  *     en el componente); bamboleo ±0,55 unidades. Duraciones 36–87 s: múltiplos de la madre de movimiento (primitives/motion.css).
  * CLASE (D-DOC-13): el archivo = plantilla · los valores = dinámico (son de este diseño) · la regla "rangos aquí, azar normalizado en el
@@ -18,18 +21,32 @@
  */
 :root {
   --bbf-particle-unit-slope: 0.85vw;
-  --bbf-particle-unit-ref: 9;
 
-  --bbf-particle-mote-fine-min: 1;
-  --bbf-particle-mote-fine-max: 3.3;
-  --bbf-particle-mote-soft-min: 6;
-  --bbf-particle-mote-soft-max: 9;
-  --bbf-particle-bubble-s-min: 2.5;
-  --bbf-particle-bubble-s-max: 4.3;
-  --bbf-particle-bubble-m-min: 5.7;
-  --bbf-particle-bubble-m-max: 9.9;
-  --bbf-particle-bubble-l-min: 15;
-  --bbf-particle-bubble-l-max: 21;
+  --bbf-particle-mote-fine-min: 1px;
+  --bbf-particle-mote-fine-max: 1.9px;
+  --bbf-particle-mote-mid-min: 2.3px;
+  --bbf-particle-mote-mid-max: 3.3px;
+  --bbf-particle-mote-soft-min: 6px;
+  --bbf-particle-mote-soft-max: 9px;
+  --bbf-particle-bubble-s-min: 2.5px;
+  --bbf-particle-bubble-s-max: 4.3px;
+  --bbf-particle-bubble-m-min: 5.7px;
+  --bbf-particle-bubble-m-max: 9.9px;
+  --bbf-particle-bubble-l-min: 15px;
+  --bbf-particle-bubble-l-max: 21px;
+
+  --bbf-particle-op-mote-fine-min: 0.1;
+  --bbf-particle-op-mote-fine-max: 0.25;
+  --bbf-particle-op-mote-mid-min: 0.13;
+  --bbf-particle-op-mote-mid-max: 0.26;
+  --bbf-particle-op-mote-soft-min: 0.05;
+  --bbf-particle-op-mote-soft-max: 0.09;
+  --bbf-particle-op-bubble-s-min: 0.28;
+  --bbf-particle-op-bubble-s-max: 0.4;
+  --bbf-particle-op-bubble-m-min: 0.31;
+  --bbf-particle-op-bubble-m-max: 0.43;
+  --bbf-particle-op-bubble-l-min: 0.15;
+  --bbf-particle-op-bubble-l-max: 0.16;
 
   --bbf-particle-blur-1: 0.3px;
   --bbf-particle-blur-2: 0.8px;
@@ -49,5 +66,6 @@
   --bbf-particle-alpha-bubble-halo-l: 0.26;
 
   --bbf-particle-mote-travel: 0.5;
+  --bbf-particle-drift-x: 2.9vw;
   --bbf-particle-wobble: 0.55;
 }

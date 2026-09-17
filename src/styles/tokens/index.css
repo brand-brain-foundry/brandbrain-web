@@ -14,6 +14,7 @@
 @import "./primitives/breakpoints.css";
 @import "./primitives/line.css";
 @import "./primitives/particles.css";
+@import "./primitives/composition.css";
 
 @import "./semantic/colors.css";
 @import "./semantic/typography.css";
@@ -24,3 +25,4 @@
 @import "./semantic/effects.css";
 @import "./semantic/motion.css";
 @import "./semantic/particles.css";
+@import "./semantic/composition.css";

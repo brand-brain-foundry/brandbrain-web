@@ -6,7 +6,7 @@
  * `0 2px 22px .9` → lg (blur ×6) · logo `0 6px 18px .9` → offset ×2 + blur ×5 · halos de acento `0 0 10px` → blur ×3 y
  * `0 0 14px` → blur ×4 con --bbf-accent-glow / -glow-soft. Las composiciones de halo y de logo son de componente (Tier 3):
  * nacen con su primer consumidor en la fase 6b a partir de estos pasos, no aquí.
- * CLASE (D-DOC-13): fórmula = estático · alfas (0.9 / 0.95 / 0.83 calibrada) = dinámico · archivo = plantilla.
+ * CLASE (D-DOC-13): fórmula = estático · alfas (0.9 / 0.95 / 0.45 calibrada / 0.26 / 0.5) = dinámico · archivo = plantilla.
  */
 :root {
   --bbf-shadow-alpha-strong: 95%;
@@ -14,14 +14,27 @@
   --bbf-shadow-ink-strong: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-strong), transparent);
   --bbf-shadow-ink-soft: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-soft), transparent);
 
-  /* ── Velo de legibilidad (D-BBW-25, fase 6e): tinta bajo el bloque de texto del héroe, CALIBRADA AL MÍNIMO QUE CUMPLE, no al que se ve
-     bien. Derivación (OUTPUT-BBW-2026-09-17-fase6e §3): el navegador compone rgba sobre el valor codificado sRGB, v' = (1 − a) · v; el
-     bloque más exigente es la afirmación secundaria (mint-400, L 0,290; 4,5:1 → fondo ≤ L 0,0256 → v* = 0,174); el píxel más claro del
-     bucle bajo el bloque, con el velo global compuesto y la partícula más clara encima (mint-50 al 0,8), vale v' = 0,975 → a ≥ 1 −
-     0,174/0,975 = 82,1 %; cobertura del borde desenfocado en el límite del bloque (3σ, 99,87 %) → 82,2 %; redondeo al entero: 83 %.
-     Cambiar el vídeo, el tinte de un texto o su tamaño obliga a recalibrar (la medida vive en el output; no hay guardia que la repita). ── */
-  --bbf-shadow-alpha-veil-text: 83%;
+  /* ── Velo de legibilidad (D-BBW-25, fase 6e; RECALIBRADO en la fase 6f): tinta bajo el bloque de texto del héroe, CALIBRADA AL MÍNIMO QUE
+     CUMPLE, no al que se ve bien. Derivación (OUTPUT-BBW-2026-09-17-fase6f §4): el navegador compone rgba sobre el valor codificado sRGB,
+     v' = (1 − a) · v; el bloque más exigente es la afirmación secundaria (mint-400, L 0,290; 4,5:1 → fondo ≤ L 0,0256 → v* = 0,174); con la
+     COMPOSICIÓN FIEL (bloque de texto anclado al pie, debajo del escenario del vídeo) el píxel más claro bajo ese bloque ya no lo pone el
+     pez sino la partícula más clara a su escala real (burbuja S: brillo mint-50 al 0,7 × opacidad 0,40 → α 0,28) sobre el fondo compuesto
+     (resplandores × viñeta): v' = 0,312 a 1728 px → a ≥ 1 − 0,174/0,312 = 44,2 %; cobertura del borde desenfocado en el límite del bloque
+     (3σ, 99,87 %) → 44,3 %; redondeo al entero: 45 % (antes 83 %: con el texto sobre el pez y las partículas al 0,8 de opacidad).
+     El titular a 1728 px solapa el borde inferior del escenario (máscara ≈ 0,7): exige 29,3 %, por debajo del 45 %.
+     Cambiar el vídeo, el tinte de un texto, su tamaño, la posición del bloque o la opacidad de las partículas obliga a recalibrar (la medida
+     vive en el output; no hay guardia que la repita). ── */
+  --bbf-shadow-alpha-veil-text: 45%;
   --bbf-shadow-ink-veil-text: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-veil-text), transparent);
+
+  /* ── Viñeta y máscara del escenario (fase 6f, composición leída del export): alfas del diseño como madres (parámetro de opacidad, no
+     color: misma regla que las opacidades de las partículas). Viñeta rgba(0,0,0,.26) al 80 % y .5 en el borde; máscara del vídeo .5 al 74 %. ── */
+  --bbf-shadow-alpha-vignette-mid: 26%;
+  --bbf-shadow-alpha-vignette-edge: 50%;
+  --bbf-shadow-alpha-stage-mask-mid: 50%;
+  --bbf-shadow-ink-vignette-mid: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-vignette-mid), transparent);
+  --bbf-shadow-ink-vignette-edge: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-vignette-edge), transparent);
+  --bbf-shadow-ink-stage-mask-mid: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-stage-mask-mid), transparent);
 
   --bbf-shadow-sm: 0 var(--bbf-space-half) var(--bbf-space-4) var(--bbf-shadow-ink-strong);
   --bbf-shadow-md: 0 var(--bbf-space-half) var(--bbf-space-5) var(--bbf-shadow-ink-strong);
