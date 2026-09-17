@@ -4,6 +4,11 @@
  * cuatro niveles, acento y su brillo. Nada especulativo: sin surface alternas, sin feedback, sin bordes.
  * Los niveles de texto se toman de la RAMPA (L), no de alfas: el N0 usaba rgba() sobre negro, que compuesto equivale a un paso
  * de la rampa mint (tabla de mapeo con residuales en el output de fase 4).
+ * Fase 6c: `focus` (D-BBW-22: el rol de la matriz que faltaba, derivado del acento; el anillo del navegador no es sistema), `line-on-base`
+ * (categoría `border` de la matriz: la onda del subrayado en reposo, N0 rgba(224,236,234,.3) sobre negro ≈ L 0,39 → mint-700) y
+ * `surface-veil` (la hoja del panel, N0 rgba(0,0,0,.9): es exactamente la tinta al 90 % que ya compone la sombra suave; misma madre, sin alfa
+ * nueva). Sigue sin rol: mint-50 / mint-300 / mint-500 (decisión con argumento en OUTPUT-BBW-2026-09-17-fase6c §3: el juicio es visual con
+ * el fondo, que llega en el turno de movimiento; un rol sin ese juicio sería especulativo).
  * CLASE (D-DOC-13): estático (los roles); a qué paso apunta cada rol = dinámico.
  */
 :root {
@@ -17,4 +22,8 @@
   --bbf-accent: var(--bbf-color-accent-300);
   --bbf-accent-glow: var(--bbf-color-accent-400);
   --bbf-accent-glow-soft: var(--bbf-color-accent-800);
+
+  --bbf-focus-ring: var(--bbf-accent);
+  --bbf-line-on-base: var(--bbf-color-mint-700);
+  --bbf-surface-veil: var(--bbf-shadow-ink-soft);
 }

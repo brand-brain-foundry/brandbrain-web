@@ -1,6 +1,6 @@
 #!/bin/bash
 # pre-commit — brandbrain-web (D-SEC-04 + D-BBW-06)
-# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia tipográfica propia (fase 5, extendida 6a-bis y 6b). 5) guardia de contenido (fase 6a).
+# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia tipográfica propia (fase 5, extendida 6a-bis y 6b). 5) guardia de contenido (fase 6a, +sustituciones 6c). 6) guardia de medios (fase 6c).
 # Semántica FAIL-CLOSED: error del tool = commit cancelado. Único skip: gitleaks ausente (aviso).
 # gitleaks 8.30.x: --exit-code 2 = leaks; 0 = limpio; otro = error del tool. Sin -q (bug gitleaks).
 
@@ -72,15 +72,29 @@ fi
 # Guardia propia del repo (fase 6a): el árbol completo de content/ cumple el esquema (docs/system/CONTENT_MODEL.md).
 pnpm exec tsx scripts/lint/check-content.ts
 CONTENT_STATUS=$?
-if [ "$CONTENT_STATUS" -eq 0 ]; then
-  exit 0
-elif [ "$CONTENT_STATUS" -eq 1 ]; then
+if [ "$CONTENT_STATUS" -eq 1 ]; then
   echo "" >&2
   echo "[pre-commit] guardia de contenido: content/ no cumple el modelo — commit cancelado" >&2
   echo "  El mensaje nombra la llave exacta; corregir el JSON (nunca el esquema para que encaje)." >&2
   exit 1
-else
+elif [ "$CONTENT_STATUS" -ne 0 ]; then
   echo "" >&2
   echo "[pre-commit] FAIL-CLOSED: error de la guardia de contenido (exit $CONTENT_STATUS) — commit cancelado" >&2
+  exit 1
+fi
+
+# Guardia propia del repo (fase 6c, D-BBW-21): maestros ⇔ derivados en correspondencia con media/derivatives.lock.json (docs/system/MEDIA.md).
+pnpm exec tsx scripts/lint/check-media.ts
+MEDIA_STATUS=$?
+if [ "$MEDIA_STATUS" -eq 0 ]; then
+  exit 0
+elif [ "$MEDIA_STATUS" -eq 1 ]; then
+  echo "" >&2
+  echo "[pre-commit] guardia de medios: un maestro cambió sin regenerar, un derivado no corresponde o hay un archivo en public/ fuera del puerto — commit cancelado" >&2
+  echo "  Un maestro se edita; un derivado se regenera (pnpm media:build) y nunca se edita." >&2
+  exit 1
+else
+  echo "" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia de medios (exit $MEDIA_STATUS) — commit cancelado" >&2
   exit 1
 fi

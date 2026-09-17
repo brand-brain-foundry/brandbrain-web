@@ -5,14 +5,18 @@ import styles from "./Footer.module.css";
 
 /**
  * Footer — organism (cromo persistente, vive en el layout). Aviso de estado + línea legal + perfiles. Todo texto desde `content/`.
- * El punto de estado pulsante del diseño no se dibuja: su diámetro no existe como token (reportado) y la fase 6b no anima nada.
+ * Fase 6c: el punto de estado se dibuja (diámetro 4 = ×1, halo de acento previsto en primitives/shadows.css) SIN pulso: el pulso es
+ * movimiento y va al turno siguiente. Los perfiles muestran su icono (puerto de medios) con el texto como nombre accesible.
  */
 export function Footer({ global }: { global: GlobalDocument }) {
   return (
     <footer className={styles.footer} data-component="bbf-footer">
-      <p className={styles.notice}>{global.footer.notice}</p>
+      <p className={styles.notice}>
+        <span className={styles.dot} aria-hidden="true" />
+        <span>{global.footer.notice}</span>
+      </p>
       <p className={styles.legal}>{global.footer.legal}</p>
-      <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" />
+      <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />
     </footer>
   );
 }

@@ -1,5 +1,18 @@
-/* NavLink — Tier 3: solo consume Tier 1/2. Estado hover = cambio de color sin transición (fase 6b: cero animación). */
+/* NavLink — Tier 3: solo consume Tier 1/2. Estado hover = cambio de color sin transición (cero animación).
+   Fase 6c · onda del subrayado (N0 §2.3): caja de 160×7 (nav) y 340×9 (hoja) → ancho ×40 / ×85, alto ×2; dos capas bajo la nav (base en
+   reposo con la línea tenue; tinta de acento revelada por clip-path al pasar o enfocar, sin transición) y una bajo la hoja (acento con
+   brillo, siempre visible). La onda se recorta al ancho del texto (overflow hidden), como en el diseño. Grosores por rol (semantic/lines.css).
+   Iconos de perfil: 15–16 px → ×4 (barra) y 22 → ×6 (hoja) con área táctil 44 → ×11 (rol touch-min) y 56 → ×14.
+   Texto oculto visualmente (nombre accesible del icono): sin dimensiones a mano — ocupa la caja del enlace (inset 0) y se recorta entera. */
 .navLink {
+  --bbf-nav-link-underline-height: var(--bbf-space-2);
+  --bbf-nav-link-underline-width-nav: var(--bbf-space-40);
+  --bbf-nav-link-underline-width-menu: var(--bbf-space-85);
+  --bbf-nav-link-icon-sm: var(--bbf-space-4);
+  --bbf-nav-link-icon-md: var(--bbf-space-6);
+  --bbf-nav-link-touch-md: var(--bbf-space-14);
+
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: var(--bbf-space-touch-min);
@@ -10,6 +23,19 @@
 
 .navLink:hover {
   color: var(--bbf-accent);
+}
+
+/* un enlace que solo muestra un icono garantiza su área táctil también en anchura (44 → rol touch-min en la barra; 56 → ×14 en la hoja);
+   medido en la primera pasada de F5: sin esto, el icono de 16 px dejaba un enlace de 16×44 */
+.touchSm {
+  min-width: var(--bbf-space-touch-min);
+  justify-content: center;
+}
+
+.touchMd {
+  min-width: var(--bbf-nav-link-touch-md);
+  min-height: var(--bbf-nav-link-touch-md);
+  justify-content: center;
 }
 
 .label {
@@ -31,4 +57,73 @@
   font-size: var(--bbf-type-legal-size);
   font-weight: var(--bbf-type-legal-weight);
   letter-spacing: var(--bbf-type-legal-tracking);
+}
+
+.text {
+  position: relative;
+  display: inline-block;
+}
+
+.underline {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: var(--bbf-nav-link-underline-height);
+  overflow: hidden;
+}
+
+.wave {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: auto;
+}
+
+.waveNav {
+  width: var(--bbf-nav-link-underline-width-nav);
+}
+
+.waveMenu {
+  width: var(--bbf-nav-link-underline-width-menu);
+  color: var(--bbf-accent-glow);
+  stroke-width: var(--bbf-line-underline);
+}
+
+.waveBase {
+  color: var(--bbf-line-on-base);
+  stroke-width: var(--bbf-line-underline-base);
+}
+
+.waveInk {
+  color: var(--bbf-accent);
+  stroke-width: var(--bbf-line-underline);
+  clip-path: inset(0 100% 0 0);
+}
+
+.navLink:hover .waveInk,
+.navLink:focus-visible .waveInk {
+  clip-path: inset(0);
+}
+
+.profileIcon {
+  flex: none;
+}
+
+.sizeSm {
+  width: var(--bbf-nav-link-icon-sm);
+  height: var(--bbf-nav-link-icon-sm);
+}
+
+.sizeMd {
+  width: var(--bbf-nav-link-icon-md);
+  height: var(--bbf-nav-link-icon-md);
+}
+
+.hidden {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }

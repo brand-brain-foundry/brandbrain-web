@@ -2,9 +2,14 @@
  * semantic/spacing.css — Tier 2 · ESPACIADO POR ROL
  * Solo dos roles medidos en el N0: margen de página (`clamp(20px, 3.4vw, 46px)` ×3, el único clamp repetido) y área táctil
  * mínima (44 px, WCAG 2.5.8 / HIG). El margen se compone de pasos: 20 = ×5 cae; 46 NO cae → ×12 (48 px), residual reportado.
- * CLASE (D-DOC-13): estático (roles; 44 px es umbral universal); fluidez 3.4vw = dinámico.
+ * Fase 6c (D-BBW-22): anchura y separación del anillo de foco = el cuanto de la escala (2 px): es también el mínimo de WCAG 2.4.13 (foco
+ * de al menos 2 px CSS de perímetro). Criterio técnico, no valor de marca.
+ * CLASE (D-DOC-13): estático (roles; 44 px y 2 px son umbrales universales); fluidez 3.4vw = dinámico.
  */
 :root {
   --bbf-space-page: clamp(var(--bbf-space-5), 3.4vw, var(--bbf-space-12));
   --bbf-space-touch-min: var(--bbf-space-11);
+
+  --bbf-focus-ring-width: var(--bbf-space-half);
+  --bbf-focus-ring-offset: var(--bbf-space-half);
 }

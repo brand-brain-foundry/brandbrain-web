@@ -1,6 +1,10 @@
-/* Footer — Tier 3: solo consume Tier 1/2. */
+/* Footer — Tier 3: solo consume Tier 1/2. Punto de estado (N0 §2.3): 4 px = ×1 · separación 6 → ×2 · halo `0 0 10px acento .85` → blur ×3
+   con --bbf-accent-glow (composición prevista en primitives/shadows.css, fase 6a) · círculo por el radio del sistema. Sin pulso (movimiento). */
 .footer {
   --bbf-footer-gap: var(--bbf-space-6);
+  --bbf-footer-dot-size: var(--bbf-space-1);
+  --bbf-footer-dot-gap: var(--bbf-space-2);
+  --bbf-footer-dot-glow: 0 0 var(--bbf-space-3) var(--bbf-accent-glow);
 
   position: relative;
   z-index: var(--bbf-layer-chrome);
@@ -20,11 +24,23 @@
 }
 
 .notice {
+  display: inline-flex;
+  align-items: center;
+  column-gap: var(--bbf-footer-dot-gap);
   color: var(--bbf-text-on-base-muted);
   font-family: var(--bbf-type-notice-family);
   font-size: var(--bbf-type-notice-size);
   font-weight: var(--bbf-type-notice-weight);
   letter-spacing: var(--bbf-type-notice-tracking);
+}
+
+.dot {
+  flex: none;
+  width: var(--bbf-footer-dot-size);
+  height: var(--bbf-footer-dot-size);
+  border-radius: var(--bbf-radius-full);
+  background: var(--bbf-accent);
+  box-shadow: var(--bbf-footer-dot-glow);
 }
 
 .legal {

@@ -9,6 +9,9 @@
  * · Falta o forma inválida = el build FALLA con mensaje que nombra la llave (fail-closed): ninguna página sale con contenido
  *   vacío ni con una llave que el modelo no admite. La guardia scripts/lint/check-content.ts valida ADEMÁS el árbol completo.
  * · Alternativa prevista (PORTS.md): un gestor sobre git que escriba en estos mismos archivos. Ningún gestor instalado.
+ * · SUSTITUCIONES (D-BBW-23, fase 6c): tras validar, el puerto resuelve `{{brand}}` / `{{domain}}` / `{{year}}` desde la fuente única
+ *   (./substitutions.ts, conjunto cerrado y declarado). Una no declarada, o cualquier cosa entre llaves que no sea un identificador
+ *   declarado (lógica), FALLA el build con la ruta exacta. La guardia check-content.ts lo comprueba además sobre el árbol completo.
  * · D-DOC-06: el contenido es DATO de negocio. Este lector lo parsea y valida; jamás lo interpreta ni lo ejecuta.
  */
 import { readFileSync } from "node:fs";
@@ -26,6 +29,7 @@ import {
   type Section,
   type SectionType,
 } from "./schema";
+import { findUndeclaredSubstitutions, resolveDocument } from "./substitutions";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
 
@@ -55,13 +59,23 @@ function failOn(problems: Problem[], relPath: string): void {
   throw new Error(`[content] content/${relPath} no cumple el modelo (${problems.length} problema(s)):\n${lines}`);
 }
 
+/** Sustituciones: primero se rechaza cualquier `{{…}}` no declarado (con ruta), después se resuelve el documento entero. */
+function substitute<T>(doc: T, relPath: string): T {
+  const undeclared = findUndeclaredSubstitutions(doc);
+  if (undeclared.length > 0) {
+    const lines = undeclared.map((u) => `  ${u.path}: sustitución no declarada "${u.token}"`).join("\n");
+    throw new Error(`[content] content/${relPath}: ${undeclared.length} sustitución(es) no declarada(s) (D-BBW-23: conjunto cerrado, sin lógica):\n${lines}`);
+  }
+  return resolveDocument(doc);
+}
+
 /** Documento global (navegación, pie) de un locale publicado. */
 export function getGlobal(locale: Locale): GlobalDocument {
   assertPublished(locale);
   const rel = `${locale}/${GLOBAL_DOCUMENT}.json`;
   const doc = readJson(rel);
   failOn(validateGlobal(doc), rel);
-  return doc as GlobalDocument;
+  return substitute(doc as GlobalDocument, rel);
 }
 
 /** Página de la colección `pages` para un locale publicado. */
@@ -71,7 +85,7 @@ export function getPage(locale: Locale, slug: string): PageDocument {
   const rel = `${locale}/${collection}/${slug}.json`;
   const doc = readJson(rel);
   failOn(validatePage(doc), rel);
-  return doc as PageDocument;
+  return substitute(doc as PageDocument, rel);
 }
 
 /** La primera sección de un tipo; si la página no la tiene, el build falla con mensaje (no se renderiza a medias). */

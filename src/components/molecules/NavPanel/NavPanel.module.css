@@ -1,9 +1,15 @@
 /* NavPanel — Tier 3: solo consume Tier 1/2. La hoja arranca justo debajo de la cabecera (top: 100 % del organismo, que es su contexto de
-   posicionamiento) y cubre al menos un viewport: así nunca solapa el conmutador, mida lo que mida la cabecera (a 360 px ocupa dos filas
-   con el marcador largo; medido en F5). Sin desenfoque de fondo: el `backdrop-filter: blur(22px)` del diseño no tiene token (reportado). */
+   posicionamiento) y cubre al menos un viewport: así nunca solapa el conmutador, mida lo que mida la cabecera (medido en la 6b).
+   Fase 6c · conmutador (N0 §2.3): caja 34 → ×9 (36), dos brazos de 34×6 separados 8 = ×2, grosor por rol (semantic/lines.css); el conmutador
+   conserva el área táctil mínima y la caja de 48 → ×12 del diseño. Hoja: velo (N0 rgba(0,0,0,.9) = tinta al 90 %, rol surface-veil) +
+   desenfoque del fondo (rol blur-sheet, 22 → 24 px). `saturate(.7)` del diseño: sin escala, no aplicado (reportado).
+   Texto oculto visualmente del conmutador: ocupa su caja (inset 0) y se recorta entera, sin dimensiones a mano. */
 .panel {
   --bbf-nav-panel-sheet-padding-top: var(--bbf-space-10);
   --bbf-nav-panel-sheet-gap: var(--bbf-space-10);
+  --bbf-nav-panel-arms-size: var(--bbf-space-9);
+  --bbf-nav-panel-arm-gap: var(--bbf-space-2);
+  --bbf-nav-panel-toggle-size: var(--bbf-space-12);
 
   display: var(--bbf-nav-panel-display);
 }
@@ -13,13 +19,10 @@
   z-index: var(--bbf-layer-toggle);
   display: inline-flex;
   align-items: center;
-  min-height: var(--bbf-space-touch-min);
+  justify-content: center;
+  min-width: var(--bbf-nav-panel-toggle-size);
+  min-height: var(--bbf-nav-panel-toggle-size);
   color: var(--bbf-text-on-base-secondary);
-  font-family: var(--bbf-type-label-family);
-  font-size: var(--bbf-type-label-size);
-  font-weight: var(--bbf-type-label-weight);
-  letter-spacing: var(--bbf-type-label-tracking);
-  text-transform: uppercase;
   cursor: pointer;
   list-style: none;
 }
@@ -30,6 +33,29 @@
 
 .panel[open] .toggle {
   color: var(--bbf-accent);
+}
+
+.arms {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  row-gap: var(--bbf-nav-panel-arm-gap);
+  width: var(--bbf-nav-panel-arms-size);
+  height: var(--bbf-nav-panel-arms-size);
+}
+
+.arm {
+  width: 100%;
+  height: auto;
+  stroke-width: var(--bbf-line-toggle);
+}
+
+.hidden {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 
 .sheet {
@@ -43,5 +69,7 @@
   flex-direction: column;
   row-gap: var(--bbf-nav-panel-sheet-gap);
   padding: var(--bbf-nav-panel-sheet-padding-top) var(--bbf-space-page) var(--bbf-space-page);
-  background: var(--bbf-surface-base);
+  background: var(--bbf-surface-veil);
+  -webkit-backdrop-filter: blur(var(--bbf-blur-sheet));
+  backdrop-filter: blur(var(--bbf-blur-sheet));
 }

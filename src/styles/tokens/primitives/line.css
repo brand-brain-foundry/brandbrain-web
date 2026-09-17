@@ -1,0 +1,15 @@
+/**
+ * primitives/line.css — Tier 1 · GROSOR DE LÍNEA (D-DS-14 vía doctrina copiada: docs/design-system/EJE-A-derivacion-de-tokens.md
+ * §"Line weight": madre 1 px + calc() → sm/md/lg/xl = ×1 / ×1,5 / ×2 / ×4).
+ * Nace en la fase 6c con sus primeros consumidores: los trazos del diseño (N0 §2.3: onda del subrayado 1 y 1,3 px, onda de la hoja 1,4 px,
+ * brazos del conmutador 1,5 px). RESIDUALES (D-BBW-16, medidos en su rango, L-45): 1 → ×1 (cae) · 1,3 → ×1,5 (+0,2) · 1,4 → ×1,5 (+0,1) ·
+ * 1,5 → ×1,5 (cae). Diferencias < 0,25 px sobre un trazo suavizado: imperceptibles.
+ * CLASE (D-DOC-13): fórmula y madre = estático (criterio técnico) · archivo = plantilla.
+ */
+:root {
+  --bbf-line-base: 1px;
+  --bbf-line-sm: var(--bbf-line-base);
+  --bbf-line-md: calc(var(--bbf-line-base) * 1.5);
+  --bbf-line-lg: calc(var(--bbf-line-base) * 2);
+  --bbf-line-xl: calc(var(--bbf-line-base) * 4);
+}

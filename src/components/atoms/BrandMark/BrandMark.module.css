@@ -1,17 +1,20 @@
-/* BrandMark — Tier 3: solo consume Tier 1/2. */
+/* BrandMark — Tier 3: solo consume Tier 1/2. Tamaño del icono: 46 px del diseño → ×12 (48, como el margen de página; D-BBW-16).
+   Halo del logo = composición de sombra prevista en primitives/shadows.css (fase 6a): halo de acento suave blur ×4 + sombra de tinta
+   offset ×2 / blur ×5 (N0: drop-shadow(0 0 14px acento .28) drop-shadow(0 6px 18px negro .9)). La opacidad .9 del diseño no tiene escala:
+   reportada, no aplicada. */
 .brandMark {
+  --bbf-brand-mark-size: var(--bbf-space-12);
+  --bbf-brand-mark-glow: drop-shadow(0 0 var(--bbf-space-4) var(--bbf-accent-glow-soft)) drop-shadow(0 var(--bbf-space-2) var(--bbf-space-5) var(--bbf-shadow-ink-soft));
+
   display: inline-flex;
   align-items: center;
   min-height: var(--bbf-space-touch-min);
   color: var(--bbf-text-on-base);
-  font-family: var(--bbf-type-label-family);
-  font-size: var(--bbf-type-label-size);
-  font-weight: var(--bbf-type-label-weight);
-  letter-spacing: var(--bbf-type-label-tracking);
-  text-transform: uppercase;
-  text-decoration: none;
 }
 
-.brandMark:hover {
-  color: var(--bbf-accent);
+.icon {
+  display: block;
+  width: var(--bbf-brand-mark-size);
+  height: auto;
+  filter: var(--bbf-brand-mark-glow);
 }

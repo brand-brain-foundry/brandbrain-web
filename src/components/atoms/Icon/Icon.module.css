@@ -1,0 +1,14 @@
+/* Icon — Tier 3: sin valores. Color por herencia (currentColor); tamaño y grosor de trazo los pone el consumidor por tokens. */
+.icon {
+  display: block;
+}
+
+.fill {
+  fill: currentColor;
+}
+
+.stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+}
