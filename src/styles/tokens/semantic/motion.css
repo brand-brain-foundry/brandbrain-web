@@ -3,16 +3,22 @@
  * del héroe) y qué cuando el usuario ha pedido menos movimiento: el vídeo o su póster (la imagen fija del primer fotograma). Misma
  * mecánica que semantic/viewport.css: un componente consume `display: var(--bbf-motion-media-display)` / `var(--bbf-motion-still-display)`
  * y nunca escribe la consulta; el override de accesibilidad vive aquí, junto al de las duraciones (primitives/motion.css colapsa la madre).
+ * Fase 6e: las PARTÍCULAS del fondo son el segundo medio en movimiento. Con movimiento reducido NO desaparecen: QUEDAN QUIETAS, como el
+ * vídeo queda en su póster (la misma regla: el fondo sigue, el movimiento no). El componente consume `animation-play-state:
+ * var(--bbf-motion-particles-play-state)`; con la madre de duración colapsada (primitives/motion.css) cada partícula queda en la posición
+ * de su fase, es decir, un campo fijo de motas repartidas, no todas apiladas en el origen.
  * CLASE (D-DOC-13): estático (la regla "medio en movimiento → imagen fija con movimiento reducido" es criterio de accesibilidad, no de marca).
  */
 :root {
   --bbf-motion-media-display: block;
   --bbf-motion-still-display: none;
+  --bbf-motion-particles-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --bbf-motion-media-display: none;
     --bbf-motion-still-display: block;
+    --bbf-motion-particles-play-state: paused;
   }
 }

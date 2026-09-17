@@ -3,11 +3,11 @@ id: BBW-TYPOGRAPHY-WEIGHTS
 title: "Pesos por familia y animación de peso del titular — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.2
+version: 1.3
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-17
 verified_against_code: 2026-09-16@feat/fase6b-componentes-y-secciones (guardia propia renombrada `check-typography-system.ts`, R1–R8; rangos medidos: kit ntm5vqh `modulator-vf` wght 25–500 en vivo 2026-09-16; Space Grotesk variable wght 300–700, archivo auto-hospedado)
 supersedes: []
 superseded_by: null
@@ -63,6 +63,11 @@ La animación del titular se conserva (Zavala, 2026-09-16). Tres hechos medidos 
 3. **Con movimiento reducido, la animación se retira y el peso se fija en un valor legible intermedio, no en el más dramático.** Ya está
    resuelto en tokens: `--bbf-type-display-weight-from` y `-to` colapsan a `--bbf-weight-display-rest` (punto medio, 300) bajo
    `prefers-reduced-motion: reduce`, y `--bbf-duration-base` cae a 0.01 ms. El componente no necesita una rama de accesibilidad propia.
+
+**Guarda de ajuste al ancho (fase 6e, aplicada):** el tope `14.6vw` / `5.9vw` del diseño vive como madre `--bbf-size-display-fit` /
+`--bbf-size-lead-fit` (bloques EXC-BBW-01/02) y el componente del titular la aplica por rol (`font-size: min(size, fit)`): a 360 px la
+palabra real `Creative` mide 52,56 px (265 px de ancho) y cabe en una línea con peso 300. **La reserva de ancho del estado más grueso (punto 1)
+sigue pendiente del turno de movimiento**: la guarda garantiza que quepa el reposo, no el peso máximo (500); medir la palabra a 500 antes de animar.
 
 **Comprobación prevista para la fase 6 (con el titular construido):** (a) `getComputedStyle(h1).fontWeight` bajo movimiento reducido = 300;
 (b) el ancho de la caja del titular no cambia entre el primer y el último fotograma (`getBoundingClientRect().width` igual); (c) el

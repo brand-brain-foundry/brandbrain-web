@@ -8,7 +8,9 @@
  * (categoría `border` de la matriz: la onda del subrayado en reposo, N0 rgba(224,236,234,.3) sobre negro ≈ L 0,39 → mint-700) y
  * `surface-veil` (la hoja del panel, N0 rgba(0,0,0,.9): es exactamente la tinta al 90 % que ya compone la sombra suave; misma madre, sin alfa
  * nueva). Sigue sin rol: mint-50 / mint-300 / mint-500 (decisión con argumento en OUTPUT-BBW-2026-09-17-fase6c §3: el juicio es visual con
- * el fondo, que llega en el turno de movimiento; un rol sin ese juicio sería especulativo).
+ * el fondo, que llega en el turno de movimiento; un rol sin ese juicio sería especulativo). Fase 6d: juzgados con el fondo, cierre sin rol.
+ * Fase 6e (D-BBW-25): `surface-veil-text`, el velo LOCAL de legibilidad bajo el bloque de texto del héroe: tinta calibrada al mínimo que
+ * cumple (madre en primitives/shadows.css), distinta del velo global (`surface-veil`, 90 %) porque su alfa la fija una medida, no el diseño.
  * CLASE (D-DOC-13): estático (los roles); a qué paso apunta cada rol = dinámico.
  */
 :root {
@@ -26,4 +28,5 @@
   --bbf-focus-ring: var(--bbf-accent);
   --bbf-line-on-base: var(--bbf-color-mint-700);
   --bbf-surface-veil: var(--bbf-shadow-ink-soft);
+  --bbf-surface-veil-text: var(--bbf-shadow-ink-veil-text);
 }

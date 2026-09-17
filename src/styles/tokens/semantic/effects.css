@@ -3,8 +3,12 @@
  * blur(22px)`). El desenfoque deriva de la escala de espaciado, como ya hacen las sombras (primitives/shadows.css: desenfoque = paso de
  * espaciado): 22 → ×6 = 24 px (empate → peldaño superior, misma resolución que la fase 6a dio a 22 en espaciado y en sombras; |Δ| = 2 px).
  * NO derivable, reportado y NO aplicado: `saturate(0.7)` de la misma hoja — no existe escala de saturación de la que derivarlo.
+ * Fase 6e (D-BBW-25): `blur-veil-text`, el borde del velo local de legibilidad ("sin cortes duros visibles"): un desenfoque gaussiano de
+ * σ = un paso de la escala, el mismo que la hoja (no hay valor del diseño: el velo local no está inventariado; se toma el único paso de
+ * desenfoque que el sistema ya usa). El componente reserva 3σ de sangrado para que bajo el texto la tinta sea la calibrada (cobertura 99,87 %).
  * CLASE (D-DOC-13): estático (rol); paso = dinámico.
  */
 :root {
   --bbf-blur-sheet: var(--bbf-space-6);
+  --bbf-blur-veil-text: var(--bbf-space-6);
 }

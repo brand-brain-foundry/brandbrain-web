@@ -46,6 +46,13 @@
      extremos colapsan al reposo: la animación desaparece sin que el componente sepa nada. La animación NO se implementa aquí. ── */
   --bbf-weight-display-from: var(--bbf-weight-display-anim-min);
   --bbf-weight-display-to: var(--bbf-weight-display-anim-max);
+
+  /* ── Partículas del fondo (fase 6e; N0 §2.2: "Partículas: 36–87 s", lineal, infinito). Los dos extremos del rango caen EXACTOS en la
+     retícula k ∈ ½ℕ: 36 s = ×150 · 87 s = ×362,5. Entre ambos el azar es continuo, como en el diseño (sin pasos). Cada partícula recibe
+     un número normalizado y el componente lo lleva al rango: k = min + (max − min) × u. Con movimiento reducido la madre colapsa y el
+     rol de reproducción de semantic/motion.css las deja quietas (no se anula pieza a pieza). ── */
+  --bbf-particle-k-min: 150;
+  --bbf-particle-k-max: 362.5;
 }
 
 @media (prefers-reduced-motion: reduce) {

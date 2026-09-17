@@ -18,6 +18,8 @@
  * Fase 6b (D-BBW-19 · D-BBW-20): `lead` deja de ser provisional: consume EXC-BBW-02 (`--bbf-size-lead`, derivado del display por una madre;
  * HAL-BBW-09 cerrado). La subida de `label` por el suelo queda ratificada (D-BBW-20). Nace el rol `notice` (aviso de estado del pie: mismo
  * paso que legal, interletrado ×9 = el 0.34em de "estado" del N0 que ya estaba en primitivos sin consumidor).
+ * Fase 6e: `display-fit` / `lead-fit` exponen la GUARDA de ajuste al ancho del diseño (14,6vw y su derivada): no es tamaño, es el tope que
+ * hace caber la palabra real por debajo de ~425 px; el componente del titular aplica `min(size, fit)`.
  * Todo `--bbf-type-<rol>-size` consume un `--bbf-size-*` del canon (guardia R6): ningún tamaño escrito a mano.
  * CLASE (D-DOC-13): estático (roles y propiedades); paso y peso asignados = dinámico.
  */
@@ -29,12 +31,14 @@
   --bbf-type-display-weight-to: var(--bbf-weight-display-to);
   --bbf-type-display-leading: var(--bbf-leading-display);
   --bbf-type-display-tracking: var(--bbf-tracking-0);
+  --bbf-type-display-fit: var(--bbf-size-display-fit); /* guarda de ajuste al ancho (fase 6e; EXC-BBW-01): el componente hace min(size, fit) */
 
   --bbf-type-lead-family: var(--bbf-font-text);
   --bbf-type-lead-size: var(--bbf-size-lead); /* EXC-BBW-02 (D-BBW-19): derivado del display por una madre; registro docs/system/DESIGN_EXCEPTIONS.md §1 */
   --bbf-type-lead-weight: var(--bbf-weight-text-regular);
   --bbf-type-lead-leading: var(--bbf-leading-none);
   --bbf-type-lead-tracking: var(--bbf-tracking-7);
+  --bbf-type-lead-fit: var(--bbf-size-lead-fit); /* guarda derivada de la del display (fase 6e; EXC-BBW-02) */
 
   /* texto corrido: paso cero de la escala (18 → 20 px). Sin interletrado: el ×4 era de los claims y se va con ellos. */
   --bbf-type-body-family: var(--bbf-font-text);
