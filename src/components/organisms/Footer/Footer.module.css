@@ -5,17 +5,24 @@
    izquierda) con justificación y separación por rol de vista (semantic/viewport.css: entre extremos en la vista amplia, centrada en la
    colapsada). Los perfiles solo en la vista amplia (rol --bbf-nav-inline-display): en la colapsada están en la hoja del panel. Las dos
    líneas no parten (nowrap, estructura); si la barra no cabe (el suelo de 12 px, D-BBW-18, hace el texto más grande que los 9 px del
-   diseño), la fila envuelve y queda centrada. */
+   diseño), la fila envuelve y queda centrada.
+   Fase 6g · PULSO del punto (N0 `ef-pulse`, 3,6 s = ×15): el halo va y vuelve entre los dos halos de acento que el sistema ya tiene (glow →
+   glow-soft), ease-in-out; el inventario trae la duración, no la forma del pulso: la forma (respiración del halo entre dos tintes existentes) es
+   composición de este componente, reportada. Bucle pausado por rol con movimiento reducido. La barra entra escalonada (data-enter, índice 5).
+   CAPA (corregida en la 6g): la barra va en la capa de CONTENIDO, no en la de cromo (N0 §2.2: "lockup y barra 8 · logo/nav 9 · hoja 10"):
+   con la capa de cromo, la barra (posterior en el DOM) se pintaba sobre la hoja abierta del panel a ≤ 780 px; en contenido queda bajo la
+   cabecera y su hoja, como en el diseño. */
 .footer {
   --bbf-footer-dot-size: var(--bbf-space-1);
   --bbf-footer-dot-gap: var(--bbf-space-2);
   --bbf-footer-dot-glow: 0 0 var(--bbf-space-3) var(--bbf-accent-glow);
+  --bbf-footer-dot-glow-soft: 0 0 var(--bbf-space-3) var(--bbf-accent-glow-soft);
 
   position: absolute;
   right: 0;
   bottom: var(--bbf-bar-bottom);
   left: 0;
-  z-index: var(--bbf-layer-chrome);
+  z-index: var(--bbf-layer-content);
   display: flex;
   flex-direction: row-reverse;
   flex-wrap: wrap;
@@ -52,6 +59,18 @@
   border-radius: var(--bbf-radius-full);
   background: var(--bbf-accent);
   box-shadow: var(--bbf-footer-dot-glow);
+  animation: pulse var(--bbf-motion-pulse-duration) var(--bbf-motion-pulse-ease) infinite alternate;
+  animation-play-state: var(--bbf-motion-loop-play-state);
+}
+
+@keyframes pulse {
+  from {
+    box-shadow: var(--bbf-footer-dot-glow);
+  }
+
+  to {
+    box-shadow: var(--bbf-footer-dot-glow-soft);
+  }
 }
 
 .legalGroup {

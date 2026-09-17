@@ -16,6 +16,7 @@ export function resolveLinks(items: LinkItem[]): ResolvedLink[] {
  * Header — organism (cromo persistente, vive en el layout). Marca + UNA región de navegación con dos renders del mismo dato
  * (N0 §2.3): la lista en línea (vista amplia) y el panel móvil (vista colapsada, `<details>`, con los perfiles del pie además).
  * Qué se ve en cada vista lo deciden los roles de semantic/viewport.css, nunca una media query aquí. Todo texto desde `content/`.
+ * Fase 6g: los enlaces en línea entran escalonados al cargar con el paso de la nav (`--bbf-enter-step` en la hoja del organismo).
  */
 export function Header({ locale, global }: { locale: Locale; global: GlobalDocument }) {
   const nav = resolveLinks(global.nav.items);
@@ -25,7 +26,7 @@ export function Header({ locale, global }: { locale: Locale; global: GlobalDocum
       <BrandMark href={`/${locale}/`} name={site.name} />
       <nav className={styles.nav}>
         <div className={styles.inline}>
-          <LinkList items={nav} typeRole="label" />
+          <LinkList items={nav} typeRole="label" enter />
         </div>
         <NavPanel toggleLabel={global.nav.toggleLabel}>
           <LinkList items={nav} typeRole="menu" direction="column" />

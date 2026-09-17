@@ -11,7 +11,15 @@
    lateral del diseño (rol --bbf-lockup-pad); dentro, el bloque ajusta al contenido (fit-content) y lleva su VELO LOCAL de legibilidad
    (D-BBW-25, ::before: tinta al rol surface-veil-text calibrada al mínimo que cumple, borde desenfocado σ y sangrado 3σ). Separaciones por
    rol (--bbf-lockup-gap-*: 0,5 % · 2,4 % · 0,7 % del alto del héroe, con sus extremos en pasos). Sombras de texto del diseño: sin mapeo,
-   no se inventan (D-BBW-25: acabado opcional). Guarda de ancho (EXC-BBW-01/02): min(tamaño, guarda) por rol. */
+   no se inventan (D-BBW-25: acabado opcional). Guarda de ancho (EXC-BBW-01/02): min(tamaño, guarda) por rol.
+   Fase 6g · ANIMACIÓN DE PESO DEL TITULAR (TYPOGRAPHY_WEIGHTS.md §3): el <h1> es una rejilla de una celda con dos hijos superpuestos: la
+   palabra (anima font-weight entre los extremos por rol) y su RESERVA (la misma palabra al peso máximo, invisible). La celda mide el más ancho
+   de los dos = el peso máximo → la caja del titular no cambia en ningún fotograma y nada de alrededor se recoloca (medido en el output 6g).
+   Se anima `font-weight` (un solo eje, interpolación numérica sobre la fuente variable): cada fotograma declara la misma propiedad, en el mismo
+   orden; no se usa font-variation-settings. Duración y curva por rol (semantic/motion.css); bucle pausado por rol con movimiento reducido
+   (y además from = to = reposo, primitives/motion.css). `contain: layout` aísla el relayout de la palabra del resto de la página.
+   El extremo alto llega por ROL DE VISTA (semantic/viewport.css): 500 en la vista amplia; en la colapsada, el reposo, porque la palabra a 500 no
+   cabe por debajo de ~650 px y reservar su ancho rompería la composición (medido; pendiente de ratificación). */
 .hero {
   --bbf-hero-veil-text: var(--bbf-surface-veil-text);
   --bbf-hero-veil-text-blur: var(--bbf-blur-veil-text);
@@ -66,8 +74,14 @@
 }
 
 .display {
+  --bbf-hero-weight-from: var(--bbf-type-display-weight-from);
+  --bbf-hero-weight-to: var(--bbf-display-weight-to-view);
+
+  display: grid;
+  justify-items: center;
   margin: 0;
   max-width: 100%;
+  contain: layout;
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-display-family);
   font-size: min(var(--bbf-type-display-size), var(--bbf-type-display-fit));
@@ -75,6 +89,32 @@
   line-height: var(--bbf-type-display-leading);
   letter-spacing: var(--bbf-type-display-tracking);
   overflow-wrap: anywhere;
+}
+
+.displayWord,
+.displayReserve {
+  grid-area: 1 / 1;
+}
+
+.displayWord {
+  animation: weight var(--bbf-motion-display-weight-duration) var(--bbf-motion-display-weight-ease) infinite alternate;
+  animation-play-state: var(--bbf-motion-loop-play-state);
+}
+
+.displayReserve {
+  visibility: hidden;
+  font-weight: var(--bbf-hero-weight-to);
+  user-select: none;
+}
+
+@keyframes weight {
+  from {
+    font-weight: var(--bbf-hero-weight-from);
+  }
+
+  to {
+    font-weight: var(--bbf-hero-weight-to);
+  }
 }
 
 .lead {
