@@ -1,4 +1,7 @@
-/* NavLink — Tier 3: solo consume Tier 1/2. Estado hover = cambio de color sin transición (cero animación).
+/* NavLink — Tier 3: solo consume Tier 1/2. Fase 6g: ESTADOS con transición por rol (reposo → cursor encima / foco / activo: color y revelado
+   de la onda de tinta en --bbf-motion-link-*) y RIPPLE de la onda (N0 `ef-ripple`: se desplaza un periodo del trazado, --bbf-motion-ripple-shift,
+   en bucle lineal de --bbf-motion-ripple-duration) mientras el enlace está activo, enfocado o bajo el cursor (nav) y siempre en la hoja (menu).
+   Movimiento reducido: la transición colapsa con la madre de duración; el bucle se pausa por rol (--bbf-motion-loop-play-state).
    Fase 6c · onda del subrayado (N0 §2.3): caja de 160×7 (nav) y 340×9 (hoja) → ancho ×40 / ×85, alto ×2; dos capas bajo la nav (base en
    reposo con la línea tenue; tinta de acento revelada por clip-path al pasar o enfocar, sin transición) y una bajo la hoja (acento con
    brillo, siempre visible). La onda se recorta al ancho del texto (overflow hidden), como en el diseño. Grosores por rol (semantic/lines.css).
@@ -21,7 +24,12 @@
   text-decoration: none;
 }
 
-.navLink:hover {
+.navLink {
+  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.navLink:hover,
+.navLink:active {
   color: var(--bbf-accent);
 }
 
@@ -88,6 +96,8 @@
   width: var(--bbf-nav-link-underline-width-menu);
   color: var(--bbf-accent-glow);
   stroke-width: var(--bbf-line-underline);
+  animation: ripple var(--bbf-motion-ripple-duration) var(--bbf-ease-linear) infinite;
+  animation-play-state: var(--bbf-motion-loop-play-state);
 }
 
 .waveBase {
@@ -99,11 +109,25 @@
   color: var(--bbf-accent);
   stroke-width: var(--bbf-line-underline);
   clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
 .navLink:hover .waveInk,
-.navLink:focus-visible .waveInk {
+.navLink:focus-visible .waveInk,
+.navLink:active .waveInk {
   clip-path: inset(0);
+  animation: ripple var(--bbf-motion-ripple-duration) var(--bbf-ease-linear) infinite;
+  animation-play-state: var(--bbf-motion-loop-play-state);
+}
+
+@keyframes ripple {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-1 * var(--bbf-motion-ripple-shift)));
+  }
 }
 
 .profileIcon {

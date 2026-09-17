@@ -21,6 +21,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* entrada escalonada (fase 6g): UN solo sitio, como el foco. Una pieza que entra al cargar lleva `data-enter` y su índice en `--bbf-enter-index`
+   (número de orden, no valor); el paso del escalonado lo pone el contenedor en `--bbf-enter-step` (por defecto el del héroe). Duración, curva,
+   desplazamiento, retardo y pasos = roles de semantic/motion.css; con movimiento reducido la madre de duración y la de escalonado colapsan y la
+   pieza está en su sitio desde el primer fotograma. HTML completo: el contenido está en el documento; la animación solo lo revela. */
+[data-enter] {
+  animation: bbf-enter var(--bbf-motion-enter-duration) var(--bbf-motion-enter-ease) both;
+  animation-delay: calc(var(--bbf-motion-enter-delay) + var(--bbf-enter-index, 0) * var(--bbf-enter-step, var(--bbf-motion-enter-stagger)));
+}
+
+@keyframes bbf-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--bbf-motion-enter-shift));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* foco (D-BBW-22, fase 6c): UN solo sitio para todo el documento; ningún componente escribe su propio foco. Solo se muestra al navegar con
    teclado (:focus-visible); el foco por ratón no pinta anillo. Color, anchura y separación por rol; el anillo del navegador queda sustituido. */
 :focus-visible {

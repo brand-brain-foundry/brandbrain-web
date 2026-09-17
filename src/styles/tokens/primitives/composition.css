@@ -19,8 +19,8 @@
  *     73 % del radio), deriva lenta por lóbulo (amplitudes en fracciones del ancho; periodos = múltiplos de la madre de movimiento, 30–55 s)
  *     y NÚCLEO OSCURO: círculo en (50 %, 52 %) que apaga el color desde el 3,4 % hasta el 69 % del lado menor (el sujeto se lee sobre negro;
  *     el color vive en los bordes). No reproducido: respiración de los radios (±10 %), deformación del núcleo por ruido, grano.
- *   · Los COLORES de los lóbulos NO caen en ninguna rampa firmada (ΔE 0,06–0,09 al paso más cercano; ver DESIGN_EXCEPTIONS.md §2): los
- *     roles de tinte de semantic/composition.css son PROVISIONALES sobre la rampa `mint`. Ningún color crudo aquí.
+ *   · Los COLORES de los lóbulos viven como madres `sea` y `deep` en primitives/colors.css (fase 6g, D-BBW-27: dos madres nuevas en vez de
+ *     una excepción); los roles de tinte están en semantic/composition.css. Ningún color crudo aquí.
  * CLASE (D-DOC-13): la regla "proporciones aquí, roles en semantic, geometría en el componente" = estático · los valores = dinámico ·
  * el archivo = plantilla.
  */

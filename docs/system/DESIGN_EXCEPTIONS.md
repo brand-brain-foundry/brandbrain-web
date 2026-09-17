@@ -3,16 +3,16 @@ id: BBW-DESIGN-EXCEPTIONS
 title: "Registro de excepciones al sistema de diseño — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.4
+version: 1.5
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
 updated: 2026-09-17
-verified_against_code: 2026-09-17@feat/fase6f-previsualizacion-y-fidelidad (v1.4: candidata EXC-BBW-03 en §2, roles `--bbf-glow-*-tint` PROVISIONAL en semantic/composition.css; src/styles/tokens/primitives/typography.css bloques EXC-BBW-01 y EXC-BBW-02 con sus guardas `-fit` · semantic/typography.css · src/components/sections/HeroSection/HeroSection.module.css `min(size, fit)` · scripts/lint/check-typography-system.ts R5/R6/R7)
+verified_against_code: 2026-09-17@feat/fase6g-color-correccion-y-movimiento (v1.5: candidata EXC-BBW-03 RETIRADA por D-BBW-27 — madres `sea`/`deep` en primitives/colors.css, roles `--bbf-glow-*-tint` sin marca PROVISIONAL en semantic/composition.css; src/styles/tokens/primitives/typography.css bloques EXC-BBW-01 y EXC-BBW-02 con sus guardas `-fit` · semantic/typography.css · src/components/sections/HeroSection/HeroSection.module.css `min(size, fit)` · scripts/lint/check-typography-system.ts R5/R6/R7)
 supersedes: []
 superseded_by: null
 related: [BBW-PLAN-CONSTRUCCION, BBW-TYPOGRAPHY-WEIGHTS, D-BBW-16, D-BBW-17, D-BBW-18, D-BBW-19, D-DS-AXIOMA-AGNOSTICO]
-summary: "Toda excepción a la derivación por fórmula se registra aquí con valor, razón y decisión que la firma (D-BBW-16: una excepción sin razón escrita es un agujero). v1.2 (fase 6b): dos excepciones firmadas — EXC-BBW-01 (tamaño del display, tres madres) y EXC-BBW-02 (tamaño del rótulo `lead`, DERIVADO del display por una sola madre, D-BBW-19); ninguna candidata abierta. Con la segunda excepción la guardia propia cruza los bloques EXC del canon con las filas de §1 (R7). v1.3 (fase 6e): la GUARDA de ajuste al ancho del diseño (14,6vw; 5,9vw derivada ×0,4) que ambas filas ya registraban como 'no es tamaño, es del componente' pasa a vivir como madre `-fit` dentro de cada bloque EXC y el componente del titular la aplica por rol (`min(size, fit)`): el titular real cabe en una línea a 360 px. No es una excepción nueva. v1.4 (fase 6f): CANDIDATA EXC-BBW-03, los colores de los resplandores del fondo (verde-azulado, azules y azul marino del sombreador del diseño) no caen en ninguna rampa firmada (ΔE 0,06–0,09 al paso más cercano, umbral ≈ 0,02): roles de tinte PROVISIONALES sobre `mint` (reproducen la luminancia, no el tono) hasta que Zavala firme madres nuevas o descarte el color."
+summary: "Toda excepción a la derivación por fórmula se registra aquí con valor, razón y decisión que la firma (D-BBW-16: una excepción sin razón escrita es un agujero). v1.2 (fase 6b): dos excepciones firmadas — EXC-BBW-01 (tamaño del display, tres madres) y EXC-BBW-02 (tamaño del rótulo `lead`, DERIVADO del display por una sola madre, D-BBW-19); ninguna candidata abierta. Con la segunda excepción la guardia propia cruza los bloques EXC del canon con las filas de §1 (R7). v1.3 (fase 6e): la GUARDA de ajuste al ancho del diseño (14,6vw; 5,9vw derivada ×0,4) que ambas filas ya registraban como 'no es tamaño, es del componente' pasa a vivir como madre `-fit` dentro de cada bloque EXC y el componente del titular la aplica por rol (`min(size, fit)`): el titular real cabe en una línea a 360 px. No es una excepción nueva. v1.4 (fase 6f): CANDIDATA EXC-BBW-03, los colores de los resplandores del fondo no caían en ninguna rampa firmada: roles de tinte PROVISIONALES sobre `mint`. v1.5 (fase 6g, D-BBW-27): la candidata se RETIRA sin convertirse en excepción — Zavala decidió crecer el sistema con dos madres nuevas (`sea`, `deep`) derivadas por la fórmula, porque un resplandor ambiental es elemento de marca recurrente y no un caso raro ('una excepción es un agujero que hay que recordar; una madre es sistema que se reutiliza'). Dos excepciones firmadas, cero candidatas."
 tags: [sistema-de-diseno, excepciones, tokens, brandbrain-web]
 ---
 
@@ -34,13 +34,16 @@ tags: [sistema-de-diseno, excepciones, tokens, brandbrain-web]
 
 ## §2 — Candidatas (sin firmar; nada aplicado)
 
-| ID | Valor del diseño | Por qué ningún paso sirve | Opciones | Recomendación | Estado |
-|---|---|---|---|---|---|
-| **EXC-BBW-03** (candidata, fase 6f) | **Colores de los resplandores del fondo** (`blob-bg` del diseño, inventariados en N0 §2.2 como vec3 del sombreador): verde `(0.208, 0.871, 0.549)`, azul `(0.118, 0.310, 0.784)`, azul `(0.086, 0.337, 0.941)`, azul marino `(0.078, 0.153, 0.369)` y `(0.043, 0.075, 0.220)`. **Lo que se ve** (tras exposición 0,38, curva de tono y tope 0,34 del sombreador; valores codificados): verde-azulado `rgb(38,87,83)` = oklch(0,421 0,053 188°), azul `rgb(23,53,87)` = oklch(0,324 0,070 253°), azul `rgb(17,57,87)` = oklch(0,332 0,069 245°), marino `rgb(15,29,61)` = oklch(0,238 0,065 265°), `rgb(9,15,40)` = oklch(0,178 0,052 270°). | El sistema tiene tres familias con tono y croma fijos (D-COLOR-SPACE forma B): `ink` (gris), `mint` (174°, croma 0,007: casi gris) y `accent` (276°, croma 0,14: violeta). Los colores del fondo viven en **188–270° con croma 0,05–0,07**: ni el tono de `accent` ni el croma de `mint`. Distancia OKLab al paso más cercano (umbral de detección ≈ 0,02): verde-azulado → mint-700 **0,059** · azules → mint-800 **0,076–0,078** · marino → mint-900 **0,057–0,075**; con `accent` sería peor (0,084–0,091) y de otro tono (violeta). No es un residual de magnitud: es un **tono que la rampa no tiene**. Un color a mano está prohibido (criterio 3; guardia de color). | **(a)** Firmar **dos madres nuevas** desde los valores inventariados del sombreador (una familia `sea` para el verde-azulado, otra `deep` para los azules/marino; la fórmula B genera sus rampas y los seis roles `--bbf-glow-*-tint` apuntan a sus pasos: un cambio de seis líneas en `semantic/composition.css`). **(b)** Firmar **una** madre (los azules, que son cuatro de los seis colores) y aceptar el verde-azulado como paso de esa rampa (pierde el matiz verde del lóbulo superior izquierdo). **(c)** Ratificar la salida provisional (rampa `mint`): resplandores **grises** con la luminancia del diseño, sin su tono. **(d)** Retirar los resplandores. | **(a)**: es lo que Zavala señaló como desviación ("falta el color") y el coste es el mínimo (dos madres + seis roles); las alfas, la geometría, la deriva y el núcleo oscuro ya están construidos y medidos con la garantía. | **PROVISIONAL en código** (`semantic/composition.css`: los seis roles apuntan a mint-700/800/900). Decisión de Zavala: P-BBW-33. |
+*Ninguna abierta (2026-09-17, fase 6g).*
 
-**Cómo se cierra esta candidata:** Zavala firma en `shared/DECISIONES.md` (D-BBW-27 o siguiente) la opción; el turno que ejecute añade las madres a
-`primitives/colors.css` (con su bloque de origen, como las tres existentes), apunta los seis roles y retira la marca `PROVISIONAL`; la garantía de
-legibilidad se re-mide (los lóbulos cambian de luminancia solo si cambia el paso, no el tono; el modelo del output 6f lo repite en un minuto).
+**Retirada sin firmar (fase 6g):** la candidata **EXC-BBW-03** (colores de los resplandores del fondo, fase 6f: verde-azulado 188° y azules 245–270° con
+croma 0,05–0,07, ΔE 0,057–0,078 al paso más cercano de `mint`) **no se convirtió en excepción**. Zavala firmó **D-BBW-27** (2026-09-17): dos
+**madres nuevas** en `primitives/colors.css` (`sea` = verde-azulado visto rgb(38,87,83) → oklch(0,421 0,053 188°), paso madre 700; `deep` = azul
+visto rgb(23,53,87) → oklch(0,324 0,070 253°), paso madre 800), rampas por la misma fórmula (D-COLOR-SPACE, forma B pura) y seis roles apuntando
+a sus pasos (ΔE por rol: 0 · 0 · 0,013 · 0 · 0 · 0,034; el lavado marino a `deep-900` queda como residual D-BBW-16). Razón registrada en la decisión:
+un resplandor ambiental de fondo es elemento de marca recurrente; una excepción es un agujero que hay que recordar, una madre es sistema que se
+reutiliza. La marca `PROVISIONAL` de `semantic/composition.css` se retiró. **Consecuencia para este registro:** una candidata puede cerrarse por
+tres vías, no dos: excepción (→ §1), ajuste a un peldaño existente, o **crecimiento del sistema** (madre nueva, sin fila aquí).
 
 Antes de la 6f: la última candidata, `lead`, se firmó como EXC-BBW-02 (D-BBW-19, fase 6b) por la vía (b) que recomendaba la v1.1: derivarla del
 display con una sola madre. `legal` había cerrado en la 6a-bis por el suelo de legibilidad (D-BBW-18) sin excepción. HAL-BBW-09 cerrado.
@@ -48,7 +51,7 @@ display con una sola madre. `legal` había cerrado en la 6a-bis por el suelo de 
 **Cómo entra una candidata nueva:** el turno que detecta un valor sin peldaño la escribe aquí con valor del diseño, por qué ningún paso sirve
 (medido en su rango real, L-45), opciones y recomendación; el token que la esperaría queda `PROVISIONAL` en el archivo semántico. **Cómo se
 cierra:** Zavala firma en `shared/DECISIONES.md`; el turno que ejecute mueve la fila a §1 (si es excepción) o apunta el rol al peldaño firmado (si
-es ajuste), y retira la marca `PROVISIONAL`.
+es ajuste) **o añade la madre nueva a `primitives/colors.css` si la decisión hace crecer el sistema (vía de D-BBW-27)**, y retira la marca `PROVISIONAL`.
 
 ## §3 — Lo que este registro exige del sistema
 
@@ -62,4 +65,4 @@ es ajuste), y retira la marca `PROVISIONAL`.
   Demostrada fallando en `OUTPUT-BBW-2026-09-16-fase6b-componentes-y-secciones`.
 
 ---
-*BBW-DESIGN-EXCEPTIONS v1.4 · `docs/system/DESIGN_EXCEPTIONS.md` · 2026-09-17 · v1.4 en la fase 6f (candidata EXC-BBW-03: colores de los resplandores; roles PROVISIONALES) · nace en la fase 6a (`DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`, D-BBW-16); v1.1 en la fase 6a-bis (D-BBW-17 · D-BBW-18: legal cerrada por el suelo, lead re-medida, EXC-BBW-01 reescrita sobre los anclajes nuevos); v1.2 en la fase 6b (D-BBW-19: lead → EXC-BBW-02 con una madre; guardia R7); v1.3 en la fase 6e (guardas `-fit` como madres de los bloques EXC, aplicadas por el componente del titular)*
+*BBW-DESIGN-EXCEPTIONS v1.5 · `docs/system/DESIGN_EXCEPTIONS.md` · 2026-09-17 · v1.5 en la fase 6g (D-BBW-27: candidata EXC-BBW-03 retirada por crecimiento del sistema, madres `sea`/`deep`) · v1.4 en la fase 6f (candidata EXC-BBW-03: colores de los resplandores; roles PROVISIONALES) · nace en la fase 6a (`DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`, D-BBW-16); v1.1 en la fase 6a-bis (D-BBW-17 · D-BBW-18: legal cerrada por el suelo, lead re-medida, EXC-BBW-01 reescrita sobre los anclajes nuevos); v1.2 en la fase 6b (D-BBW-19: lead → EXC-BBW-02 con una madre; guardia R7); v1.3 en la fase 6e (guardas `-fit` como madres de los bloques EXC, aplicadas por el componente del titular)*

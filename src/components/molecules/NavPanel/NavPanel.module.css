@@ -1,5 +1,9 @@
 /* NavPanel — Tier 3: solo consume Tier 1/2. La hoja arranca justo debajo de la cabecera (top: 100 % del organismo, que es su contexto de
-   posicionamiento) y cubre al menos un viewport: así nunca solapa el conmutador, mida lo que mida la cabecera (medido en la 6b).
+   posicionamiento) y llega EXACTAMENTE al borde inferior de la ventana: alto = ventana − cabecera (calc(100svh − 100 %): el porcentaje de un
+   elemento absoluto se resuelve contra su contexto, la cabecera). Fase 6g, defecto corregido: con `min-height: 100vh` la hoja sobresalía del
+   viewport justo la altura de la cabecera (90 px a 360, 103 px a 780: documento de 830/873 px sobre una ventana de 740/770) y el documento
+   entero se desplazaba en vertical con el panel abierto. Si el contenido de la hoja no cabe, se desplaza DENTRO de la hoja (overflow-y), no
+   la página. 100svh es estructura (la ventana), no valor de diseño. Sigue siendo <details> nativo, sin código de cliente.
    Fase 6c · conmutador (N0 §2.3): caja 34 → ×9 (36), dos brazos de 34×6 separados 8 = ×2, grosor por rol (semantic/lines.css); el conmutador
    conserva el área táctil mínima y la caja de 48 → ×12 del diseño. Hoja: velo (N0 rgba(0,0,0,.9) = tinta al 90 %, rol surface-veil) +
    desenfoque del fondo (rol blur-sheet, 22 → 24 px). `saturate(.7)` del diseño: sin escala, no aplicado (reportado).
@@ -25,6 +29,7 @@
   color: var(--bbf-text-on-base-secondary);
   cursor: pointer;
   list-style: none;
+  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
 .toggle::-webkit-details-marker {
@@ -64,7 +69,8 @@
   right: 0;
   left: 0;
   z-index: var(--bbf-layer-sheet);
-  min-height: 100vh;
+  height: calc(100svh - 100%);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   row-gap: var(--bbf-nav-panel-sheet-gap);

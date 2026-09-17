@@ -1,7 +1,11 @@
 import type { GlobalDocument } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
+import type { CSSProperties } from "react";
 import styles from "./Footer.module.css";
+
+/** orden de entrada (fase 6g): la barra es la última pieza del escalonado del héroe (marca 0 · titular 1 · rótulo 2 · afirmaciones 3-4 · barra 5) */
+const ENTER: CSSProperties = { "--bbf-enter-index": 5 } as CSSProperties;
 
 /**
  * Footer — organism (cromo persistente, vive en el layout). Aviso de estado + línea legal + perfiles. Todo texto desde `content/`.
@@ -12,7 +16,7 @@ import styles from "./Footer.module.css";
  */
 export function Footer({ global }: { global: GlobalDocument }) {
   return (
-    <footer className={styles.footer} data-component="bbf-footer">
+    <footer className={styles.footer} data-component="bbf-footer" data-enter="" style={ENTER}>
       <p className={styles.notice}>
         <span className={styles.dot} aria-hidden="true" />
         <span>{global.footer.notice}</span>

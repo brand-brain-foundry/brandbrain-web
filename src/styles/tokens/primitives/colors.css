@@ -17,7 +17,15 @@
  *   (206,240,238) → mint-100 · rgb(160,222,220) / (140,215,215) → mint-200 · rgb(90,170,180) → mint-400. Distancia OKLab
  *   compuesta sobre negro a la alfa de cada tinte: 0.009–0.035 (umbral de detección ≈ 0.02; partículas de 1–21 px, difuminadas y en
  *   movimiento). Las alfas (0.04–0.8) son parámetro de opacidad del componente, no color: la matriz trata opacity como enum (fase 6b).
- * CLASE (D-DOC-13): la fórmula y los extremos = estático · las tres madres = dinámico · el archivo = plantilla.
+ * FAMILIAS `sea` y `deep` (fase 6g, D-BBW-27): los colores de los RESPLANDORES del fondo (blob-bg del diseño) no caían en ninguna rampa
+ *   (ΔE 0,057–0,078 al paso más cercano de `mint`; candidata EXC-BBW-03 de la fase 6f, RETIRADA). Zavala decidió crecer el sistema en vez de
+ *   registrar una excepción: dos madres nuevas, mismas fórmula y extremos. Madre = el color VISTO del diseño, derivado de las constantes del
+ *   sombreador inventariadas (N0 §2.2, vec3 lineales) por el propio proceso del sombreador (exposición 0,38 → curva de tono → tope 0,34;
+ *   reproducido en OUTPUT-BBW-2026-09-17-fase6f §3): verde `(0.208, 0.871, 0.549)` → visto rgb(38,87,83) = oklch(0.421 0.053 188.1) → `sea`;
+ *   azul `(0.118, 0.310, 0.784)` → visto rgb(23,53,87) = oklch(0.324 0.070 252.9) → `deep`. Ningún valor a mano: madre = inventario × proceso del
+ *   diseño. Los seis roles de tinte (semantic/composition.css) apuntan a sus pasos; ΔE por rol en el output 6g (lóbulo 3 a deep-800: 0,013;
+ *   lavado marino a deep-900: 0,034, reportado como residual D-BBW-16).
+ * CLASE (D-DOC-13): la fórmula y los extremos = estático · las cinco madres = dinámico · el archivo = plantilla.
  */
 :root {
   /* ── Extremos de la rampa (criterio técnico: mismos para todas las familias) ─────────────────── */
@@ -74,4 +82,38 @@
   --bbf-color-accent-700: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.6667) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
   --bbf-color-accent-800: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.8333) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
   --bbf-color-accent-900: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 1) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+
+  /* ── Familia `sea` · madre rgb(38,87,83) → oklch(0.421 0.053 188.1) · paso madre: 700 · origen: N0 §2.2 sombreador `blob-bg` (fase 6g, D-BBW-27) ── */
+  --bbf-color-sea-l: 0.421;
+  --bbf-color-sea-c: 0.053;
+  --bbf-color-sea-h: 188.1;
+  --bbf-color-sea-span-up: calc(var(--bbf-color-l-max) - var(--bbf-color-sea-l));
+  --bbf-color-sea-span-down: calc(var(--bbf-color-sea-l) - var(--bbf-color-l-min));
+  --bbf-color-sea-50: oklch(calc(var(--bbf-color-sea-l) + var(--bbf-color-sea-span-up) * 1) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-100: oklch(calc(var(--bbf-color-sea-l) + var(--bbf-color-sea-span-up) * 0.8571) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-200: oklch(calc(var(--bbf-color-sea-l) + var(--bbf-color-sea-span-up) * 0.7143) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-300: oklch(calc(var(--bbf-color-sea-l) + var(--bbf-color-sea-span-up) * 0.5714) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-400: oklch(calc(var(--bbf-color-sea-l) + var(--bbf-color-sea-span-up) * 0.4286) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-500: oklch(calc(var(--bbf-color-sea-l) + var(--bbf-color-sea-span-up) * 0.2857) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-600: oklch(calc(var(--bbf-color-sea-l) + var(--bbf-color-sea-span-up) * 0.1429) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-700: oklch(var(--bbf-color-sea-l) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-800: oklch(calc(var(--bbf-color-sea-l) - var(--bbf-color-sea-span-down) * 0.5) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+  --bbf-color-sea-900: oklch(calc(var(--bbf-color-sea-l) - var(--bbf-color-sea-span-down) * 1) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
+
+  /* ── Familia `deep` · madre rgb(23,53,87) → oklch(0.324 0.070 252.9) · paso madre: 800 · origen: N0 §2.2 sombreador `blob-bg` (fase 6g, D-BBW-27) ── */
+  --bbf-color-deep-l: 0.324;
+  --bbf-color-deep-c: 0.070;
+  --bbf-color-deep-h: 252.9;
+  --bbf-color-deep-span-up: calc(var(--bbf-color-l-max) - var(--bbf-color-deep-l));
+  --bbf-color-deep-span-down: calc(var(--bbf-color-deep-l) - var(--bbf-color-l-min));
+  --bbf-color-deep-50: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 1) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-100: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.875) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-200: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.75) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-300: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.625) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-400: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.5) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-500: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.375) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-600: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.25) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-700: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.125) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-800: oklch(var(--bbf-color-deep-l) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+  --bbf-color-deep-900: oklch(calc(var(--bbf-color-deep-l) - var(--bbf-color-deep-span-down) * 1) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
 }
