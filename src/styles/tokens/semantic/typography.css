@@ -14,7 +14,10 @@
  * Fase 6a-bis (D-BBW-17 · D-BBW-18): escala re-anclada (18 → 20 px, 1,2 / 1,25). Los claims que eran `body` en paso 0 pasan a ser el
  * rol `claim` en paso −1 (cambian de nombre, no de medida: 15 → 16 frente a 14 → 15 del diseño); `body` queda como texto corrido en
  * paso 0. `label` y `legal` suben al paso −2 (12,5 → 12,8) por el suelo de legibilidad; `legal` deja de ser provisional (HAL-BBW-09,
- * parte legal, cerrado). `lead` SIGUE PROVISIONAL: no cae en ningún paso con ningún juego de anclajes (docs/system/DESIGN_EXCEPTIONS.md §2).
+ * parte legal, cerrado).
+ * Fase 6b (D-BBW-19 · D-BBW-20): `lead` deja de ser provisional: consume EXC-BBW-02 (`--bbf-size-lead`, derivado del display por una madre;
+ * HAL-BBW-09 cerrado). La subida de `label` por el suelo queda ratificada (D-BBW-20). Nace el rol `notice` (aviso de estado del pie: mismo
+ * paso que legal, interletrado ×9 = el 0.34em de "estado" del N0 que ya estaba en primitivos sin consumidor).
  * Todo `--bbf-type-<rol>-size` consume un `--bbf-size-*` del canon (guardia R6): ningún tamaño escrito a mano.
  * CLASE (D-DOC-13): estático (roles y propiedades); paso y peso asignados = dinámico.
  */
@@ -28,7 +31,7 @@
   --bbf-type-display-tracking: var(--bbf-tracking-0);
 
   --bbf-type-lead-family: var(--bbf-font-text);
-  --bbf-type-lead-size: var(--bbf-size-2); /* PROVISIONAL: diseño 24→49 no cae en ningún paso (n2 = +15 % a 706 px, −36 % a 1440) → candidata EXC-BBW-02, Zavala */
+  --bbf-type-lead-size: var(--bbf-size-lead); /* EXC-BBW-02 (D-BBW-19): derivado del display por una madre; registro docs/system/DESIGN_EXCEPTIONS.md §1 */
   --bbf-type-lead-weight: var(--bbf-weight-text-regular);
   --bbf-type-lead-leading: var(--bbf-leading-none);
   --bbf-type-lead-tracking: var(--bbf-tracking-7);
@@ -59,4 +62,10 @@
   --bbf-type-legal-size: var(--bbf-size-n2);
   --bbf-type-legal-weight: var(--bbf-weight-text-regular);
   --bbf-type-legal-tracking: var(--bbf-tracking-6);
+
+  /* aviso de estado del pie (N0: "En construcción", 9 → 10 px con 0.34em): mismo paso que legal, interletrado ×9 */
+  --bbf-type-notice-family: var(--bbf-font-text);
+  --bbf-type-notice-size: var(--bbf-size-n2);
+  --bbf-type-notice-weight: var(--bbf-weight-text-regular);
+  --bbf-type-notice-tracking: var(--bbf-tracking-9);
 }

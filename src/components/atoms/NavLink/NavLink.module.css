@@ -1,0 +1,34 @@
+/* NavLink — Tier 3: solo consume Tier 1/2. Estado hover = cambio de color sin transición (fase 6b: cero animación). */
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--bbf-space-touch-min);
+  color: var(--bbf-text-on-base-secondary);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--bbf-accent);
+}
+
+.label {
+  font-family: var(--bbf-type-label-family);
+  font-size: var(--bbf-type-label-size);
+  font-weight: var(--bbf-type-label-weight);
+  letter-spacing: var(--bbf-type-label-tracking);
+}
+
+.menu {
+  font-family: var(--bbf-type-menu-family);
+  font-size: var(--bbf-type-menu-size);
+  font-weight: var(--bbf-type-menu-weight);
+  letter-spacing: var(--bbf-type-menu-tracking);
+}
+
+.legal {
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking);
+}

@@ -1,0 +1,6 @@
+/* main de la página: crece para que el pie quede al fondo del viewport (base/document.css hace de <body> una columna a toda altura). */
+.main {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}

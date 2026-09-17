@@ -3,6 +3,8 @@
  * content/<locale>/… Este archivo dice QUÉ FORMA tiene el contenido y la hace cumplir; el build y la guardia
  * (scripts/lint/check-content.ts) fallan cuando algo no cumple.
  *
+ * Fase 6b: +1 llave `nav.skipLabel` (el enlace para saltar al contenido exige un texto y ningún texto vive en un componente). Cambio ADITIVO
+ * del modelo (v2.1), propuesto en el PR de la fase 6b: el esquema estricto lo exige en todo locale publicado.
  * Reglas del modelo (fase 6a, DESPACHO-BBW-2026-09-16-fase6a §F3):
  *   1. Cada texto, su propia llave. Ningún bloque agrupa varios textos editables.
  *   2. Llaves nombradas por ROL (display, lead, notice, legal…), nunca por lo que dicen hoy.
@@ -45,6 +47,8 @@ export type LinkItem = {
 
 export type GlobalDocument = {
   nav: {
+    /** texto del enlace para saltar al contenido principal (primer elemento enfocable de la página; fase 6b) */
+    skipLabel: string;
     /** nombre accesible del conmutador que abre y cierra el menú (≤ 780 px) */
     toggleLabel: string;
     /** los enlaces de navegación, en orden; el mismo dato se renderiza en escritorio y en la hoja (N0 §2.3) */
@@ -148,7 +152,8 @@ export function validateGlobal(v: unknown): Problem[] {
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
   checkKeys(v, ["nav", "footer"], "$", problems);
   if (isRecord(v.nav)) {
-    checkKeys(v.nav, ["toggleLabel", "items"], "$.nav", problems);
+    checkKeys(v.nav, ["skipLabel", "toggleLabel", "items"], "$.nav", problems);
+    checkText(v.nav.skipLabel, "$.nav.skipLabel", problems);
     checkText(v.nav.toggleLabel, "$.nav.toggleLabel", problems);
     checkLinkItems(v.nav.items, "$.nav.items", problems);
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });

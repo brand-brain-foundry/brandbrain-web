@@ -1,0 +1,62 @@
+/* HeroSection — Tier 3: solo consume Tier 1/2. Separaciones del lockup = elección de composición (el inventario no las asigna por elemento).
+   Colores: display → on-base (el diseño usa el paso mint-50, sin rol; residual reportado) · lead → on-base · claim 1 → secondary ·
+   claim 2 → muted (diseño mint-500, sin rol; residual reportado). Sombras de texto del diseño: sin fondo que las justifique hasta la 6c. */
+.hero {
+  --bbf-hero-gap-lead: var(--bbf-space-4);
+  --bbf-hero-gap-claims: var(--bbf-space-10);
+  --bbf-hero-gap-claim: var(--bbf-space-2);
+
+  position: relative;
+  z-index: var(--bbf-layer-content);
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--bbf-space-page);
+  text-align: center;
+}
+
+.display {
+  margin: 0;
+  max-width: 100%;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-display-family);
+  font-size: var(--bbf-type-display-size);
+  font-weight: var(--bbf-type-display-weight);
+  line-height: var(--bbf-type-display-leading);
+  letter-spacing: var(--bbf-type-display-tracking);
+  overflow-wrap: anywhere;
+}
+
+.lead {
+  margin: var(--bbf-hero-gap-lead) 0 0;
+  max-width: 100%;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-lead-family);
+  font-size: var(--bbf-type-lead-size);
+  font-weight: var(--bbf-type-lead-weight);
+  line-height: var(--bbf-type-lead-leading);
+  letter-spacing: var(--bbf-type-lead-tracking);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.claim {
+  margin: 0;
+  font-family: var(--bbf-type-claim-family);
+  font-size: var(--bbf-type-claim-size);
+  font-weight: var(--bbf-type-claim-weight);
+  letter-spacing: var(--bbf-type-claim-tracking);
+  text-transform: uppercase;
+}
+
+.claimPrimary {
+  margin-top: var(--bbf-hero-gap-claims);
+  color: var(--bbf-text-on-base-secondary);
+}
+
+.claimSecondary {
+  margin-top: var(--bbf-hero-gap-claim);
+  color: var(--bbf-text-on-base-muted);
+}

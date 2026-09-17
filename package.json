@@ -11,9 +11,9 @@
     "lint:color:baseline": "tsx scripts/lint/check-color-tokens.ts --write-baseline",
     "lint:typo": "tsx scripts/lint/check-typography-tokens.ts",
     "lint:typo:baseline": "tsx scripts/lint/check-typography-tokens.ts --write-baseline",
-    "lint:weight": "tsx scripts/lint/check-weight-tokens.ts",
+    "lint:type-system": "tsx scripts/lint/check-typography-system.ts",
     "lint:content": "tsx scripts/lint/check-content.ts",
-    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:weight && pnpm lint:content",
+    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:type-system && pnpm lint:content",
     "check": "pnpm typecheck && pnpm lint && pnpm guard"
   },
   "dependencies": {

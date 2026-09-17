@@ -1,0 +1,24 @@
+/* Header — Tier 3: solo consume Tier 1/2. Margen de página por rol; capa de cromo por rol. */
+.header {
+  --bbf-header-gap: var(--bbf-space-6);
+
+  position: relative;
+  z-index: var(--bbf-layer-chrome);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--bbf-header-gap);
+  row-gap: var(--bbf-space-2);
+  padding: var(--bbf-space-page);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+}
+
+.inline {
+  display: var(--bbf-nav-inline-display);
+  align-items: center;
+}

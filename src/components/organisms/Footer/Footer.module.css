@@ -1,0 +1,36 @@
+/* Footer — Tier 3: solo consume Tier 1/2. */
+.footer {
+  --bbf-footer-gap: var(--bbf-space-6);
+
+  position: relative;
+  z-index: var(--bbf-layer-chrome);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: var(--bbf-footer-gap);
+  row-gap: var(--bbf-space-3);
+  padding: var(--bbf-space-page);
+}
+
+.notice,
+.legal {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.notice {
+  color: var(--bbf-text-on-base-muted);
+  font-family: var(--bbf-type-notice-family);
+  font-size: var(--bbf-type-notice-size);
+  font-weight: var(--bbf-type-notice-weight);
+  letter-spacing: var(--bbf-type-notice-tracking);
+}
+
+.legal {
+  color: var(--bbf-text-on-base-muted);
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking);
+}

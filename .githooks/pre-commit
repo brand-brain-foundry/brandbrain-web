@@ -1,6 +1,6 @@
 #!/bin/bash
 # pre-commit — brandbrain-web (D-SEC-04 + D-BBW-06)
-# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia de pesos por familia (fase 5). 5) guardia de contenido (fase 6a).
+# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia tipográfica propia (fase 5, extendida 6a-bis y 6b). 5) guardia de contenido (fase 6a).
 # Semántica FAIL-CLOSED: error del tool = commit cancelado. Único skip: gitleaks ausente (aviso).
 # gitleaks 8.30.x: --exit-code 2 = leaks; 0 = limpio; otro = error del tool. Sin -q (bug gitleaks).
 
@@ -56,7 +56,7 @@ elif [ "$TYPO_STATUS" -ne 0 ]; then
 fi
 
 # Guardia propia del repo (no es copia por contrato): pesos por familia y rango (docs/system/TYPOGRAPHY_WEIGHTS.md) + escala de tamaño contra el suelo y consumo de la escala por los roles (fase 6a-bis, D-BBW-17/D-BBW-18).
-pnpm exec tsx scripts/lint/check-weight-tokens.ts
+pnpm exec tsx scripts/lint/check-typography-system.ts
 WEIGHT_STATUS=$?
 if [ "$WEIGHT_STATUS" -eq 1 ]; then
   echo "" >&2
@@ -65,7 +65,7 @@ if [ "$WEIGHT_STATUS" -eq 1 ]; then
   exit 1
 elif [ "$WEIGHT_STATUS" -ne 0 ]; then
   echo "" >&2
-  echo "[pre-commit] FAIL-CLOSED: error de la guardia de pesos (exit $WEIGHT_STATUS) — commit cancelado" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia tipográfica propia (exit $WEIGHT_STATUS) — commit cancelado" >&2
   exit 1
 fi
 

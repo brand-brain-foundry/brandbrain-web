@@ -1,0 +1,47 @@
+/* NavPanel — Tier 3: solo consume Tier 1/2. La hoja arranca justo debajo de la cabecera (top: 100 % del organismo, que es su contexto de
+   posicionamiento) y cubre al menos un viewport: así nunca solapa el conmutador, mida lo que mida la cabecera (a 360 px ocupa dos filas
+   con el marcador largo; medido en F5). Sin desenfoque de fondo: el `backdrop-filter: blur(22px)` del diseño no tiene token (reportado). */
+.panel {
+  --bbf-nav-panel-sheet-padding-top: var(--bbf-space-10);
+  --bbf-nav-panel-sheet-gap: var(--bbf-space-10);
+
+  display: var(--bbf-nav-panel-display);
+}
+
+.toggle {
+  position: relative;
+  z-index: var(--bbf-layer-toggle);
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--bbf-space-touch-min);
+  color: var(--bbf-text-on-base-secondary);
+  font-family: var(--bbf-type-label-family);
+  font-size: var(--bbf-type-label-size);
+  font-weight: var(--bbf-type-label-weight);
+  letter-spacing: var(--bbf-type-label-tracking);
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.toggle::-webkit-details-marker {
+  display: none;
+}
+
+.panel[open] .toggle {
+  color: var(--bbf-accent);
+}
+
+.sheet {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: var(--bbf-layer-sheet);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--bbf-nav-panel-sheet-gap);
+  padding: var(--bbf-nav-panel-sheet-padding-top) var(--bbf-space-page) var(--bbf-space-page);
+  background: var(--bbf-surface-base);
+}

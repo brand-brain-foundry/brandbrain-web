@@ -3,12 +3,12 @@ id: BBW-TYPOGRAPHY-WEIGHTS
 title: "Pesos por familia y animación de peso del titular — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.1
+version: 1.2
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
 updated: 2026-09-16
-verified_against_code: 2026-09-16@feat/fase6a-bis-escala-tipografica (guardia R5/R6 demostrada fallando y pasando; rangos medidos: kit ntm5vqh `modulator-vf` wght 25–500 en vivo 2026-09-16; Space Grotesk variable wght 300–700, archivo auto-hospedado)
+verified_against_code: 2026-09-16@feat/fase6b-componentes-y-secciones (guardia propia renombrada `check-typography-system.ts`, R1–R8; rangos medidos: kit ntm5vqh `modulator-vf` wght 25–500 en vivo 2026-09-16; Space Grotesk variable wght 300–700, archivo auto-hospedado)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-14, D-DS-AXIOMA-AGNOSTICO]
@@ -40,12 +40,12 @@ resuelve el peso por familia**.
 | Pesos de la familia display | `--bbf-weight-display-anim-min` (100) · `-anim-max` (500) · `-rest` (fórmula: punto medio) | ídem | Extremos de la animación del titular (N0 §2.2: WMIN/WMAX) y reposo legible. |
 | Pesos de la familia text | `--bbf-weight-text-light` (300) · `-regular` (400) · `-medium` (500) | ídem | Valores de eje: madres. |
 | Extremos de la animación como estado de movimiento | `--bbf-weight-display-from` · `--bbf-weight-display-to` | `src/styles/tokens/primitives/motion.css` | Con `prefers-reduced-motion: reduce` **ambos valen `--bbf-weight-display-rest`**: la animación se retira sin que el componente sepa nada (mismo patrón que la madre de duración). |
-| Peso por rol (lo que consume un componente) | `--bbf-type-display-weight` (reposo) · `--bbf-type-display-weight-from/-to` · `--bbf-type-lead-weight` · `--bbf-type-body-weight` · `--bbf-type-label-weight` · `--bbf-type-legal-weight` | `src/styles/tokens/semantic/typography.css` | **Un componente pide el rol; nunca escribe un número.** Cada rol tiene una familia fija, así que el mismo concepto ("peso normal") resuelve a 300 en display y a 400 en text sin que el consumidor lo sepa. |
+| Peso por rol (lo que consume un componente) | `--bbf-type-display-weight` (reposo) · `--bbf-type-display-weight-from/-to` · `--bbf-type-lead-weight` · `--bbf-type-body-weight` · `--bbf-type-claim-weight` · `--bbf-type-label-weight` · `--bbf-type-menu-weight` · `--bbf-type-legal-weight` · `--bbf-type-notice-weight` | `src/styles/tokens/semantic/typography.css` | **Un componente pide el rol; nunca escribe un número.** Cada rol tiene una familia fija, así que el mismo concepto ("peso normal") resuelve a 300 en display y a 400 en text sin que el consumidor lo sepa. |
 
 **Guardias (dos, complementarias):** `scripts/lint/check-typography-tokens.ts` (copia por contrato, CONTRATO-04) bloquea
-`font-weight: <número>` fuera de primitivos; `scripts/lint/check-weight-tokens.ts` (propia del repo, fase 5) exige familia en todo
+`font-weight: <número>` fuera de primitivos; `scripts/lint/check-typography-system.ts` (propia del repo; nació en la fase 5 como `check-weight-tokens.ts` y se **renombró en la fase 6b** porque ya no comprueba solo pesos) exige familia en todo
 `--bbf-weight-*`, comprueba que cada valor cae en el rango de su familia, que el descriptor de `text.ts` coincide con el rango del token,
-y bloquea `wght` numérico crudo en `font-variation-settings`; **desde la fase 6a-bis (D-BBW-17 · D-BBW-18) la misma guardia propia cubre la escala de tamaño**: cada paso y excepción del canon evaluados contra el suelo `--bbf-text-floor` en ambos polos (R5) y cada `--bbf-type-<rol>-size` obligado a consumir un `--bbf-size-*` del canon (R6), sin guardia nueva (regla de la segunda necesidad, D-DOC-13 §3). Ambas corren en `pnpm guard` y en el pre-commit (fail-closed).
+y bloquea `wght` numérico crudo en `font-variation-settings`; **desde la fase 6a-bis (D-BBW-17 · D-BBW-18) la misma guardia propia cubre la escala de tamaño**: cada paso y excepción del canon evaluados contra el suelo `--bbf-text-floor` en ambos polos (R5) y cada `--bbf-type-<rol>-size` obligado a consumir un `--bbf-size-*` del canon (R6), sin guardia nueva (regla de la segunda necesidad, D-DOC-13 §3); **desde la fase 6b** cruza además las excepciones del canon con el registro `DESIGN_EXCEPTIONS.md` §1 (R7) y obliga a que el literal de `@media` fuera de primitivos espeje una madre `--bbf-bp-*` (R8). Ambas corren en `pnpm guard` y en el pre-commit (fail-closed).
 
 ## §3 — Restricciones para la animación de peso del titular (fase 6 la construye; esto la acota)
 
@@ -76,4 +76,4 @@ guardia de pesos sigue en verde con el componente en el árbol.
    (puerto de tipografía display, `PORTS.md`).
 
 ---
-*BBW-TYPOGRAPHY-WEIGHTS v1.0 · `docs/system/TYPOGRAPHY_WEIGHTS.md` · 2026-09-16 · nace en la fase 5 (`DESPACHO-BBW-2026-09-16-fase5-nomenclatura-pesos-y-capa-de-contenido`)*
+*BBW-TYPOGRAPHY-WEIGHTS v1.2 · `docs/system/TYPOGRAPHY_WEIGHTS.md` · 2026-09-16 · nace en la fase 5 (`DESPACHO-BBW-2026-09-16-fase5-nomenclatura-pesos-y-capa-de-contenido`); v1.1 fase 6a-bis (R5/R6); v1.2 fase 6b (guardia renombrada, R7/R8, roles claim/menu/notice)*

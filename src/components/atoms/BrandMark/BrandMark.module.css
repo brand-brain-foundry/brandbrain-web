@@ -1,0 +1,17 @@
+/* BrandMark — Tier 3: solo consume Tier 1/2. */
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--bbf-space-touch-min);
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-label-family);
+  font-size: var(--bbf-type-label-size);
+  font-weight: var(--bbf-type-label-weight);
+  letter-spacing: var(--bbf-type-label-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.brandMark:hover {
+  color: var(--bbf-accent);
+}

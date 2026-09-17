@@ -12,7 +12,7 @@ Web oficial de **Brand Brain Foundry**. Next.js App Router con `output: 'export'
 
 ```bash
 pnpm install
-pnpm check   # typecheck + lint + guardias de color, tipografía, pesos por familia y modelo de contenido
+pnpm check   # typecheck + lint + guardias de color, tipografía, sistema tipográfico propio (pesos, escala, excepciones, corte) y modelo de contenido
 pnpm build   # → out/ (estático)
 ```
 

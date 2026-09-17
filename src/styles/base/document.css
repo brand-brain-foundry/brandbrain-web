@@ -5,6 +5,10 @@ html {
 }
 
 body {
+  /* columna a toda altura (fase 6b): cabecera · principal (crece) · pie. 100vh es estructura, no valor de diseño. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   background: var(--bbf-surface-base);
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-body-family);
