@@ -16,10 +16,19 @@
  *     `images.unoptimized: true` (next.config.ts) garantiza que Next tampoco la usa en el export. `dependencies` no cambia.
  *   · El .ico lo empaqueta este guion a mano (cabecera + directorio + PNG por entrada): sin herramienta adicional.
  *
+ * HERRAMIENTA DE DESARROLLO Nº 2 (fase 6d, D-BBW-24; declarada y justificada en docs/system/MEDIA.md §4): `ffmpeg` (CLI, instalado en la
+ *   máquina; en este turno 8.1.2 de Homebrew con libx264 y SVT-AV1). Solo para los perfiles de VÍDEO y de PÓSTER, solo en este guion.
+ *   · Determinista: parámetros fijos, UN hilo (`-threads 1` / `lp=1`: el multihilo cambia la salida de x264/SVT entre máquinas), sin
+ *     metadatos ni marcas de tiempo (`-map_metadata -1 -fflags +bitexact`). Comprobado: dos ejecuciones ⇒ mismo hash.
+ *   · Su versión queda en el lock (`tool.ffmpeg`) y la guardia R5 la compara con la instalada: otra versión ⇒ regenerar y revisar.
+ *   · NO va en package.json: no existe como paquete sin descargar un binario en la instalación (`ffmpeg-static` ≈ 70 MB por plataforma,
+ *     postinstall que pnpm 10 bloquea por defecto, y sin garantía de traer SVT-AV1). Cero dependencias de producción: `pnpm build` no la toca.
  * Uso: `pnpm media:build`. Regenerar es obligatorio tras cambiar un maestro o un perfil; la guardia lo exige.
  */
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
+import { execFileSync } from 'child_process';
 import sharp from 'sharp';
 import { site } from '../../src/config/site';
 import {
@@ -31,6 +40,7 @@ import {
   derivatives,
   inlineIcons,
   masters,
+  type Derivative,
   type DerivativeId,
   type MasterId,
   type Profile,
@@ -56,6 +66,72 @@ function loadSvgMaster(id: MasterId): SvgMaster {
   const d = pathTag ? (/\bd="([^"]+)"/.exec(pathTag[0])?.[1] ?? '') : '';
   const paint: 'fill' | 'stroke' = pathTag && /\bstroke="/.test(pathTag[0]) && /\bfill="none"/.test(pathTag[0]) ? 'stroke' : 'fill';
   return { id, file: masters[id].file, bytes, viewBox: { x, y, w, h }, inner, paint, d };
+}
+
+type VideoMaster = { id: MasterId; file: string; abs: string; bytes: Buffer };
+
+function loadVideoMaster(id: MasterId): VideoMaster {
+  const abs = path.join(REPO_ROOT, MASTERS_DIR, masters[id].file);
+  return { id, file: masters[id].file, abs, bytes: fs.readFileSync(abs) };
+}
+
+/** ffmpeg instalado: versión (primera línea de `ffmpeg -version`, p. ej. "8.1.2"). Falla con mensaje si no está: sin herramienta no hay derivado. */
+function ffmpegVersion(): string {
+  let out: string;
+  try {
+    out = execFileSync('ffmpeg', ['-version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch {
+    throw new Error('[media] ffmpeg no está instalado o no está en el PATH: los perfiles de vídeo y póster lo exigen (docs/system/MEDIA.md §4)');
+  }
+  const m = /^ffmpeg version (\S+)/.exec(out);
+  if (!m) throw new Error(`[media] no se pudo leer la versión de ffmpeg: "${out.split('\n')[0]}"`);
+  return m[1];
+}
+
+/** Pistas de un archivo de medios según ffprobe ("video:h264 1280x720" · "audio:aac"); el guion exige que un derivado de vídeo no lleve audio. */
+function probeStreams(abs: string): string {
+  const out = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'stream=codec_type,codec_name,width,height', '-of', 'csv=p=0', abs], { encoding: 'utf8' });
+  return out
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => {
+      // ffprobe emite los campos en su orden fijo (codec_name, codec_type, width, height), no en el del argumento
+      const [codec, type, w, h] = line.split(',');
+      return type === 'video' ? `${type}:${codec} ${w}x${h}` : `${type}:${codec}`;
+    })
+    .join(' + ');
+}
+
+/** Ejecuta ffmpeg con argumentos FIJOS hacia un archivo temporal y devuelve sus bytes. Un hilo, sin metadatos: mismo maestro ⇒ mismos bytes. */
+function runFfmpeg(args: string[], ext: string): Buffer {
+  const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bbw-media-')), `out.${ext}`);
+  execFileSync('ffmpeg', ['-hide_banner', '-nostdin', '-v', 'error', '-y', ...args, tmp], { stdio: ['ignore', 'ignore', 'inherit'] });
+  const bytes = fs.readFileSync(tmp);
+  fs.rmSync(path.dirname(tmp), { recursive: true, force: true });
+  return bytes;
+}
+
+/** Argumentos comunes de salida: sin audio (D-BBW-24), sin metadatos ni marcas de tiempo (bitexact), mismo cadencia y GOP de 2 s (48 @ 24 fps). */
+const VIDEO_COMMON = ['-an', '-sn', '-dn', '-map_metadata', '-1', '-map_chapters', '-1', '-fflags', '+bitexact', '-flags:v', '+bitexact', '-pix_fmt', 'yuv420p', '-g', '48'];
+
+function encodeVideo(master: VideoMaster, p: Extract<Profile, { kind: 'video' }>): { bytes: Buffer; ext: string } {
+  const scale = ['-vf', `scale=${p.width}:${p.height}:flags=lanczos`];
+  if (p.codec === 'h264') {
+    // respaldo universal: libx264, CRF fijo, preset slow, perfil High 4.0, un hilo, moov al principio (arranque sin esperar al final del archivo)
+    const args = ['-i', master.abs, ...VIDEO_COMMON, ...scale, '-c:v', 'libx264', '-preset', 'slow', '-crf', String(p.quality), '-profile:v', 'high', '-level', '4.0', '-threads', '1', '-movflags', '+faststart', '-f', 'mp4'];
+    return { bytes: runFfmpeg(args, 'mp4'), ext: 'mp4' };
+  }
+  // formato moderno: SVT-AV1 en WebM, CRF fijo, preset 4, un hilo (lp=1)
+  const args = ['-i', master.abs, ...VIDEO_COMMON, ...scale, '-c:v', 'libsvtav1', '-preset', '4', '-crf', String(p.quality), '-svtav1-params', 'lp=1', '-f', 'webm'];
+  return { bytes: runFfmpeg(args, 'webm'), ext: 'webm' };
+}
+
+/** Póster = el PRIMER FOTOGRAMA EXACTO del maestro (fotograma 0, sin pérdida vía PNG) codificado por sharp al formato y calidad del perfil. */
+async function encodePoster(master: VideoMaster, p: Extract<Profile, { kind: 'poster' }>): Promise<Buffer> {
+  const png = runFfmpeg(['-i', master.abs, '-map', '0:v:0', '-frames:v', '1', '-vf', `select=eq(n\\,0),scale=${p.width}:${p.height}:flags=lanczos`, '-c:v', 'png', '-f', 'image2'], 'png');
+  const img = sharp(png).withMetadata({}).removeAlpha();
+  return p.format === 'jpeg' ? img.jpeg({ quality: p.quality, mozjpeg: true, chromaSubsampling: '4:2:0' }).toBuffer() : img.webp({ quality: p.quality, effort: 6 }).toBuffer();
 }
 
 /** Envoltorio de render: lienzo `W×H` (opcionalmente relleno con la superficie) con el maestro anidado y escalado a la caja dada. */
@@ -139,28 +215,44 @@ function profileLabel(p: Profile): string {
       return `share ${p.width}×${p.height} icon ${p.iconHeight}`;
     case 'manifest':
       return `manifest ${p.icons.join(',')}`;
+    case 'video':
+      return `video ${p.codec} ${p.width}×${p.height} crf ${p.quality} sin audio ≤ ${p.budgetBytes} B`;
+    case 'poster':
+      return `poster ${p.format} ${p.width}×${p.height} q ${p.quality} fotograma 0 ≤ ${p.budgetBytes} B`;
   }
 }
 
 async function main(): Promise<void> {
   const surface = resolveColorToken(SURFACE_TOKEN);
   const loaded = new Map<MasterId, SvgMaster>();
-  const master = (id: MasterId) => loaded.get(id) ?? (loaded.set(id, loadSvgMaster(id)), loaded.get(id)!);
+  const master = (id: MasterId) => {
+    if (masters[id].kind !== 'svg') throw new Error(`[media] el maestro "${id}" no es un SVG: este perfil no lo admite`);
+    return loaded.get(id) ?? (loaded.set(id, loadSvgMaster(id)), loaded.get(id)!);
+  };
+  const loadedVideo = new Map<MasterId, VideoMaster>();
+  const video = (id: MasterId) => {
+    if (masters[id].kind !== 'video') throw new Error(`[media] el maestro "${id}" no es un vídeo: este perfil no lo admite`);
+    return loadedVideo.get(id) ?? (loadedVideo.set(id, loadVideoMaster(id)), loadedVideo.get(id)!);
+  };
+  const needsFfmpeg = (Object.values(derivatives) as Derivative[]).some((d) => d.profile.kind === 'video' || d.profile.kind === 'poster');
+  const ffmpeg = needsFfmpeg ? ffmpegVersion() : undefined;
 
   const publicDir = path.join(REPO_ROOT, PUBLIC_DIR);
   fs.mkdirSync(publicDir, { recursive: true });
 
   const lock: LockFile = {
     generatedBy: 'scripts/media/build.ts (pnpm media:build)',
-    tool: { sharp: sharp.versions.sharp, vips: sharp.versions.vips },
+    tool: { sharp: sharp.versions.sharp, vips: sharp.versions.vips, ...(ffmpeg ? { ffmpeg } : {}) },
     surface: { token: SURFACE_TOKEN, srgb: surface.srgb },
     masters: {},
     derivatives: {},
     generated: { path: GENERATED_FILE, sha256: '' },
   };
-  for (const id of Object.keys(masters) as MasterId[]) lock.masters[id] = { file: masters[id].file, sha256: sha256(master(id).bytes) };
+  for (const id of Object.keys(masters) as MasterId[]) {
+    lock.masters[id] = { file: masters[id].file, sha256: sha256(masters[id].kind === 'video' ? video(id).bytes : master(id).bytes) };
+  }
 
-  const outputs = new Map<DerivativeId, { bytes: Buffer; width?: number; height?: number }>();
+  const outputs = new Map<DerivativeId, { bytes: Buffer; width?: number; height?: number; budgetBytes?: number; streams?: string }>();
   const notes: string[] = [];
 
   // orden fijo: primero todo lo que el manifiesto referencia
@@ -169,8 +261,30 @@ async function main(): Promise<void> {
 
   for (const id of ordered) {
     const d = derivatives[id];
-    const m = master(d.master);
     const p: Profile = d.profile;
+    if (p.kind === 'video' || p.kind === 'poster') {
+      const vm = video(d.master);
+      if (p.kind === 'video') {
+        const { bytes } = encodeVideo(vm, p);
+        // el derivado se sondea desde un temporal: sin pista de audio (D-BBW-24) y con las dimensiones del perfil
+        const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bbw-media-')), d.path);
+        fs.writeFileSync(tmp, bytes);
+        const streams = probeStreams(tmp);
+        fs.rmSync(path.dirname(tmp), { recursive: true, force: true });
+        if (/audio:/.test(streams)) throw new Error(`[media] ${d.path}: el derivado conserva una pista de audio (${streams}); un fondo decorativo no lleva audio (D-BBW-24)`);
+        if (!streams.includes(`${p.width}x${p.height}`)) throw new Error(`[media] ${d.path}: dimensiones ${streams} ≠ perfil ${p.width}×${p.height}`);
+        outputs.set(id, { bytes, width: p.width, height: p.height, budgetBytes: p.budgetBytes, streams });
+      } else {
+        const bytes = await encodePoster(vm, p);
+        outputs.set(id, { bytes, width: p.width, height: p.height, budgetBytes: p.budgetBytes });
+      }
+      const out = outputs.get(id)!;
+      const pct = ((out.bytes.length / p.budgetBytes) * 100).toFixed(0);
+      if (out.bytes.length > p.budgetBytes) throw new Error(`[media] ${d.path}: ${out.bytes.length} B supera el presupuesto del perfil (${p.budgetBytes} B, ${pct} %): bajar calidad o resolución es una decisión con consecuencias visibles, no se acepta en silencio`);
+      notes.push(`${d.path}: ${out.bytes.length} B = ${pct} % del presupuesto ${p.budgetBytes} B${out.streams ? ` · ${out.streams}` : ''}`);
+      continue;
+    }
+    const m = master(d.master);
     if (p.kind === 'svg-copy') {
       outputs.set(id, { bytes: m.bytes, width: Math.round(m.viewBox.w), height: Math.round(m.viewBox.h) });
     } else if (p.kind === 'png') {
@@ -220,15 +334,38 @@ async function main(): Promise<void> {
     const d = derivatives[id];
     const out = outputs.get(id)!;
     fs.writeFileSync(path.join(publicDir, d.path), out.bytes);
-    lock.derivatives[id] = { path: `${PUBLIC_DIR}/${d.path}`, master: d.master, profile: profileLabel(d.profile), sha256: sha256(out.bytes), ...(out.width ? { width: out.width, height: out.height } : {}) };
+    lock.derivatives[id] = {
+      path: `${PUBLIC_DIR}/${d.path}`,
+      master: d.master,
+      profile: profileLabel(d.profile),
+      sha256: sha256(out.bytes),
+      ...(out.width ? { width: out.width, height: out.height } : {}),
+      ...(out.budgetBytes ? { bytes: out.bytes.length, budgetBytes: out.budgetBytes } : {}),
+      ...(out.streams ? { streams: out.streams } : {}),
+    };
   }
 
   // módulo generado: rutas + dimensiones intrínsecas de los derivados y vectores inline
   const mediaEntries = ordered.map((id) => {
     const d = derivatives[id];
     const out = outputs.get(id)!;
+    const pk = d.profile;
     const type =
-      d.profile.kind === 'svg-copy' ? 'image/svg+xml' : d.profile.kind === 'ico' ? 'image/x-icon' : d.profile.kind === 'manifest' ? 'application/manifest+json' : 'image/png';
+      pk.kind === 'svg-copy'
+        ? 'image/svg+xml'
+        : pk.kind === 'ico'
+          ? 'image/x-icon'
+          : pk.kind === 'manifest'
+            ? 'application/manifest+json'
+            : pk.kind === 'video'
+              ? pk.codec === 'h264'
+                ? 'video/mp4'
+                : 'video/webm; codecs=av01'
+              : pk.kind === 'poster'
+                ? pk.format === 'jpeg'
+                  ? 'image/jpeg'
+                  : 'image/webp'
+                : 'image/png';
     const fields = [`src: "/${d.path}"`, `type: "${type}"`];
     if (out.width && out.height) fields.push(`width: ${out.width}`, `height: ${out.height}`, `sizes: "${out.width}x${out.height}"`);
     if (d.profile.kind === 'ico') fields.push(`sizes: "${d.profile.sizes.map((s) => `${s}x${s}`).join(' ')}"`);
@@ -261,7 +398,7 @@ async function main(): Promise<void> {
   lock.generated = { path: GENERATED_FILE, sha256: sha256(generated) };
   fs.writeFileSync(path.join(REPO_ROOT, LOCK_FILE), stableJson(lock));
 
-  console.log(`[media-build] OK — ${Object.keys(lock.masters).length} maestro(s) → ${ordered.length} derivado(s) en ${PUBLIC_DIR}/ + ${GENERATED_FILE} (${iconEntries.length} vectores inline); superficie ${SURFACE_TOKEN} = ${surface.srgb} (oklch ${surface.oklch.L} ${surface.oklch.C} ${surface.oklch.H}); sharp ${lock.tool.sharp} / vips ${lock.tool.vips}; lock → ${LOCK_FILE}`);
+  console.log(`[media-build] OK — ${Object.keys(lock.masters).length} maestro(s) → ${ordered.length} derivado(s) en ${PUBLIC_DIR}/ + ${GENERATED_FILE} (${iconEntries.length} vectores inline); superficie ${SURFACE_TOKEN} = ${surface.srgb} (oklch ${surface.oklch.L} ${surface.oklch.C} ${surface.oklch.H}); sharp ${lock.tool.sharp} / vips ${lock.tool.vips}${lock.tool.ffmpeg ? ` / ffmpeg ${lock.tool.ffmpeg}` : ''}; lock → ${LOCK_FILE}`);
   for (const n of notes) console.log(`  · ${n}`);
 }
 

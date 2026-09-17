@@ -7,10 +7,10 @@
     {
       "type": "hero",
       "id": "hero",
-      "display": "[[PENDIENTE: palabra de marca del titular]]",
-      "lead": "[[PENDIENTE: línea que acompaña al titular]]",
-      "claimPrimary": "[[PENDIENTE: primera afirmación del lockup]]",
-      "claimSecondary": "[[PENDIENTE: segunda afirmación del lockup]]"
+      "display": "Creative",
+      "lead": "Technologist",
+      "claimPrimary": "Diseño cerebros de marca",
+      "claimSecondary": "Estrategia + agentes de IA"
     }
   ]
 }

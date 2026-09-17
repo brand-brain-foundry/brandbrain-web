@@ -1,0 +1,23 @@
+/* HeroMedia — Tier 3: solo consume Tier 1/2. Capa de medio por rol (semantic/layers.css); cubre la caja del héroe sin deformar (object-fit:
+   cover; 100 % es estructura). Vídeo o imagen fija según el rol de movimiento (semantic/motion.css): nunca los dos. */
+.media {
+  position: absolute;
+  inset: 0;
+  z-index: var(--bbf-layer-media);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.video {
+  display: var(--bbf-motion-media-display);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.still {
+  display: var(--bbf-motion-still-display);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

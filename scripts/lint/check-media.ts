@@ -14,11 +14,16 @@
  *   R4 · public/ no contiene ningún archivo que no sea un derivado declarado o esté en `publicAllowList` (nada entra al sitio
  *        saltándose el puerto).
  *   R5 · La herramienta instalada es la que generó los derivados (misma versión de sharp y de libvips): otra versión puede rasterizar
- *        distinto; regenerar y revisar el diff es el camino, no ignorarlo.
+ *        distinto; regenerar y revisar el diff es el camino, no ignorarlo. Fase 6d: ídem para ffmpeg cuando el lock lo registra (perfiles de
+ *        vídeo y póster). Si ffmpeg NO está instalado, no se puede regenerar y por tanto nada puede derivar: se informa y no se rompe; si está
+ *        y es otra versión, error.
+ *   R6 · PRESUPUESTO DE PESO (fase 6d, D-BBW-24): cada derivado con presupuesto en su perfil (vídeo, póster) pesa ≤ ese presupuesto, medido
+ *        sobre el archivo real de public/ (no sobre el lock). Pasarse es una decisión con consecuencias visibles, nunca un hecho consumado.
  * Uso: `pnpm lint:media` · `pnpm guard` · pre-commit.
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import { execFileSync } from 'child_process';
 import sharp from 'sharp';
 import { GENERATED_FILE, LOCK_FILE, MASTERS_DIR, PUBLIC_DIR, derivatives, masters, publicAllowList } from '../../src/media/registry';
 import { REPO_ROOT, readLock, sha256File } from '../media/lock';
@@ -83,9 +88,38 @@ for (const rel of present) {
 if (lock.tool.sharp !== sharp.versions.sharp || lock.tool.vips !== sharp.versions.vips) {
   fails.push({ rule: 'R5', where: LOCK_FILE, detail: `derivados generados con sharp ${lock.tool.sharp} / vips ${lock.tool.vips}; instalado sharp ${sharp.versions.sharp} / vips ${sharp.versions.vips}: regenerar y revisar el diff` });
 }
+let ffmpegNote = '';
+if (lock.tool.ffmpeg) {
+  let installed: string | undefined;
+  try {
+    const out = execFileSync('ffmpeg', ['-version'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    installed = /^ffmpeg version (\S+)/.exec(out)?.[1] ?? 'desconocida';
+  } catch {
+    installed = undefined;
+  }
+  if (installed === undefined) ffmpegNote = `; ffmpeg ${lock.tool.ffmpeg} generó el vídeo y NO está instalado aquí (no se puede regenerar: nada puede derivar)`;
+  else if (installed !== lock.tool.ffmpeg) fails.push({ rule: 'R5', where: LOCK_FILE, detail: `derivados de vídeo generados con ffmpeg ${lock.tool.ffmpeg}; instalado ffmpeg ${installed}: regenerar y revisar el diff` });
+  else ffmpegNote = `; ffmpeg ${lock.tool.ffmpeg}`;
+}
+
+// R6 — presupuesto de peso por perfil (vídeo, póster), medido sobre el archivo real
+let budgeted = 0;
+for (const [id, d] of Object.entries(derivatives)) {
+  const p = d.profile;
+  if (p.kind !== 'video' && p.kind !== 'poster') continue;
+  budgeted++;
+  const abs = path.join(REPO_ROOT, PUBLIC_DIR, d.path);
+  let size: number | undefined;
+  try {
+    size = fs.statSync(abs).size;
+  } catch {
+    continue; // ya falló R2
+  }
+  if (size > p.budgetBytes) fails.push({ rule: 'R6', where: `${PUBLIC_DIR}/${d.path}`, detail: `${size} B supera el presupuesto del perfil "${id}" (${p.budgetBytes} B, ${((size / p.budgetBytes) * 100).toFixed(0)} %): bajar calidad o resolución es decisión con consecuencias visibles (D-BBW-24), no se acepta en silencio` });
+}
 
 if (fails.length === 0) {
-  console.log(`[media-gate] OK — ${Object.keys(masters).length} maestro(s) y ${Object.keys(derivatives).length} derivado(s) + ${GENERATED_FILE} en correspondencia con ${LOCK_FILE}; ${present.length} archivo(s) en ${PUBLIC_DIR}/, todos declarados; sharp ${lock.tool.sharp} / vips ${lock.tool.vips}; superficie ${lock.surface.token} = ${lock.surface.srgb}.`);
+  console.log(`[media-gate] OK — ${Object.keys(masters).length} maestro(s) y ${Object.keys(derivatives).length} derivado(s) + ${GENERATED_FILE} en correspondencia con ${LOCK_FILE}; ${present.length} archivo(s) en ${PUBLIC_DIR}/, todos declarados; sharp ${lock.tool.sharp} / vips ${lock.tool.vips}${ffmpegNote}; ${budgeted} derivado(s) con presupuesto de peso, todos dentro; superficie ${lock.surface.token} = ${lock.surface.srgb}.`);
   process.exit(0);
 }
 console.error(`[media-gate] ${fails.length} problema(s) — build roto.`);

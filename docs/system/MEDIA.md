@@ -3,24 +3,24 @@ id: BBW-MEDIA-CONTRACT
 title: "Contrato del puerto de medios — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.0
+version: 1.1
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-17
 updated: 2026-09-17
-verified_against_code: 2026-09-17@feat/fase6c-sistema-de-medios-foco-y-piezas (media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
+verified_against_code: 2026-09-17@feat/fase6d-copy-video-y-fondo (v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
 supersedes: []
 superseded_by: null
-related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-21, D-BBW-02, D-BBW-03, D-BBW-09]
-summary: "Todo medio tiene un MAESTRO (fuente única, se edita a mano, media/masters/) y DERIVADOS (se generan por guion determinista con un perfil declarado, se versionan en public/ y nunca se editan). Un guardia comprueba la correspondencia maestro ⇔ derivados por hash. Nomenclatura por rol y dimensión. Adaptador actual: servidos desde el propio sitio; alternativa: almacenamiento externo. Hoy: el conjunto vigente de iconos + manifiesto y la imagen para compartir desde el icono de marca; vídeo con contrato y sin maestro."
-tags: [medios, puerto, maestros, derivados, iconos, manifiesto, brandbrain-web]
+related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-21, D-BBW-24, D-BBW-02, D-BBW-03, D-BBW-09]
+summary: "Todo medio tiene un MAESTRO (fuente única, se edita a mano, media/masters/) y DERIVADOS (se generan por guion determinista con un perfil declarado, se versionan en public/ y nunca se editan). Un guardia comprueba la correspondencia maestro ⇔ derivados por hash. Nomenclatura por rol y dimensión. Adaptador actual: servidos desde el propio sitio; alternativa: almacenamiento externo. Hoy: el conjunto vigente de iconos + manifiesto y la imagen para compartir desde el icono de marca; el vídeo del héroe (D-BBW-24) desde un maestro de registro ya comprimido: H.264 sin audio en dos tamaños + póster del primer fotograma, con presupuesto de peso por perfil comprobado por el guardia."
+tags: [medios, puerto, maestros, derivados, iconos, manifiesto, video, poster, brandbrain-web]
 ---
 
 # Contrato del puerto de medios — brandbrain-web
 
-> **Decisión que lo gobierna:** D-BBW-21 (2026-09-17). **Qué es:** el documento que permite reproducir el sistema de medios dentro de un
+> **Decisiones que lo gobiernan:** D-BBW-21 (2026-09-17) y, para el vídeo, D-BBW-24 (2026-09-17). **Qué es:** el documento que permite reproducir el sistema de medios dentro de un
 > año: dónde vive cada cosa, qué la genera, cómo se nombra, qué comprueba el guardia y cómo se añade un medio. **Qué no es:** una
-> biblioteca de assets (no hay galería, ni casos, ni vídeo procesado: nada especulativo) ni un gestor.
+> biblioteca de assets (no hay galería ni casos: nada especulativo) ni un gestor.
 
 ## §1 — Principio: maestro y derivados
 
@@ -33,7 +33,8 @@ tags: [medios, puerto, maestros, derivados, iconos, manifiesto, brandbrain-web]
 | Quién lo comprueba | El guardia (`R1`: el hash del maestro es el del lock) | El guardia (`R2`: el hash del derivado es el del lock; `R4`: nada en `public/` fuera del puerto) |
 
 **Nomenclatura por rol y dimensión, nunca por contenido:** `icon.svg`, `icon-192.png`, `icon-512-maskable.png`, `apple-touch-icon-180.png`,
-`share-1200x630.png`, `favicon.ico`, `manifest.webmanifest`. Cambiar lo que el icono dibuja no cambia ningún nombre ni ninguna referencia.
+`share-1200x630.png`, `favicon.ico`, `manifest.webmanifest`, `hero-loop-1280x720.mp4`, `hero-loop-640x360.mp4`, `hero-loop-poster-1280x720.jpg`.
+Cambiar lo que el icono dibuja o lo que el vídeo muestra no cambia ningún nombre ni ninguna referencia.
 
 ## §2 — Las piezas (verificadas)
 
@@ -41,8 +42,8 @@ tags: [medios, puerto, maestros, derivados, iconos, manifiesto, brandbrain-web]
 |---|---|---|
 | Registro | `src/media/registry.ts` | **La declaración:** maestros (archivo, clase, origen), derivados (maestro, ruta, perfil, rol), vectores inline, lista blanca de `public/`. Sin imports de Node: lo leen el guion, el guardia y los componentes. |
 | Guion | `scripts/media/build.ts` (+ `tokens.ts`, `lock.ts`) | Determinista: recibe maestro + perfil → produce el derivado. Resuelve la **superficie del sistema por token** (`--bbf-surface-base` → OKLCH → sRGB) para los derivados opacos. Escribe `public/`, `src/media/generated.ts` y el lock. |
-| Lock | `media/derivatives.lock.json` | Hash SHA-256 de cada maestro y de cada derivado, versión de la herramienta (sharp/libvips), color de superficie resuelto. Sin marcas de tiempo: función del contenido. |
-| Guardia | `scripts/lint/check-media.ts` (`pnpm lint:media`, `pnpm guard`, pre-commit) | R1 maestro ⇔ lock · R2 derivado ⇔ lock (incluido `generated.ts`) · R3 lock ⇔ registro (sin huérfanos) · R4 nada en `public/` fuera del puerto · R5 misma herramienta que generó. Demostrada fallando y pasando en el output de la fase 6c. |
+| Lock | `media/derivatives.lock.json` | Hash SHA-256 de cada maestro y de cada derivado, versión de las herramientas (sharp/libvips; ffmpeg cuando hay vídeo), color de superficie resuelto; para vídeo y póster, peso real, presupuesto y pistas verificadas. Sin marcas de tiempo: función del contenido. |
+| Guardia | `scripts/lint/check-media.ts` (`pnpm lint:media`, `pnpm guard`, pre-commit) | R1 maestro ⇔ lock · R2 derivado ⇔ lock (incluido `generated.ts`) · R3 lock ⇔ registro (sin huérfanos) · R4 nada en `public/` fuera del puerto · R5 misma herramienta que generó (sharp/libvips; y ffmpeg si está instalado: si no está, nada puede regenerar y se informa) · **R6 presupuesto de peso** (fase 6d): cada derivado con presupuesto pesa ≤ su presupuesto, medido sobre el archivo real. Demostrada fallando y pasando en los outputs de las fases 6c y 6d. |
 | Puerto | `src/media/index.ts` | Lo que consumen los componentes: `media.<id>` (ruta, tipo, dimensiones intrínsecas) e `inlineIcons`/`iconFor(id)`. El adaptador actual (servido desde el propio sitio) es el prefijo `/` de `src`; un origen externo cambiaría eso aquí y nada en los componentes. |
 | Generado | `src/media/generated.ts` | Derivado: rutas + dimensiones + vectores inline (viewBox + trazado). No se edita (R2). |
 
@@ -56,6 +57,8 @@ tags: [medios, puerto, maestros, derivados, iconos, manifiesto, brandbrain-web]
 | `share` | Lienzo `width×height` sobre la superficie con el dibujo centrado a `iconHeight` de la altura. **Sin texto.** | `share-1200x630.png` |
 | `manifest` | El manifiesto de la aplicación web con los derivados `icons`, `purpose: maskable` para el recortable, y `theme_color`/`background_color` = superficie por token. | `manifest.webmanifest` |
 | vectores inline | viewBox + trazado del maestro → `generated.ts`; pintan con `currentColor`, se dimensionan y trazan por tokens (`Icon` atom). | iconos de perfil (LinkedIn, GitHub), onda del subrayado (nav, hoja), brazos del conmutador |
+| `video` (fase 6d) | Transcodifica un maestro de vídeo **sin audio** a `width`×`height` (Lanczos) con `codec` `h264` (MP4, libx264, CRF `quality`, preset slow, High 4.0, `+faststart`) o `av1` (WebM, SVT-AV1, CRF `quality`, preset 4); **un solo hilo** y sin metadatos (`bitexact`) para que la salida sea idéntica entre máquinas; GOP 48 (2 s a 24 fps). El guion sondea el derivado (ffprobe): sin pista de audio y con las dimensiones del perfil, o falla. **`budgetBytes`** = presupuesto de peso; pasarse hace fallar el guion y la guardia (R6). | `hero-loop-1280x720.mp4` (CRF 23, ≤ 1 000 000 B) · `hero-loop-640x360.mp4` (CRF 23, ≤ 400 000 B; perfil ligero para pantallas pequeñas, previsto, no servido: la entrega adaptativa no se cablea) |
+| `poster` (fase 6d) | El **primer fotograma exacto** del maestro (fotograma 0, sin pérdida vía PNG) codificado por sharp a `format` (`jpeg` mozjpeg 4:2:0 o `webp`) a `quality`, con `budgetBytes`. Es lo que se ve mientras el vídeo carga y lo que se sirve con movimiento reducido; un solo URL (`poster`), por eso JPEG (universal). | `hero-loop-poster-1280x720.jpg` (q 80, ≤ 60 000 B) |
 
 **El conjunto de iconos es el vigente, verificado en vivo el 2026-09-17** (evilmartians.com "How to favicon": `favicon.ico` + `icon.svg` +
 `apple-touch-icon` 180 + 192 + 512 + recortable; web.dev "maskable-icon": zona segura = círculo central de radio 40 %; MDN "Define app
@@ -71,7 +74,13 @@ Apple es **opaco** sobre la superficie (iOS compone sobre un mosaico y la transp
   en el repo; `images.unoptimized: true` en `next.config.ts` garantiza que Next tampoco la usa). `dependencies` no cambia.
 - **Determinismo:** mismo maestro + mismo perfil + misma versión ⇒ mismos bytes. Comprobado ejecutando el guion tres veces: lock idéntico.
   Si cambia la versión de la herramienta, el guardia (R5) obliga a regenerar y a revisar el diff, en vez de servir mezclas.
-- **Lo que NO se instaló:** ningún empaquetador de `.ico` (lo hace el guion), ningún optimizador extra, ninguna herramienta de vídeo.
+- **`ffmpeg` (fase 6d, D-BBW-24; en este turno 8.1.2 de Homebrew con libx264 y SVT-AV1 4.1.0).** CLI determinista con parámetros fijos, un solo
+  hilo y sin metadatos: dos ejecuciones producen el mismo hash (comprobado: lock idéntico ×2). Solo para los perfiles `video` y `poster`,
+  solo en `pnpm media:build`; `pnpm build` no la invoca. **Por qué no va en `package.json`:** no existe como paquete sin descargar un binario en
+  la instalación (`ffmpeg-static` ≈ 70 MB por plataforma, con `postinstall` que pnpm 10 bloquea por defecto, y sin garantía de traer SVT-AV1);
+  el guion la exige instalada y falla con mensaje si no está. Su versión queda en el lock (`tool.ffmpeg`) y la guardia R5 la compara con la
+  instalada: otra versión ⇒ regenerar y revisar el diff; ausente ⇒ nada puede regenerar (se informa, no rompe). **Cero dependencias de producción.**
+- **Lo que NO se instaló:** ningún empaquetador de `.ico` (lo hace el guion), ningún optimizador extra, ningún paquete de vídeo en `node_modules`.
 
 ## §5 — Cómo se añade un medio (el procedimiento completo)
 
@@ -88,25 +97,25 @@ Apple es **opaco** sobre la superficie (iOS compone sobre un mosaico y la transp
 
 **Cambiar un maestro** = editar el archivo + `pnpm media:build`. Si se olvida el paso 2, el guardia rompe el commit (R1).
 
-## §6 — Vídeo: contrato ahora, proceso cuando exista el maestro
+## §6 — Vídeo del héroe (D-BBW-24, fase 6d): fondo decorativo
 
-El diseño (N0 §2.1) cita un bucle de 8 s (`fish-loop.mp4`, H.264 1280×720, 24 fps, **con pista de audio** que sobra, 1,86 MB) que el hero
-reproduce silenciado y en bucle. **Hoy no hay maestro en el repo y no se transcodifica nada** (despacho 6c §6): el archivo del export es un
-derivado ya comprimido, no un maestro. Cuando llegue el maestro (el render original, o como mínimo el mejor archivo disponible declarado
-como tal):
+**Decisión (D-BBW-24, 2026-09-17):** el vídeo del héroe es **fondo decorativo**: silencio, bucle, sin controles, sin pantalla completa (las
+condiciones sin las cuales ningún navegador lo reproduce solo; MDN `<video>` y guía de autoplay, leídos en vivo 2026-09-17: el bloqueo de
+autoplay no aplica a medios silenciados o sin pista de audio; `playsinline` es obligatorio en Safari). **El audio se elimina de todos los
+derivados.** Lleva **póster** (lo que se ve mientras carga y lo que se sirve con movimiento reducido) y se declara **decorativo** para las
+tecnologías de asistencia: toda la información está en el texto.
 
-| Aspecto | Contrato |
+| Aspecto | Contrato (vigente) |
 |---|---|
-| Maestro | `media/masters/hero-loop.<ext>` (el mejor archivo disponible, con su `origin`). Sin audio o con audio: el perfil lo elimina. |
-| Perfiles | (a) **AV1 en WebM** (formato moderno) + (b) **H.264 en MP4** (respaldo universal), ambos **sin pista de audio**, misma duración y
-  misma resolución de salida (la que el rol pida, ≤ 1280×720 mientras el diseño no cambie), y (c) **fotograma de portada** (`poster`) como
-  derivado raster por el perfil `png`/foto (dimensiones intrínsecas declaradas: el `<video>` reserva su caja con `width`/`height`). |
-| Nomenclatura | `hero-loop-1280x720.webm` · `hero-loop-1280x720.mp4` · `hero-loop-poster-1280x720.<ext>` |
-| Entrega | `<video muted playsinline loop autoplay preload="metadata" poster width height>` con dos `<source type>` en orden moderno → respaldo. Respeta `prefers-reduced-motion` (el turno de movimiento decide cómo). |
-| Herramienta | Una de desarrollo, declarada y justificada al entrar (candidata: ffmpeg por su CLI determinista con parámetros fijos), **nunca de producción**. Se decide en el despacho que traiga el maestro. |
-| Guardia | La misma (hash maestro ⇔ derivados). |
-
-Registrado como pendiente en `bbf-command-hub:repos/brandbrain-web/ESTADO_CANONICO.md` (P-BBW-25).
+| Maestro | `media/masters/hero-loop.mp4` — **maestro DE REGISTRO, no el original:** el diseño solo trae un H.264 1280×720 · 24 fps · 8 s · 192 fotogramas ya comprimido (1,7 Mbit/s) y con pista AAC (N0 §2.1). Recomprimir arrastra sus defectos: es el techo de calidad. Se acepta porque es el mejor archivo disponible y **se regenera el día que exista el original** (sustituir el archivo + `pnpm media:build`; la guardia R1 obliga). `origin` en el registro. |
+| Perfiles | `video h264 1280×720 crf 23` (respaldo universal, a la resolución del maestro) · `video h264 640×360 crf 23` (perfil ligero para pantallas pequeñas) · `poster jpeg 1280×720 q 80` (primer fotograma exacto). CRF 23 = valor por defecto de x264, no una elección; q 80 = valor por defecto de sharp. |
+| Formato moderno | **Medido y NO justificado** (2026-09-17): AV1 (SVT-AV1 4.1.0, preset 4) a CRF 30 pesa 604 KB con SSIM 0,990 frente al maestro, mientras H.264 a CRF 26 pesa 598 KB con SSIM 0,995; el SSIM de AV1 se estanca en 0,991 hasta 995 KB (CRF 22). Sobre esta fuente ya comprimida y oscura el formato moderno no ahorra a igual parecido: no se genera. El perfil `av1` existe en el guion para el día del maestro original; se justifica midiendo, no por defecto. |
+| Presupuesto de peso (R6) | 720p ≤ 1 000 000 B (la mitad del maestro y un quinto del umbral de peso total de página que Lighthouse marca, 5 000 KiB, leído en vivo 2026-09-17) · 360p ≤ 400 000 B · póster ≤ 60 000 B. **Reales (2026-09-17):** 891 885 B (89 %) · 315 107 B (79 %) · 35 496 B (59 %). Pasarse rompe el guion y la guardia: bajar calidad o resolución es decisión con consecuencias visibles, no un hecho consumado. |
+| Nomenclatura | `hero-loop-1280x720.mp4` · `hero-loop-640x360.mp4` · `hero-loop-poster-1280x720.jpg` |
+| Entrega | `HeroMedia` (molecule, cliente): `<video autoplay muted loop playsinline disablepictureinpicture preload="metadata" poster width height>` con `<source type>` (hoy uno: MP4) y `aria-hidden`; una `<img>` con el póster como imagen fija. **Movimiento reducido:** el rol `--bbf-motion-media-display` / `--bbf-motion-still-display` (`semantic/motion.css`) esconde el vídeo y muestra la imagen fija, sin JavaScript. **Pestaña oculta:** se pausa y se reanuda al volver (Page Visibility API); es lo único que hace el cliente. El póster es el candidato LCP más temprano (web.dev: "the poster image load time or first frame presentation time — whichever is earlier"). |
+| Tamaños y entrega adaptativa | El HTML sirve el 720p a todo el mundo. El 360p **existe, se presupuesta y se guarda**, pero no se selecciona por pantalla: `<source media>` no es fiable dentro de `<video>` y elegirlo por JavaScript es entrega adaptativa, que este turno no cablea (despacho 6d §6). Cablearlo = leer `--bbf-bp-nav` en `HeroMedia` y elegir la fuente antes de reproducir; cero cambios en el guion ni en la guardia. |
+| Herramienta | ffmpeg (§4), nunca de producción. |
+| Guardia | La misma: R1 maestro ⇔ lock, R2 derivado ⇔ lock, R5 versión de ffmpeg, **R6 presupuesto**. |
 
 ## §7 — Alternativa prevista (no cableada)
 
@@ -123,4 +132,4 @@ contextos en los que el navegador no ejecuta scripts). El manifiesto de proceden
 como metadato inerte.
 
 ---
-*BBW-MEDIA-CONTRACT v1.0 · `docs/system/MEDIA.md` · 2026-09-17 · nace en la fase 6c (`DESPACHO-BBW-2026-09-17-fase6c-sistema-de-medios-foco-y-piezas`, D-BBW-21)*
+*BBW-MEDIA-CONTRACT v1.1 · `docs/system/MEDIA.md` · 2026-09-17 (v1.1 fase 6d: vídeo del héroe, D-BBW-24, `DESPACHO-BBW-2026-09-17-fase6d-copy-video-y-fondo`) · nace en la fase 6c (`DESPACHO-BBW-2026-09-17-fase6c-sistema-de-medios-foco-y-piezas`, D-BBW-21)*
