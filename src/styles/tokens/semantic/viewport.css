@@ -1,0 +1,19 @@
+/**
+ * semantic/viewport.css — Tier 2 · VISTA POR ROL (categoría `breakpoint` de la matriz, D-SBWEB-SEMANTIC-MATRIX: enum, sin fórmula).
+ * Qué se muestra en línea y qué en panel según el punto de corte de la navegación (N0 §2.2: un solo corte, `--bbf-bp-nav`).
+ * ÚNICA repetición del literal de `--bbf-bp-nav` fuera de primitivos (CSS no admite var() en @media): la guardia propia R8 comprueba que
+ * coincide con la madre. Un componente consume `display: var(--bbf-nav-inline-display)` / `var(--bbf-nav-panel-display)` y nunca escribe
+ * una media query: añadir otro comportamiento responsivo = añadir un rol aquí, no un literal en un componente.
+ * CLASE (D-DOC-13): plantilla (los roles de vista se quedan; el corte y qué conmuta cambian por producto).
+ */
+:root {
+  --bbf-nav-inline-display: flex;
+  --bbf-nav-panel-display: none;
+}
+
+@media (max-width: 780px) {
+  :root {
+    --bbf-nav-inline-display: none;
+    --bbf-nav-panel-display: block;
+  }
+}

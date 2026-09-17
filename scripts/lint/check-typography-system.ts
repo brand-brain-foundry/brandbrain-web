@@ -1,12 +1,19 @@
 #!/usr/bin/env tsx
 /**
- * check-weight-tokens.ts — GUARDIA TIPOGRÁFICA PROPIA DEL REPO: pesos por familia (fase 5) + escala de tamaño contra el suelo
- * (fase 6a-bis, D-BBW-17/D-BBW-18). Complementa la copia por contrato check-typography-tokens.ts, que bloquea `font-size`/
- * `font-weight` crudos fuera de primitivos y NO se modifica (CONTRATO-04): por eso la extensión vive aquí y no allí.
+ * check-typography-system.ts — GUARDIA TIPOGRÁFICA PROPIA DEL REPO (antes `check-weight-tokens.ts`; renombrada en la fase 6b porque
+ * desde la 6a-bis comprueba tamaños y suelo además de pesos: un nombre que miente es lo que llevamos dos turnos corrigiendo en los tokens).
+ * Cubre: pesos por familia (fase 5) · escala de tamaño contra el suelo y consumo de la escala por los roles (fase 6a-bis, D-BBW-17/D-BBW-18) ·
+ * excepciones registradas (fase 6b, D-BBW-16: segunda excepción → la guardia cruza primitivos con el registro, regla de la segunda
+ * necesidad D-DOC-13 §3) · espejo del punto de corte (fase 6b: una custom property no puede usarse en `@media`; el literal se repite UNA
+ * vez fuera de primitivos y esta guardia obliga a que coincida con su madre).
+ * Complementa la copia por contrato check-typography-tokens.ts, que bloquea `font-size`/`font-weight` crudos fuera de primitivos y NO se
+ * modifica (CONTRATO-04): por eso la extensión vive aquí y no allí.
  *
  * Por qué existe: (pesos) las dos familias tienen ejes `wght` incompatibles (display 25–500, text 300–700); un peso fuera del rango
  * de su familia NO falla: el navegador lo recorta en silencio. (tamaños) Un paso de la escala o un rol por debajo del suelo de
- * legibilidad tampoco falla: se renderiza ilegible. Esta guardia hace detectables las dos cosas.
+ * legibilidad tampoco falla: se renderiza ilegible. (excepciones) Un bloque EXC en primitivos sin fila en el registro, o al revés, es un
+ * agujero silencioso. (punto de corte) Un `@media` con un literal distinto de la madre desalinea la navegación sin que nada avise.
+ * Esta guardia hace detectables las cuatro cosas.
  *
  * Qué comprueba (exit 1 si falla, exit 2 si el tool rompe — fail-closed en .githooks/pre-commit):
  *   R1 · Todo token `--bbf-weight-*` declarado bajo src/styles/tokens/ pertenece a una familia con rango declarado
@@ -24,7 +31,13 @@
  *   R6 · CONSUMO DE LA ESCALA (D-BBW-17): todo `--bbf-type-<rol>-size` bajo src/styles/tokens/ vale exactamente `var(--bbf-size-<x>)`
  *        con `<x>` declarado en el canon (paso o excepción), y ese `<x>` respeta el suelo (R5). Un tamaño escrito a mano en un rol,
  *        o un rol apuntando a un token que no existe, es error.
- * Uso: `pnpm lint:weight` · `pnpm guard` · pre-commit.
+ *   R7 · EXCEPCIONES (D-BBW-16): el conjunto de bloques `EXCEPCIÓN EXC-BBW-NN` de primitives/typography.css es exactamente el conjunto
+ *        de filas `**EXC-BBW-NN**` de docs/system/DESIGN_EXCEPTIONS.md §1 (firmadas). Una excepción en el código sin registro, o
+ *        registrada sin código, es error.
+ *   R8 · PUNTO DE CORTE: todo literal `<N>px` dentro de un `@media (...)` bajo src/ fuera de primitives/ coincide con el valor de una
+ *        madre `--bbf-bp-*` de primitives/breakpoints.css. El literal se repite porque CSS no admite var() en @media; que coincida
+ *        es lo que esta regla garantiza.
+ * Uso: `pnpm lint:type-system` · `pnpm guard` · pre-commit.
  */
 import * as fs from 'fs';
 import * as path from 'path';
@@ -67,7 +80,7 @@ function walk(dirAbs: string, acc: string[]): void {
 // ── R1–R2: rangos y pertenencia a familia ────────────────────────────────────────────────────────
 const canonAbs = path.join(REPO_ROOT, CANON_FILE);
 if (!fs.existsSync(canonAbs)) {
-  console.error(`[weight-gate] FAIL-CLOSED: falta ${CANON_FILE}`);
+  console.error(`[type-system-gate] FAIL-CLOSED: falta ${CANON_FILE}`);
   process.exit(2);
 }
 const canon = fs.readFileSync(canonAbs, 'utf8');
@@ -243,14 +256,62 @@ for (const abs of tokenFiles.filter((f) => f.endsWith('.css'))) {
   });
 }
 
+
+// ── R7: excepciones en el código ⇔ excepciones registradas (docs/system/DESIGN_EXCEPTIONS.md §1) ───────────────
+const EXC_DOC = 'docs/system/DESIGN_EXCEPTIONS.md';
+const excInCode = new Set<string>();
+for (const mm of canon.matchAll(/EXCEPCIÓN\s+(EXC-BBW-\d+)/g)) excInCode.add(mm[1]);
+const excDocAbs = path.join(REPO_ROOT, EXC_DOC);
+if (!fs.existsSync(excDocAbs)) {
+  problems.push({ rule: 'R7', where: EXC_DOC, detail: 'falta el registro de excepciones (D-BBW-16)' });
+} else {
+  const doc = fs.readFileSync(excDocAbs, 'utf8');
+  const firmadas = doc.split(/^## §2/m)[0]; // solo §1 (firmadas); §2 son candidatas
+  const excInDoc = new Set<string>();
+  for (const mm of firmadas.matchAll(/^\|\s*\*\*(EXC-BBW-\d+)\*\*/gm)) excInDoc.add(mm[1]);
+  for (const id of excInCode) {
+    if (!excInDoc.has(id)) problems.push({ rule: 'R7', where: CANON_FILE, detail: `${id} declarada en el código sin fila firmada en ${EXC_DOC} §1 (D-BBW-16: valor + razón + registro)` });
+  }
+  for (const id of excInDoc) {
+    if (!excInCode.has(id)) problems.push({ rule: 'R7', where: EXC_DOC, detail: `${id} registrada como firmada sin bloque EXCEPCIÓN en ${CANON_FILE}` });
+  }
+}
+
+// ── R8: literales de @media fuera de primitivos espejan una madre --bbf-bp-* ─────────────────────────────────
+const BP_FILE = 'src/styles/tokens/primitives/breakpoints.css';
+const bpValues = new Map<string, number>();
+const bpAbs = path.join(REPO_ROOT, BP_FILE);
+if (fs.existsSync(bpAbs)) {
+  for (const mm of fs.readFileSync(bpAbs, 'utf8').matchAll(/(--bbf-bp-[a-z0-9-]+)\s*:\s*(\d+(?:\.\d+)?)px\s*;/g)) bpValues.set(mm[1], Number(mm[2]));
+}
+let mediaChecked = 0;
+for (const abs of scanFiles) {
+  const rp = rel(abs);
+  if (!/\.css$/.test(rp) || rp.includes('/tokens/primitives/')) continue;
+  const src = fs.readFileSync(abs, 'utf8').replace(/\/\*[\s\S]*?\*\//g, ' ');
+  const lines = src.split('\n');
+  lines.forEach((line, i) => {
+    for (const mq of line.matchAll(/@media\s*([^{]+)\{/g)) {
+      for (const px of mq[1].matchAll(/(\d+(?:\.\d+)?)px/g)) {
+        mediaChecked++;
+        const v = Number(px[1]);
+        if (![...bpValues.values()].includes(v)) {
+          problems.push({ rule: 'R8', where: `${rp}:${i + 1}`, detail: `@media con ${v}px no coincide con ninguna madre --bbf-bp-* de ${BP_FILE} (${[...bpValues].map(([k, x]) => `${k}=${x}px`).join(', ') || 'ninguna'})` });
+        }
+      }
+    }
+  });
+}
+
 // ── Salida ───────────────────────────────────────────────────────────────────────────────────────
 const famSummary = [...ranges].map(([f, r]) => `${f} ${r.min}–${r.max}`).join(' · ');
 if (problems.length === 0) {
-  console.log(`[weight-gate] OK — ${ranges.size} familia(s) con rango (${famSummary}); ${tokenFiles.filter((f) => f.endsWith('.css')).length} ficheros de tokens y ${scanFiles.length} ficheros de src inspeccionados; 0 pesos sin familia, fuera de rango o crudos; escala: ${sizeIds.size} tamaño(s) del canon ≥ suelo ${floor} px en ambos polos, ${rolesChecked} rol(es) consumen la escala.`);
+  console.log(`[type-system-gate] OK — ${ranges.size} familia(s) con rango (${famSummary}); ${tokenFiles.filter((f) => f.endsWith('.css')).length} ficheros de tokens y ${scanFiles.length} ficheros de src inspeccionados; 0 pesos sin familia, fuera de rango o crudos; escala: ${sizeIds.size} tamaño(s) del canon ≥ suelo ${floor} px en ambos polos, ${rolesChecked} rol(es) consumen la escala; ${excInCode.size} excepción(es) EXC en código = registro; ${mediaChecked} literal(es) de @media espejan una madre --bbf-bp-*.`);
   process.exit(0);
 }
-console.error(`[weight-gate] ${problems.length} problema(s) de peso — build roto.`);
+console.error(`[type-system-gate] ${problems.length} problema(s) del sistema tipográfico — build roto.`);
 for (const p of problems) console.error(`  ${p.rule} ${p.where}: ${p.detail}`);
 console.error('  Regla: todo peso lleva familia (--bbf-weight-<familia>-*), dentro de su rango declarado; ningún wght crudo fuera de primitives/typography.css.');
 console.error('  Regla: ningún paso, excepción ni rol de tamaño baja de --bbf-text-floor (D-BBW-18); todo --bbf-type-<rol>-size consume var(--bbf-size-*) del canon (D-BBW-17).');
+console.error('  Regla: toda EXCEPCIÓN EXC-BBW-NN del canon tiene fila firmada en docs/system/DESIGN_EXCEPTIONS.md §1 y viceversa (D-BBW-16); todo literal px de @media fuera de primitivos coincide con una madre --bbf-bp-*.');
 process.exit(1);

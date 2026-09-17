@@ -1,5 +1,6 @@
 {
   "nav": {
+    "skipLabel": "[[PENDIENTE: texto del enlace para saltar al contenido principal]]",
     "toggleLabel": "[[PENDIENTE: nombre accesible del botón que abre y cierra el menú]]",
     "items": [
       { "id": "agency", "label": "[[PENDIENTE: etiqueta del enlace a la agencia]]", "link": "agency" },

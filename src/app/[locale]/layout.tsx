@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { site, isLocale } from "@/config/site";
+import { getGlobal } from "@/content";
 import { textFont } from "@/styles/fonts/text";
 import { displayFont } from "@/styles/fonts/display";
+import { SkipLink } from "@/components/atoms/SkipLink";
+import { Header } from "@/components/organisms/Header";
+import { Footer } from "@/components/organisms/Footer";
+import { MAIN_ID } from "@/components/main-id";
 import "../globals.css";
 
 // D-BBW-03/07: los locales se pre-renderizan en build. Sin params dinámicos.
@@ -20,6 +25,10 @@ export const metadata: Metadata = {
   description: `${site.name} — ${site.repo}`,
 };
 
+/**
+ * Layout del locale (fase 6b): cromo persistente (Eje B, organisms) desde lo global del contenido (`getGlobal`, falla cerrado en build) +
+ * enlace de salto al contenido como primer elemento enfocable. La página pone el `<main>`.
+ */
 export default async function LocaleLayout({
   children,
   params,
@@ -29,6 +38,7 @@ export default async function LocaleLayout({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  const global = getGlobal(locale);
   return (
     <html lang={locale} className={textFont.variable}>
       <head>
@@ -39,7 +49,12 @@ export default async function LocaleLayout({
         ))}
         <link rel="stylesheet" href={displayFont.stylesheet} />
       </head>
-      <body>{children}</body>
+      <body>
+        <SkipLink href={`#${MAIN_ID}`} label={global.nav.skipLabel} />
+        <Header locale={locale} global={global} />
+        {children}
+        <Footer global={global} />
+      </body>
     </html>
   );
 }

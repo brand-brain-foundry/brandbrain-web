@@ -1,9 +1,12 @@
 /**
  * primitives/breakpoints.css — Tier 1 · PUNTOS DE CORTE
  * N0 §2.2: UN solo breakpoint, `max-width: 780px` (burger/hoja vs. nav). Se declara como madre.
- * LIMITACIÓN CONOCIDA: una custom property NO puede usarse dentro de `@media (...)` (CSS no lo permite). Quien escriba la
- * media query en fase 6 tendrá que repetir el literal o introducir `@custom-media` (PostCSS). Esa elección es de fase 6 y se
- * registra aquí para que no se tome por descuido. CLASE (D-DOC-13): dinámico (el valor) · la nota = estático.
+ * LIMITACIÓN CONOCIDA: una custom property NO puede usarse dentro de `@media (...)` (CSS no lo permite). ELECCIÓN DE LA FASE 6b:
+ * el literal se repite UNA sola vez fuera de este archivo, en semantic/viewport.css (la media query que conmuta los roles de vista), y la
+ * guardia propia scripts/lint/check-typography-system.ts (R8) obliga a que todo literal px de un `@media` fuera de primitivos coincida con
+ * una madre `--bbf-bp-*` de aquí. Se descartó `@custom-media` porque exige un plugin de PostCSS (dependencia nueva, prohibida en la 6b).
+ * Los componentes NO escriben media queries: consumen los roles de vista de semantic/viewport.css.
+ * CLASE (D-DOC-13): dinámico (el valor) · la nota y la regla del espejo guardado = estático.
  */
 :root {
   --bbf-bp-nav: 780px;

@@ -24,19 +24,19 @@
  *   utopia-core `checkWCAG`: 5 × tamaño(vw/5) ≥ 2 × tamaño(vw)) en toda la ventana; comprobado paso a paso en el output 6a-bis §4.
  *
  * SUELO DE LEGIBILIDAD (D-BBW-18): ningún rol de texto baja de `--bbf-text-floor` px en ningún punto de su recorrido. Es madre,
- *   no número repetido; la guardia scripts/lint/check-weight-tokens.ts (R5/R6) comprueba cada paso declarado, cada excepción y
+ *   no número repetido; la guardia scripts/lint/check-typography-system.ts (R5/R6) comprueba cada paso declarado, cada excepción y
  *   cada rol de semantic/typography.css contra él. El paso más pequeño que lo respeta en toda la ventana es n = −2 (12,5 → 12,8).
  *
  * RESIDUALES DEL N0 (D-BBW-16 + D-BBW-17; tabla antes/después en OUTPUT-BBW-2026-09-16-fase6a-bis §3):
  *   · claims 14 → 15 = paso −1 (15 → 16) · nav 9,5 → 11,5 = paso −2 (12,5 → 12,8; sube por el suelo) · nav de la hoja 20 → 30 = paso 2
  *     (25,9 → 31,3, comparado en su rango real ≤ 780 px: |Δ| ≤ 3,5 px) · legal/estado 9 → 10 = paso −2 (sube por el suelo; HAL-BBW-09
  *     cerrado para legal) · display 62 → 124 = EXCEPCIÓN EXC-BBW-01 (bloque abajo).
- *   · PENDIENTE DE ZAVALA: lead "Technologist" 24 → 49 NO cae en ningún paso con ningún juego de anclajes (es plana hasta 706 px y
- *     luego proporcional al ancho, como el display; ningún paso lineal la sigue: el mejor, n3, se va +40 % a 706 px y −20 % a 1440).
- *     Sigue provisional en semantic/typography.css; opciones en docs/system/DESIGN_EXCEPTIONS.md §2.
+ *   · lead "Technologist" 24 → 49 NO cae en ningún paso con ningún juego de anclajes (plana hasta 706 px y luego proporcional al ancho,
+ *     como el display). RESUELTO en la fase 6b (D-BBW-19): se DERIVA del display por una proporción única = EXCEPCIÓN EXC-BBW-02 (bloque
+ *     abajo, una sola madre). HAL-BBW-09 cerrado.
  *
  * CLASE (D-DOC-13): fórmula, criterio del 200 % y suelo = estático · madres (min/max/vw/proporciones/suelo), familias, rangos/pesos
- * de eje y la excepción = dinámico · archivo = plantilla.
+ * de eje y las excepciones = dinámico · archivo = plantilla.
  */
 :root {
   /* ── Familias ───────────────────────────────────────────────────────────────────────────────── */
@@ -97,13 +97,29 @@
   --bbf-size-display-slope: 8.4vw;
   --bbf-size-display: clamp(calc(var(--bbf-size-display-min) * 1px), var(--bbf-size-display-slope), calc(var(--bbf-size-display-max) * 1px));
 
+  /* ── EXCEPCIÓN EXC-BBW-02 · tamaño del rótulo (`lead`) DERIVADO del titular (D-BBW-19 · D-BBW-16 · registro: docs/system/DESIGN_EXCEPTIONS.md)
+     VALOR: una sola madre, la proporción rótulo/titular. Medida del diseño (N0 §2.2: `min(clamp(24px, 3.4vw, 49px), 5.9vw)` frente a
+     `min(clamp(62px, 8.4vw, 124px), 14.6vw)`): 24/62 = 0,387 · 49/124 = 0,395 · 3,4/8,4 = 0,405 · 5,9/14,6 = 0,404 → 0,40 en todo el recorrido.
+     Resultado: 24,8 → 49,6 px con pendiente 3,36vw (diseño 24 → 49, 3,4vw): |Δ| < 1 px en cualquier ancho, mismo codo (plano hasta que el
+     display arranca a 738 px, luego proporcional al ancho). Sigue fuera de la escala (ningún paso lineal la sigue: 26 anclajes probados,
+     mejor error 28 %, OUTPUT-BBW-2026-09-16-fase6a-bis §2), pero con UNA madre en lugar de tres (24/49/3,4vw).
+     RAZÓN: el diseño calibró rótulo y titular como una unidad (el N0 los ajusta por interletrado medido para igualar anchos): si el rótulo
+     existe para acompañar al titular, que dependa de él. Cambiar el display (madres de EXC-BBW-01) arrastra el rótulo sin tocar nada aquí.
+     Suelo (R5) y ampliación al 200 % se comprueban sobre el derivado (24,8 ≥ 12; escala lineal del display, que pasa el 200 %).
+     LO QUE NO ES TOKEN: el tope `5.9vw` del diseño es la misma guarda de ajuste al ancho que el `14.6vw` del display (5,9/14,6 = 0,404):
+     pertenece al componente del titular con la reserva de ancho (fase 6c), no a esta madre. ────────────────────────────────── */
+  --bbf-size-lead-ratio: 0.4;
+  --bbf-size-lead-min: calc(var(--bbf-size-display-min) * var(--bbf-size-lead-ratio));
+  --bbf-size-lead-max: calc(var(--bbf-size-display-max) * var(--bbf-size-lead-ratio));
+  --bbf-size-lead: calc(var(--bbf-size-display) * var(--bbf-size-lead-ratio));
+
   /* ── Pesos: DOS ESCALAS INCOMPATIBLES (hallazgo de fase 5, HAL-BBW-08). Cada familia tiene su propio eje `wght`:
      · display `modulator-vf`: el kit sirve 25–500 (medido en vivo 2026-09-16). Su máximo, 500, es lo que la web llama "medium":
        pedir 700 sobre ella se RECORTA en silencio al máximo.
      · text Space Grotesk variable: 300–700 (archivo auto-hospedado; el mismo rango es el descriptor de src/styles/fonts/text.ts).
      Por eso NO existe un peso global: todo token de peso lleva su FAMILIA en el nombre y el rol se resuelve por familia en
      semantic/typography.css. El rango real de cada familia se declara como madre para que la guardia
-     (scripts/lint/check-weight-tokens.ts) detecte un peso fuera de rango o sin familia, en vez de dejar que el navegador recorte.
+     (scripts/lint/check-typography-system.ts) detecte un peso fuera de rango o sin familia, en vez de dejar que el navegador recorte.
      Valores de eje: madres, no derivables por ratio (N0 §2.2). Reglas de la animación de peso (reserva de ancho, ejes en cada
      fotograma, movimiento reducido): docs/system/TYPOGRAPHY_WEIGHTS.md. ──────────────────────────────────────────────── */
   --bbf-weight-display-range-min: 25;

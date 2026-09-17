@@ -3,16 +3,16 @@ id: BBW-CONTENT-MODEL
 title: "Modelo de contenido — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 2.0
+version: 2.1
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
 updated: 2026-09-16
-verified_against_code: 2026-09-16@feat/fase6a-residuales-y-modelo-de-contenido (content/es/global.json · content/es/pages/home.json · src/content/{schema,index}.ts · scripts/lint/check-content.ts · src/app/[locale]/page.tsx)
+verified_against_code: 2026-09-16@feat/fase6b-componentes-y-secciones (content/es/global.json · content/es/pages/home.json · src/content/{schema,index}.ts · scripts/lint/check-content.ts · src/app/[locale]/{layout,page}.tsx · src/components/sections/index.tsx)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-02, D-BBW-07, D-BBW-09, D-BBW-15, D-DOC-06]
-summary: "El contenido vive en archivos versionados bajo content/<locale>/, fuera de src/ y de los componentes. v2.0 (fase 6a): modelo granular de toda la landing — cada texto con su propia llave nombrada por rol, sin presentación dentro (esquema estricto: llave desconocida o HTML = error), lo global (navegación, pie) separado de la página, secciones como lista ordenada con tipo, enlaces por llave de site.ts, marcadores [[PENDIENTE: …]] evidentes. Puerto src/content (getGlobal, getPage) fail-closed en build + guardia check-content.ts sobre el árbol completo. Colecciones de la dimensión (cases, articles): cómo entrarían sin rediseño, no creadas (P-BBW-18)."
+summary: "El contenido vive en archivos versionados bajo content/<locale>/, fuera de src/ y de los componentes. v2.0 (fase 6a): modelo granular de toda la landing — cada texto con su propia llave nombrada por rol, sin presentación dentro (esquema estricto: llave desconocida o HTML = error), lo global (navegación, pie) separado de la página, secciones como lista ordenada con tipo, enlaces por llave de site.ts, marcadores [[PENDIENTE: …]] evidentes. Puerto src/content (getGlobal, getPage) fail-closed en build + guardia check-content.ts sobre el árbol completo. v2.1 (fase 6b): +1 llave nav.skipLabel (enlace de salto al contenido); renderizado por tipo de sección (SECTION_RENDERERS) con comportamiento definido ante un tipo sin renderizador (§4). Colecciones de la dimensión (cases, articles): cómo entrarían sin rediseño, no creadas (P-BBW-18)."
 tags: [contenido, modelo, puerto, i18n, esquema, brandbrain-web]
 ---
 
@@ -21,7 +21,8 @@ tags: [contenido, modelo, puerto, i18n, esquema, brandbrain-web]
 > **Qué es:** dónde vive cada texto de la web, cómo se nombra, cómo llega a un componente y qué reglas lo gobiernan. **Qué no es:**
 > el copy (todavía marcadores) ni un gestor de contenido (no hay ninguno; ver el puerto en `PORTS.md`).
 > **v2.0 (fase 6a):** el modelo cubre toda la landing y lo global, con las reglas de forma de §2. La v1.0 (fase 5) solo tenía
-> `title` + `intro[]` como prueba del puerto.
+> `title` + `intro[]` como prueba del puerto. **v2.1 (fase 6b):** una llave más en lo global (`nav.skipLabel`: el enlace para saltar al
+> contenido necesita un texto y ningún texto vive en un componente; cambio aditivo, propuesto en el PR de la fase) y el renderizado por tipo (§4).
 
 ## §1 — Principio
 
@@ -53,7 +54,7 @@ Es el mismo principio que gobierna los tokens, aplicado al contenido: **nombrar 
 content/
 └── es/                          ← un directorio por locale PUBLICADO (D-BBW-15); la guardia rechaza cualquier otro
     ├── global.json              ← GlobalDocument: lo que se repite en todas las páginas
-    │     nav.toggleLabel · nav.items[]{id,label,link} · footer.notice · footer.legal · footer.social[]{id,label,link}
+    │     nav.skipLabel · nav.toggleLabel · nav.items[]{id,label,link} · footer.notice · footer.legal · footer.social[]{id,label,link}
     └── pages/                   ← colección `pages`: un documento por página
           └── home.json          ← PageDocument: meta{title,description} · sections[] (hoy: una sección `hero`)
                                     hero: id · display · lead · claimPrimary · claimSecondary
@@ -63,7 +64,7 @@ content/
 viewport completo), 11 cadenas. Las 11 tienen llave: nav ×3 (`items[].label`), `toggleLabel`, `display`, `lead`, `claimPrimary`,
 `claimSecondary`, `notice`, `legal`; el `alt` del logo es el nombre del sitio (`site.name`, identidad, no contenido). Se añaden `meta.title`
 y `meta.description` (textos de la página que la capa semántica de la fase 7 consumirá) y los nombres accesibles de los perfiles
-(`footer.social[].label`). **Hoy 14 textos, 14 marcadores:** cero copy definitivo.
+(`footer.social[].label`) y, en la fase 6b, el texto del enlace de salto (`nav.skipLabel`). **Hoy 15 textos, 15 marcadores:** cero copy definitivo.
 
 **Lo que el modelo NO lleva, y por qué:** el vídeo y el fondo animado del hero son medios y presentación, no texto; una referencia a un
 medio entrará con el puerto de medios (`PORTS.md`, sin fila) cuando el asset exista en `public/`, no antes (una referencia a un archivo
@@ -81,6 +82,14 @@ inexistente sería un marcador que el build no puede verificar).
 - Alternativa prevista: un **gestor sobre git** (panel que edita y hace commit/PR a estos mismos archivos). Enchufarlo no toca componentes
   ni el puerto: escribe donde el puerto ya lee. **No se instala nada** hasta la segunda necesidad (D-DOC-13 §3).
 - Un formato nuevo (Markdown) o una fuente nueva (API) = adaptador nuevo detrás de la misma función; el componente no cambia.
+
+**Renderizado por tipo (fase 6b, `src/components/sections/index.tsx`).** La página recorre `page.sections` en orden y elige el renderizador por
+`section.type` en el mapa `SECTION_RENDERERS`, tipado como `{ [T in SectionType]: … }`: **añadir un tipo de sección = su forma en `schema.ts`
+(unión `Section` + `SECTION_KEYS`) + su componente en `sections/` + su entrada en el mapa.** Si falta la entrada, el typecheck falla nombrando
+el mapa. Reordenar o repetir una sección de un tipo existente es editar `home.json`: cero código (demostrado en el output de la fase 6b).
+**Tipo desconocido:** nunca se omite en silencio. Primera barrera: el validador del puerto y la guardia rechazan el documento en build con la
+ruta exacta (`$.sections[i].type`). Segunda barrera (defensa en profundidad, por si el esquema y el mapa se desalinean): `renderSection` lanza
+un error que nombra la página, el `id` y el `type` de la sección, y `next build` falla. Coherente con el puerto: falla cerrado.
 
 ## §5 — Cómo entraría una colección de la dimensión (P-BBW-18) — sin rediseño, no creada
 
@@ -122,4 +131,4 @@ parezca una directiva es contenido a revisar en el PR, no un comando. El contado
 - Guardia: `pnpm lint:content` → `[content-gate] OK — … N texto(s), M marcador(es)`; demostrada fallando en `OUTPUT-BBW-2026-09-16-fase6a` §4.
 
 ---
-*BBW-CONTENT-MODEL v2.0 · `docs/system/CONTENT_MODEL.md` · 2026-09-16 (v1.0 mismo día, fase 5) · v2.0 nace en la fase 6a (`DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`)*
+*BBW-CONTENT-MODEL v2.1 · `docs/system/CONTENT_MODEL.md` · 2026-09-16 (v1.0 mismo día, fase 5) · v2.0 nace en la fase 6a (`DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`) · v2.1 fase 6b (`skipLabel`, renderizado por tipo)*

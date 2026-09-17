@@ -1,0 +1,26 @@
+/* SkipLink — Tier 3: solo consume Tier 1/2. Oculto hasta el foco: recortado por clip-path (sigue enfocable; display:none no lo sería) y en
+   posición fija, que no contribuye al área de scroll del documento (un absoluto ancho a 360 px producía desborde horizontal: medido en F5). */
+.skipLink {
+  --bbf-skip-link-padding: var(--bbf-space-3);
+  --bbf-skip-link-offset: var(--bbf-space-page);
+
+  position: fixed;
+  top: var(--bbf-skip-link-offset);
+  left: var(--bbf-skip-link-offset);
+  z-index: var(--bbf-layer-toggle);
+  max-inline-size: calc(100vw - var(--bbf-skip-link-offset) * 2);
+  padding: var(--bbf-skip-link-padding);
+  background: var(--bbf-surface-base);
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-label-family);
+  font-size: var(--bbf-type-label-size);
+  font-weight: var(--bbf-type-label-weight);
+  letter-spacing: var(--bbf-type-label-tracking);
+  text-transform: uppercase;
+  text-decoration: none;
+  clip-path: inset(50%);
+}
+
+.skipLink:focus-visible {
+  clip-path: none;
+}
