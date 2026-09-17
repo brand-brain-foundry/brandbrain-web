@@ -89,13 +89,16 @@
      RAZÓN: un titular de marca se calibra ópticamente, no matemáticamente; ahí el valor exacto es intención, no ruido (Zavala,
      2026-09-16). Se conserva la pendiente del diseño y no la del sistema porque con la del sistema el display mediría 84 px a
      738 px de ancho (+22 px sobre los 62 del diseño): no sería conservar el valor. Pasa el 200 % en su ventana (738 → 1476 px).
-     LO QUE NO ES TOKEN: el tope `14.6vw` del diseño es una guarda de ajuste al ancho (que la palabra quepa por debajo de ~425 px);
-     es responsabilidad del componente del titular (reserva de ancho, docs/system/TYPOGRAPHY_WEIGHTS.md §3), no un tamaño.
+     LO QUE NO ES TAMAÑO: el tope `14.6vw` del diseño es una GUARDA de ajuste al ancho (que la palabra quepa por debajo de ~425 px =
+     62/0,146); es responsabilidad del componente del titular (reserva de ancho, docs/system/TYPOGRAPHY_WEIGHTS.md §3). Fase 6e: vive aquí
+     como madre (`-fit`) para que el componente la consuma por rol (semantic `--bbf-type-display-fit`, font-size = min(tamaño, guarda)) y
+     nunca la escriba; no entra en la escala (no es paso ni excepción de tamaño: R5/R6 no la ven) y no baja del suelo (46,7 px a 320 px).
      REGLA (D-BBW-16): toda excepción = valor + razón + registro. Una excepción sin razón escrita es un agujero. ────────────── */
   --bbf-size-display-min: 62;
   --bbf-size-display-max: 124;
   --bbf-size-display-slope: 8.4vw;
   --bbf-size-display: clamp(calc(var(--bbf-size-display-min) * 1px), var(--bbf-size-display-slope), calc(var(--bbf-size-display-max) * 1px));
+  --bbf-size-display-fit: 14.6vw;
 
   /* ── EXCEPCIÓN EXC-BBW-02 · tamaño del rótulo (`lead`) DERIVADO del titular (D-BBW-19 · D-BBW-16 · registro: docs/system/DESIGN_EXCEPTIONS.md)
      VALOR: una sola madre, la proporción rótulo/titular. Medida del diseño (N0 §2.2: `min(clamp(24px, 3.4vw, 49px), 5.9vw)` frente a
@@ -106,12 +109,15 @@
      RAZÓN: el diseño calibró rótulo y titular como una unidad (el N0 los ajusta por interletrado medido para igualar anchos): si el rótulo
      existe para acompañar al titular, que dependa de él. Cambiar el display (madres de EXC-BBW-01) arrastra el rótulo sin tocar nada aquí.
      Suelo (R5) y ampliación al 200 % se comprueban sobre el derivado (24,8 ≥ 12; escala lineal del display, que pasa el 200 %).
-     LO QUE NO ES TOKEN: el tope `5.9vw` del diseño es la misma guarda de ajuste al ancho que el `14.6vw` del display (5,9/14,6 = 0,404):
-     pertenece al componente del titular con la reserva de ancho (fase 6c), no a esta madre. ────────────────────────────────── */
+     LO QUE NO ES TAMAÑO: el tope `5.9vw` del diseño es la misma guarda de ajuste al ancho que el `14.6vw` del display (5,9/14,6 = 0,404):
+     fase 6e, se DERIVA de la guarda del display por la misma madre (0,4 → 5,84vw; |Δ| 0,06vw = 0,2 px a 360 px) y la consume el componente
+     del titular por rol (`--bbf-type-lead-fit`). Por debajo de ~425 px el rótulo baja de 24,8 a 21 px: cruza el umbral de texto grande de
+     WCAG (24 px) y su mínimo de contraste pasa de 3:1 a 4,5:1 (medido en el output 6e). ─────────────────────────────────────── */
   --bbf-size-lead-ratio: 0.4;
   --bbf-size-lead-min: calc(var(--bbf-size-display-min) * var(--bbf-size-lead-ratio));
   --bbf-size-lead-max: calc(var(--bbf-size-display-max) * var(--bbf-size-lead-ratio));
   --bbf-size-lead: calc(var(--bbf-size-display) * var(--bbf-size-lead-ratio));
+  --bbf-size-lead-fit: calc(var(--bbf-size-display-fit) * var(--bbf-size-lead-ratio));
 
   /* ── Pesos: DOS ESCALAS INCOMPATIBLES (hallazgo de fase 5, HAL-BBW-08). Cada familia tiene su propio eje `wght`:
      · display `modulator-vf`: el kit sirve 25–500 (medido en vivo 2026-09-16). Su máximo, 500, es lo que la web llama "medium":

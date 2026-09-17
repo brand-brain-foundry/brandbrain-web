@@ -7,7 +7,12 @@
    `surface-veil` (tinta al 90 %) en las esquinas; los DEGRADADOS DE TRANSICIÓN llevan los bordes superior e inferior a la superficie opaca en
    un tramo de la escala (`--bbf-hero-fade` = ×40), para que el medio no tenga borde contra la cabecera ni contra el pie. Ningún alfa ni
    parada escrita a mano: solo `transparent`, roles de color y un paso de espaciado. Sombras de texto del diseño: el N0 no las asigna por
-   elemento (8 sombras, sin mapeo): no se inventan (reportado). */
+   elemento (8 sombras, sin mapeo): no se inventan (reportado; D-BBW-25 las deja como acabado opcional, no garantía).
+   Fase 6e · VELO LOCAL DE LEGIBILIDAD (D-BBW-25): el lockup lleva detrás de su texto (::before, dentro de su propio contexto de apilamiento,
+   por encima de medio, velo global y partículas) un rectángulo de tinta al rol `surface-veil-text` (alfa CALIBRADA al mínimo que cumple,
+   primitives/shadows.css) con borde desenfocado (rol `blur-veil-text`, σ) y un sangrado de 3σ (constante técnica: cobertura 99,87 % en el
+   límite del bloque) para que bajo cada texto la tinta sea exactamente la calibrada. Sin cortes duros: la transición es gaussiana.
+   GUARDA DE ANCHO (EXC-BBW-01/02, fase 6e): titular y rótulo toman `min(tamaño, guarda)` por rol; solo actúa por debajo de ~425 px. */
 .hero {
   --bbf-hero-gap-lead: var(--bbf-space-4);
   --bbf-hero-gap-claims: var(--bbf-space-10);
@@ -40,6 +45,10 @@
 }
 
 .lockup {
+  --bbf-hero-veil-text: var(--bbf-surface-veil-text);
+  --bbf-hero-veil-text-blur: var(--bbf-blur-veil-text);
+  --bbf-hero-veil-text-bleed: calc(var(--bbf-hero-veil-text-blur) * 3);
+
   position: relative;
   z-index: var(--bbf-layer-content);
   display: flex;
@@ -48,12 +57,22 @@
   max-width: 100%;
 }
 
+.lockup::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--bbf-hero-veil-text-bleed));
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bbf-hero-veil-text);
+  filter: blur(var(--bbf-hero-veil-text-blur));
+}
+
 .display {
   margin: 0;
   max-width: 100%;
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-display-family);
-  font-size: var(--bbf-type-display-size);
+  font-size: min(var(--bbf-type-display-size), var(--bbf-type-display-fit));
   font-weight: var(--bbf-type-display-weight);
   line-height: var(--bbf-type-display-leading);
   letter-spacing: var(--bbf-type-display-tracking);
@@ -65,7 +84,7 @@
   max-width: 100%;
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-lead-family);
-  font-size: var(--bbf-type-lead-size);
+  font-size: min(var(--bbf-type-lead-size), var(--bbf-type-lead-fit));
   font-weight: var(--bbf-type-lead-weight);
   line-height: var(--bbf-type-lead-leading);
   letter-spacing: var(--bbf-type-lead-tracking);
