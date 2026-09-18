@@ -3,12 +3,12 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.4
+version: 1.5
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-09-18
-verified_against_code: 2026-09-18@feat/fase6k-particulas-fieles (src/behavior/weight-modulator.ts · src/behavior/optical-fit.ts · src/behavior/backdrop-shader.ts · src/behavior/subject-tracking.ts · src/behavior/particle-field.ts · src/components/molecules/HeroLock/ · src/components/molecules/HeroBackdrop/ · src/components/molecules/HeroMedia/ · src/components/molecules/HeroParticles/; origen de cada constante en `0_info/brandbrain-web/Eye Fish Landing.dc.html` y `blob-bg.js` por línea, inventariado en OUTPUT-BBW-2026-09-17-N1-A §1/§2/§3/§4/§5/§7 y clasificado en OUTPUT-BBW-2026-09-17-N1-D §1/§2/§3/§4)
+verified_against_code: 2026-09-18@feat/fase6m-margenes-lockup-y-cierre (v1.5: §3 reescrita — el lock cierra resolviendo el TAMAÑO con la razón de interletrado como invariante, D-BBW-41; MAX_TRACK_PX retirado y PROBE_SIZE_PX nuevo; §10 nueva: el paso de arnés del recorte, que ninguna guardia puede ver, y la guardia R9 que cubre la causa) (src/behavior/weight-modulator.ts · src/behavior/optical-fit.ts · src/behavior/backdrop-shader.ts · src/behavior/subject-tracking.ts · src/behavior/particle-field.ts · src/components/molecules/HeroLock/ · src/components/molecules/HeroBackdrop/ · src/components/molecules/HeroMedia/ · src/components/molecules/HeroParticles/; origen de cada constante en `0_info/brandbrain-web/Eye Fish Landing.dc.html` y `blob-bg.js` por línea, inventariado en OUTPUT-BBW-2026-09-17-N1-A §1/§2/§3/§4/§5/§7 y clasificado en OUTPUT-BBW-2026-09-17-N1-D §1/§2/§3/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
@@ -76,14 +76,28 @@ interletrado de la palabra (EXC-BBW-04).
 
 ## §3 — S7 · Ajuste óptico del rótulo y peso por puntero (`src/behavior/optical-fit.ts`)
 
-**Qué hace:** el rótulo se interletra hasta que su ancho medido iguala el ancho **anclado** del titular (por eso la caja del titular no puede
-reflotar); el sobrante tras la última letra se recorta con margen negativo. El puntero mueve el peso del rótulo dentro del rango de su familia y
+**Qué hace:** el rótulo cierra al ancho **anclado** del titular (por eso la caja del titular no puede reflotar); el sobrante tras la última
+letra se recorta con margen negativo.
+
+**Fase 6m (D-BBW-41) — cuál de las dos incógnitas se fija.** El cierre tiene dos incógnitas acopladas, el **tamaño** del rótulo y su
+**interletrado**. El diseño fija el tamaño (proporción 0,40 del titular) y resuelve el interletrado; con las palabras nuevas eso satura
+(`ecosystem` tiene 8 huecos para un titular 20 % más ancho: pediría 70,4 px por hueco y el tope del diseño eran 40, así que el rótulo se
+quedaba en el 72,5 % del titular). Se invierte: la **invariante** pasa a ser la razón interletrado/tamaño medida en el export
+(`--bbf-type-lead-track-ratio` = 0,72327) y `fitLock` **resuelve el tamaño**:
+
+    ancho(size) = size · A + r · size · (n − 1)   →   size = objetivo / (A + r · (n − 1))
+
+con `A` = ancho natural del rótulo por px de cuerpo, medido con una **sonda a cuerpo de referencia fijo** (`PROBE_SIZE_PX`, invariante de
+escala). Cierra con cualquier par de palabras, y por eso `MAX_TRACK_PX` (dc:L616) queda **retirado**: existía para que un rótulo corto no se
+desparramase, y con la razón fija esa condición la garantiza la proporción. La sonda lleva `max-width: none` — hereda la clase del rótulo y sin
+eso el ancho natural se mide **recortado** al ancho del bloque en cuanto el cuerpo de referencia lo supera. El puntero mueve el peso del rótulo dentro del rango de su familia y
 lo tiñe de acento al acercarse. Inventario: N1 doc A §7 (el "tracking por puntero" del comentario del diseño no existe en su código).
 
 | Constante | Valor | Origen | Clase | Qué es |
 |---|---|---|---|---|
 | `OPTICAL_FIT.MIN_TARGET_PX` | 20 | dc:L601 | estático | ancho mínimo del titular para ajustar |
-| `OPTICAL_FIT.MAX_TRACK_PX` | 40 | dc:L616 | estático | tope del interletrado medido |
+| `OPTICAL_FIT.PROBE_SIZE_PX` | 100 | fase 6m | estático | cuerpo de la sonda que mide el ancho natural (invariante de escala) |
+| ~~`OPTICAL_FIT.MAX_TRACK_PX`~~ | ~~40~~ | ~~dc:L616~~ | — | **RETIRADO en la 6m** (D-BBW-41): con la razón invariante, el tope sobra y era lo que impedía cerrar |
 | `OPTICAL_FIT.MIN_DELTA_PX` | 0,15 | dc:L617 | estático | cambio mínimo para reescribir (histéresis) |
 | `POINTER_WEIGHT.REACH_MIN_PX` | 420 | dc:L470 | **dinámico** | alcance mínimo de la atracción (cae en ×105 de espaciado, pero ningún estilo lo consume: constante, no token; residual reportado) |
 | `POINTER_WEIGHT.PULL_GAIN` · `LATERAL_GAIN` | 140 · 130 | dc:L473 | **dinámico** | cuánto engorda al acercarse; cuánto más a la derecha y menos a la izquierda |
@@ -270,3 +284,32 @@ sombras darían si contaran está medido en el output 6l §5.
 
 ---
 *BBW-BEHAVIOR v1.4 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`: S6 entradas con enfoque progresivo, sin módulo porque no tiene constantes de algoritmo; sombras de texto por rol, P-BBW-31 cerrado; D-BBW-38/39) · v1.3 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.3 en la fase 6k (`DESPACHO-BBW-2026-09-18-fase6k-P4-particulas-fieles`: S3/S4 partículas, D-BBW-36/37) · v1.2 en la fase 6j (`DESPACHO-BBW-2026-09-18-fase6j-P3-seguimiento-del-sujeto`: S2 seguimiento del sujeto) · v1.1 en la fase 6i (`DESPACHO-BBW-2026-09-17-fase6i-P2-sombreador-de-fondo`: S1 con procedencia, D-BBW-33/34/35, HAL-BBW-16) · nace en la fase 6h (`DESPACHO-BBW-2026-09-17-fase6h-P1-modulador-de-peso`, D-BBW-30)*
+
+## §10 — Recorte del titular: por qué la mitad vive en el arnés (D-BBW-40, fase 6m)
+
+**El defecto (HAL-BBW-20).** A 360 px `deepbrand` pedía 374,5 px con la guarda `14.6vw`, que se había calibrado contra `Creative`; el bloque
+deja 328 y el héroe recortaba 7,3 px por lado. **Ninguna guardia lo veía**, y no por descuido: el documento **no desborda**
+(`scrollWidth == clientWidth` en los cinco anchos) porque el héroe tiene `overflow: hidden`. El recorte es invisible para cualquier
+comprobación que mire el documento.
+
+**Lo que SÍ vive en una guardia de código** (`scripts/lint/check-typography-system.ts`, R9): la **causa**, no el síntoma. R9 obliga a que el
+margen de seguridad esté declarado a los dos lados del punto de corte con suelo de 16 px, a que toda guarda `-fit-unit` derive de
+`--bbf-lockup-avail` **sin ningún literal de longitud**, y a que todo rol de borde (`-pad`, `-side`, `-page`) tome `max(var(--bbf-space-safe), …)`.
+Comprobado que detecta las dos formas de la regresión: devolver `14.6vw` a la guarda da dos errores R9, y quitarle el suelo a `--bbf-bar-side`
+da uno.
+
+**Lo que NO puede vivir en una guardia, y se dice en vez de fingirlo:** que la palabra **quepa**. Exige la familia display cargada (la sirve
+Adobe en ejecución), disposición resuelta y el modulador calibrado. No hay navegador en el proceso de verificación y añadir uno es una
+dependencia nueva. **Queda como paso del arnés**, y este es el paso:
+
+1. Servir `out/` en la raíz con rangos HTTP (`pnpm preview:serve`; sin rangos el vídeo se queda en `readyState 0`).
+2. Un `iframe` por ancho de {360, 780, 1000, 1728, 1920}, con la **pestaña visible** (si no, `requestAnimationFrame` no corre).
+3. Esperar `document.fonts.ready` y ~3 s (la calibración del modulador tiene retardos a 60/700/1800 ms).
+4. Por ancho, medir la **tinta** y no la caja: extremos de los `span` de letra del titular menos el interletrado sobrante; para el rótulo, su
+   caja menos el interletrado (que se aplica también tras la última letra); para cabecera y pie, sus hijos visibles recortados por todo
+   antecesor con `overflow` distinto de `visible` (si no, la onda de 160 px del subrayado da un falso positivo).
+5. Comprobar: margen mínimo de tinta ≥ `--bbf-space-safe` en los cinco anchos, y `scrollWidth == clientWidth`.
+6. Repetir con los `<script>` retirados (`srcdoc` + `<base>`): es el estado **servido**, donde manda la guarda derivada sola.
+
+Valores de referencia de la 6m: margen mínimo de tinta 16,05 px (360) · 21,48 (780) · 32,00 (1000) · 40,00 (1728 y 1920), desborde 0 en todos;
+servido, 20,00 px a 360 con el titular a 37,963 px y 270 px de ancho sobre 328 disponibles.

@@ -19,8 +19,10 @@
  * Fase 6b (D-BBW-19 · D-BBW-20): `lead` deja de ser provisional: consume EXC-BBW-02 (`--bbf-size-lead`, derivado del display por una madre;
  * HAL-BBW-09 cerrado). La subida de `label` por el suelo queda ratificada (D-BBW-20). Nace el rol `notice` (aviso de estado del pie: mismo
  * paso que legal, interletrado ×9 = el 0.34em de "estado" del N0 que ya estaba en primitivos sin consumidor).
- * Fase 6e: `display-fit` / `lead-fit` exponen la GUARDA de ajuste al ancho del diseño (14,6vw y su derivada): no es tamaño, es el tope que
- * hace caber la palabra real por debajo de ~425 px; el componente del titular aplica `min(size, fit)`.
+ * Fase 6e: `display-fit` / `lead-fit` exponen la GUARDA de ajuste al ancho: no es tamaño, es el tope que hace caber la palabra real en
+ * pantalla estrecha; el componente del titular aplica `min(size, fit)`. Fase 6m (D-BBW-40): las dos guardas dejan de ser literales del
+ * diseño (14,6vw y su derivada, calibrados contra `Creative`) y pasan a DERIVARSE del margen de seguridad y de las métricas de cada
+ * familia, así que valen para cualquier palabra; por eso viven aquí y ya no en primitivos (dependen de la composición, que es Tier 2).
  * Fase 6l (portado P5 del N1, doc B §11): nace la propiedad `shadow` del rol — la SOMBRA DE TEXTO, que el diseño aplica a ocho elementos con
  * seis sombras distintas y que la 6a dejó pendiente por falta de mapeo (P-BBW-31, CERRADO aquí). El inventario del N1 lo completó elemento a
  * elemento y las seis caen en los cuatro pasos que `primitives/shadows.css` ya tenía: nav `0 2px 18px .95` → md · hoja `0 2px 22px .9` → lg ·
@@ -38,7 +40,18 @@
   --bbf-type-display-weight-to: var(--bbf-weight-display-to);
   --bbf-type-display-leading: var(--bbf-leading-display);
   --bbf-type-display-tracking: var(--bbf-tracking-display); /* EXC-BBW-04 (D-BBW-32): el valor del diseño, atado a los sidebearings de la familia */
-  --bbf-type-display-fit: var(--bbf-size-display-fit); /* guarda de ajuste al ancho (fase 6e; EXC-BBW-01): el componente hace min(size, fit) */
+  /* GUARDA DE ANCHO DEL TITULAR (fase 6m, D-BBW-40) — DERIVADA, no calibrada. El cuerpo más grande al que la palabra cabe entre los
+     dos márgenes: ancho disponible ÷ (letras × (avance máximo de la familia + interletrado)). Las tres piezas son o un hecho medido
+     de la familia (`--bbf-advance-display-max`), o un rol de composición (`--bbf-lockup-avail`), o el interletrado del propio rol:
+     ninguna es un número atado a una palabra, que es lo que rompió la guarda anterior al cambiar `Creative` por `deepbrand`.
+     `--bbf-display-chars` lo pone el componente desde el contenido (es una MEDIDA del texto, no el texto). El avance máximo es una
+     COTA, así que este valor nunca recorta y a veces sobra: el cliente lo afina con la medida real (`-fit-measured`) en cuanto puede,
+     y la hoja del lock prefiere la medida si existe. Sin JavaScript queda la cota, que cabe siempre. */
+  /* NOTA DE REPARTO, y es la razón de que el rol llegue solo hasta aquí: una custom property declarada en `:root` sustituye sus `var()`
+     EN `:root`, donde `--bbf-display-chars` no existe; metiendo la cuenta en el rol la declaración entera queda inválida y el titular
+     cae al tamaño heredado (medido: 18 px sin JavaScript). Así que el rol da el cuerpo al que cabría una palabra de UNA letra y la hoja
+     del lock lo divide entre la cuenta, que es donde la cuenta vive. */
+  --bbf-type-display-fit-unit: calc(var(--bbf-lockup-avail) / (var(--bbf-advance-display-max) + var(--bbf-tracking-display-ratio)));
   --bbf-type-display-shadow: var(--bbf-shadow-xl);
 
   --bbf-type-lead-family: var(--bbf-font-text);
@@ -46,7 +59,12 @@
   --bbf-type-lead-weight: var(--bbf-weight-text-regular);
   --bbf-type-lead-leading: var(--bbf-leading-none);
   --bbf-type-lead-tracking: var(--bbf-tracking-7);
-  --bbf-type-lead-fit: var(--bbf-size-lead-fit); /* guarda derivada de la del display (fase 6e; EXC-BBW-02) */
+  /* Guarda del rótulo: la MISMA derivación con las métricas y el interletrado de SU familia y su rol (×7 de la madre). Solo manda
+     mientras no hay medida: con el cliente vivo el tamaño del rótulo lo resuelve el cierre del lock (D-BBW-41, optical-fit.ts). */
+  --bbf-type-lead-fit-unit: calc(var(--bbf-lockup-avail) / (var(--bbf-advance-text-max) + var(--bbf-tracking-base-ratio) * 7));
+  /* RAZÓN INVARIANTE del lock (D-BBW-41): interletrado ÷ tamaño del rótulo, medida en el export con sus palabras. La lee
+     src/behavior/optical-fit.ts por `getPropertyValue` y nunca la repite (D-BBW-30). */
+  --bbf-type-lead-track-ratio: var(--bbf-tracking-lead-lock-ratio);
   --bbf-type-lead-shadow: var(--bbf-shadow-lg);
 
   /* texto corrido: paso cero de la escala (18 → 20 px). Sin interletrado: el ×4 era de los claims y se va con ellos. */
@@ -67,6 +85,9 @@
   --bbf-type-label-weight: var(--bbf-weight-text-regular);
   --bbf-type-label-tracking: var(--bbf-tracking-7);
   --bbf-type-label-shadow: var(--bbf-shadow-md);
+  /* fase 6m: el interletrado del rol cuando el enlace está ACTIVO (cursor, foco o pulsación). Los dos valores del diseño caen exactos en la
+     retícula del interletrado: 0,28em = ×7 (reposo) y 0,32em = ×8 (activo). */
+  --bbf-type-label-tracking-active: var(--bbf-tracking-8);
 
   --bbf-type-menu-family: var(--bbf-font-text);
   --bbf-type-menu-size: var(--bbf-size-2);

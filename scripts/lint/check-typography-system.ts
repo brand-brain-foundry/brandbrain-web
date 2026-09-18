@@ -34,6 +34,14 @@
  *   R7 · EXCEPCIONES (D-BBW-16): el conjunto de bloques `EXCEPCIÓN EXC-BBW-NN` de primitives/typography.css es exactamente el conjunto
  *        de filas `**EXC-BBW-NN**` de docs/system/DESIGN_EXCEPTIONS.md §1 (firmadas). Una excepción en el código sin registro, o
  *        registrada sin código, es error.
+ *   R9 · MARGEN DE SEGURIDAD Y GUARDA DERIVADA (D-BBW-40, fase 6m). Tres cosas, y las tres son LA CAUSA del recorte de HAL-BBW-20, no su
+ *        síntoma (el síntoma NO es comprobable aquí: exige tipografía cargada y disposición; vive en el arnés, docs/system/BEHAVIOR.md §7):
+ *        (a) `--bbf-space-safe` está declarado en semantic/viewport.css a los dos lados del punto de corte, los dos valores apuntan a un paso
+ *            de la escala de espaciado, y el valor de la vista estrecha no baja del suelo de industria de 16 px.
+ *        (b) toda guarda de ancho (`--bbf-type-<rol>-fit-unit`) se DERIVA: consume `--bbf-lockup-avail` y no contiene ningún literal de
+ *            longitud. Un `14.6vw` calibrado a mano contra una palabra concreta es exactamente lo que rompió la marca al cambiarla.
+ *        (c) todo rol que separe contenido de un BORDE de la pantalla (por convención de nombre: `-pad`, `-side`, `-page`) toma
+ *            `--bbf-space-safe` como suelo con `max(...)`. Un rol de borde nuevo sin suelo es error aunque hoy dé un número mayor.
  *   R8 · PUNTO DE CORTE: todo literal `<N>px` dentro de un `@media (...)` bajo src/ fuera de primitives/ coincide con el valor de una
  *        madre `--bbf-bp-*` de primitives/breakpoints.css. El literal se repite porque CSS no admite var() en @media; que coincida
  *        es lo que esta regla garantiza.
@@ -303,10 +311,76 @@ for (const abs of scanFiles) {
   });
 }
 
+// ── R9: margen de seguridad y guardas derivadas (D-BBW-40) ──────────────────────────────────────────────────
+const VIEWPORT_FILE = 'src/styles/tokens/semantic/viewport.css';
+const SAFE_FLOOR_PX = 16;
+let r9Checked = 0;
+{
+  const spaceAbs = path.join(REPO_ROOT, 'src/styles/tokens/primitives/spacing.css');
+  const spaceSteps = new Set<string>();
+  let spaceBase = 0;
+  if (fs.existsSync(spaceAbs)) {
+    const src = fs.readFileSync(spaceAbs, 'utf8');
+    const b = /--bbf-space-base\s*:\s*(\d+(?:\.\d+)?)px/.exec(src);
+    if (b) spaceBase = Number(b[1]);
+    for (const m of src.matchAll(/(--bbf-space-[a-z0-9-]+)\s*:/g)) spaceSteps.add(m[1]);
+  }
+  // (a) el margen de seguridad, a los dos lados del punto de corte
+  const vAbs = path.join(REPO_ROOT, VIEWPORT_FILE);
+  const vSrc = fs.existsSync(vAbs) ? fs.readFileSync(vAbs, 'utf8').replace(/\/\*[\s\S]*?\*\//g, ' ') : '';
+  const safeDecls = [...vSrc.matchAll(/--bbf-space-safe\s*:\s*var\((--bbf-space-[a-z0-9-]+)\)/g)].map((m) => m[1]);
+  if (safeDecls.length < 2) {
+    problems.push({ rule: 'R9', where: VIEWPORT_FILE, detail: `--bbf-space-safe declarado ${safeDecls.length} vez/veces: D-BBW-40 lo quiere POR PUNTO DE CORTE (uno a cada lado de --bbf-bp-nav), y cada uno apuntando a un paso de la escala` });
+  }
+  for (const step of safeDecls) {
+    r9Checked++;
+    if (!spaceSteps.has(step)) {
+      problems.push({ rule: 'R9', where: VIEWPORT_FILE, detail: `--bbf-space-safe: var(${step}) no es un paso declarado en primitives/spacing.css` });
+      continue;
+    }
+    const mult = /--bbf-space-(\d+)$/.exec(step);
+    const px = mult && spaceBase ? Number(mult[1]) * spaceBase : null;
+    if (px !== null && px < SAFE_FLOOR_PX) {
+      problems.push({ rule: 'R9', where: VIEWPORT_FILE, detail: `--bbf-space-safe: var(${step}) = ${px} px baja del suelo de ${SAFE_FLOOR_PX} px que D-BBW-40 fija para móvil` });
+    }
+  }
+  // (b) las guardas de ancho, derivadas y sin literales
+  for (const abs of tokenFiles.filter((f) => f.endsWith('.css'))) {
+    const rp = rel(abs);
+    const src = fs.readFileSync(abs, 'utf8').replace(/\/\*[\s\S]*?\*\//g, ' ');
+    src.split('\n').forEach((line, i) => {
+      const m = /(--bbf-type-[a-z0-9-]+-fit(?:-unit)?)\s*:\s*([^;]+);/.exec(line);
+      if (!m) return;
+      r9Checked++;
+      const value = m[2];
+      if (!value.includes('--bbf-lockup-avail')) {
+        problems.push({ rule: 'R9', where: `${rp}:${i + 1}`, detail: `${m[1]} no deriva de --bbf-lockup-avail: la guarda de ancho tiene que salir del margen (D-BBW-40), no de un valor propio` });
+      }
+      const literal = /(?<![a-z0-9-])\d+(?:\.\d+)?(px|vw|vh|vmin|vmax|cqw|cqh|em|rem|%)/.exec(value);
+      if (literal) {
+        problems.push({ rule: 'R9', where: `${rp}:${i + 1}`, detail: `${m[1]} contiene el literal "${literal[0]}": una guarda calibrada a mano se rompe al cambiar la palabra (HAL-BBW-20)` });
+      }
+    });
+  }
+  // (c) todo rol de BORDE toma el margen de seguridad como suelo
+  for (const abs of tokenFiles.filter((f) => f.endsWith('.css') && /\/semantic\//.test(rel(f)))) {
+    const rp = rel(abs);
+    const src = fs.readFileSync(abs, 'utf8').replace(/\/\*[\s\S]*?\*\//g, ' ');
+    src.split('\n').forEach((line, i) => {
+      const m = /(--bbf-[a-z0-9-]*-(?:pad|side|page))\s*:\s*([^;]+);/.exec(line);
+      if (!m || m[1] === '--bbf-space-safe') return;
+      r9Checked++;
+      if (!/max\(\s*var\(--bbf-space-safe\)/.test(m[2])) {
+        problems.push({ rule: 'R9', where: `${rp}:${i + 1}`, detail: `${m[1]} separa contenido de un borde y no toma --bbf-space-safe como suelo: escribir max(var(--bbf-space-safe), ...) (D-BBW-40)` });
+      }
+    });
+  }
+}
+
 // ── Salida ───────────────────────────────────────────────────────────────────────────────────────
 const famSummary = [...ranges].map(([f, r]) => `${f} ${r.min}–${r.max}`).join(' · ');
 if (problems.length === 0) {
-  console.log(`[type-system-gate] OK — ${ranges.size} familia(s) con rango (${famSummary}); ${tokenFiles.filter((f) => f.endsWith('.css')).length} ficheros de tokens y ${scanFiles.length} ficheros de src inspeccionados; 0 pesos sin familia, fuera de rango o crudos; escala: ${sizeIds.size} tamaño(s) del canon ≥ suelo ${floor} px en ambos polos, ${rolesChecked} rol(es) consumen la escala; ${excInCode.size} excepción(es) EXC en código = registro; ${mediaChecked} literal(es) de @media espejan una madre --bbf-bp-*.`);
+  console.log(`[type-system-gate] OK — ${ranges.size} familia(s) con rango (${famSummary}); ${tokenFiles.filter((f) => f.endsWith('.css')).length} ficheros de tokens y ${scanFiles.length} ficheros de src inspeccionados; 0 pesos sin familia, fuera de rango o crudos; escala: ${sizeIds.size} tamaño(s) del canon ≥ suelo ${floor} px en ambos polos, ${rolesChecked} rol(es) consumen la escala; ${excInCode.size} excepción(es) EXC en código = registro; ${mediaChecked} literal(es) de @media espejan una madre --bbf-bp-*; ${r9Checked} comprobación(es) de margen de seguridad y guardas derivadas (R9).`);
   process.exit(0);
 }
 console.error(`[type-system-gate] ${problems.length} problema(s) del sistema tipográfico — build roto.`);
@@ -314,4 +388,5 @@ for (const p of problems) console.error(`  ${p.rule} ${p.where}: ${p.detail}`);
 console.error('  Regla: todo peso lleva familia (--bbf-weight-<familia>-*), dentro de su rango declarado; ningún wght crudo fuera de primitives/typography.css.');
 console.error('  Regla: ningún paso, excepción ni rol de tamaño baja de --bbf-text-floor (D-BBW-18); todo --bbf-type-<rol>-size consume var(--bbf-size-*) del canon (D-BBW-17).');
 console.error('  Regla: toda EXCEPCIÓN EXC-BBW-NN del canon tiene fila firmada en docs/system/DESIGN_EXCEPTIONS.md §1 y viceversa (D-BBW-16); todo literal px de @media fuera de primitivos coincide con una madre --bbf-bp-*.');
+console.error('  Regla: --bbf-space-safe declarado a los dos lados del corte con suelo de 16 px; toda guarda -fit-unit deriva de --bbf-lockup-avail sin literales; todo rol -pad/-side/-page toma max(var(--bbf-space-safe), ...) (D-BBW-40).');
 process.exit(1);

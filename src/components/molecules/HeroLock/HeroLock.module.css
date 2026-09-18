@@ -16,6 +16,10 @@
    presentación dentro del contenido) y la capitalización es de aquí; el rótulo ya la aplicaba con `uppercase`.
    Fase 6l · SOMBRAS DE TEXTO (P-BBW-31 CERRADO, mapeo del N1 doc B §11): titular → rol `display-shadow` (paso xl) y rótulo → rol
    `lead-shadow` (paso lg), por ROL, nunca un valor. Se pintan detrás del glifo y entran en la medida de D-BBW-25 (output 6l §5).
+   Fase 6m (D-BBW-40 · D-BBW-41): la guarda de ancho del titular deja de ser el `14.6vw` del diseño y se DERIVA del margen de
+   seguridad (semantic/typography.css), con la medida real del cliente afinándola; y el RÓTULO deja de llevar su tamaño de rol como
+   valor final: el cliente resuelve el cuerpo que cierra el lock conservando la razón de interletrado del diseño, así que `font-size`
+   aquí es lo SERVIDO (y lo que queda sin JavaScript), no lo que se ve una vez medido.
    Fase 6l · ENTRADA: el enfoque progresivo (desenfoque + desplazamiento) lo pone la regla del sistema (base/document.css) con los roles de
    duración y retardo por pieza; aquí solo el orden. */
 .lock {
@@ -36,7 +40,10 @@
   contain: layout;
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-display-family);
-  font-size: min(var(--bbf-type-display-size), var(--bbf-type-display-fit));
+  /* la guarda MEDIDA (`--bbf-display-fit-measured`, que el componente escribe en el lock) gana a la derivada en cuanto existe, y la
+     cadena de respaldo se resuelve AQUÍ y no en `:root`: el valor medido se hereda del lock, así que sustituirlo en la raíz elegiría
+     siempre el respaldo. Sin JavaScript queda la derivada, que es una cota y cabe siempre. */
+  font-size: min(var(--bbf-type-display-size), var(--bbf-display-fit-measured, calc(var(--bbf-type-display-fit-unit) / var(--bbf-display-chars))));
   font-weight: var(--bbf-type-display-weight);
   line-height: var(--bbf-type-display-leading);
   letter-spacing: var(--bbf-type-display-tracking);
@@ -60,15 +67,18 @@
   flex: 0 0 auto;
 }
 
+/* SIN tope de ancho (fase 6m): el interletrado se aplica también tras la ÚLTIMA letra, así que la caja del rótulo mide
+   `objetivo + interletrado` y el margen derecho negativo solo compensa en la DISPOSICIÓN, no en la caja. Con `max-width: 100%` el
+   navegador recortaba justo ese sobrante y el lock no llegaba a cerrar (medido). Que quepa lo garantizan la guarda `-fit` cuando
+   no hay medida y el propio cierre cuando la hay. */
 .lead {
   --bbf-enter-duration: var(--bbf-motion-enter-duration-lock);
   --bbf-enter-delay: var(--bbf-motion-enter-delay-lead);
 
   margin: var(--bbf-lockup-gap-lead) 0 0;
-  max-width: 100%;
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-lead-family);
-  font-size: min(var(--bbf-type-lead-size), var(--bbf-type-lead-fit));
+  font-size: min(var(--bbf-type-lead-size), calc(var(--bbf-type-lead-fit-unit) / var(--bbf-lead-chars)));
   font-weight: var(--bbf-type-lead-weight);
   line-height: var(--bbf-type-lead-leading);
   letter-spacing: var(--bbf-type-lead-tracking);

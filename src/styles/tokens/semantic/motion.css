@@ -44,6 +44,10 @@
   --bbf-motion-lead-tint-ease: var(--bbf-ease-signature);
   --bbf-motion-link-duration: var(--bbf-duration-medium);
   --bbf-motion-link-ease: var(--bbf-ease-signature);
+  /* fase 6m · estados de la nav (N1 doc B §5): el enlace ABRE SU INTERLETRADO al pasar (0,28em → 0,32em = ×7 → ×8 de la retícula, los dos
+     exactos) y la onda de tinta se revela con su propia duración, más larga que el cambio de color: 520 → ×2 y 640 → ×2,5 (tabla de la 6a). */
+  --bbf-motion-link-tracking-duration: var(--bbf-duration-2);
+  --bbf-motion-link-reveal-duration: var(--bbf-duration-2-5);
   --bbf-motion-ripple-duration: var(--bbf-duration-11);
   --bbf-motion-ripple-shift: var(--bbf-space-6);
   --bbf-motion-pulse-duration: var(--bbf-duration-15);

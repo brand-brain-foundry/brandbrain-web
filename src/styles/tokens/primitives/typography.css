@@ -43,6 +43,18 @@
   --bbf-font-text: var(--bbf-font-text-src, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
   --bbf-font-display: "modulator-vf", "modulator-text-vf", var(--bbf-font-text);
 
+  /* ── MÉTRICAS DE FAMILIA (fase 6m, D-BBW-40): hechos MEDIDOS de cada familia, no valores de marca. Son a la tipografía lo que
+     `--bbf-weight-<familia>-range-min/-max` ya era: una propiedad del archivo de fuente que el sistema necesita para derivar.
+     `-advance-max` = avance del glifo MÁS ANCHO del alfabeto, en em, al peso de reposo del rol que la usa. Es la COTA SUPERIOR que
+     hace que la guarda de ancho valga para CUALQUIER palabra sin conocerla: ancho natural ≤ letras × (avance máximo + interletrado).
+     Medido en Chrome 152 sobre la página construida, barriendo A–Z a un cuerpo de referencia de 1000 px (output 6m §F2):
+       · display `modulator-vf` al peso de reposo (300): máximo `W` = 0,95 em (mínimo `I` = 0,39625)
+       · text Space Grotesk al peso regular (400): máximo `W` = 0,87528 em (mínimo `I` = 0,24413)
+     CAMBIAR DE FAMILIA O DE PESO DE REPOSO OBLIGA A RE-MEDIR estas dos madres (misma nota que EXC-BBW-04). La guarda solo se
+     vuelve holgada, nunca corta: una cota alta encoge el titular, no lo recorta. ─────────────────────────────────────────────── */
+  --bbf-advance-display-max: 0.95;
+  --bbf-advance-text-max: 0.87528;
+
   /* ── Madres de tamaño (unitless = px): paso cero = texto corrido (D-BBW-17), ventana fluida (criterio técnico) ── */
   --bbf-text-min: 18;
   --bbf-text-max: 20;
@@ -98,7 +110,8 @@
   --bbf-size-display-max: 124;
   --bbf-size-display-slope: 8.4vw;
   --bbf-size-display: clamp(calc(var(--bbf-size-display-min) * 1px), var(--bbf-size-display-slope), calc(var(--bbf-size-display-max) * 1px));
-  --bbf-size-display-fit: 14.6vw;
+  /* la guarda `-fit` YA NO VIVE AQUÍ (fase 6m, D-BBW-40): dejó de ser un literal del diseño calibrado contra una palabra y pasó a
+     DERIVARSE del margen de seguridad; es composición, así que es un rol de Tier 2 (`--bbf-type-display-fit`, semantic/typography.css). */
 
   /* ── EXCEPCIÓN EXC-BBW-02 · tamaño del rótulo (`lead`) DERIVADO del titular (D-BBW-19 · D-BBW-16 · registro: docs/system/DESIGN_EXCEPTIONS.md)
      VALOR: una sola madre, la proporción rótulo/titular. Medida del diseño (N0 §2.2: `min(clamp(24px, 3.4vw, 49px), 5.9vw)` frente a
@@ -113,11 +126,25 @@
      fase 6e, se DERIVA de la guarda del display por la misma madre (0,4 → 5,84vw; |Δ| 0,06vw = 0,2 px a 360 px) y la consume el componente
      del titular por rol (`--bbf-type-lead-fit`). Por debajo de ~425 px el rótulo baja de 24,8 a 21 px: cruza el umbral de texto grande de
      WCAG (24 px) y su mínimo de contraste pasa de 3:1 a 4,5:1 (medido en el output 6e). ─────────────────────────────────────── */
+  /* ── FASE 6m (D-BBW-41) · CUÁL DE LAS DOS PROPORCIONES ES LA INVARIANTE ────────────────────────────────────────────────────
+     El lock tiene DOS incógnitas acopladas, el tamaño del rótulo y su interletrado, y solo una puede fijarse: la otra la resuelve
+     el cierre al ancho del titular. MEDIDO EN EL EXPORT (output 6m §F3) con las palabras originales, en los cinco anchos:
+       r_tamaño       = 0,40411 (360) · 0,40476 (780 y 1000) · 0,39516 (1728 y 1920)   → la madre 0,40 de abajo
+       r_interletrado = 0,69303 (360) · 0,69080 (780 y 1000) · 0,72327 (1728 y 1920)
+     El diseño fija la PRIMERA y resuelve la segunda: r_interletrado no es un parámetro suyo, es una consecuencia exacta de
+     r_tamaño y de las dos palabras — `r_track = (A_D/r_size − A_L)/(n−1)` reproduce las cinco filas al quinto decimal.
+     Con las palabras nuevas esa elección ROMPE el bloque: `ecosystem` tiene 8 huecos (frente a 11 de `Technologist`) para un
+     titular 20 % más ancho, pediría 70,4 px de interletrado y el tope del diseño son 40 → el rótulo se queda en el 72,5 % del
+     titular (output 6l §2.5). D-BBW-41 INVIERTE cuál es cuál: la invariante pasa a ser **r_interletrado** y se resuelve el tamaño.
+     Se conserva el valor medido en el ancho de referencia del diseño (1728/1920), donde ambos cuerpos están en su tope autorado
+     (124 y 49) y el diseño está plenamente expresado. `--bbf-size-lead-ratio` NO se retira: queda como el tamaño SERVIDO
+     (sin JavaScript, y antes de la primera medida), que ya no es el tamaño final. ──────────────────────────────────────────── */
+  --bbf-tracking-lead-lock-ratio: 0.72327;
   --bbf-size-lead-ratio: 0.4;
   --bbf-size-lead-min: calc(var(--bbf-size-display-min) * var(--bbf-size-lead-ratio));
   --bbf-size-lead-max: calc(var(--bbf-size-display-max) * var(--bbf-size-lead-ratio));
   --bbf-size-lead: calc(var(--bbf-size-display) * var(--bbf-size-lead-ratio));
-  --bbf-size-lead-fit: calc(var(--bbf-size-display-fit) * var(--bbf-size-lead-ratio));
+  /* ídem la guarda del rótulo: se deriva del mismo margen con las métricas de SU familia (`--bbf-type-lead-fit`, Tier 2). */
 
   /* ── Pesos: DOS ESCALAS INCOMPATIBLES (hallazgo de fase 5, HAL-BBW-08). Cada familia tiene su propio eje `wght`:
      · display `modulator-vf`: el kit sirve 25–500 (medido en vivo 2026-09-16). Su máximo, 500, es lo que la web llama "medium":
@@ -149,7 +176,8 @@
      display 0.01 → ×0 (fase 6a; REABIERTO en la 6h → EXC-BBW-04, bloque abajo) · hoja 0.12 → ×3 · claims 0.15 → ×4 (+0.01) · legal 0.24 → ×6 ·
      nav 0.28 / 0.32 → ×7 / ×8 · estado 0.34 → ×9 (+0.02em = 0.2 px a 10 px).
      La fase 6a-bis NO toca esta categoría: el re-anclaje de tamaños no arrastra el interletrado (§5 del despacho). ── */
-  --bbf-tracking-base: 0.04em;
+  --bbf-tracking-base-ratio: 0.04;
+  --bbf-tracking-base: calc(var(--bbf-tracking-base-ratio) * 1em);
   --bbf-tracking-0: calc(var(--bbf-tracking-base) * 0);
   --bbf-tracking-1: var(--bbf-tracking-base);
   --bbf-tracking-3: calc(var(--bbf-tracking-base) * 3);
@@ -167,7 +195,8 @@
      ajuste óptico del rótulo (src/behavior/optical-fit.ts) se mide sobre la caja del titular FIJADA con este valor; un valor dinámico o distinto
      invalidaría esa medida. Cambiar de familia display (puerto) obliga a re-medir esta madre.
      LO QUE NO ES: no es paso de la escala (×0,25 no existe) ni entra en la retícula: la madre sigue siendo 0,04em × N para todo lo demás. ── */
-  --bbf-tracking-display: 0.01em;
+  --bbf-tracking-display-ratio: 0.01;
+  --bbf-tracking-display: calc(var(--bbf-tracking-display-ratio) * 1em);
 
   /* ── Interlineado: los dos valores del N0 (display 1.02, mono 1); sin fórmula posible entre dos puntos → madres ── */
   --bbf-leading-none: 1;
