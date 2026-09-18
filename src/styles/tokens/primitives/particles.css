@@ -16,6 +16,16 @@
  *     interior 0,2; brillo (núcleo mint-50 / halo mint-100) por clase: S 0,7/0,46 · M 0,6/0,38 · L 0,44/0,26.
  *   · Recorridos: motas 8vh → −42vh = MEDIA altura de la caja (0,5); burbujas 12vh → −104vh = la caja entera más su tamaño (estructural,
  *     en el componente); bamboleo ±0,55 unidades. Duraciones 36–87 s: múltiplos de la madre de movimiento (primitives/motion.css).
+ *   · FASE 6k (portado P4 del N1, D-BBW-36/37; N1 doc A §3/§4, doc D §3): el "halo" de la 6e ERA EL BORDE de la esfera del diseño
+ *     (`border: 0.5px solid rgba(206,240,238, .46/.38/.26)`), no una parada del degradado: las alfas pasan a llamarse `-border-`. El degradado
+ *     tiene CUATRO paradas con posición (brillo 0 % · cuerpo 34 % · aro 62 % · borde 100 %) desde un centro descentrado (33 %/27 %): proporciones
+ *     del diseño registradas como madres (D-BBW-37 a, mismo trato que la composición de la 6f). Los recorridos también son proporciones: la
+ *     mota nace 8 % bajo su posición (mote-start) y sube media caja (mote-travel); el envoltorio de la burbuja va 10 % bajo el borde
+ *     (bubble-offset), nace 12 % más abajo (bubble-from) a escala 0,6 (bubble-scale-from, madre sin escala, D-BBW-37 b) y muere 104 % por
+ *     encima (bubble-to). Las mesetas de opacidad (12–84 % · 16–84 %) son forma del fotograma clave y viven en la hoja (D-BBW-37 c).
+ *     RESIDUALES: el borde de 0,5 px cae al paso ×1 de la escala de línea (1 px, +0,5; la 6e ya mapeó así el desplazamiento de la sombra
+ *     interior); el rango vertical de la mota en el export es −1,1…100,8 % y el generador usa la caja (0…100 %): imperceptibles, medidos en
+ *     el output de la 6k.
  * CLASE (D-DOC-13): el archivo = plantilla · los valores = dinámico (son de este diseño) · la regla "rangos aquí, azar normalizado en el
  * componente" = estático.
  */
@@ -61,11 +71,25 @@
   --bbf-particle-alpha-bubble-hi-s: 0.7;
   --bbf-particle-alpha-bubble-hi-m: 0.6;
   --bbf-particle-alpha-bubble-hi-l: 0.44;
-  --bbf-particle-alpha-bubble-halo-s: 0.46;
-  --bbf-particle-alpha-bubble-halo-m: 0.38;
-  --bbf-particle-alpha-bubble-halo-l: 0.26;
+  --bbf-particle-alpha-bubble-border-s: 0.46;
+  --bbf-particle-alpha-bubble-border-m: 0.38;
+  --bbf-particle-alpha-bubble-border-l: 0.26;
 
   --bbf-particle-mote-travel: 0.5;
   --bbf-particle-drift-x: 2.9vw;
   --bbf-particle-wobble: 0.55;
+
+  /* fase 6k · proporciones del diseño (D-BBW-37): recorridos como fracción de la altura del campo y escala inicial de la burbuja */
+  --bbf-particle-mote-start: 0.08;
+  --bbf-particle-bubble-offset: 0.1;
+  --bbf-particle-bubble-from: 0.12;
+  --bbf-particle-bubble-to: 1.04;
+  --bbf-particle-bubble-scale-from: 0.6;
+
+  /* fase 6k · esfera de la burbuja (D-BBW-37): centro del brillo y posición de las paradas del degradado radial */
+  --bbf-particle-sphere-hi-x: 33%;
+  --bbf-particle-sphere-hi-y: 27%;
+  --bbf-particle-sphere-stop-body: 34%;
+  --bbf-particle-sphere-stop-rim: 62%;
+  --bbf-particle-sphere-stop-edge: 100%;
 }

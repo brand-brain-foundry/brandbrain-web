@@ -2,7 +2,8 @@
  * semantic/particles.css — Tier 2 · PARTÍCULAS POR ROL (fase 6e). Qué tinte lleva cada parte de una partícula y cuál es su unidad.
  * Tintes: los 7 rgba del N0 entran por la rampa `mint` al paso más cercano en L (mapeo de la fase 6a en la cabecera de
  * primitives/colors.css, D-BBW-16): mota rgb(212,236,234) → mint-100 · cuerpo de burbuja (160,222,220) y borde (140,215,215) → mint-200 ·
- * aro (90,170,180) → mint-400 · brillo interior (214,246,244) → mint-100 · halo del brillo (206,240,238) → mint-100 · núcleo del brillo
+ * aro (90,170,180) → mint-400 · brillo interior (214,246,244) → mint-100 · borde de la esfera (206,240,238) → mint-100 (fase 6k: era el
+ * "halo" de la 6e; en el diseño es el `border`, no una parada) · núcleo del brillo
  * (236,252,250) → mint-50. El caveat de la 6a (distinguibles sobre parches planos) se comprueba con las partículas en pantalla en el
  * output de la 6e. Unidad: el suelo 9 px del diseño cae al paso ×2 (8 px, |Δ| 1 px); la pendiente 0,85vw es madre (como el 3,4vw del
  * margen de página). Fase 6f: la unidad solo escala el BAMBOLEO; los tamaños son px del inventario (primitives/particles.css).
@@ -18,5 +19,5 @@
   --bbf-particle-bubble-rim-tint: var(--bbf-color-mint-400);
   --bbf-particle-bubble-inset-tint: var(--bbf-color-mint-100);
   --bbf-particle-bubble-hi-tint: var(--bbf-color-mint-50);
-  --bbf-particle-bubble-halo-tint: var(--bbf-color-mint-100);
+  --bbf-particle-bubble-border-tint: var(--bbf-color-mint-100);
 }

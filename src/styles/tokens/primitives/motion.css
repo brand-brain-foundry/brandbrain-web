@@ -55,9 +55,17 @@
   /* ── Partículas del fondo (fase 6e; N0 §2.2: "Partículas: 36–87 s", lineal, infinito). Los dos extremos del rango caen EXACTOS en la
      retícula k ∈ ½ℕ: 36 s = ×150 · 87 s = ×362,5. Entre ambos el azar es continuo, como en el diseño (sin pasos). Cada partícula recibe
      un número normalizado y el componente lo lleva al rango: k = min + (max − min) × u. Con movimiento reducido la madre colapsa y el
-     rol de reproducción de semantic/motion.css las deja quietas (no se anula pieza a pieza). ── */
-  --bbf-particle-k-min: 150;
-  --bbf-particle-k-max: 362.5;
+     rol de reproducción de semantic/motion.css las deja quietas (no se anula pieza a pieza).
+     FASE 6k (portado P4 del N1, N1 doc A §3/§4, doc D §3): ese rango de 36–87 s era el de las MOTAS (nieve marina) y la 6e lo aplicó también
+     a las burbujas, 2,6–3× más lentas que el diseño. Ahora cada sistema lleva SUS tiempos: motas ×150…×362,5 (36–87 s, renombrado `-mote-`);
+     ascenso de las burbujas 13,7–28,3 s → ×57 (13,68 s, −20 ms) … ×118 (28,32 s, +20 ms); oscilación interna 3,7–7,3 s `ease-in-out` →
+     ×15,5 (3,72 s, +20 ms) … ×30,5 (7,32 s, +20 ms). Los cuatro extremos caen en la retícula ½ℕ con |Δ| ≤ 20 ms: no son residuales. ── */
+  --bbf-particle-mote-k-min: 150;
+  --bbf-particle-mote-k-max: 362.5;
+  --bbf-particle-rise-k-min: 57;
+  --bbf-particle-rise-k-max: 118;
+  --bbf-particle-wobble-k-min: 15.5;
+  --bbf-particle-wobble-k-max: 30.5;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -3,17 +3,17 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.2
+version: 1.3
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-09-18
-verified_against_code: 2026-09-18@feat/fase6j-seguimiento-del-sujeto (src/behavior/weight-modulator.ts · src/behavior/optical-fit.ts · src/behavior/backdrop-shader.ts · src/behavior/subject-tracking.ts · src/components/molecules/HeroLock/ · src/components/molecules/HeroBackdrop/ · src/components/molecules/HeroMedia/; origen de cada constante en `0_info/brandbrain-web/Eye Fish Landing.dc.html` y `blob-bg.js` por línea, inventariado en OUTPUT-BBW-2026-09-17-N1-A §1/§2/§5/§7 y clasificado en OUTPUT-BBW-2026-09-17-N1-D §1/§2/§4)
+verified_against_code: 2026-09-18@feat/fase6k-particulas-fieles (src/behavior/weight-modulator.ts · src/behavior/optical-fit.ts · src/behavior/backdrop-shader.ts · src/behavior/subject-tracking.ts · src/behavior/particle-field.ts · src/components/molecules/HeroLock/ · src/components/molecules/HeroBackdrop/ · src/components/molecules/HeroMedia/ · src/components/molecules/HeroParticles/; origen de cada constante en `0_info/brandbrain-web/Eye Fish Landing.dc.html` y `blob-bg.js` por línea, inventariado en OUTPUT-BBW-2026-09-17-N1-A §1/§2/§3/§4/§5/§7 y clasificado en OUTPUT-BBW-2026-09-17-N1-D §1/§2/§3/§4)
 supersedes: []
 superseded_by: null
-related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-DOC-13]
-summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). Los sistemas P4–P5 añaden su módulo y su tabla aquí."
-tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, video, procedencia, brandbrain-web]
+related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
+summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). v1.3 (fase 6k, portado P4): S3/S4 partículas, el GENERADOR del campo (particle-field.ts, D-BBW-36: se porta el generador con los rangos, los planos y la distribución, no la tirada del export): 21 burbujas en tres planos con tres elementos anidados y dos animaciones con SUS tiempos (ascenso 13,7–28,3 s, oscilación 3,7–7,3 s: el error de la 6e corregido), 31 motas en tres planos con desenfoques distintos, posición horizontal por el promedio de tres muestras, semilla fija reproducible; con movimiento reducido las animaciones no arrancan y con la pestaña oculta se pausan por el mismo rol. P5 añade su módulo y su tabla aquí."
+tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, video, particulas, procedencia, brandbrain-web]
 ---
 
 # Constantes de algoritmo de los sistemas dinámicos
@@ -182,7 +182,42 @@ vídeo la traslación vive en dx 0–2,4 % · dy 0–3,7 % (el tope vertical se 
 pestaña oculta → pausa y cancelación (el diseño saltaba el trabajo pero seguía reprogramando y decodificando); movimiento reducido → el bucle
 no arranca (el diseño lo ignoraba); un solo `rAF` con cancelación real y retirada de los seis oyentes al desmontar.
 
-## §6 — Cómo entra un sistema nuevo (P4–P5)
+## §7 — S3/S4 · Partículas: burbujas y nieve marina (`src/behavior/particle-field.ts`)
+
+**Qué hace:** GENERA el campo (D-BBW-36). El export trae los 52 valores concretos, pero son una tirada aleatoria del generador del original, no
+un diseño: se porta **el generador** con los recuentos, los rangos por plano y la distribución del diseño, con **semilla fija** (una compilación
+produce siempre el mismo campo: HTML completo, D-BBW-09/28, y medida repetible, D-BBW-25). El módulo emite **solo números normalizados 0..1**;
+la hoja del componente los lleva a los rangos de las madres. Inventario: N1 doc A §3 (burbujas) y §4 (nieve marina); clasificación: N1 doc D §3.
+Todo lo que se ve (tamaños, opacidades, desenfoques por plano, recorridos, tiempos, tintes, alfas, proporciones de la esfera) es token.
+
+| Constante | Valor | Origen | Clase | Qué es |
+|---|---|---|---|---|
+| `SEED` | 0x6e5f4b3a | fase 6e | plantilla | semilla del generador determinista (mulberry32): cualquier valor sirve; cambiarla cambia la disposición y obliga a re-medir el contraste |
+| `COUNTS` | motas 16 / 10 / 5 · burbujas 11 / 7 / 3 | dc:L77-107, L110-214 (N1 doc A §3.3, §4.3) | **dinámico** | recuentos por plano de foco: composición de esta marca (31 motas, 21 burbujas) |
+| `X_SAMPLES` | 3 | descripción de Zavala (N1 doc A §7.4: el código del export ya trae la tirada, no el generador) | **dinámico** | muestras uniformes que se PROMEDIAN para la posición horizontal: la media de tres uniformes concentra el campo hacia el centro en vez de repartirlo plano (el export lo muestra: burbujas 29–90 %, motas 12–77 %, medias ≈ 55 % y 51 %) |
+| `DECIMALS` | 3 | fase 6e | estático | decimales de cada número normalizado escrito en el HTML |
+| (uniforme) | tamaño · opacidad · deriva · fase · duración · oscilación | dc:L77-214 | estático (forma de la tirada) | el resto de campos son uniformes dentro del rango de su plano; cada partícula consume el mismo número de muestras en el mismo orden, así el campo es estable ante cambios de recuento de otro plano |
+
+**Tokens que lee (nunca repite):** ninguno por valor. Los consume el CSS del componente (`HeroParticles.module.css`): rangos de tamaño y
+opacidad por plano, desenfoques 0 / 0,3 / 3 (burbujas) y 0 / 0,8 / 4,5 (motas), deriva ±2,9vw, unidad del vaivén `max(--bbf-space-2, 0,85vw)` × 0,55
+(`primitives/particles.css` · `semantic/particles.css`); **tiempos por sistema** en `primitives/motion.css`: motas ×150…×362,5 (36–87 s), ascenso de
+las burbujas ×57…×118 (13,7–28,3 s), oscilación ×15,5…×30,5 (3,7–7,3 s, `ease-in-out`, claves 0/25/75/100) — los cuatro extremos caen en la
+retícula con |Δ| ≤ 20 ms; **proporciones** (D-BBW-37): mota +8 % → −42 % de la altura del campo con meseta 16–84 %; burbuja: envoltorio a −10 %,
+nace a +12 % con escala 0,6 y muere a −104 % con escala 1, meseta 12–84 %; esfera: brillo en 33 %/27 %, paradas 34 %/62 %/100 %, borde de línea
+al alfa de su plano (0,46 / 0,38 / 0,26), sombra interior. Las mesetas viven en los fotogramas clave (forma, D-BBW-37 c). La quietud (D-BBW-31) va
+por el rol `--bbf-motion-particles-play-state` en los tres elementos animados: con movimiento reducido es `paused` desde la raíz y las animaciones
+**no arrancan** (cada partícula queda en su fase: el reposo, D-BBW-28); con la pestaña oculta el reloj cliente `HeroParticlesClock` fija el mismo rol
+en el campo y lo retira al volver. Sin más JavaScript: el campo viaja en el HTML y anima por CSS.
+
+**Lo que corrige respecto a la 6e:** las burbujas llevaban los tiempos de las motas (36–87 s, 2,6–3× más lentas que el diseño) y una oscilación
+común de 2,4 s alternada; ahora cada burbuja tiene su ascenso (13,7–28,3 s) y su oscilación (3,7–7,3 s), inconmensurables entre sí: la subida nunca
+es regular. El "halo" de la 6e era el borde de la esfera; el brillo estaba en la esquina y las paradas repartidas uniformes; faltaban la escala
+0,6 → 1, las mesetas, el arranque bajo el borde y las dos capas (nieve debajo de burbujas: aquí orden del documento, sin token).
+
+**Lo que mide el output de la 6k:** reproducibilidad (dos generaciones y dos compilaciones idénticas), recuentos y tiempos computados en Chrome,
+garantía D-BBW-25 re-medida buscando el mínimo, coste con 73 elementos animados a la vez (52 partículas + 21 osciladores) y su parte en el arranque.
+
+## §8 — Cómo entra un sistema nuevo (P5)
 
 1. Módulo `src/behavior/<sistema>.ts` con el objeto congelado, origen por línea y clase por constante; funciones puras separadas de las que
    tocan el DOM o la GPU.
@@ -193,4 +228,4 @@ no arranca (el diseño lo ignoraba); un solo `rAF` con cancelación real y retir
 5. Lo que el sistema sustituye se retira en el mismo commit (N1 doc C §4).
 
 ---
-*BBW-BEHAVIOR v1.2 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.2 en la fase 6j (`DESPACHO-BBW-2026-09-18-fase6j-P3-seguimiento-del-sujeto`: S2 seguimiento del sujeto) · v1.1 en la fase 6i (`DESPACHO-BBW-2026-09-17-fase6i-P2-sombreador-de-fondo`: S1 con procedencia, D-BBW-33/34/35, HAL-BBW-16) · nace en la fase 6h (`DESPACHO-BBW-2026-09-17-fase6h-P1-modulador-de-peso`, D-BBW-30)*
+*BBW-BEHAVIOR v1.3 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.3 en la fase 6k (`DESPACHO-BBW-2026-09-18-fase6k-P4-particulas-fieles`: S3/S4 partículas, D-BBW-36/37) · v1.2 en la fase 6j (`DESPACHO-BBW-2026-09-18-fase6j-P3-seguimiento-del-sujeto`: S2 seguimiento del sujeto) · v1.1 en la fase 6i (`DESPACHO-BBW-2026-09-17-fase6i-P2-sombreador-de-fondo`: S1 con procedencia, D-BBW-33/34/35, HAL-BBW-16) · nace en la fase 6h (`DESPACHO-BBW-2026-09-17-fase6h-P1-modulador-de-peso`, D-BBW-30)*
