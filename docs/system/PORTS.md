@@ -44,6 +44,11 @@ subconjunto de lo declarado: `sivarbrains.com` (agencia) · `branddesignerpro.co
 `mailto:` al buzón oficial. El contenido (`content/`) nunca escribe una URL: referencia la llave y el puerto de contenido la valida.
 Valores del inventario N0 §2.4, pendientes de confirmación por Zavala (P-BBW-19).
 
+**Fase 7 — `schema.org` NO es un actor ni un enlace saliente:** aparece en `src/seo/jsonld.ts` como `@context` de los datos
+estructurados, es decir, como IDENTIFICADOR DE VOCABULARIO. Ni la página ni el build le hacen ninguna petición: es una cadena que
+viaja dentro del JSON-LD para que quien lo lea sepa qué significan las llaves. Se lista aquí solo para que la comprobación del
+criterio 5(b) siga cerrando.
+
 ## Previstos, sin fila todavía (no se inventan)
 
 - **Analítica**: descartado por el N0 (sin necesidad medida).

@@ -1,6 +1,6 @@
 {
   "nav": {
-    "skipLabel": "[[PENDIENTE: texto del enlace para saltar al contenido principal]]",
+    "skipLabel": "Saltar al contenido principal",
     "toggleLabel": "Menú",
     "items": [
       {
@@ -26,12 +26,12 @@
     "social": [
       {
         "id": "linkedin",
-        "label": "[[PENDIENTE: nombre accesible del perfil de LinkedIn]]",
+        "label": "Perfil de LinkedIn",
         "link": "linkedin"
       },
       {
         "id": "github",
-        "label": "[[PENDIENTE: nombre accesible del perfil de GitHub]]",
+        "label": "Perfil de GitHub",
         "link": "github"
       }
     ]
