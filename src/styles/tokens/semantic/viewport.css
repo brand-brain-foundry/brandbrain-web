@@ -10,6 +10,13 @@
  * CLASE (D-DOC-13): plantilla (los roles de vista se quedan; el corte y qué conmuta cambian por producto).
  */
 :root {
+  /* MARGEN DE SEGURIDAD (fase 6m, D-BBW-40): el contenido NUNCA toca el borde de la pantalla. Es un token POR PUNTO DE CORTE
+     (no un clamp) y múltiplo de la unidad base del espaciado: 16 px es el mínimo aceptado en móvil y 20–24 px lo cómodo según la
+     práctica de industria (Material fija 16 en la ruptura de 360); se usa el único corte que el sistema tiene (`--bbf-bp-nav`),
+     sin inventar uno nuevo. Todo rol que pegue contenido a un borde lo toma como SUELO (`max(...)`), no como valor: la guarda
+     de ancho del titular se deriva de él y por eso deja de estar calibrada contra una palabra concreta. */
+  --bbf-space-safe: var(--bbf-space-6);
+
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
   /* fase 6f (composición del pie leída del export): en la vista amplia legal + perfiles a la izquierda y aviso a la derecha; en la
@@ -20,6 +27,8 @@
 
 @media (max-width: 780px) {
   :root {
+    --bbf-space-safe: var(--bbf-space-4);
+
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;
     --bbf-bar-justify: center;

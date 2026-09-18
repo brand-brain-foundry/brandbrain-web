@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { WEIGHT_MODULATOR, calibrate, frame, readTokens, type Calibration, type Tokens } from "@/behavior/weight-modulator";
-import { POINTER_WEIGHT, applyTracking, fitTracking, pointerChanged, pointerWeight, readLeadTokens, type PointerState } from "@/behavior/optical-fit";
+import { OPTICAL_FIT, POINTER_WEIGHT, applyLockFit, fitLock, pointerChanged, pointerWeight, readLeadTokens, readTrackRatio, type LockFit, type PointerState } from "@/behavior/optical-fit";
 import styles from "./HeroLock.module.css";
 
 /**
@@ -21,6 +21,16 @@ import styles from "./HeroLock.module.css";
  *   La preferencia se lee por el ROL `--bbf-motion-loop-play-state` (semantic/motion.css), como los bucles CSS, no repitiendo la consulta.
  * · Accesibilidad: el titular partido lleva su texto como nombre accesible y las letras quedan ocultas a la asistencia; al desmontar se
  *   restaura el texto. El rótulo se tiñe por `data-pull` (CSS), nunca con un color desde aquí.
+ * Fase 6m (D-BBW-40 · D-BBW-41), dos cosas y las dos por MEDIDA, no por número:
+ *   · LAS DOS GUARDAS DE ANCHO necesitan saber cuántas letras hay, y esa es la única cosa del contenido que la presentación puede
+ *     preguntar: el componente publica `--bbf-display-chars` y `--bbf-lead-chars` (una CUENTA, no el texto) y la hoja deriva el tope
+ *     del margen de seguridad. Van en el HTML servido, así que la guarda vale también sin JavaScript.
+ *   · LA GUARDA DEL TITULAR SE AFINA CON LA MEDIDA: la de la hoja usa el avance del glifo más ancho de la familia, que es una COTA y
+ *     por eso sobra (con `DEEPBRAND`, un 22 %). En cuanto el modulador ha anclado la caja se conoce el ancho real, y el componente
+ *     escribe `--bbf-display-fit-measured` con el cuerpo exacto que llena el ancho disponible. Es punto fijo en UN paso
+ *     (`exacto = disponible × cuerpo ÷ anclado` no depende del cuerpo del que se parta), así que se recalibra una vez y para.
+ *   · EL LOCK CIERRA RESOLVIENDO EL TAMAÑO del rótulo con la razón de interletrado fija (D-BBW-41): el componente solo cablea; la
+ *     resolución vive en behavior/optical-fit.ts.
  * Fase 6l: el contenido trae la palabra EN MINÚSCULAS (el modelo de contenido prohíbe presentación dentro del contenido) y la mayúscula la
  *   aplica el estilo. Mientras el titular es texto entero basta `capitalize`; partido en letras, `capitalize` pondría TODAS en mayúscula
  *   (cada letra es una palabra para el navegador, medido), así que el componente marca el estado con `data-split` y la hoja pone la mayúscula
@@ -57,7 +67,7 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
 
     let tokens: Tokens | null = null;
     let cal: Calibration | null = null;
-    let track: number | null = null;
+    let lockFit: LockFit | null = null;
     let pointer: PointerState | null = null;
     let raf = 0;
     let stopped = true;
@@ -70,19 +80,42 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
     const stillness = () => getComputedStyle(doc.documentElement).getPropertyValue("--bbf-motion-loop-play-state").trim() === "paused";
 
     const fit = () => {
+      const ratio = readTrackRatio(leadEl);
+      if (ratio === null) return;
       const target = cal?.pinned || word.getBoundingClientRect().width;
-      const next = fitTracking(lock, leadEl, target, track);
-      if (next !== null && next !== track) {
-        track = next;
-        applyTracking(leadEl, next);
+      const next = fitLock(lock, leadEl, target, ratio, lockFit);
+      if (next !== null && next !== lockFit) {
+        lockFit = next;
+        applyLockFit(leadEl, next);
       }
     };
 
+    /**
+     * Afina la guarda de ancho del titular con la medida real y devuelve si el cuerpo ha cambiado de verdad (lo lee del documento,
+     * no del cálculo: si la guarda no estaba mandando, `min()` se queda con el tamaño del rol y no hay nada que recalibrar).
+     */
+    const refit = () => {
+      if (!cal || cal.pinned <= 0) return false;
+      const cs = getComputedStyle(word);
+      const size = parseFloat(cs.fontSize);
+      const avail = parseFloat(cs.getPropertyValue("--bbf-lockup-avail"));
+      if (!Number.isFinite(size) || size <= 0 || !Number.isFinite(avail) || avail <= 0) return false;
+      lock.style.setProperty("--bbf-display-fit-measured", ((avail * size) / cal.pinned).toFixed(3) + "px");
+      return Math.abs(parseFloat(getComputedStyle(word).fontSize) - size) > OPTICAL_FIT.MIN_DELTA_PX;
+    };
+
+    let refitPass = 0;
     const recalibrate = () => {
       tokens = readTokens(word);
       if (!tokens) return;
       const fontFace = getComputedStyle(word);
       cal = calibrate(word, glyphs, tokens, clock());
+      if (refitPass < 2 && refit()) {
+        refitPass += 1;
+        recalibrate();
+        return;
+      }
+      refitPass = 0;
       if (stopped) rest();
       fit();
       word.dispatchEvent(
@@ -91,6 +124,10 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
             budget: cal?.budget ?? 0,
             pinned: cal?.pinned ?? 0,
             samples: cal?.samples ?? 0,
+            avail: parseFloat(getComputedStyle(word).getPropertyValue("--bbf-lockup-avail")),
+            size: parseFloat(getComputedStyle(word).fontSize),
+            leadSize: lockFit?.size ?? 0,
+            leadTrack: lockFit?.track ?? 0,
             fontsStatus: doc.fonts.status,
             displayLoaded: doc.fonts.check(`${fontFace.fontWeight} ${fontFace.fontSize} ${fontFace.fontFamily.split(",")[0]}`),
           },
@@ -166,6 +203,8 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
       word.removeAttribute("data-split");
       word.removeAttribute("aria-label");
       word.style.removeProperty("width");
+      lock.style.removeProperty("--bbf-display-fit-measured");
+      leadEl.style.removeProperty("font-size");
       leadEl.style.removeProperty("letter-spacing");
       leadEl.style.removeProperty("margin-right");
       leadEl.style.removeProperty("font-weight");
@@ -174,7 +213,12 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
   }, []);
 
   return (
-    <div ref={lockRef} className={styles.lock} data-component="bbf-hero-lock">
+    <div
+      ref={lockRef}
+      className={styles.lock}
+      data-component="bbf-hero-lock"
+      style={{ "--bbf-display-chars": display.length, "--bbf-lead-chars": lead.length } as CSSProperties}
+    >
       <h1 ref={wordRef} id={headingId} className={styles.display} data-enter="">
         {display}
       </h1>

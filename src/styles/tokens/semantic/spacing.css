@@ -4,10 +4,13 @@
  * mínima (44 px, WCAG 2.5.8 / HIG). El margen se compone de pasos: 20 = ×5 cae; 46 NO cae → ×12 (48 px), residual reportado.
  * Fase 6c (D-BBW-22): anchura y separación del anillo de foco = el cuanto de la escala (2 px): es también el mínimo de WCAG 2.4.13 (foco
  * de al menos 2 px CSS de perímetro). Criterio técnico, no valor de marca.
+ * Fase 6m (D-BBW-40): el margen de página toma el MARGEN DE SEGURIDAD como SUELO (`max(...)`). Numéricamente no se mueve (20 ≥ 16 en
+ * móvil y 3,4vw ≥ 24 por encima del corte): lo que cambia es que la garantía deja de ser una coincidencia entre cuatro mínimos
+ * independientes y pasa a ser estructural, con un solo sitio donde subirla.
  * CLASE (D-DOC-13): estático (roles; 44 px y 2 px son umbrales universales); fluidez 3.4vw = dinámico.
  */
 :root {
-  --bbf-space-page: clamp(var(--bbf-space-5), 3.4vw, var(--bbf-space-12));
+  --bbf-space-page: max(var(--bbf-space-safe), clamp(var(--bbf-space-5), 3.4vw, var(--bbf-space-12)));
   --bbf-space-touch-min: var(--bbf-space-11);
 
   --bbf-focus-ring-width: var(--bbf-space-half);

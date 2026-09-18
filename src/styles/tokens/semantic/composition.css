@@ -5,8 +5,20 @@
  * Tintes de los resplandores (6g, D-BBW-27): RETIRADOS en la fase 6i con los siete roles de resplandor (seis tintes y el núcleo circular):
  * el fondo es el sombreador del diseño (src/behavior/backdrop-shader.ts) y sus colores son valor de marca dentro del algoritmo (D-BBW-35), con
  * la rampa vista equivalente anotada allí (`sea-700`, `deep-800`, `deep-900`). Las madres siguen disponibles en primitives/colors.css.
+ * Fase 6m (D-BBW-40): los dos roles que pegan contenido a un borde lateral (el margen del bloque de texto y el de la barra del pie)
+ * toman el MARGEN DE SEGURIDAD (`--bbf-space-safe`, semantic/viewport.css) como SUELO, y nace `--bbf-lockup-avail`, el ancho
+ * disponible del que se derivan las guardas de ancho del lock.
  * CLASE (D-DOC-13): estático (roles); a qué madre y a qué paso apunta cada rol = dinámico.
  */
+/* El ancho disponible lo LEE el cliente (HeroLock, para afinar la guarda con la medida real). Una custom property sin registrar
+   devolvería el texto sin evaluar ("calc(100cqw - ...)"); registrada como longitud, `getComputedStyle` da los px del elemento y
+   `cqw` se resuelve contra el contenedor que le toca. Es la única razón del registro: no cambia nada de la cascada. */
+@property --bbf-lockup-avail {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
 :root {
   --bbf-stage-height: max(var(--bbf-stage-height-ratio), var(--bbf-stage-height-floor));
   --bbf-stage-top: var(--bbf-stage-anchor-y);
@@ -27,12 +39,17 @@
   --bbf-lockup-gap-lead: clamp(var(--bbf-space-half), var(--bbf-lockup-gap-lead-slope), var(--bbf-space-2));
   --bbf-lockup-gap-claims: clamp(var(--bbf-space-4), var(--bbf-lockup-gap-claims-slope), var(--bbf-space-8));
   --bbf-lockup-gap-claim: clamp(var(--bbf-space-2), var(--bbf-lockup-gap-claim-slope), var(--bbf-space-3));
-  --bbf-lockup-pad: clamp(var(--bbf-space-4), var(--bbf-lockup-pad-slope), var(--bbf-space-18));
+  --bbf-lockup-pad: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-lockup-pad-slope), var(--bbf-space-18)));
+  /* ANCHO DISPONIBLE del bloque de texto = ancho del héroe menos DOS márgenes (fase 6m, D-BBW-40). En `cqw` y no en `vw` porque la
+     sección del héroe es el contenedor de tamaño (HeroSection: container-type: size) y es su caja, no la ventana, la que manda: con
+     `vw` una barra de desplazamiento vertical mentiría. De aquí derivan las dos guardas de ancho del lock, y por eso la guarda ya no
+     conoce ninguna palabra. */
+  --bbf-lockup-avail: calc(100cqw - 2 * var(--bbf-lockup-pad));
 
   --bbf-chrome-nav-top: clamp(var(--bbf-space-4), var(--bbf-chrome-nav-top-slope), var(--bbf-space-10));
   --bbf-chrome-nav-gap: clamp(var(--bbf-space-5), var(--bbf-chrome-nav-gap-slope), var(--bbf-space-10));
   --bbf-bar-bottom: clamp(var(--bbf-space-4), var(--bbf-bar-bottom-slope), var(--bbf-space-9));
-  --bbf-bar-side: clamp(var(--bbf-space-4), var(--bbf-bar-side-slope), var(--bbf-space-10));
+  --bbf-bar-side: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-bar-side-slope), var(--bbf-space-10)));
   --bbf-bar-gap: var(--bbf-space-6);
   --bbf-bar-gap-narrow: clamp(var(--bbf-space-3), var(--bbf-bar-gap-narrow-slope), var(--bbf-space-6));
   --bbf-bar-gap-legal: clamp(var(--bbf-space-2), var(--bbf-bar-gap-legal-slope), var(--bbf-space-4));
