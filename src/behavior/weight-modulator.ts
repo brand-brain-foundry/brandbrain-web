@@ -8,11 +8,13 @@
  * TRES PARTES, sin DOM salvo donde se dice:
  *   1. SEÑAL (`signal`): joroba errante + ruido por letra → sigmoide → s_i ∈ (0,1). Pura.
  *   2. CONSERVACIÓN (`waterFill`): water-fill de Newton contra la tabla de avances medida, hasta que Σ adv(i, s_i) = presupuesto ± tolerancia. Pura.
+ *      Después, REJILLA Y PULIDO (`quantize`, fase 6i, HAL-BBW-16): los pesos se ajustan a medio punto y un pulido discreto glifo a glifo
+ *      devuelve la suma cuantizada al presupuesto. Pura.
  *   3. CALIBRACIÓN (`calibrate`): mide en ejecución la tabla de avances por glifo y peso (SAMPLES pesos × n letras), la REFINA por bisección
  *      donde la medida se aparta de la recta (la fuente tiene discontinuidades de avance por sustitución de glifo según el peso: la `e` de
  *      `modulator-vf` pierde 2,79 px de golpe en 225, medido en el diseño y en la construcción; una tabla uniforme de 9 muestras no lo ve y
  *      la conservación deriva 0,4 %), fija el presupuesto como la suma de avances al PESO DE REPOSO y ancla la caja al fotograma más ancho
- *      de una muestra de la señal real. Toca el DOM (mide).
+ *      de una muestra de la señal real. Toca el DOM (mide). Todo peso escrito o medido va en la REJILLA de medio punto (HAL-BBW-16, fase 6i).
  *
  * TOKENS QUE LEE (nunca los repite; D-BBW-30): extremos del eje por rol `--bbf-type-display-weight-from` / `-to` (= WMIN/WMAX del diseño,
  * madres `--bbf-weight-display-anim-min/-max`) y el peso de reposo tal como el navegador lo aplica al titular (`font-weight` computado =
@@ -58,9 +60,26 @@ export const WEIGHT_MODULATOR = Object.freeze({
   NEWTON: Object.freeze({ passes: 14, tolerancePx: 0.04, minSlopePx: 0.001 }),
   /** re-calibraciones tras el montaje, en ms: absorben la llegada tardía de la fuente (dc:L449-451) · estático (patrón de carga de fuente) */
   REFIT_DELAYS_MS: Object.freeze([60, 700, 1800]),
+  /** REJILLA DE ESCRITURA DEL PESO (fase 6i, HAL-BBW-16; el diseño escribía un decimal, dc:L591): todo peso que se escribe o se mide se ajusta a
+   *  medio punto. Por qué: Chrome resuelve `font-weight` en cuartos de punto y, medido en cuatro cuerpos (52,56 · 65,52 · 84 · 124 px), los
+   *  cubos 382,25 y 468,75 COLISIONAN entre sí (el segundo que se instancia dibuja con el glifo del primero: −12 px o +12 px de avance en la
+   *  palabra durante un cuadro; 11–20 cuadros de cada 7 200 a 360 px). Un barrido de los 1 601 cuartos del eje no encontró otra pareja; con
+   *  `font-variation-settings` no ocurre, pero D-BBW-29 escribe `font-weight`. La rejilla de medio punto no contiene ninguno de los dos cubos
+   *  y conserva la resolución útil (Chrome ya cuantiza a 0,25): el error de conservación que añade queda medido en el output 6i · estático
+   *  (criterio técnico) */
+  WEIGHT_GRID: 0.5,
+  /** pulido discreto tras la rejilla (fase 6i): pasadas máximas del ajuste glifo a glifo, de un paso de rejilla cada una, que acercan la suma
+   *  de avances ya cuantizada al presupuesto (la rejilla sola dejaba ±0,12 % a 360 px, medido; el diseño no cuantizaba y Chrome lo hacía por
+   *  él a 0,25 sin corregir) · estático (criterio técnico) */
+  POLISH_PASSES: 16,
 });
 
 const C = WEIGHT_MODULATOR;
+
+/** Peso ajustado a la rejilla de escritura (HAL-BBW-16). */
+export function snapWeight(weight: number): number {
+  return Math.round(weight / C.WEIGHT_GRID) * C.WEIGHT_GRID;
+}
 
 /** Lee los tokens del titular donde el navegador los resuelve: extremos por rol en :root, reposo en el propio elemento. */
 export function readTokens(word: HTMLElement): Tokens | null {
@@ -143,16 +162,49 @@ export function waterFill(s: number[], curves: readonly Curve[], budget: number)
   return Math.abs(budget - totalAdvance(curves, s));
 }
 
-/** Escribe el peso de cada glifo con la propiedad estándar (D-BBW-29): un solo eje, `font-weight` numérico por letra. */
-export function paint(glyphs: readonly HTMLElement[], s: readonly number[], tokens: Tokens): void {
+/**
+ * Cuantiza el vector s a la rejilla de escritura (HAL-BBW-16) y PULE el resultado: mueve de un paso de rejilla, glifo a glifo, el que más
+ * acerque Σ avances al presupuesto, hasta que ningún paso mejore o se agoten las pasadas. Pura. Devuelve el residuo final (px).
+ */
+export function quantize(s: number[], curves: readonly Curve[], budget: number, tokens: Tokens): number {
   const span = tokens.max - tokens.min;
-  for (let i = 0; i < glyphs.length; i++) glyphs[i].style.fontWeight = (tokens.min + span * s[i]).toFixed(1);
+  const step = C.WEIGHT_GRID / span;
+  const n = s.length;
+  for (let i = 0; i < n; i++) s[i] = (snapWeight(tokens.min + span * s[i]) - tokens.min) / span;
+  let diff = budget - totalAdvance(curves, s);
+  for (let pass = 0; pass < C.POLISH_PASSES; pass++) {
+    let best = -1;
+    let bestDiff = diff;
+    let bestS = 0;
+    for (let i = 0; i < n; i++) {
+      const dir = diff > 0 ? step : -step;
+      const cand = s[i] + dir;
+      if (cand < 0 || cand > 1) continue;
+      const d = diff - (advance(curves[i], cand) - advance(curves[i], s[i]));
+      if (Math.abs(d) < Math.abs(bestDiff)) {
+        bestDiff = d;
+        best = i;
+        bestS = cand;
+      }
+    }
+    if (best < 0) break;
+    s[best] = bestS;
+    diff = bestDiff;
+  }
+  return Math.abs(diff);
 }
 
-/** Un cuadro completo: señal → conservación → pintado. Devuelve el residuo del water-fill (px). */
+/** Escribe el peso de cada glifo con la propiedad estándar (D-BBW-29): un solo eje, `font-weight` numérico por letra, ya en la rejilla. */
+export function paint(glyphs: readonly HTMLElement[], s: readonly number[], tokens: Tokens): void {
+  const span = tokens.max - tokens.min;
+  for (let i = 0; i < glyphs.length; i++) glyphs[i].style.fontWeight = String(snapWeight(tokens.min + span * s[i]));
+}
+
+/** Un cuadro completo: señal → conservación → rejilla y pulido → pintado. Devuelve el residuo tras el pulido (px). */
 export function frame(t: number, glyphs: readonly HTMLElement[], curves: readonly Curve[], budget: number, tokens: Tokens): number {
   const s = signal(t, glyphs.length);
-  const residual = waterFill(s, curves, budget);
+  waterFill(s, curves, budget);
+  const residual = quantize(s, curves, budget, tokens);
   paint(glyphs, s, tokens);
   return residual;
 }
@@ -173,12 +225,13 @@ export function calibrate(word: HTMLElement, glyphs: readonly HTMLElement[], tok
   const span = tokens.max - tokens.min;
   const measured = new Map<number, number[]>();
   const measure = (x: number): number[] => {
-    const hit = measured.get(x);
+    const w = snapWeight(tokens.min + span * x);
+    const xs = (w - tokens.min) / span;
+    const hit = measured.get(xs);
     if (hit) return hit;
-    const w = tokens.min + span * x;
-    for (const g of glyphs) g.style.fontWeight = w.toFixed(2);
+    for (const g of glyphs) g.style.fontWeight = String(w);
     const ys = glyphs.map((g) => g.getBoundingClientRect().width);
-    measured.set(x, ys);
+    measured.set(xs, ys);
     return ys;
   };
   const queue: [number, number][] = [];

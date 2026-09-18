@@ -14,13 +14,10 @@
  *   · Cromo: nav a clamp(14 → ×4, 2.4vw, 38 → ×10) del borde superior con separación clamp(20 = ×5, 2.6vw, 38 → ×10); barra del pie a
  *     clamp(14 → ×4, 2.4vw, 34 → ×9) del borde inferior con margen lateral clamp(14 → ×4, 3.2vw, 40 = ×10), separación 22 → ×6 entre
  *     grupos (clamp(12 = ×3, 4vw, 22 → ×6) en la vista colapsada) y clamp(8 = ×2, 1.2vw, 16 = ×4) entre legal y perfiles.
- *   · Resplandores (blob-bg del diseño, comp 1920×1080 leída como fracciones): cuatro lóbulos elípticos anclados a fracciones del ancho
- *     (x, radios) y del alto (y), dos lavados circulares (azul arriba-centro, azul marino abajo-derecha), borde suave (color pleno hasta el
- *     73 % del radio), deriva lenta por lóbulo (amplitudes en fracciones del ancho; periodos = múltiplos de la madre de movimiento, 30–55 s)
- *     y NÚCLEO OSCURO: círculo en (50 %, 52 %) que apaga el color desde el 3,4 % hasta el 69 % del lado menor (el sujeto se lee sobre negro;
- *     el color vive en los bordes). No reproducido: respiración de los radios (±10 %), deformación del núcleo por ruido, grano.
- *   · Los COLORES de los lóbulos viven como madres `sea` y `deep` en primitives/colors.css (fase 6g, D-BBW-27: dos madres nuevas en vez de
- *     una excepción); los roles de tinte están en semantic/composition.css. Ningún color crudo aquí.
+ *   · Resplandores: RETIRADOS en la fase 6i (portado P2 del N1, D-BBW-33). Las 28 madres de resplandores de la 6f (anclas, radios, derivas,
+ *     lavados, borde y núcleo circular) aproximaban con degradados el sombreador del diseño; el fondo es ahora el propio sombreador (comp
+ *     1920×1080 en px, en `src/behavior/backdrop-shader.ts`, con el núcleo deformado por ruido que aquí no existía). Las madres `sea`/`deep`
+ *     de la 6g (D-BBW-27) siguen en primitives/colors.css sin consumidor (D-BBW-35).
  * CLASE (D-DOC-13): la regla "proporciones aquí, roles en semantic, geometría en el componente" = estático · los valores = dinámico ·
  * el archivo = plantilla.
  */
@@ -57,45 +54,4 @@
   --bbf-bar-side-slope: 3.2vw;
   --bbf-bar-gap-narrow-slope: 4vw;
   --bbf-bar-gap-legal-slope: 1.2vw;
-
-  /* ── resplandores ── */
-  --bbf-glow-1-x: 7.8%;
-  --bbf-glow-1-y: 0.9%;
-  --bbf-glow-1-rx: 31.8cqw;
-  --bbf-glow-1-ry: 22.4cqw;
-  --bbf-glow-1-dx: 6.8cqw;
-  --bbf-glow-1-dy: 3.4cqw;
-  --bbf-glow-1-k: 150;
-  --bbf-glow-2-x: 94.3%;
-  --bbf-glow-2-y: -1.9%;
-  --bbf-glow-2-rx: 26.3cqw;
-  --bbf-glow-2-ry: 19cqw;
-  --bbf-glow-2-dx: 7cqw;
-  --bbf-glow-2-dy: 3cqw;
-  --bbf-glow-2-k: 200;
-  --bbf-glow-3-x: 36.5%;
-  --bbf-glow-3-y: 113.9%;
-  --bbf-glow-3-rx: 31.3cqw;
-  --bbf-glow-3-ry: 21.9cqw;
-  --bbf-glow-3-dx: 7.6cqw;
-  --bbf-glow-3-dy: 3.9cqw;
-  --bbf-glow-3-k: 230;
-  --bbf-glow-4-x: 112.5%;
-  --bbf-glow-4-y: 27.8%;
-  --bbf-glow-4-rx: 18.8cqw;
-  --bbf-glow-4-ry: 17.2cqw;
-  --bbf-glow-4-dx: 3.6cqw;
-  --bbf-glow-4-dy: 6.6cqw;
-  --bbf-glow-4-k: 127;
-  --bbf-glow-wash-1-x: 45.4%;
-  --bbf-glow-wash-1-y: -4%;
-  --bbf-glow-wash-1-r: 51cqw;
-  --bbf-glow-wash-2-x: 79.8%;
-  --bbf-glow-wash-2-y: 84%;
-  --bbf-glow-wash-2-r: 45cqw;
-  --bbf-glow-edge: 73%;
-  --bbf-glow-core-x: 50%;
-  --bbf-glow-core-y: 52%;
-  --bbf-glow-core-in: 3.4cqmin;
-  --bbf-glow-core-out: 69cqmin;
 }
