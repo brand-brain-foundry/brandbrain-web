@@ -3,7 +3,7 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.3
+version: 1.4
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
@@ -182,6 +182,40 @@ vídeo la traslación vive en dx 0–2,4 % · dy 0–3,7 % (el tope vertical se 
 pestaña oculta → pausa y cancelación (el diseño saltaba el trabajo pero seguía reprogramando y decodificando); movimiento reducido → el bucle
 no arranca (el diseño lo ignoraba); un solo `rAF` con cancelación real y retirada de los seis oyentes al desmontar.
 
+## §6 — S6 · Entrada con enfoque progresivo (sin módulo: todo es token)
+
+**Qué hace:** cada pieza de la página nace desenfocada, desplazada y transparente, y se resuelve con la curva firma; el escalonado va **por
+jerarquía** (fondo → escenario → cromo → marca → afirmaciones → pie), no por un índice uniforme. Inventario: N1 doc A §6 y doc B §13.
+
+**Por qué NO tiene módulo en `src/behavior/`** (y por qué eso no es una excepción a D-BBW-30): este sistema **no tiene constantes de algoritmo**.
+No hay umbral, exponente, tolerancia ni pasada: hay duraciones, retardos, un desplazamiento, dos desenfoques y una escala, y **todos son valores
+que un estilo consume**, es decir, tokens. La regla del §1 dice dónde viven las constantes que ningún estilo consume; aquí no hay ninguna. El
+sistema vive entero en `base/document.css` (una regla y un par de fotogramas clave), en `semantic/motion.css` (un rol de duración y otro de
+retardo por pieza) y en la hoja de cada componente, que solo declara **a qué rol apunta su pieza**.
+
+| Pieza | Duración | Retardo | Origen |
+|---|---|---|---|
+| fondo (`HeroBackdrop`) | ×10 = 2400 ms | ×1,5 = 120 ms | dc:L55 (2400 / 100) |
+| escenario del vídeo (`HeroMedia`) | ×8,5 = 2040 ms | ×2,5 = 200 ms | dc:L63 (2000 / 200) |
+| marca (`BrandMark`) | ×4 = 960 ms | ×3,5 = 280 ms | dc:L219 (900 / 260) |
+| enlaces de la nav y conmutador | ×4 = 960 ms | ×5 = 400 ms + ×1,5 = 120 ms por enlace | dc:L695, dc:L256 (900 / 380 + 110·i) |
+| titular | ×4,5 = 1080 ms | ×11 = 880 ms | dc:L789 (1100 / 880) |
+| rótulo | ×4,5 = 1080 ms | ×12,5 = 1000 ms | dc:L805 (1100 / 1000) |
+| afirmación 1 · afirmación 2 | ×4 = 960 ms | ×14,5 = 1160 ms · ×16 = 1280 ms | dc:L318, dc:L322 |
+| aviso del pie · grupo legal | ×4 = 960 ms | ×16,5 = 1320 ms · ×18 = 1440 ms | dc:L851, dc:L856 |
+
+**Desenfoque y escala:** 10 px → paso ×3 de espaciado (12) para todas las piezas; el escenario lleva 22 px → el desenfoque de la hoja (24) y
+una **escala inicial de 1,05**, que es el único residual del sistema y vive como madre en `primitives/motion.css` (D-BBW-38).
+
+**Movimiento reducido (D-BBW-31):** la entrada **no arranca**: `base/document.css` retira la animación entera bajo la preferencia. Colapsar solo
+la madre de duración dejaba la animación en 0,04 ms, que es imperceptible pero **medible**: en el primer `requestAnimationFrame` el estilo
+computado era todavía el inicial, porque una animación CSS fija su inicio en el fotograma siguiente al que se aplica. Un fotograma de destello es
+justo lo que el criterio no quiere.
+
+**Coste (output 6l):** con todo resuelto no cuesta nada medible (117,6–118,9 fps con todo animado, frente a 120 sin las piezas de entrada); en el
+**arranque sí se nota**: 173–290 ms de tareas largas en el primer segundo y medio, frente a 0–75 ms sin las entradas. Es el desenfoque animado
+sobre trece piezas, dos de ellas a pantalla completa (el lienzo del fondo y el escenario del vídeo).
+
 ## §7 — S3/S4 · Partículas: burbujas y nieve marina (`src/behavior/particle-field.ts`)
 
 **Qué hace:** GENERA el campo (D-BBW-36). El export trae los 52 valores concretos, pero son una tirada aleatoria del generador del original, no
@@ -217,7 +251,14 @@ es regular. El "halo" de la 6e era el borde de la esfera; el brillo estaba en la
 **Lo que mide el output de la 6k:** reproducibilidad (dos generaciones y dos compilaciones idénticas), recuentos y tiempos computados en Chrome,
 garantía D-BBW-25 re-medida buscando el mínimo, coste con 73 elementos animados a la vez (52 partículas + 21 osciladores) y su parte en el arranque.
 
-## §8 — Cómo entra un sistema nuevo (P5)
+## §8 — Sombras de texto (P-BBW-31, cerrado en la 6l)
+
+El mapeo elemento → sombra que faltaba desde la 6a lo dejó inventariado el N1 (doc B §11) y las seis sombras del diseño caen en los cuatro pasos
+que `primitives/shadows.css` ya tenía. Se asignan **por rol tipográfico** (`--bbf-type-<rol>-shadow`, `semantic/typography.css`), nunca por
+palabra. **No son la garantía de legibilidad** (D-BBW-25 lo dice expresamente) y el velo local sigue calibrado sin contar con ellas; lo que las
+sombras darían si contaran está medido en el output 6l §5.
+
+## §9 — Cómo entra un sistema nuevo (P5)
 
 1. Módulo `src/behavior/<sistema>.ts` con el objeto congelado, origen por línea y clase por constante; funciones puras separadas de las que
    tocan el DOM o la GPU.
@@ -228,4 +269,4 @@ garantía D-BBW-25 re-medida buscando el mínimo, coste con 73 elementos animado
 5. Lo que el sistema sustituye se retira en el mismo commit (N1 doc C §4).
 
 ---
-*BBW-BEHAVIOR v1.3 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.3 en la fase 6k (`DESPACHO-BBW-2026-09-18-fase6k-P4-particulas-fieles`: S3/S4 partículas, D-BBW-36/37) · v1.2 en la fase 6j (`DESPACHO-BBW-2026-09-18-fase6j-P3-seguimiento-del-sujeto`: S2 seguimiento del sujeto) · v1.1 en la fase 6i (`DESPACHO-BBW-2026-09-17-fase6i-P2-sombreador-de-fondo`: S1 con procedencia, D-BBW-33/34/35, HAL-BBW-16) · nace en la fase 6h (`DESPACHO-BBW-2026-09-17-fase6h-P1-modulador-de-peso`, D-BBW-30)*
+*BBW-BEHAVIOR v1.4 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`: S6 entradas con enfoque progresivo, sin módulo porque no tiene constantes de algoritmo; sombras de texto por rol, P-BBW-31 cerrado; D-BBW-38/39) · v1.3 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.3 en la fase 6k (`DESPACHO-BBW-2026-09-18-fase6k-P4-particulas-fieles`: S3/S4 partículas, D-BBW-36/37) · v1.2 en la fase 6j (`DESPACHO-BBW-2026-09-18-fase6j-P3-seguimiento-del-sujeto`: S2 seguimiento del sujeto) · v1.1 en la fase 6i (`DESPACHO-BBW-2026-09-17-fase6i-P2-sombreador-de-fondo`: S1 con procedencia, D-BBW-33/34/35, HAL-BBW-16) · nace en la fase 6h (`DESPACHO-BBW-2026-09-17-fase6h-P1-modulador-de-peso`, D-BBW-30)*
