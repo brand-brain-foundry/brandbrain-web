@@ -10,6 +10,9 @@
    el vídeo: por eso la traslación no mueve la máscara y sus radios (50 %/50 %) no pueden crecer sin que se vea el borde. `will-change` avisa
    al compositor de que el vídeo se transforma cada cuadro (dc:L70); el origen de la transformación es el centro (valor por defecto). */
 .media {
+  --bbf-enter-duration: var(--bbf-motion-enter-duration-stage);
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-stage);
+
   position: absolute;
   top: var(--bbf-stage-top);
   left: 50%;
@@ -21,6 +24,29 @@
   pointer-events: none;
   -webkit-mask-image: var(--bbf-stage-mask);
   mask-image: var(--bbf-stage-mask);
+}
+
+/* fase 6l · la ENTRADA DEL ESCENARIO (dc:L22-25) es la única que no comparte los fotogramas clave del sistema: en vez de desplazarse, se
+   ESCALA (1,05 → 1) y su desenfoque es el mayor del inventario. Por eso su animación vive aquí y no en base/document.css: los fotogramas
+   tienen que arrastrar el centrado del escenario (`translate(-50%, -50%)`), que es composición de este componente. Duración, retardo,
+   desenfoque, escala y curva son roles; aquí no hay ningún valor. El selector lleva la clase Y el atributo para ganar a la regla del
+   sistema sin depender del orden de las hojas. */
+.media[data-enter] {
+  animation-name: stage;
+}
+
+@keyframes stage {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(var(--bbf-motion-enter-stage-scale));
+    filter: blur(var(--bbf-motion-enter-stage-blur));
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
 }
 
 .video {

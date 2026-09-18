@@ -19,9 +19,10 @@
  *   · ripple: la onda del subrayado se desplaza UN PERIODO (24 px = ×6 de espaciado; el trazado del maestro repite cada 24 unidades y se pinta
  *     1:1) en ×11 (2,6 s del diseño), lineal, en bucle: sin salto al reiniciar.
  *   · pulse: el punto de "en construcción" late en ×15 (3,6 s del diseño), ease-in-out, ida y vuelta.
- *   · enter: entrada escalonada al cargar (N0 `ef-emerge`: desplazamiento 10 → ×3 = 12 px y aparición; el desenfoque de entrada del diseño NO
- *     está inventariado con su valor y no se reproduce). Duración `slow` (×3 = 720 ms, inventariada, cae exacta), curva firma, retardo inicial
- *     100 → ×1,5 del escalonado (120 ms), paso +110 → ×1,5 (120 ms) entre piezas del héroe y +80 = ×1 entre enlaces de la nav.
+ *   · enter (REESCRITO en la 6l con el inventario del N1, doc A §6.2): entrada por ENFOQUE PROGRESIVO — desenfoque + desplazamiento +
+ *     aparición — con duración y retardo POR PIEZA según la jerarquía del diseño, no por índice de orden. La 6g la construyó sin desenfoque
+ *     (el N0 no traía el valor) y con un escalonado uniforme de 720 ms: las dos cosas quedan sustituidas. El escenario del vídeo tiene su
+ *     propio par de fotogramas clave (escala 1,05 y desenfoque mayor); el índice × paso sobrevive solo en los enlaces de la nav.
  *   · loop-play-state: los BUCLES de interfaz (ripple, pulso, y desde la 6h el modulador de peso del titular, que lo LEE por JS) se pausan con
  *     movimiento reducido (misma mecánica que partículas y resplandores; D-BBW-31: los bucles JS se detienen y queda el reposo); las
  *     transiciones y las entradas colapsan con la madre de duración (primitives/motion.css).
@@ -47,12 +48,33 @@
   --bbf-motion-ripple-shift: var(--bbf-space-6);
   --bbf-motion-pulse-duration: var(--bbf-duration-15);
   --bbf-motion-pulse-ease: var(--bbf-ease-in-out);
-  --bbf-motion-enter-duration: var(--bbf-duration-slow);
   --bbf-motion-enter-ease: var(--bbf-ease-signature);
   --bbf-motion-enter-shift: var(--bbf-space-3);
-  --bbf-motion-enter-delay: var(--bbf-stagger-1-5);
-  --bbf-motion-enter-stagger: var(--bbf-stagger-1-5);
-  --bbf-motion-enter-stagger-nav: var(--bbf-stagger-1);
+
+  /* fase 6l · ENTRADA CON ENFOQUE PROGRESIVO (portado P5 del N1, doc A §6; D-BBW-38). El desenfoque que la 6g no construyó (no tenía el
+     valor atribuido) queda atribuido y derivado: 10 px → paso ×3 de espaciado (12) para todas las piezas · 22 px → el desenfoque de la hoja
+     (24, semantic/effects.css) para el escenario del vídeo, que además entra con escala (madre en primitives/motion.css).
+     DURACIÓN Y RETARDO POR PIEZA, no por índice: el diseño escalona por JERARQUÍA (fondo → escenario → cromo → marca → afirmaciones → pie)
+     y cada pieza tiene los suyos. El índice × paso se conserva SOLO donde el diseño lo usa: los enlaces de la nav (380 + 110·i).
+     Dos duraciones del diseño (900 del cromo y 1000 de las afirmaciones) caen en el mismo paso ×4: la retícula las une, y se dice. */
+  --bbf-motion-enter-duration: var(--bbf-duration-4);
+  --bbf-motion-enter-duration-lock: var(--bbf-duration-4-5);
+  --bbf-motion-enter-duration-stage: var(--bbf-duration-8-5);
+  --bbf-motion-enter-duration-backdrop: var(--bbf-duration-10);
+  --bbf-motion-enter-blur: var(--bbf-space-3);
+  --bbf-motion-enter-stage-blur: var(--bbf-blur-sheet);
+  --bbf-motion-enter-stage-scale: var(--bbf-enter-stage-scale-from);
+  --bbf-motion-enter-delay-backdrop: var(--bbf-stagger-1-5);
+  --bbf-motion-enter-delay-stage: var(--bbf-stagger-2-5);
+  --bbf-motion-enter-delay-brand: var(--bbf-stagger-3-5);
+  --bbf-motion-enter-delay-nav: var(--bbf-stagger-5);
+  --bbf-motion-enter-delay-display: var(--bbf-stagger-11);
+  --bbf-motion-enter-delay-lead: var(--bbf-stagger-12-5);
+  --bbf-motion-enter-delay-claim: var(--bbf-stagger-14-5);
+  --bbf-motion-enter-delay-claim-secondary: var(--bbf-stagger-16);
+  --bbf-motion-enter-delay-notice: var(--bbf-stagger-16-5);
+  --bbf-motion-enter-delay-legal: var(--bbf-stagger-18);
+  --bbf-motion-enter-stagger-nav: var(--bbf-stagger-1-5);
   --bbf-motion-loop-play-state: running;
 }
 

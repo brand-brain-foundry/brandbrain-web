@@ -126,7 +126,7 @@ export function HeroMedia({ sources, poster }: { sources: readonly HeroMediaSour
   }, []);
 
   return (
-    <div className={styles.media} aria-hidden="true" data-component="bbf-hero-media">
+    <div className={styles.media} aria-hidden="true" data-component="bbf-hero-media" data-enter="">
       <video
         ref={ref}
         className={styles.video}

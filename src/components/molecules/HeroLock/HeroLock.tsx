@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef } from "react";
 import { WEIGHT_MODULATOR, calibrate, frame, readTokens, type Calibration, type Tokens } from "@/behavior/weight-modulator";
 import { POINTER_WEIGHT, applyTracking, fitTracking, pointerChanged, pointerWeight, readLeadTokens, type PointerState } from "@/behavior/optical-fit";
 import styles from "./HeroLock.module.css";
-
-/** orden de entrada (fase 6g): la marca es 0; titular 1, rótulo 2 (número de orden, no valor) */
-const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
 
 /**
  * HeroLock — molecule CLIENTE (D-BBW-28, fase 6h): el LOCK de marca, titular + rótulo, con los tres comportamientos del diseño que dependen
@@ -24,6 +21,10 @@ const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
  *   La preferencia se lee por el ROL `--bbf-motion-loop-play-state` (semantic/motion.css), como los bucles CSS, no repitiendo la consulta.
  * · Accesibilidad: el titular partido lleva su texto como nombre accesible y las letras quedan ocultas a la asistencia; al desmontar se
  *   restaura el texto. El rótulo se tiñe por `data-pull` (CSS), nunca con un color desde aquí.
+ * Fase 6l: el contenido trae la palabra EN MINÚSCULAS (el modelo de contenido prohíbe presentación dentro del contenido) y la mayúscula la
+ *   aplica el estilo. Mientras el titular es texto entero basta `capitalize`; partido en letras, `capitalize` pondría TODAS en mayúscula
+ *   (cada letra es una palabra para el navegador, medido), así que el componente marca el estado con `data-split` y la hoja pone la mayúscula
+ *   solo en la primera letra. La tabla de avances se mide sobre los glifos YA transformados: la conservación no se entera.
  * Cero texto, cero valores.
  */
 export function HeroLock({ headingId, display, lead }: { headingId: string; display: string; lead: string }) {
@@ -52,6 +53,7 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
     });
     word.setAttribute("aria-label", text);
     word.replaceChildren(...glyphs);
+    word.setAttribute("data-split", "");
 
     let tokens: Tokens | null = null;
     let cal: Calibration | null = null;
@@ -161,6 +163,7 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
       reduced.removeEventListener("change", sync);
       win.removeEventListener("pointermove", onPointer);
       word.replaceChildren(...original);
+      word.removeAttribute("data-split");
       word.removeAttribute("aria-label");
       word.style.removeProperty("width");
       leadEl.style.removeProperty("letter-spacing");
@@ -172,10 +175,10 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
 
   return (
     <div ref={lockRef} className={styles.lock} data-component="bbf-hero-lock">
-      <h1 ref={wordRef} id={headingId} className={styles.display} data-enter="" style={enterIndex(1)}>
+      <h1 ref={wordRef} id={headingId} className={styles.display} data-enter="">
         {display}
       </h1>
-      <p ref={leadRef} className={styles.lead} data-enter="" style={enterIndex(2)}>
+      <p ref={leadRef} className={styles.lead} data-enter="">
         {lead}
       </p>
     </div>

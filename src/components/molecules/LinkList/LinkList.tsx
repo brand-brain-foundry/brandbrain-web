@@ -11,7 +11,8 @@ export type ResolvedLink = { id: string; label: string; href: string; icon?: Inl
  * LinkList — molecule. Lista de enlaces (nav en línea, hoja móvil, perfiles del pie): el MISMO dato se renderiza en varios sitios
  * (N0 §2.3: "una fuente de datos, dos renders"). Los destinos (y, fase 6c, el icono de perfil si existe) llegan ya resueltos por el
  * organismo (site.links, puerto de medios); las etiquetas, del contenido. Fase 6g: con `enter`, cada enlace entra escalonado al cargar
- * (`data-enter` + índice de orden; el paso lo fija el contenedor en `--bbf-enter-step`, regla del sistema en base/document.css).
+ * (`data-enter` + índice de orden; el retardo base y el paso los fija el contenedor, regla del sistema en base/document.css). Fase 6l: la nav
+ * es la ÚNICA pieza donde el diseño escalona por índice (380 + 110·i, dc:L695); el resto entra con el retardo de su propia pieza.
  */
 export function LinkList({
   items,

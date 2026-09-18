@@ -8,7 +8,9 @@
    diseño), la fila envuelve y queda centrada.
    Fase 6g · PULSO del punto (N0 `ef-pulse`, 3,6 s = ×15): el halo va y vuelve entre los dos halos de acento que el sistema ya tiene (glow →
    glow-soft), ease-in-out; el inventario trae la duración, no la forma del pulso: la forma (respiración del halo entre dos tintes existentes) es
-   composición de este componente, reportada. Bucle pausado por rol con movimiento reducido. La barra entra escalonada (data-enter, índice 5).
+   composición de este componente, reportada. Bucle pausado por rol con movimiento reducido. Fase 6l: la barra deja de entrar como una
+   pieza; entran por separado el AVISO (1320 ms) y el grupo legal (1420 ms), que es lo que hace el diseño, y las dos líneas reciben su sombra
+   de texto por rol (paso sm, mapeo del N1 doc B §11).
    CAPA (corregida en la 6g): la barra va en la capa de CONTENIDO, no en la de cromo (N0 §2.2: "lockup y barra 8 · logo/nav 9 · hoja 10"):
    con la capa de cromo, la barra (posterior en el DOM) se pintaba sobre la hoja abierta del panel a ≤ 780 px; en contenido queda bajo la
    cabecera y su hoja, como en el diseño. */
@@ -42,6 +44,8 @@
 }
 
 .notice {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-notice);
+
   display: inline-flex;
   align-items: center;
   column-gap: var(--bbf-footer-dot-gap);
@@ -50,6 +54,7 @@
   font-size: var(--bbf-type-notice-size);
   font-weight: var(--bbf-type-notice-weight);
   letter-spacing: var(--bbf-type-notice-tracking);
+  text-shadow: var(--bbf-type-notice-shadow);
 }
 
 .dot {
@@ -74,6 +79,8 @@
 }
 
 .legalGroup {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-legal);
+
   display: flex;
   align-items: center;
   column-gap: var(--bbf-bar-gap-legal);
@@ -85,6 +92,7 @@
   font-size: var(--bbf-type-legal-size);
   font-weight: var(--bbf-type-legal-weight);
   letter-spacing: var(--bbf-type-legal-tracking);
+  text-shadow: var(--bbf-type-legal-shadow);
 }
 
 .social {

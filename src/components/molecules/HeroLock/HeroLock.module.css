@@ -11,7 +11,13 @@
    RÓTULO: interletrado inicial por rol (`--bbf-type-lead-tracking`, hasta la primera medida); después el cliente escribe el medido en px y
    el margen negativo que recorta el sobrante. Peso por puntero (JS escribe `font-weight` dentro del rango de la familia) con transición por rol;
    tinte de acento por estado `data-pull` (CSS), con su transición por rol. Con movimiento reducido las dos transiciones colapsan (madre de
-   duración) y el bucle del titular se detiene por el rol de reproducción (leído por el componente). Sombras de texto: sin mapeo (P-BBW-31). */
+   duración) y el bucle del titular se detiene por el rol de reproducción (leído por el componente).
+   Fase 6l · MAYÚSCULA POR ESTILO: el contenido trae las dos palabras en minúsculas (`content/es/pages/home.json`: el modelo prohíbe
+   presentación dentro del contenido) y la capitalización es de aquí; el rótulo ya la aplicaba con `uppercase`.
+   Fase 6l · SOMBRAS DE TEXTO (P-BBW-31 CERRADO, mapeo del N1 doc B §11): titular → rol `display-shadow` (paso xl) y rótulo → rol
+   `lead-shadow` (paso lg), por ROL, nunca un valor. Se pintan detrás del glifo y entran en la medida de D-BBW-25 (output 6l §5).
+   Fase 6l · ENTRADA: el enfoque progresivo (desenfoque + desplazamiento) lo pone la regla del sistema (base/document.css) con los roles de
+   duración y retardo por pieza; aquí solo el orden. */
 .lock {
   display: flex;
   flex-direction: column;
@@ -20,6 +26,9 @@
 }
 
 .display {
+  --bbf-enter-duration: var(--bbf-motion-enter-duration-lock);
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-display);
+
   display: flex;
   justify-content: center;
   margin: 0;
@@ -31,7 +40,19 @@
   font-weight: var(--bbf-type-display-weight);
   line-height: var(--bbf-type-display-leading);
   letter-spacing: var(--bbf-type-display-tracking);
+  text-shadow: var(--bbf-type-display-shadow);
+  text-transform: capitalize;
   white-space: nowrap;
+}
+
+/* el titular partido en letras (cliente): `capitalize` trata cada letra como palabra propia y las pondría TODAS en mayúscula (medido en
+   Chrome), así que en ese estado la mayúscula va SOLO en la primera letra. El HTML servido lleva el texto entero y usa `capitalize`. */
+.display[data-split] {
+  text-transform: none;
+}
+
+.display[data-split] .glyph:first-child {
+  text-transform: uppercase;
 }
 
 .glyph {
@@ -40,6 +61,9 @@
 }
 
 .lead {
+  --bbf-enter-duration: var(--bbf-motion-enter-duration-lock);
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-lead);
+
   margin: var(--bbf-lockup-gap-lead) 0 0;
   max-width: 100%;
   color: var(--bbf-text-on-base);
@@ -48,6 +72,7 @@
   font-weight: var(--bbf-type-lead-weight);
   line-height: var(--bbf-type-lead-leading);
   letter-spacing: var(--bbf-type-lead-tracking);
+  text-shadow: var(--bbf-type-lead-shadow);
   text-transform: uppercase;
   white-space: nowrap;
   transition:

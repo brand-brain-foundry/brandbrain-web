@@ -28,6 +28,7 @@
 
 .inline {
   --bbf-link-list-gap-row: var(--bbf-chrome-nav-gap);
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-nav);
   --bbf-enter-step: var(--bbf-motion-enter-stagger-nav);
 
   display: var(--bbf-nav-inline-display);
