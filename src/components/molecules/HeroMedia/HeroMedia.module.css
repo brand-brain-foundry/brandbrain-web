@@ -4,7 +4,11 @@
    (--bbf-stage-mask: opaca hasta el 44 % del radio, mitad de tinta al 74 %, transparente en el borde): el pez se funde con el fondo y deja
    ver los resplandores alrededor. En pantallas estrechas el escenario es más ancho que la ventana y el héroe lo recorta por los lados (el
    sujeto está centrado; comportamiento del diseño). El vídeo o la imagen fija cubren el escenario sin deformar (object-fit: cover; 100 % y
-   la traslación −50 % son estructura). Vídeo o imagen fija según el rol de movimiento (semantic/motion.css): nunca los dos. */
+   la traslación −50 % son estructura). Vídeo o imagen fija según el rol de movimiento (semantic/motion.css): nunca los dos.
+   Fase 6j (seguimiento del sujeto, src/behavior/subject-tracking.ts): el vídeo y la imagen fija llevan su ENCUADRE en línea (escala al zoom
+   + traslación acotada; el reposo viene en el HTML servido); el escenario lo recorta (overflow) y la máscara va sobre el escenario, no sobre
+   el vídeo: por eso la traslación no mueve la máscara y sus radios (50 %/50 %) no pueden crecer sin que se vea el borde. `will-change` avisa
+   al compositor de que el vídeo se transforma cada cuadro (dc:L70); el origen de la transformación es el centro (valor por defecto). */
 .media {
   position: absolute;
   top: var(--bbf-stage-top);
@@ -24,6 +28,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  will-change: transform;
 }
 
 .still {
