@@ -146,8 +146,8 @@
   --bbf-weight-text-medium: 500;
 
   /* ── Interletrado: madre × N. Los 7 valores del N0 (§2.2) resueltos (D-BBW-16, empate → peldaño superior):
-     display 0.01 → ×0 (Δ −0.01em = 1.2 px por glifo a 124 px) · hoja 0.12 → ×3 · claims 0.15 → ×4 (+0.01) · legal 0.24 → ×6 ·
-     nav 0.28 / 0.32 → ×7 / ×8 · estado 0.34 → ×9 (+0.02em = 0.2 px a 10 px). Ningún residual queda sin peldaño.
+     display 0.01 → ×0 (fase 6a; REABIERTO en la 6h → EXC-BBW-04, bloque abajo) · hoja 0.12 → ×3 · claims 0.15 → ×4 (+0.01) · legal 0.24 → ×6 ·
+     nav 0.28 / 0.32 → ×7 / ×8 · estado 0.34 → ×9 (+0.02em = 0.2 px a 10 px).
      La fase 6a-bis NO toca esta categoría: el re-anclaje de tamaños no arrastra el interletrado (§5 del despacho). ── */
   --bbf-tracking-base: 0.04em;
   --bbf-tracking-0: calc(var(--bbf-tracking-base) * 0);
@@ -158,6 +158,16 @@
   --bbf-tracking-7: calc(var(--bbf-tracking-base) * 7);
   --bbf-tracking-8: calc(var(--bbf-tracking-base) * 8);
   --bbf-tracking-9: calc(var(--bbf-tracking-base) * 9);
+
+  /* ── EXCEPCIÓN EXC-BBW-04 · interletrado del titular (D-BBW-32 · D-BBW-16 · registro: docs/system/DESIGN_EXCEPTIONS.md) ─────────────
+     VALOR: 0,01em, el del diseño (dc:L785). La 6a lo había ajustado a ×0 como imperceptible (Δ 1,2 px por glifo a 124 px); el N1 leyó la razón
+     del diseño (comentario dc:L782-784): `modulator-vf` trae ~0,5 px de sidebearing y a cero los pares de letras CHOCAN, es decir, la
+     diferencia es perceptible → por D-BBW-16 no se ajusta: se registra.
+     RAZÓN: está atado a las métricas de esta familia concreta (no es una decisión de ritmo: es la corrección de sus sidebearings) y el
+     ajuste óptico del rótulo (src/behavior/optical-fit.ts) se mide sobre la caja del titular FIJADA con este valor; un valor dinámico o distinto
+     invalidaría esa medida. Cambiar de familia display (puerto) obliga a re-medir esta madre.
+     LO QUE NO ES: no es paso de la escala (×0,25 no existe) ni entra en la retícula: la madre sigue siendo 0,04em × N para todo lo demás. ── */
+  --bbf-tracking-display: 0.01em;
 
   /* ── Interlineado: los dos valores del N0 (display 1.02, mono 1); sin fórmula posible entre dos puntos → madres ── */
   --bbf-leading-none: 1;

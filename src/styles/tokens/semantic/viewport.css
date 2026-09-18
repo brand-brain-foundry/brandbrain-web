@@ -4,11 +4,9 @@
  * ÚNICA repetición del literal de `--bbf-bp-nav` fuera de primitivos (CSS no admite var() en @media): la guardia propia R8 comprueba que
  * coincide con la madre. Un componente consume `display: var(--bbf-nav-inline-display)` / `var(--bbf-nav-panel-display)` y nunca escribe
  * una media query: añadir otro comportamiento responsivo = añadir un rol aquí, no un literal en un componente.
- * Fase 6g (animación de peso del titular): el EXTREMO ALTO de la respiración por vista. La palabra real al peso máximo (500) no cabe por debajo de
- * ~650 px (a 360: 505 px de palabra frente a 328 disponibles; la guarda `-fit` de EXC-BBW-01 garantiza el reposo, no el máximo; medido en
- * OUTPUT-BBW-2026-09-17-fase6g §4) y reservar su ancho rompería la composición que la 6f ajustó. En la vista amplia el extremo alto es el token
- * de la fase 5 (500); en la colapsada, el reposo (300): el titular respira 100 → 300 y la reserva mide lo que la guarda ya garantiza. Ningún
- * peso nuevo: los tres valores existen. Pendiente de ratificación de Zavala (output 6g).
+ * Fase 6h (portado P1): el extremo alto de la animación de peso POR VISTA (`--bbf-display-weight-to-view`, 6g) queda RETIRADO: medía un estado
+ * que el diseño nunca renderiza (todas las letras al máximo); el modulador conserva el ancho por construcción y el extremo alto es el mismo token
+ * en todas las vistas (N1 §4, P-BBW-37 disuelto).
  * CLASE (D-DOC-13): plantilla (los roles de vista se quedan; el corte y qué conmuta cambian por producto).
  */
 :root {
@@ -18,7 +16,6 @@
      colapsada una fila centrada (legal + aviso) y los perfiles viven en la hoja del panel (rol inline-display), no en la barra */
   --bbf-bar-justify: space-between;
   --bbf-bar-gap-view: var(--bbf-bar-gap);
-  --bbf-display-weight-to-view: var(--bbf-type-display-weight-to);
 }
 
 @media (max-width: 780px) {
@@ -27,6 +24,5 @@
     --bbf-nav-panel-display: block;
     --bbf-bar-justify: center;
     --bbf-bar-gap-view: var(--bbf-bar-gap-narrow);
-    --bbf-display-weight-to-view: var(--bbf-type-display-weight);
   }
 }

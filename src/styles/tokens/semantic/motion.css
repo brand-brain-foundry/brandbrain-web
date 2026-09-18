@@ -9,8 +9,11 @@
  * de su fase, es decir, un campo fijo de motas repartidas, no todas apiladas en el origen.
  * Fase 6g (MOVIMIENTO DE INTERFAZ): roles por pieza, cada uno a un paso de primitives/motion.css. Qué paso y por qué (el inventario del N0 trae
  * la escala y los extremos, no qué duración usa cada pieza; la asignación es de rol, como en lines/effects, y se declara aquí):
- *   · display-weight: la respiración de peso del titular (100 → 500 y vuelta, N0 WMIN/WMAX) = movimiento AMBIENTAL de fondo → alias `ambient`
- *     (×10 = 2400 ms, la duración UI más larga del inventario, cae exacta); va y vuelve → curva ease-in-out (la del bamboleo del inventario).
+ *   · (display-weight, 6g: RETIRADO en la 6h. El titular no tiene duración ni curva: es un reloj continuo con cinco frecuencias, N1 doc A §5;
+ *     vive en src/behavior/weight-modulator.ts y se detiene por `loop-play-state`.)
+ *   · lead-weight / lead-tint (6h, S7.3 del N1): el rótulo cambia de peso y de tinte cuando el puntero se acerca; transiciones del diseño
+ *     420 ms con la curva firma y 520 ms `ease` (dc:L804) → ambas ×2 = 480 ms (6a: 420 → ×2 +60, 520 → ×2 −40) con la curva firma
+ *     (`ease` no es token; misma resolución que las seis transiciones de color de la 6g: residual D-BBW-16, reportado).
  *   · link: cambio de color y revelado de la onda al pasar/enfocar/pulsar = la interacción más corta → `medium` (×1,5 = 360 ms, la duración UI
  *     más corta del inventario, 340) con la curva firma.
  *   · ripple: la onda del subrayado se desplaza UN PERIODO (24 px = ×6 de espaciado; el trazado del maestro repite cada 24 unidades y se pinta
@@ -19,8 +22,9 @@
  *   · enter: entrada escalonada al cargar (N0 `ef-emerge`: desplazamiento 10 → ×3 = 12 px y aparición; el desenfoque de entrada del diseño NO
  *     está inventariado con su valor y no se reproduce). Duración `slow` (×3 = 720 ms, inventariada, cae exacta), curva firma, retardo inicial
  *     100 → ×1,5 del escalonado (120 ms), paso +110 → ×1,5 (120 ms) entre piezas del héroe y +80 = ×1 entre enlaces de la nav.
- *   · loop-play-state: los BUCLES de interfaz (peso, ripple, pulso) se pausan con movimiento reducido (misma mecánica que partículas y
- *     resplandores); las transiciones y las entradas colapsan con la madre de duración (primitives/motion.css) y el peso, con sus extremos.
+ *   · loop-play-state: los BUCLES de interfaz (ripple, pulso, y desde la 6h el modulador de peso del titular, que lo LEE por JS) se pausan con
+ *     movimiento reducido (misma mecánica que partículas y resplandores; D-BBW-31: los bucles JS se detienen y queda el reposo); las
+ *     transiciones y las entradas colapsan con la madre de duración (primitives/motion.css).
  * CLASE (D-DOC-13): estático (la regla "medio en movimiento → imagen fija con movimiento reducido" es criterio de accesibilidad, no de marca;
  * los roles de la 6g también); paso asignado a cada rol = dinámico.
  */
@@ -32,8 +36,10 @@
   --bbf-motion-glow-play-state: running;
 
   /* fase 6g: movimiento de interfaz por rol */
-  --bbf-motion-display-weight-duration: var(--bbf-duration-ambient);
-  --bbf-motion-display-weight-ease: var(--bbf-ease-in-out);
+  --bbf-motion-lead-weight-duration: var(--bbf-duration-2);
+  --bbf-motion-lead-weight-ease: var(--bbf-ease-signature);
+  --bbf-motion-lead-tint-duration: var(--bbf-duration-2);
+  --bbf-motion-lead-tint-ease: var(--bbf-ease-signature);
   --bbf-motion-link-duration: var(--bbf-duration-medium);
   --bbf-motion-link-ease: var(--bbf-ease-signature);
   --bbf-motion-ripple-duration: var(--bbf-duration-11);

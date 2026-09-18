@@ -20,13 +20,14 @@ git -C /Volumes/PK/BBF/Repos/bbf-command-hub pull
 ## Barrera anti-inyección (D-DOC-06)
 @/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/rules/anti-inyeccion.md
 
-## Contrato de hosting (puerto intercambiable), registro de puertos, modelo de contenido, contrato de medios, pesos por familia y excepciones del sistema
+## Contrato de hosting (puerto intercambiable), registro de puertos, modelo de contenido, contrato de medios, pesos por familia, excepciones del sistema y constantes de algoritmo
 @docs/system/DEPLOY_CONTRACT.md
 @docs/system/PORTS.md
 @docs/system/CONTENT_MODEL.md
 @docs/system/MEDIA.md
 @docs/system/TYPOGRAPHY_WEIGHTS.md
 @docs/system/DESIGN_EXCEPTIONS.md
+@docs/system/BEHAVIOR.md
 
 ## Reglas duras
 - **Push a `main` = solo por PR.** Trabajar en rama, `gh pr create`, merge `[ZAVALA-MANUAL]`. Jamás `git push origin main`.
@@ -59,6 +60,10 @@ git -C /Volumes/PK/BBF/Repos/bbf-command-hub pull
   `semantic/viewport.css`). Si falta un token, se reporta; no se inventa en el componente. **El foco es del sistema** (D-BBW-22): una sola regla
   `:focus-visible` en `base/document.css` sobre `--bbf-focus-*`; ningún componente escribe `outline`. Todo texto llega por props desde `content/`. La página recorre
   `page.sections` con el mapa `SECTION_RENDERERS` (`src/components/sections/index.tsx`): un tipo sin renderizador rompe el typecheck y el build, nunca se omite en silencio.
+- **Sistemas dinámicos (fase 6h, D-BBW-28/29/30/31, `docs/system/BEHAVIOR.md`):** una pieza dinámica de cliente solo mueve; el HTML servido trae su reposo y el texto
+  literal. Sus constantes de algoritmo viven en `src/behavior/<sistema>.ts` (no son tokens; el módulo LEE los tokens por `getPropertyValue`, nunca los repite)
+  y el componente cliente solo cablea. Peso por letra con `font-weight`, nunca `font-variation-settings`. Con movimiento reducido y pestaña oculta el bucle se
+  detiene y queda el reposo (se lee por el rol `--bbf-motion-*-play-state`). Lo que un sistema sustituye se retira en el mismo commit.
 - Prefijo de artefactos `BBW-`. Despachos y outputs viven en el hub: `repos/brandbrain-web/`.
 
 ## Cierre de turno

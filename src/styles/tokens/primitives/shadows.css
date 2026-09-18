@@ -24,6 +24,10 @@
      45,5 % (45,3 % a 1920); con 45 % la secundaria da 4,47:1 (✗) → redondeo al entero: 46 % (+1 punto; medido con las partículas, el vídeo y
      las cajas iguales: el único término que cambió es el tinte del lóbulo inferior bajo el bloque).
      El titular a 1728 px solapa el borde inferior del escenario (máscara ≈ 0,7): exige 29,4 %, por debajo del 46 %.
+     Fase 6h (modulador de peso por conservación de ancho): la caja del bloque vuelve de 1191 a 735 px a 1728 (la reserva de la 6g medía un
+     estado que el diseño no renderiza) y la garantía se RE-MIDIÓ por bloque y ancho con las cajas nuevas (OUTPUT-BBW-2026-09-17-fase6h §F5):
+     el término que manda no cambia (el lóbulo inferior bajo la afirmación secundaria, cuya caja no se mueve): exige 45,5 % a 1728 (44,7 % a 1920,
+     43,3 % a 360); con 45 % la secundaria da 4,47:1 (✗); 46 % se sostiene (4,52:1). Ni sube ni baja.
      Cambiar el vídeo, el tinte de un texto o de un resplandor, su tamaño, la posición del bloque o la opacidad de las partículas obliga a
      recalibrar (la medida vive en el output; no hay guardia que la repita). ── */
   --bbf-shadow-alpha-veil-text: 46%;

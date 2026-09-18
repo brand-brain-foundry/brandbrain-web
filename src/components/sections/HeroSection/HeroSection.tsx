@@ -3,10 +3,11 @@ import { media } from "@/media";
 import { HeroGlow } from "@/components/molecules/HeroGlow";
 import { HeroMedia } from "@/components/molecules/HeroMedia";
 import { HeroParticles } from "@/components/molecules/HeroParticles";
+import { HeroLock } from "@/components/molecules/HeroLock";
 import type { CSSProperties } from "react";
 import styles from "./HeroSection.module.css";
 
-/** orden de entrada de cada pieza del héroe (fase 6g): tras la marca (0), titular, rótulo y afirmaciones; el pie va después */
+/** orden de entrada de cada pieza del héroe (fase 6g): tras la marca (0), titular (1) y rótulo (2) dentro del lock, afirmaciones 3 y 4; el pie va después */
 const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
 
 /**
@@ -18,11 +19,11 @@ const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
  * el pie van superpuestos); por debajo del vídeo, los RESPLANDORES (`HeroGlow`, capa de fondo); el vídeo pasa a ser un escenario 16:9 anclado
  * al 43 % con máscara radial; la viñeta es la del diseño; y el bloque de texto se ANCLA AL PIE del héroe (a 14 % del alto), debajo del pez,
  * sobre fondo oscuro: es lo que permite recalibrar el velo local a la baja sin relajar la garantía (medido en el output 6f).
- * Fase 6g (movimiento de interfaz): el titular RESPIRA su peso entre los extremos de la fase 5 (`--bbf-type-display-weight-from/-to`) y
- * RESERVA EL ANCHO del estado más grueso con la palabra real: una copia oculta (`aria-hidden`, `visibility: hidden`) del mismo texto al peso
- * máximo ocupa la misma celda que la palabra animada, así que la caja del titular mide siempre lo que mide la palabra a 500, en cualquier
- * ancho y sin JavaScript (TYPOGRAPHY_WEIGHTS.md §3: medir, no suponer). Con movimiento reducido ambos extremos valen el reposo y la copia
- * mide lo mismo que la palabra. Cada pieza del bloque entra escalonada al cargar (`data-enter`, regla del sistema en base/document.css).
+ * Fase 6h (portado P1 del N1, D-BBW-28): titular y rótulo son el LOCK (`HeroLock`, molecule cliente): el titular respira su peso LETRA A LETRA con
+ * conservación de ancho (Σ avances = presupuesto al peso de reposo; la caja se ancla al fotograma más ancho de la señal real: nada se recoloca),
+ * el rótulo se interletra hasta cerrar al ancho anclado y responde al puntero. El HTML servido trae el texto literal y el peso de reposo; el
+ * cliente solo mueve. La copia oculta, la rejilla y el extremo por vista de la 6g quedaron retirados: medían un estado que el diseño nunca
+ * renderiza (N1 §4, L-62). Cada pieza del bloque entra escalonada al cargar (`data-enter`, regla del sistema en base/document.css).
  */
 export function HeroSection({ section }: { section: HeroSectionData }) {
   const headingId = `${section.id}-display`;
@@ -34,15 +35,7 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
       <HeroParticles />
       <div className={styles.lockup}>
         <div className={styles.block}>
-          <h1 id={headingId} className={styles.display} data-enter="" style={enterIndex(1)}>
-            <span className={styles.displayWord}>{section.display}</span>
-            <span className={styles.displayReserve} aria-hidden="true">
-              {section.display}
-            </span>
-          </h1>
-          <p className={styles.lead} data-enter="" style={enterIndex(2)}>
-            {section.lead}
-          </p>
+          <HeroLock headingId={headingId} display={section.display} lead={section.lead} />
           <p className={`${styles.claim} ${styles.claimPrimary}`} data-enter="" style={enterIndex(3)}>
             {section.claimPrimary}
           </p>
