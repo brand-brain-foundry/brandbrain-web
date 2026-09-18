@@ -10,8 +10,9 @@
    BLOQUE DE TEXTO: banda absoluta anclada al pie del héroe (rol --bbf-lockup-offset = 14 % del alto entre ×21 y ×38), centrada, con el margen
    lateral del diseño (rol --bbf-lockup-pad); dentro, el bloque ajusta al contenido (fit-content) y lleva su VELO LOCAL de legibilidad
    (D-BBW-25, ::before: tinta al rol surface-veil-text calibrada al mínimo que cumple, borde desenfocado σ y sangrado 3σ). Separaciones por
-   rol (--bbf-lockup-gap-*: 0,5 % · 2,4 % · 0,7 % del alto del héroe, con sus extremos en pasos). Sombras de texto del diseño: sin mapeo,
-   no se inventan (D-BBW-25: acabado opcional). Guarda de ancho (EXC-BBW-01/02): min(tamaño, guarda) por rol.
+   rol (--bbf-lockup-gap-*: 0,5 % · 2,4 % · 0,7 % del alto del héroe, con sus extremos en pasos). Sombras de texto (fase 6l, mapeo del N1 doc B §11): las afirmaciones
+   llevan el rol `claim-shadow` (paso md), y cada pieza del bloque su retardo de entrada por rol (las dos afirmaciones entran las últimas del
+   bloque, 1160 y 1280 ms en el diseño). Guarda de ancho (EXC-BBW-01/02): min(tamaño, guarda) por rol.
    Fase 6h (portado P1): el titular y el rótulo pasan a `HeroLock` (molecule cliente) con el modulador de peso por conservación de ancho y el
    ajuste óptico; aquí quedan la banda, el bloque con su velo local y las afirmaciones. La rejilla de una celda, la copia oculta, los fotogramas
    clave del peso y los roles de duración/vista del peso de la 6g quedaron retirados en el mismo commit que su sustituto (N1 doc C §4). */
@@ -74,15 +75,20 @@
   font-size: var(--bbf-type-claim-size);
   font-weight: var(--bbf-type-claim-weight);
   letter-spacing: var(--bbf-type-claim-tracking);
+  text-shadow: var(--bbf-type-claim-shadow);
   text-transform: uppercase;
 }
 
 .claimPrimary {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim);
+
   margin-top: var(--bbf-lockup-gap-claims);
   color: var(--bbf-text-on-base-secondary);
 }
 
 .claimSecondary {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-secondary);
+
   margin-top: var(--bbf-lockup-gap-claim);
   color: var(--bbf-text-on-base-muted);
 }

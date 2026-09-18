@@ -11,7 +11,8 @@
    su `top` y sube `mote-travel` (8 % → −42 %) con meseta de opacidad del 16 % al 84 % del ciclo; la burbuja nace `bubble-offset` + `bubble-from`
    bajo el borde inferior (10 + 12 %) a escala `bubble-scale-from` y muere `bubble-to` por encima (−104 %) a escala 1, con meseta del 12 % al 84 %.
    Las mesetas (16/84 · 12/84) son forma del fotograma clave (constante de forma, D-BBW-37 c): un selector de fotograma no admite var().
-   Esfera: borde de línea al alfa de su plano, degradado radial desde `sphere-hi-x/-y` con cuatro paradas (brillo · cuerpo · aro · borde en
+   Esfera: borde al rol de línea de partícula (fase 6l, D-BBW-39: el cuanto de MEDIO píxel, que es lo que mide el diseño; la 6k lo redondeaba
+   al paso ×1 y el anillo del plano más brillante salía del doble de grueso) con el alfa de su plano, degradado radial desde `sphere-hi-x/-y` con cuatro paradas (brillo · cuerpo · aro · borde en
    `sphere-stop-*`) y sombra interior. Los desenfoques por plano (0 / 0,3 / 3 · 0 / 0,8 / 4,5) son madres: la profundidad de campo.
    Planos: la nieve va ANTES en el documento y queda DEBAJO de las burbujas (dos capas contiguas del diseño; aquí orden del árbol, sin token).
    Quietud: `animation-play-state` por rol en los tres elementos animados (raíz: movimiento reducido; campo: pestaña oculta, por el reloj cliente).
@@ -142,7 +143,7 @@
   width: var(--p-size);
   height: var(--p-size);
   border-radius: var(--bbf-radius-full);
-  border: var(--bbf-line-sm) solid color-mix(in oklch, var(--bbf-particle-bubble-border-tint) calc(var(--p-border) * 100%), transparent);
+  border: var(--bbf-line-particle-border) solid color-mix(in oklch, var(--bbf-particle-bubble-border-tint) calc(var(--p-border) * 100%), transparent);
   background: radial-gradient(
     circle at var(--bbf-particle-sphere-hi-x) var(--bbf-particle-sphere-hi-y),
     color-mix(in oklch, var(--bbf-particle-bubble-hi-tint) calc(var(--p-hi) * 100%), transparent) 0%,

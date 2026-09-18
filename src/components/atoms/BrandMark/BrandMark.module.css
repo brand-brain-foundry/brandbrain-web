@@ -3,6 +3,7 @@
    offset ×2 / blur ×5 (N0: drop-shadow(0 0 14px acento .28) drop-shadow(0 6px 18px negro .9)). La opacidad .9 del diseño no tiene escala:
    reportada, no aplicada. */
 .brandMark {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-brand);
   --bbf-brand-mark-size: var(--bbf-space-12);
   --bbf-brand-mark-glow: drop-shadow(0 0 var(--bbf-space-4) var(--bbf-accent-glow-soft)) drop-shadow(0 var(--bbf-space-2) var(--bbf-space-5) var(--bbf-shadow-ink-soft));
 

@@ -4,11 +4,7 @@ import { HeroBackdrop } from "@/components/molecules/HeroBackdrop";
 import { HeroMedia } from "@/components/molecules/HeroMedia";
 import { HeroParticles } from "@/components/molecules/HeroParticles";
 import { HeroLock } from "@/components/molecules/HeroLock";
-import type { CSSProperties } from "react";
 import styles from "./HeroSection.module.css";
-
-/** orden de entrada de cada pieza del héroe (fase 6g): tras la marca (0), titular (1) y rótulo (2) dentro del lock, afirmaciones 3 y 4; el pie va después */
-const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
 
 /**
  * HeroSection — section (bloque de contenido de página, N0 §2.3: el lockup). Titular (`<h1>`, rol display, EXC-BBW-01), rótulo
@@ -27,6 +23,9 @@ const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
  * Fase 6i (portado P2 del N1, D-BBW-33/34/35): el FONDO es el sombreador WebGL2 del diseño (`HeroBackdrop`, molecule cliente): cuatro pasadas,
  * núcleo negro deformado por ruido, tonemapeo y grano; reposo y respaldo = superficie base. `HeroGlow` (seis degradados y una máscara fija: el
  * núcleo se leía como un círculo) y sus 28 madres y 7 roles quedaron retirados en el mismo commit que su sustituto (N1 doc C §4).
+ * Fase 6l (portado P5 del N1): cada pieza entra con el ENFOQUE PROGRESIVO y con la duración y el retardo de SU pieza en la jerarquía del
+ * diseño (regla del sistema en base/document.css, roles en semantic/motion.css); el índice uniforme de la 6g queda retirado. Las dos
+ * afirmaciones reciben además su sombra de texto por rol (P-BBW-31, mapeo del N1 doc B §11).
  */
 export function HeroSection({ section }: { section: HeroSectionData }) {
   const headingId = `${section.id}-display`;
@@ -39,10 +38,10 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
       <div className={styles.lockup}>
         <div className={styles.block}>
           <HeroLock headingId={headingId} display={section.display} lead={section.lead} />
-          <p className={`${styles.claim} ${styles.claimPrimary}`} data-enter="" style={enterIndex(3)}>
+          <p className={`${styles.claim} ${styles.claimPrimary}`} data-enter="">
             {section.claimPrimary}
           </p>
-          <p className={`${styles.claim} ${styles.claimSecondary}`} data-enter="" style={enterIndex(4)}>
+          <p className={`${styles.claim} ${styles.claimSecondary}`} data-enter="">
             {section.claimSecondary}
           </p>
         </div>

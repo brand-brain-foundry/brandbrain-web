@@ -9,6 +9,13 @@
  *   caen:      360 ×1.5 · 720 ×3 · 2400 ×10 · escalonado 80 ×1
  *   ajustados: 340 → ×1.5 (+20) · 420 → ×2 (+60) · 460 → ×2 (+20) · 520 → ×2 (−40) · 620 → ×2.5 (−20) · 640 → ×2.5 (−40) ·
  *              900 → ×4 (+60) · 1000 → ×4 (−40) · 1100 → ×4.5 (−20) · 2000 → ×8.5 (+40) · escalonado 110 → ×1.5 (+10)
+ * FASE 6l (portado P5 del N1, entradas con enfoque progresivo; D-BBW-38): las cinco duraciones y los once retardos del escalonado del diseño
+ *   (N1 doc A §6.2) resueltos sobre las dos madres, todos con |Δ| ≤ 20 ms; ninguno es residual:
+ *   duraciones: 900 → ×4 (960, +60) · 1000 → ×4 (−40) · 1100 → ×4,5 (1080, −20) · 2000 → ×8,5 (2040, +40) · 2400 → ×10 (cae exacto)
+ *   retardos:   100 → ×1,5 (120; empate 80/120 → superior) · 200 → ×2,5 (cae) · 260 → ×3,5 (280; empate 240/280 → superior) ·
+ *               380 → ×5 (400, +20) · escalonado de la nav 110 → ×1,5 (120, +10) · 880 → ×11 (cae) · 1000 → ×12,5 (cae) ·
+ *               1160 → ×14,5 (cae) · 1280 → ×16 (cae) · 1320 → ×16,5 (cae) · 1420 → ×18 (1440, +20)
+ *   Pasos nuevos como token (ya existían en la fórmula): escalonado ×2,5 · ×3,5 · ×5 · ×11 · ×12,5 · ×14,5 · ×16 · ×16,5 · ×18.
  * FASE 6g (movimiento de interfaz; N0 §2.2): los dos bucles que la 6a no listó (no eran "duraciones UI" sino keyframes): `ef-ripple` 2,6 s →
  *   ×11 = 2640 (+40; empate 2520/2640 → superior) · `ef-pulse` 3,6 s = ×15 (cae exacto). Pasos nuevos como token: ya existían en la fórmula.
  *   El escalonado de entrada (+80 = ×1 · +110 → ×1,5) y las duraciones de reveal/hover/peso se asignan por ROL en semantic/motion.css.
@@ -40,7 +47,22 @@
   --bbf-stagger-1: var(--bbf-stagger-base);
   --bbf-stagger-1-5: calc(var(--bbf-stagger-base) * 1.5);
   --bbf-stagger-2: calc(var(--bbf-stagger-base) * 2);
+  --bbf-stagger-2-5: calc(var(--bbf-stagger-base) * 2.5);
   --bbf-stagger-3: calc(var(--bbf-stagger-base) * 3);
+  --bbf-stagger-3-5: calc(var(--bbf-stagger-base) * 3.5);
+  --bbf-stagger-5: calc(var(--bbf-stagger-base) * 5);
+  --bbf-stagger-11: calc(var(--bbf-stagger-base) * 11);
+  --bbf-stagger-12-5: calc(var(--bbf-stagger-base) * 12.5);
+  --bbf-stagger-14-5: calc(var(--bbf-stagger-base) * 14.5);
+  --bbf-stagger-16: calc(var(--bbf-stagger-base) * 16);
+  --bbf-stagger-16-5: calc(var(--bbf-stagger-base) * 16.5);
+  --bbf-stagger-18: calc(var(--bbf-stagger-base) * 18);
+
+  /* ── Entrada con enfoque progresivo (fase 6l, portado P5 del N1; D-BBW-38). La ESCALA INICIAL del escenario del vídeo (1,05 → 1, dc:L23)
+     es el único valor del sistema que no cae en ninguna escala firmada: no hay escala de escalas. Madre sin escala, como
+     `--bbf-particle-bubble-scale-from` (D-BBW-37 b) y `--bbf-radius-full`. Los desenfoques de entrada NO viven aquí: derivan de la escala de
+     espaciado (10 px → ×3) y del desenfoque de la hoja (22 → 24), y se asignan por rol en semantic/motion.css. ── */
+  --bbf-enter-stage-scale-from: 1.05;
 
   --bbf-ease-signature: cubic-bezier(0.16, 1, 0.3, 1);
   --bbf-ease-linear: linear;

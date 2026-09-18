@@ -4,6 +4,11 @@
    contenedor (el diseño: `:host{position:absolute;inset:0}` + `canvas{display:block;width:100%;height:100%}`, bb:L213-214); su resolución la
    fija el módulo (presupuesto D-BBW-34), no el CSS. Cero valores, cero color, cero texto. */
 .backdrop {
+  /* fase 6l: el fondo es la PRIMERA pieza del escalonado del diseño (2400 ms con 100 ms de retardo, dc:L55): entra con el mismo par de
+     fotogramas clave que el resto y con los roles de su pieza. */
+  --bbf-enter-duration: var(--bbf-motion-enter-duration-backdrop);
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-backdrop);
+
   position: absolute;
   inset: 0;
   z-index: var(--bbf-layer-bg);

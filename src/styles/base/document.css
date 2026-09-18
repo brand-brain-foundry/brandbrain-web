@@ -21,24 +21,43 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* entrada escalonada (fase 6g): UN solo sitio, como el foco. Una pieza que entra al cargar lleva `data-enter` y su índice en `--bbf-enter-index`
-   (número de orden, no valor); el paso del escalonado lo pone el contenedor en `--bbf-enter-step` (por defecto el del héroe). Duración, curva,
-   desplazamiento, retardo y pasos = roles de semantic/motion.css; con movimiento reducido la madre de duración y la de escalonado colapsan y la
-   pieza está en su sitio desde el primer fotograma. HTML completo: el contenido está en el documento; la animación solo lo revela. */
+/* ENTRADA CON ENFOQUE PROGRESIVO (fase 6g; REESCRITA en la 6l con el inventario del N1, doc A §6): UN solo sitio, como el foco. Una pieza que
+   entra al cargar lleva `data-enter` y fija su DURACIÓN y su RETARDO con las dos variables de instancia (`--bbf-enter-duration`,
+   `--bbf-enter-delay`), cada una apuntando al ROL de su pieza en semantic/motion.css: el diseño escalona por JERARQUÍA (fondo → escenario →
+   cromo → marca → afirmaciones → pie), no por un índice uniforme. Donde el diseño SÍ usa índice (los enlaces de la nav, 380 + 110·i) quedan
+   `--bbf-enter-index` y `--bbf-enter-step`, que por defecto no suman nada.
+   El ENFOQUE es lo que la 6g no pudo construir (el N0 no traía el valor y el N1 lo atribuyó): la pieza nace desenfocada y desplazada y se
+   resuelve con la curva firma. Con movimiento reducido la madre de duración y la de escalonado colapsan (primitives/motion.css) y la pieza
+   está en su sitio, nítida, desde el primer fotograma. HTML completo: el contenido está en el documento y la animación solo lo revela; el
+   documento generado no lleva ningún estado inicial escrito (ni opacidad ni desenfoque), que es lo que se demuestra sobre `out/`. */
 [data-enter] {
-  animation: bbf-enter var(--bbf-motion-enter-duration) var(--bbf-motion-enter-ease) both;
-  animation-delay: calc(var(--bbf-motion-enter-delay) + var(--bbf-enter-index, 0) * var(--bbf-enter-step, var(--bbf-motion-enter-stagger)));
+  animation: bbf-enter var(--bbf-enter-duration, var(--bbf-motion-enter-duration)) var(--bbf-motion-enter-ease) both;
+  animation-delay: calc(var(--bbf-enter-delay, 0ms) + var(--bbf-enter-index, 0) * var(--bbf-enter-step, 0ms));
 }
 
 @keyframes bbf-enter {
   from {
     opacity: 0;
     transform: translateY(var(--bbf-motion-enter-shift));
+    filter: blur(var(--bbf-motion-enter-blur));
   }
 
   to {
     opacity: 1;
     transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Con movimiento reducido la entrada NO ARRANCA: la pieza está en su estado natural desde el primer fotograma. Colapsar la madre de duración
+   (primitives/motion.css) deja la animación en 0,04 ms, que es imperceptible, pero MEDIDO en el primer `requestAnimationFrame` el estilo
+   computado es todavía el inicial (opacidad 0 y desenfoque): una animación CSS fija su inicio en el fotograma siguiente al que se aplica.
+   Un fotograma de destello es justo lo que el criterio de D-BBW-31 no quiere, así que aquí la animación se retira entera. Es UNA regla en el
+   ÚNICO sitio donde vive la entrada, no una anulación pieza a pieza: la política del repo (quieto) gana sobre el diseño, que ignora la
+   preferencia. */
+@media (prefers-reduced-motion: reduce) {
+  [data-enter] {
+    animation: none;
   }
 }
 

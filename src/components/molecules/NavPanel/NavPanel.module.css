@@ -14,6 +14,7 @@
   --bbf-nav-panel-arms-size: var(--bbf-space-9);
   --bbf-nav-panel-arm-gap: var(--bbf-space-2);
   --bbf-nav-panel-toggle-size: var(--bbf-space-12);
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-nav);
 
   display: var(--bbf-nav-panel-display);
 }

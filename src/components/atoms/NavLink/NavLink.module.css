@@ -6,7 +6,9 @@
    reposo con la línea tenue; tinta de acento revelada por clip-path al pasar o enfocar, sin transición) y una bajo la hoja (acento con
    brillo, siempre visible). La onda se recorta al ancho del texto (overflow hidden), como en el diseño. Grosores por rol (semantic/lines.css).
    Iconos de perfil: 15–16 px → ×4 (barra) y 22 → ×6 (hoja) con área táctil 44 → ×11 (rol touch-min) y 56 → ×14.
-   Texto oculto visualmente (nombre accesible del icono): sin dimensiones a mano — ocupa la caja del enlace (inset 0) y se recorta entera. */
+   Texto oculto visualmente (nombre accesible del icono): sin dimensiones a mano — ocupa la caja del enlace (inset 0) y se recorta entera.
+   Fase 6l · SOMBRAS DE TEXTO por rol (mapeo del N1 doc B §11): enlaces de la nav → `label-shadow` (paso md) · enlaces de la hoja →
+   `menu-shadow` (paso lg) · perfiles → `legal-shadow` (paso sm). Por rol, nunca un valor. */
 .navLink {
   --bbf-nav-link-underline-height: var(--bbf-space-2);
   --bbf-nav-link-underline-width-nav: var(--bbf-space-40);
@@ -51,6 +53,7 @@
   font-size: var(--bbf-type-label-size);
   font-weight: var(--bbf-type-label-weight);
   letter-spacing: var(--bbf-type-label-tracking);
+  text-shadow: var(--bbf-type-label-shadow);
 }
 
 .menu {
@@ -58,6 +61,7 @@
   font-size: var(--bbf-type-menu-size);
   font-weight: var(--bbf-type-menu-weight);
   letter-spacing: var(--bbf-type-menu-tracking);
+  text-shadow: var(--bbf-type-menu-shadow);
 }
 
 .legal {
@@ -65,6 +69,7 @@
   font-size: var(--bbf-type-legal-size);
   font-weight: var(--bbf-type-legal-weight);
   letter-spacing: var(--bbf-type-legal-tracking);
+  text-shadow: var(--bbf-type-legal-shadow);
 }
 
 .text {

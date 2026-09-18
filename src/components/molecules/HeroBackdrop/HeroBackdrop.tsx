@@ -108,7 +108,7 @@ export function HeroBackdrop() {
   }, []);
 
   return (
-    <div className={styles.backdrop} aria-hidden="true" data-component="bbf-hero-backdrop">
+    <div className={styles.backdrop} aria-hidden="true" data-component="bbf-hero-backdrop" data-enter="">
       <canvas ref={ref} className={styles.canvas} hidden />
     </div>
   );

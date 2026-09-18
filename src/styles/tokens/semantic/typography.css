@@ -21,6 +21,12 @@
  * paso que legal, interletrado ×9 = el 0.34em de "estado" del N0 que ya estaba en primitivos sin consumidor).
  * Fase 6e: `display-fit` / `lead-fit` exponen la GUARDA de ajuste al ancho del diseño (14,6vw y su derivada): no es tamaño, es el tope que
  * hace caber la palabra real por debajo de ~425 px; el componente del titular aplica `min(size, fit)`.
+ * Fase 6l (portado P5 del N1, doc B §11): nace la propiedad `shadow` del rol — la SOMBRA DE TEXTO, que el diseño aplica a ocho elementos con
+ * seis sombras distintas y que la 6a dejó pendiente por falta de mapeo (P-BBW-31, CERRADO aquí). El inventario del N1 lo completó elemento a
+ * elemento y las seis caen en los cuatro pasos que `primitives/shadows.css` ya tenía: nav `0 2px 18px .95` → md · hoja `0 2px 22px .9` → lg ·
+ * titular `0 4px 40px .9` → xl (exacta) · rótulo `0 2px 24px .92` → lg (alfa .92 → .90) · afirmaciones `0 2px 20px .95` → md (exacta) ·
+ * aviso y legal `0 2px 16px .95` → sm (exacta). Se asigna POR ROL, no por palabra: un componente pide `--bbf-type-<rol>-shadow`.
+ * La sombra se pinta DETRÁS del glifo y por tanto entra en la garantía de legibilidad (D-BBW-25), que se re-mide con ella puesta.
  * Todo `--bbf-type-<rol>-size` consume un `--bbf-size-*` del canon (guardia R6): ningún tamaño escrito a mano.
  * CLASE (D-DOC-13): estático (roles y propiedades); paso y peso asignados = dinámico.
  */
@@ -33,6 +39,7 @@
   --bbf-type-display-leading: var(--bbf-leading-display);
   --bbf-type-display-tracking: var(--bbf-tracking-display); /* EXC-BBW-04 (D-BBW-32): el valor del diseño, atado a los sidebearings de la familia */
   --bbf-type-display-fit: var(--bbf-size-display-fit); /* guarda de ajuste al ancho (fase 6e; EXC-BBW-01): el componente hace min(size, fit) */
+  --bbf-type-display-shadow: var(--bbf-shadow-xl);
 
   --bbf-type-lead-family: var(--bbf-font-text);
   --bbf-type-lead-size: var(--bbf-size-lead); /* EXC-BBW-02 (D-BBW-19): derivado del display por una madre; registro docs/system/DESIGN_EXCEPTIONS.md §1 */
@@ -40,6 +47,7 @@
   --bbf-type-lead-leading: var(--bbf-leading-none);
   --bbf-type-lead-tracking: var(--bbf-tracking-7);
   --bbf-type-lead-fit: var(--bbf-size-lead-fit); /* guarda derivada de la del display (fase 6e; EXC-BBW-02) */
+  --bbf-type-lead-shadow: var(--bbf-shadow-lg);
 
   /* texto corrido: paso cero de la escala (18 → 20 px). Sin interletrado: el ×4 era de los claims y se va con ellos. */
   --bbf-type-body-family: var(--bbf-font-text);
@@ -52,25 +60,30 @@
   --bbf-type-claim-size: var(--bbf-size-n1);
   --bbf-type-claim-weight: var(--bbf-weight-text-regular);
   --bbf-type-claim-tracking: var(--bbf-tracking-4);
+  --bbf-type-claim-shadow: var(--bbf-shadow-md);
 
   --bbf-type-label-family: var(--bbf-font-text);
   --bbf-type-label-size: var(--bbf-size-n2);
   --bbf-type-label-weight: var(--bbf-weight-text-regular);
   --bbf-type-label-tracking: var(--bbf-tracking-7);
+  --bbf-type-label-shadow: var(--bbf-shadow-md);
 
   --bbf-type-menu-family: var(--bbf-font-text);
   --bbf-type-menu-size: var(--bbf-size-2);
   --bbf-type-menu-weight: var(--bbf-weight-text-regular);
   --bbf-type-menu-tracking: var(--bbf-tracking-3);
+  --bbf-type-menu-shadow: var(--bbf-shadow-lg);
 
   --bbf-type-legal-family: var(--bbf-font-text);
   --bbf-type-legal-size: var(--bbf-size-n2);
   --bbf-type-legal-weight: var(--bbf-weight-text-regular);
   --bbf-type-legal-tracking: var(--bbf-tracking-6);
+  --bbf-type-legal-shadow: var(--bbf-shadow-sm);
 
   /* aviso de estado del pie (N0: "En construcción", 9 → 10 px con 0.34em): mismo paso que legal, interletrado ×9 */
   --bbf-type-notice-family: var(--bbf-font-text);
   --bbf-type-notice-size: var(--bbf-size-n2);
   --bbf-type-notice-weight: var(--bbf-weight-text-regular);
   --bbf-type-notice-tracking: var(--bbf-tracking-9);
+  --bbf-type-notice-shadow: var(--bbf-shadow-sm);
 }
