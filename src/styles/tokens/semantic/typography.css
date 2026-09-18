@@ -8,9 +8,10 @@
  * Fase 5 (F1): `small` → `label` y `micro` → `legal`: nombraban la MAGNITUD del valor, no la intención. Cada rol apunta a un paso
  * de la escala y a un peso DE SU FAMILIA: un componente pide `--bbf-type-<rol>-weight`, nunca un número (las dos familias tienen
  * escalas de peso incompatibles, primitives/typography.css). El rol display expone además los dos extremos de su animación
- * (`-weight-from` / `-weight-to`, primitives/motion.css): con movimiento reducido ambos valen el reposo.
- * Fase 6a (D-BBW-16): display-size → EXC-BBW-01 (`--bbf-size-display`, excepción registrada) · display-tracking → ×0 · menu nace
- * con el residual de la hoja (paso 2, tracking ×3).
+ * (`-weight-from` / `-weight-to`, primitives/motion.css): con movimiento reducido ambos valen el reposo. Fase 6h: los lee el modulador de
+ * peso (src/behavior/weight-modulator.ts) por `getPropertyValue`, nunca los repite (D-BBW-30); el reposo es el peso de CONSERVACIÓN.
+ * Fase 6a (D-BBW-16): display-size → EXC-BBW-01 (`--bbf-size-display`, excepción registrada) · display-tracking → ×0 (reabierto en la 6h:
+ * EXC-BBW-04, el valor del diseño) · menu nace con el residual de la hoja (paso 2, tracking ×3).
  * Fase 6a-bis (D-BBW-17 · D-BBW-18): escala re-anclada (18 → 20 px, 1,2 / 1,25). Los claims que eran `body` en paso 0 pasan a ser el
  * rol `claim` en paso −1 (cambian de nombre, no de medida: 15 → 16 frente a 14 → 15 del diseño); `body` queda como texto corrido en
  * paso 0. `label` y `legal` suben al paso −2 (12,5 → 12,8) por el suelo de legibilidad; `legal` deja de ser provisional (HAL-BBW-09,
@@ -30,7 +31,7 @@
   --bbf-type-display-weight-from: var(--bbf-weight-display-from);
   --bbf-type-display-weight-to: var(--bbf-weight-display-to);
   --bbf-type-display-leading: var(--bbf-leading-display);
-  --bbf-type-display-tracking: var(--bbf-tracking-0);
+  --bbf-type-display-tracking: var(--bbf-tracking-display); /* EXC-BBW-04 (D-BBW-32): el valor del diseño, atado a los sidebearings de la familia */
   --bbf-type-display-fit: var(--bbf-size-display-fit); /* guarda de ajuste al ancho (fase 6e; EXC-BBW-01): el componente hace min(size, fit) */
 
   --bbf-type-lead-family: var(--bbf-font-text);

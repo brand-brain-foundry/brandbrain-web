@@ -1,0 +1,60 @@
+/* HeroLock — Tier 3: solo consume Tier 1/2 (fase 6h, portado P1 del N1: S5 modulador de peso + S7 ajuste óptico y puntero).
+   LOCK (diseño dc:L763-770): columna alineada a la izquierda; titular y rótulo miden lo mismo cuando el ajuste óptico ha cerrado el rótulo al
+   ancho anclado del titular, así que la alineación es la del bloque sólido del diseño (no se centra cada línea por separado).
+   TITULAR: el peso de REPOSO por rol (`--bbf-type-display-weight` = el peso de conservación del modulador: Σ avances a ese peso es el
+   presupuesto) es lo que el HTML servido trae; el cliente anima `font-weight` por letra (D-BBW-29) y ANCLA la caja (`width` en px) al fotograma
+   más ancho de la señal real: nada de alrededor se recoloca porque la palabra respira dentro de una caja que no reflota. Interletrado de la
+   palabra = EXC-BBW-04 (D-BBW-32: el valor del diseño, atado a los sidebearings de la familia; a cero los pares chocan; el ajuste del rótulo se
+   mide sobre la caja fijada). `white-space: nowrap`: las letras no se comprimen ni se parten; que quepa lo garantiza la guarda `-fit` (EXC-BBW-01),
+   que con la conservación de ancho cubre TODO el recorrido (la caja anclada mide lo del reposo + ≤ 0,1 %). `contain: layout` aísla el relayout
+   de las letras del resto de la página. Sin copia oculta, sin rejilla, sin fotogramas clave: la reserva es por conservación (N1 doc C §1 S5).
+   RÓTULO: interletrado inicial por rol (`--bbf-type-lead-tracking`, hasta la primera medida); después el cliente escribe el medido en px y
+   el margen negativo que recorta el sobrante. Peso por puntero (JS escribe `font-weight` dentro del rango de la familia) con transición por rol;
+   tinte de acento por estado `data-pull` (CSS), con su transición por rol. Con movimiento reducido las dos transiciones colapsan (madre de
+   duración) y el bucle del titular se detiene por el rol de reproducción (leído por el componente). Sombras de texto: sin mapeo (P-BBW-31). */
+.lock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+}
+
+.display {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  max-width: 100%;
+  contain: layout;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-display-family);
+  font-size: min(var(--bbf-type-display-size), var(--bbf-type-display-fit));
+  font-weight: var(--bbf-type-display-weight);
+  line-height: var(--bbf-type-display-leading);
+  letter-spacing: var(--bbf-type-display-tracking);
+  white-space: nowrap;
+}
+
+.glyph {
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.lead {
+  margin: var(--bbf-lockup-gap-lead) 0 0;
+  max-width: 100%;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-lead-family);
+  font-size: min(var(--bbf-type-lead-size), var(--bbf-type-lead-fit));
+  font-weight: var(--bbf-type-lead-weight);
+  line-height: var(--bbf-type-lead-leading);
+  letter-spacing: var(--bbf-type-lead-tracking);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    font-weight var(--bbf-motion-lead-weight-duration) var(--bbf-motion-lead-weight-ease),
+    color var(--bbf-motion-lead-tint-duration) var(--bbf-motion-lead-tint-ease);
+}
+
+.lead[data-pull="near"] {
+  color: var(--bbf-accent);
+}

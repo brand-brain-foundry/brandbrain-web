@@ -1,0 +1,183 @@
+"use client";
+
+import { useEffect, useRef, type CSSProperties } from "react";
+import { WEIGHT_MODULATOR, calibrate, frame, readTokens, type Calibration, type Tokens } from "@/behavior/weight-modulator";
+import { POINTER_WEIGHT, applyTracking, fitTracking, pointerChanged, pointerWeight, readLeadTokens, type PointerState } from "@/behavior/optical-fit";
+import styles from "./HeroLock.module.css";
+
+/** orden de entrada (fase 6g): la marca es 0; titular 1, rótulo 2 (número de orden, no valor) */
+const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
+
+/**
+ * HeroLock — molecule CLIENTE (D-BBW-28, fase 6h): el LOCK de marca, titular + rótulo, con los tres comportamientos del diseño que dependen
+ * uno de otro: el MODULADOR DE PESO del titular (S5), el AJUSTE ÓPTICO del rótulo al ancho anclado (S7) y el PESO POR PUNTERO del rótulo.
+ * Algoritmos y constantes en src/behavior/ (D-BBW-30); aquí solo el cableado con el documento.
+ * · HTML COMPLETO (D-BBW-09/28): el servidor emite el titular como TEXTO LITERAL con su peso de reposo por rol (CSS) y el rótulo con su
+ *   interletrado de rol; el cliente parte la palabra en letras DESPUÉS de hidratar (imperativo, fuera del árbol de React: el texto no cambia,
+ *   React no vuelve a tocarlo) y solo mueve. Sin JavaScript queda exactamente lo servido.
+ * · UN SOLO BUCLE `requestAnimationFrame` que escribe directo al documento (`font-weight` por letra, D-BBW-29), sin estado del marco de trabajo.
+ *   Reloj continuo desde el montaje; la señal no tiene periodo (behavior/weight-modulator.ts).
+ * · CALIBRACIÓN al montar, cuando las fuentes están listas, cada vez que LLEGA una fuente (`loadingdone`: si la display llega tarde, la primera
+ *   tabla es de la de respaldo y la conservación sería falsa), a 60/700/1800 ms (patrón del diseño) y al cambiar el tamaño de la ventana.
+ *   Cada calibración avisa con `bbf:weight-calibrated` (detalle: presupuesto, caja anclada, estado de la fuente): es lo que el arnés lee.
+ * · QUIETO con movimiento reducido y con la pestaña oculta (D-BBW-31): el bucle se cancela y queda el reposo (las letras vuelven al peso de rol).
+ *   La preferencia se lee por el ROL `--bbf-motion-loop-play-state` (semantic/motion.css), como los bucles CSS, no repitiendo la consulta.
+ * · Accesibilidad: el titular partido lleva su texto como nombre accesible y las letras quedan ocultas a la asistencia; al desmontar se
+ *   restaura el texto. El rótulo se tiñe por `data-pull` (CSS), nunca con un color desde aquí.
+ * Cero texto, cero valores.
+ */
+export function HeroLock({ headingId, display, lead }: { headingId: string; display: string; lead: string }) {
+  const lockRef = useRef<HTMLDivElement>(null);
+  const wordRef = useRef<HTMLHeadingElement>(null);
+  const leadRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    const lock = lockRef.current;
+    const word = wordRef.current;
+    const leadEl = leadRef.current;
+    if (!lock || !word || !leadEl) return;
+    const doc = word.ownerDocument;
+    const win = doc.defaultView;
+    if (!win) return;
+
+    // ── partir la palabra en letras (después de hidratar; el HTML servido trae el texto literal) ──
+    const text = word.textContent ?? "";
+    const original = Array.from(word.childNodes);
+    const glyphs: HTMLElement[] = Array.from(text).map((ch) => {
+      const g = doc.createElement("span");
+      g.className = styles.glyph;
+      g.setAttribute("aria-hidden", "true");
+      g.textContent = ch;
+      return g;
+    });
+    word.setAttribute("aria-label", text);
+    word.replaceChildren(...glyphs);
+
+    let tokens: Tokens | null = null;
+    let cal: Calibration | null = null;
+    let track: number | null = null;
+    let pointer: PointerState | null = null;
+    let raf = 0;
+    let stopped = true;
+    const t0 = win.performance.now();
+    const clock = () => (win.performance.now() - t0) / 1000;
+
+    const rest = () => {
+      for (const g of glyphs) g.style.removeProperty("font-weight");
+    };
+    const stillness = () => getComputedStyle(doc.documentElement).getPropertyValue("--bbf-motion-loop-play-state").trim() === "paused";
+
+    const fit = () => {
+      const target = cal?.pinned || word.getBoundingClientRect().width;
+      const next = fitTracking(lock, leadEl, target, track);
+      if (next !== null && next !== track) {
+        track = next;
+        applyTracking(leadEl, next);
+      }
+    };
+
+    const recalibrate = () => {
+      tokens = readTokens(word);
+      if (!tokens) return;
+      const fontFace = getComputedStyle(word);
+      cal = calibrate(word, glyphs, tokens, clock());
+      if (stopped) rest();
+      fit();
+      word.dispatchEvent(
+        new CustomEvent("bbf:weight-calibrated", {
+          detail: {
+            budget: cal?.budget ?? 0,
+            pinned: cal?.pinned ?? 0,
+            samples: cal?.samples ?? 0,
+            fontsStatus: doc.fonts.status,
+            displayLoaded: doc.fonts.check(`${fontFace.fontWeight} ${fontFace.fontSize} ${fontFace.fontFamily.split(",")[0]}`),
+          },
+        }),
+      );
+    };
+
+    const step = () => {
+      raf = win.requestAnimationFrame(step);
+      if (!tokens || !cal) return;
+      frame(clock(), glyphs, cal.curves, cal.budget, tokens);
+    };
+    const start = () => {
+      if (!stopped) return;
+      stopped = false;
+      raf = win.requestAnimationFrame(step);
+    };
+    const stop = () => {
+      if (stopped) return;
+      stopped = true;
+      win.cancelAnimationFrame(raf);
+      rest();
+    };
+    /** una sola política para las dos causas de quietud: pestaña oculta y movimiento reducido (D-BBW-31) */
+    const sync = () => {
+      if (doc.hidden || stillness()) stop();
+      else start();
+    };
+
+    // ── puntero: peso y tinte del rótulo (S7.3) ──
+    let leadTokens = readLeadTokens(leadEl);
+    const onPointer = (e: PointerEvent) => {
+      if (!leadTokens) leadTokens = readLeadTokens(leadEl);
+      if (!leadTokens) return;
+      const next = pointerWeight(e.clientX, e.clientY, lock.getBoundingClientRect(), leadTokens);
+      if (pointer && !pointerChanged(pointer, next)) return;
+      pointer = next;
+      leadEl.style.fontWeight = String(next.weight);
+      if (next.pull > POINTER_WEIGHT.TINT_THRESHOLD) leadEl.dataset.pull = "near";
+      else delete leadEl.dataset.pull;
+    };
+
+    // ── calibración: montaje, fuentes, retardos del diseño, tamaño de ventana ──
+    let queued = 0;
+    const queue = () => {
+      if (queued) return;
+      queued = win.requestAnimationFrame(() => {
+        queued = 0;
+        recalibrate();
+      });
+    };
+    recalibrate();
+    sync();
+    const timers = WEIGHT_MODULATOR.REFIT_DELAYS_MS.map((ms) => win.setTimeout(queue, ms));
+    void doc.fonts.ready.then(queue);
+    doc.fonts.addEventListener("loadingdone", queue);
+    win.addEventListener("resize", queue);
+    doc.addEventListener("visibilitychange", sync);
+    const reduced = win.matchMedia("(prefers-reduced-motion: reduce)");
+    reduced.addEventListener("change", sync);
+    win.addEventListener("pointermove", onPointer);
+
+    return () => {
+      stop();
+      for (const id of timers) win.clearTimeout(id);
+      if (queued) win.cancelAnimationFrame(queued);
+      doc.fonts.removeEventListener("loadingdone", queue);
+      win.removeEventListener("resize", queue);
+      doc.removeEventListener("visibilitychange", sync);
+      reduced.removeEventListener("change", sync);
+      win.removeEventListener("pointermove", onPointer);
+      word.replaceChildren(...original);
+      word.removeAttribute("aria-label");
+      word.style.removeProperty("width");
+      leadEl.style.removeProperty("letter-spacing");
+      leadEl.style.removeProperty("margin-right");
+      leadEl.style.removeProperty("font-weight");
+      delete leadEl.dataset.pull;
+    };
+  }, []);
+
+  return (
+    <div ref={lockRef} className={styles.lock} data-component="bbf-hero-lock">
+      <h1 ref={wordRef} id={headingId} className={styles.display} data-enter="" style={enterIndex(1)}>
+        {display}
+      </h1>
+      <p ref={leadRef} className={styles.lead} data-enter="" style={enterIndex(2)}>
+        {lead}
+      </p>
+    </div>
+  );
+}
