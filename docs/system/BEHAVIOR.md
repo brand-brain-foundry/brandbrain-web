@@ -3,17 +3,17 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.1
+version: 1.2
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-09-18
-verified_against_code: 2026-09-18@feat/fase6i-sombreador-de-fondo (src/behavior/weight-modulator.ts · src/behavior/optical-fit.ts · src/behavior/backdrop-shader.ts · src/components/molecules/HeroLock/ · src/components/molecules/HeroBackdrop/; origen de cada constante en `0_info/brandbrain-web/Eye Fish Landing.dc.html` y `blob-bg.js` por línea, inventariado en OUTPUT-BBW-2026-09-17-N1-A §1/§5/§7 y clasificado en OUTPUT-BBW-2026-09-17-N1-D §1/§4)
+verified_against_code: 2026-09-18@feat/fase6j-seguimiento-del-sujeto (src/behavior/weight-modulator.ts · src/behavior/optical-fit.ts · src/behavior/backdrop-shader.ts · src/behavior/subject-tracking.ts · src/components/molecules/HeroLock/ · src/components/molecules/HeroBackdrop/ · src/components/molecules/HeroMedia/; origen de cada constante en `0_info/brandbrain-web/Eye Fish Landing.dc.html` y `blob-bg.js` por línea, inventariado en OUTPUT-BBW-2026-09-17-N1-A §1/§2/§5/§7 y clasificado en OUTPUT-BBW-2026-09-17-N1-D §1/§2/§4)
 supersedes: []
 superseded_by: null
-related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-DOC-13]
-summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). Los sistemas P3–P5 añaden su módulo y su tabla aquí."
-tags: [comportamiento, constantes, algoritmos, tokens, sombreador, procedencia, brandbrain-web]
+related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-DOC-13]
+summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). Los sistemas P4–P5 añaden su módulo y su tabla aquí."
+tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, video, procedencia, brandbrain-web]
 ---
 
 # Constantes de algoritmo de los sistemas dinámicos
@@ -137,7 +137,52 @@ el tamaño sigue al contenedor por `ResizeObserver` y a la ventana por `resize` 
 junto al modulador); el reloj continuo se detiene con la pestaña oculta y con movimiento reducido (el diseño seguía). Coste medido con todo
 animado en la máquina de referencia: output 6i §F5 (el diseño vivo: 52,7 fps).
 
-## §5 — Cómo entra un sistema nuevo (P3–P5)
+## §5 — S2 · Vídeo: seguimiento del sujeto (`src/behavior/subject-tracking.ts`)
+
+**Qué hace:** cada `PERIOD_MS` (y en cada `timeupdate`) dibuja el fotograma en un lienzo de 96×54, calcula el **centroide de luminancia** con un
+exponente que pesa lo claro por encima de lo oscuro (sin él la neblina del fondo arrastra el centroide al centro y el seguimiento deja de
+perseguir nada, dc:L413), lo suaviza con un filtro exponencial y **traslada el encuadre de forma acotada** sobre una escala algo mayor que uno:
+la holgura es exactamente la mitad del sobrante del zoom, así la traslación nunca descubre el borde del vídeo. Tres partes: centroide y
+suavizado (puras) → encuadre y cadena de transformación (puras) → muestreador (lee el fotograma). Inventario: N1 doc A §2; clasificación: N1 doc D §2.
+
+| Constante | Valor | Origen | Clase | Qué es |
+|---|---|---|---|---|
+| `ZOOM` | 1,08 | dc:L391 | **dinámico** | «cuánto sobra para poder seguir»: escala del vídeo dentro del escenario; acota la traslación. Residual de la retícula (N1 doc D §2: no cae en ninguna escala y ningún estilo lo consume): constante del módulo, no madre |
+| `SAMPLE` | 96 × 54 | dc:L401 | estático | lienzo de muestreo: 16:9 mínimo con precisión suficiente |
+| `PERIOD_MS` | 70 | dc:L661 | estático | periodo de muestreo en el bucle de cuadros (a 120 Hz: una muestra cada 75 ms); además una muestra por `timeupdate` (dc:L665, ≈ 4/s). Periodo de muestreo, no duración de UI: fuera de la retícula (N1 doc D §6) |
+| `LUMA` | Rec.709 | dc:L412 | estático | luminancia sobre el valor codificado; misma fórmula que el sombreador y el modelo de contraste |
+| `THRESHOLD` | 0,1 | dc:L414 | plantilla | umbral bajo el cual el píxel no pesa (depende del vídeo: negro con sujeto) |
+| `EXPONENT` | 2,4 | dc:L414 | plantilla | exponente del peso: pesa lo claro por encima de la neblina |
+| `MIN_MASS` | 0,6 | dc:L418 | plantilla | masa mínima del cuadro para actualizar: evita saltos en cuadros casi negros (este vídeo: 123–162 en todos sus 192 fotogramas, nunca por debajo) |
+| `SMOOTHING` | 0,085 | dc:L421-423 | plantilla | suavizado exponencial por muestra (~14 muestras ≈ 1 s para el 71 %); la primera muestra fija sin suavizar |
+| `RETRY` | 350 ms × 24 | dc:L650 | estático | cadena de reintentos de reproducción: cada 350 ms hasta 24 intentos (8,4 s) o hasta que reproduce; más `loadeddata`, `canplay`, visibilidad y primer gesto |
+| `MIN_READY_STATE` · `DECIMALS` | 2 · 3 | dc:L398, L433 | estático | `readyState` mínimo para muestrear (HAVE_CURRENT_DATA); decimales de la traslación escrita |
+
+**Tokens que lee (nunca repite):** ninguno por valor. La geometría del escenario y su **máscara** son roles de composición que consume el CSS
+del componente (`--bbf-stage-*`, `--bbf-stage-mask`, primitives/composition.css); la máscara va sobre el ESCENARIO, no sobre el vídeo (la
+traslación no la mueve) y sus radios son **50 % / 50 %**: un radio mayor dejaría la parada transparente fuera de la caja y se vería el borde
+del rectángulo (N1 doc A §2.7). La quietud (D-BBW-31) la lee el componente por el rol de medio **`--bbf-motion-media-display`** resuelto en el
+vídeo (semantic/motion.css): es el rol que el medio ya tenía desde la 6d (con movimiento reducido el vídeo no se muestra y queda el póster), y
+la regla es la misma que `--bbf-motion-*-play-state` para los bucles: vídeo oculto por el rol → **el bucle no arranca** (ni cuadros ni
+reintentos); pestaña oculta → se detiene y el vídeo se **pausa** (el diseño seguía decodificando). No se crea un segundo rol para lo mismo.
+
+**Reposo (D-BBW-28):** `REST_TRANSFORM` = escala al zoom, sin traslación, escrito en línea en el vídeo **y en la imagen fija** del HTML servido;
+el póster (primer fotograma exacto, MEDIA.md §6) lo recibe con el vídeo, así **póster y reposo coinciden** (medido: caja del vídeo y de la
+imagen fija = escenario × 1,08, centradas, en los cinco anchos). La primera muestra fija sin suavizar (comportamiento del diseño): al arrancar,
+el encuadre pasa del reposo al centroide del primer cuadro de golpe (con este vídeo, 3,9 % del escenario, casi todo vertical: el pez nada por
+encima del centro); en el diseño lo cubre la entrada del escenario (2 s de desenfoque, P5). Con la reproducción automática bloqueada el
+lienzo lee negro (sin fotograma presentado) y el encuadre se queda en reposo.
+
+**Lo que mide en ejecución (output 6j):** por muestra, `drawImage` del fotograma al lienzo 6,4 ms de mediana / 9,6 de media / 22,5 en p95
+(es la lectura GPU→CPU del fotograma entero; la lectura del lienzo, 0,04 ms); 147 muestras en 9 s = 15,7 % del hilo principal; con todo
+animado 108,9–110,8 fps a 120 Hz (sin seguimiento 107,1; vídeo en pausa 112,6; P2: 113,9). El diseño medía 6,5–29 ms por llamada. Con este
+vídeo la traslación vive en dx 0–2,4 % · dy 0–3,7 % (el tope vertical se toca el 11 % del tiempo).
+
+**Lo que cambia respecto al diseño sin cambiar la salida:** `preload="metadata"` y póster (D-BBW-24) en vez de `preload="auto"` sin póster;
+pestaña oculta → pausa y cancelación (el diseño saltaba el trabajo pero seguía reprogramando y decodificando); movimiento reducido → el bucle
+no arranca (el diseño lo ignoraba); un solo `rAF` con cancelación real y retirada de los seis oyentes al desmontar.
+
+## §6 — Cómo entra un sistema nuevo (P4–P5)
 
 1. Módulo `src/behavior/<sistema>.ts` con el objeto congelado, origen por línea y clase por constante; funciones puras separadas de las que
    tocan el DOM o la GPU.
@@ -148,4 +193,4 @@ animado en la máquina de referencia: output 6i §F5 (el diseño vivo: 52,7 fps)
 5. Lo que el sistema sustituye se retira en el mismo commit (N1 doc C §4).
 
 ---
-*BBW-BEHAVIOR v1.1 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.1 en la fase 6i (`DESPACHO-BBW-2026-09-17-fase6i-P2-sombreador-de-fondo`: S1 con procedencia, D-BBW-33/34/35, HAL-BBW-16) · nace en la fase 6h (`DESPACHO-BBW-2026-09-17-fase6h-P1-modulador-de-peso`, D-BBW-30)*
+*BBW-BEHAVIOR v1.2 · `docs/system/BEHAVIOR.md` · 2026-09-18 · v1.2 en la fase 6j (`DESPACHO-BBW-2026-09-18-fase6j-P3-seguimiento-del-sujeto`: S2 seguimiento del sujeto) · v1.1 en la fase 6i (`DESPACHO-BBW-2026-09-17-fase6i-P2-sombreador-de-fondo`: S1 con procedencia, D-BBW-33/34/35, HAL-BBW-16) · nace en la fase 6h (`DESPACHO-BBW-2026-09-17-fase6h-P1-modulador-de-peso`, D-BBW-30)*
