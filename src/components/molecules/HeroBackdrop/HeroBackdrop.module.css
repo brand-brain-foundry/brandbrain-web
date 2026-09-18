@@ -1,0 +1,23 @@
+/* HeroBackdrop — Tier 3: solo consume Tier 1/2 (semantic/colors.css · semantic/layers.css).
+   Capa de fondo (rol --bbf-layer-bg) con la SUPERFICIE BASE como reposo y como respaldo (D-BBW-33): es lo que el HTML servido trae y lo que
+   se ve cuando el lienzo no dibuja (sin JavaScript, sin WebGL2, contexto perdido, movimiento reducido, pestaña oculta). El lienzo cubre el
+   contenedor (el diseño: `:host{position:absolute;inset:0}` + `canvas{display:block;width:100%;height:100%}`, bb:L213-214); su resolución la
+   fija el módulo (presupuesto D-BBW-34), no el CSS. Cero valores, cero color, cero texto. */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: var(--bbf-layer-bg);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bbf-surface-base);
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas[hidden] {
+  display: none;
+}

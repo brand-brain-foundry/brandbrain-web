@@ -1,6 +1,6 @@
 import type { HeroSection as HeroSectionData } from "@/content/schema";
 import { media } from "@/media";
-import { HeroGlow } from "@/components/molecules/HeroGlow";
+import { HeroBackdrop } from "@/components/molecules/HeroBackdrop";
 import { HeroMedia } from "@/components/molecules/HeroMedia";
 import { HeroParticles } from "@/components/molecules/HeroParticles";
 import { HeroLock } from "@/components/molecules/HeroLock";
@@ -24,12 +24,15 @@ const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
  * el rótulo se interletra hasta cerrar al ancho anclado y responde al puntero. El HTML servido trae el texto literal y el peso de reposo; el
  * cliente solo mueve. La copia oculta, la rejilla y el extremo por vista de la 6g quedaron retirados: medían un estado que el diseño nunca
  * renderiza (N1 §4, L-62). Cada pieza del bloque entra escalonada al cargar (`data-enter`, regla del sistema en base/document.css).
+ * Fase 6i (portado P2 del N1, D-BBW-33/34/35): el FONDO es el sombreador WebGL2 del diseño (`HeroBackdrop`, molecule cliente): cuatro pasadas,
+ * núcleo negro deformado por ruido, tonemapeo y grano; reposo y respaldo = superficie base. `HeroGlow` (seis degradados y una máscara fija: el
+ * núcleo se leía como un círculo) y sus 28 madres y 7 roles quedaron retirados en el mismo commit que su sustituto (N1 doc C §4).
  */
 export function HeroSection({ section }: { section: HeroSectionData }) {
   const headingId = `${section.id}-display`;
   return (
     <section id={section.id} className={styles.hero} aria-labelledby={headingId} data-component="bbf-hero">
-      <HeroGlow />
+      <HeroBackdrop />
       <HeroMedia sources={[media.heroLoop720]} poster={media.heroLoopPoster} />
       <div className={styles.veil} aria-hidden="true" />
       <HeroParticles />

@@ -25,6 +25,9 @@
  *   azul `(0.118, 0.310, 0.784)` → visto rgb(23,53,87) = oklch(0.324 0.070 252.9) → `deep`. Ningún valor a mano: madre = inventario × proceso del
  *   diseño. Los seis roles de tinte (semantic/composition.css) apuntan a sus pasos; ΔE por rol en el output 6g (lóbulo 3 a deep-800: 0,013;
  *   lavado marino a deep-900: 0,034, reportado como residual D-BBW-16).
+ *   Fase 6i (D-BBW-35): el sombreador del diseño sustituye a los degradados y los roles de tinte de resplandor se retiran; `sea` y `deep` SE CONSERVAN
+ *   sin consumidor como rampas de marca disponibles (ya derivadas, coste cero); los vec3 del algoritmo viven en src/behavior/backdrop-shader.ts
+ *   marcados como valor de marca con estas rampas como referencia cruzada.
  * CLASE (D-DOC-13): la fórmula y los extremos = estático · las cinco madres = dinámico · el archivo = plantilla.
  */
 :root {

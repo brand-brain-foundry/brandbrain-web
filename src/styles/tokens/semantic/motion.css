@@ -32,7 +32,8 @@
   --bbf-motion-media-display: block;
   --bbf-motion-still-display: none;
   --bbf-motion-particles-play-state: running;
-  /* fase 6f: los RESPLANDORES del fondo derivan despacio (tercer medio en movimiento); con movimiento reducido quedan quietos, como las partículas */
+  /* fase 6f: el FONDO en movimiento (tercer medio; desde la 6i el sombreador WebGL2, que LEE este rol por JS): con movimiento reducido el bucle se
+     detiene y queda la superficie base (D-BBW-31/33); el nombre `glow` se conserva por continuidad del rol (mismo medio, otro mecanismo) */
   --bbf-motion-glow-play-state: running;
 
   /* fase 6g: movimiento de interfaz por rol */

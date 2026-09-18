@@ -4,7 +4,7 @@
    Fase 6f · ESCENARIO (composición leída del export): la sección es el contexto de apilamiento (isolation), recorta (overflow) y es el
    CONTENEDOR DE TAMAÑO de todas las proporciones del héroe (container-type: size → cqh/cqw/cqmin en los roles de semantic/composition.css);
    mide al menos una ventana (100svh es estructura: la ventana pequeña, para que el pie superpuesto se vea al cargar en móvil) y crece con
-   `main` (flex con base 0: con base `auto` y contención de tamaño, Chrome resuelve `cqh` a 0 aunque la caja mida la ventana; medido en la 6f). Capas por rol: fondo (HeroGlow) · medio (HeroMedia) · velo (la VIÑETA del diseño, rol --bbf-vignette: elipse transparente en el
+   `main` (flex con base 0: con base `auto` y contención de tamaño, Chrome resuelve `cqh` a 0 aunque la caja mida la ventana; medido en la 6f). Capas por rol: fondo (HeroBackdrop, sombreador; antes HeroGlow, 6f-6h) · medio (HeroMedia) · velo (la VIÑETA del diseño, rol --bbf-vignette: elipse transparente en el
    centro, 26 % de tinta al 80 %, 50 % en el borde) · partículas · contenido. Los fundidos superior e inferior de la 6d desaparecen: la
    cabecera y el pie van superpuestos al escenario (Header/Footer, position: absolute) y no hay borde que disimular.
    BLOQUE DE TEXTO: banda absoluta anclada al pie del héroe (rol --bbf-lockup-offset = 14 % del alto entre ×21 y ×38), centrada, con el margen

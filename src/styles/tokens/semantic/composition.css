@@ -2,10 +2,9 @@
  * semantic/composition.css — Tier 2 · COMPOSICIÓN DEL HÉROE POR ROL (fase 6f). Qué mide y dónde se ancla cada pieza del héroe y del
  * cromo, compuesto desde las madres de primitives/composition.css y de la escala de espaciado. Un componente pide un rol
  * (`--bbf-stage-height`, `--bbf-lockup-offset`, `--bbf-bar-side`…), nunca una proporción ni un paso.
- * Tintes de los resplandores (fase 6g, D-BBW-27): cada lóbulo apunta al paso de las madres `sea` (verde-azulado) y `deep` (azul) de
- * primitives/colors.css: lóbulo 1 = sea-700 (madre) · lóbulos 2 y 4 y lavado 1 = deep-800 (madre) · lóbulo 3 = deep-800 (ΔE 0,013) ·
- * lavado marino = deep-900 (ΔE 0,034, residual reportado). Los roles provisionales grises de la 6f quedan retirados. Cambiar el color = cambiar
- * estos seis roles, nada más.
+ * Tintes de los resplandores (6g, D-BBW-27): RETIRADOS en la fase 6i con los siete roles de resplandor (seis tintes y el núcleo circular):
+ * el fondo es el sombreador del diseño (src/behavior/backdrop-shader.ts) y sus colores son valor de marca dentro del algoritmo (D-BBW-35), con
+ * la rampa vista equivalente anotada allí (`sea-700`, `deep-800`, `deep-900`). Las madres siguen disponibles en primitives/colors.css.
  * CLASE (D-DOC-13): estático (roles); a qué madre y a qué paso apunta cada rol = dinámico.
  */
 :root {
@@ -37,17 +36,4 @@
   --bbf-bar-gap: var(--bbf-space-6);
   --bbf-bar-gap-narrow: clamp(var(--bbf-space-3), var(--bbf-bar-gap-narrow-slope), var(--bbf-space-6));
   --bbf-bar-gap-legal: clamp(var(--bbf-space-2), var(--bbf-bar-gap-legal-slope), var(--bbf-space-4));
-
-  /* fase 6g (D-BBW-27): madres `sea` y `deep`; paso más cercano en ΔE de cada color visto del diseño (0 · 0 · 0,013 · 0 · 0 · 0,034) */
-  --bbf-glow-1-tint: var(--bbf-color-sea-700);
-  --bbf-glow-2-tint: var(--bbf-color-deep-800);
-  --bbf-glow-3-tint: var(--bbf-color-deep-800);
-  --bbf-glow-4-tint: var(--bbf-color-deep-800);
-  --bbf-glow-wash-1-tint: var(--bbf-color-deep-800);
-  --bbf-glow-wash-2-tint: var(--bbf-color-deep-900);
-  --bbf-glow-core: radial-gradient(
-    circle at var(--bbf-glow-core-x) var(--bbf-glow-core-y),
-    transparent var(--bbf-glow-core-in),
-    var(--bbf-color-ink-900) var(--bbf-glow-core-out)
-  );
 }
