@@ -160,5 +160,12 @@ export const inlineIcons = {
 } as const satisfies Record<string, InlineIcon>;
 export type InlineIconId = keyof typeof inlineIcons;
 
-/** Archivos de public/ que NO son derivados de un maestro (hoy ninguno). La guardia rechaza cualquier archivo no declarado aquí ni arriba. */
-export const publicAllowList: readonly string[] = [];
+/**
+ * Archivos de public/ que NO son derivados de un maestro. La guardia rechaza cualquier archivo no declarado aquí ni arriba.
+ * No es una puerta de atrás para medios: un medio SIEMPRE entra por el puerto. Aquí solo caben archivos que no son medios.
+ *
+ * · `_headers` (D-BBW-44) — manifiesto declarativo de cabeceras de respuesta. No se sirve como recurso: el host lo lee y lo aplica.
+ *   Es política de entrega, versionada y auditable; no es configuración que el proveedor necesite para construir ni desplegar
+ *   (eso lo sigue prohibiendo `docs/system/DEPLOY_CONTRACT.md` §5). Su contenido se explica dentro del propio fichero.
+ */
+export const publicAllowList: readonly string[] = ["_headers"];

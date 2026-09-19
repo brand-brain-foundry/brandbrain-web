@@ -1,0 +1,25 @@
+# MANIFIESTO DE CABECERAS DE RESPUESTA — D-BBW-44
+#
+# QUÉ ES. Política de ENTREGA, declarativa, versionada y auditable. No es configuración que el
+# proveedor necesite para construir ni para desplegar: eso lo sigue prohibiendo el contrato de
+# puerto (docs/system/DEPLOY_CONTRACT.md §5) y ningún fichero de esa clase entra aquí.
+#
+# POR QUÉ EXISTE HOY (D-BBW-43). La dirección de prueba del proveedor es indexable. Cloudflare
+# marca `X-Robots-Tag: noindex` por defecto SOLO en las previsualizaciones (rama y hash); la
+# dirección del proyecto no la marca nadie, y su nombre se publica en los registros de
+# transparencia de certificados en cuanto se crea el proyecto. Sin esta regla, un buscador puede
+# encontrar la prueba antes que el dominio real y posicionar la versión equivocada.
+#
+# POR QUÉ NO HAY NADA QUE DESHACER EN EL CUTOVER. La regla está ACOTADA AL ANFITRIÓN de prueba.
+# El dominio canónico (`src/config/site.ts`) no casa con este patrón: nunca recibe la cabecera.
+# El día del cutover este fichero se queda tal cual; solo se le añaden las cabeceras de seguridad.
+#
+# POR QUÉ `:project` Y NO EL NOMBRE LITERAL. El §5 del contrato prohíbe escribir URLs del
+# anfitrión en el repositorio. `:project` es un comodín de UNA etiqueta de anfitrión (el
+# separador es el punto), así que ninguna dirección del proveedor queda escrita aquí.
+#
+# ALCANCE DE HOY. Solo la regla de no indexar. Las cabeceras de seguridad, caché y compresión
+# entran en el cutover, en este mismo fichero.
+
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
