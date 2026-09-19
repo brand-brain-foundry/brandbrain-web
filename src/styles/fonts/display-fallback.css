@@ -1,0 +1,37 @@
+/**
+ * RESPALDO DE LA DISPLAY CON MÉTRICAS AJUSTADAS — D-BBW-45 (palanca B del HAL-BBW-22).
+ *
+ * QUÉ PROBLEMA RESUELVE. `modulator-vf` la sirve un actor externo (Adobe, puerto en src/styles/fonts/display.ts):
+ * necesita DNS, TLS y dos peticiones encadenadas a un dominio ajeno. Mientras no llega, el titular se pinta con la
+ * siguiente familia de la pila, que es MUCHO más estrecha, y el bloque entero salta de tamaño cuando la real aparece.
+ *
+ * MEDIDO (2026-09-19, ancho de `deepbrand` al peso de reposo 300, en píxeles por píxel de cuerpo):
+ *
+ *   modulator-vf (la real)      7,0522   ← la referencia
+ *   Helvetica Neue (macOS/iOS)  4,7465   → haría falta 148,6 %
+ *   Arial (Windows/Android)     4,8237   → haría falta 146,2 %
+ *   Roboto (Android)            4,6963   → haría falta 150,2 %
+ *   Space Grotesk (la de texto) 5,3574   → 131,6 %
+ *
+ * POR QUÉ 148 %. Las tres familias que existen de verdad en las plataformas grandes se agrupan en 146,2–150,2: un solo
+ * factor las deja a ±1,5 % de la real. Sin esta hoja, el salto es del 31,6 % (si alcanzó a cargar la de texto) o del
+ * 48,6 % (si no). El respaldo se declara ANTES que la familia de texto en `--bbf-font-display` para que gane él.
+ *
+ * POR QUÉ SOLO `local()`. No añade ninguna petición: usa fuentes que ya están en el dispositivo. Si ninguna de las tres
+ * existe, esta cara no se instancia y la pila sigue hasta la familia de texto, exactamente como antes: nunca empeora.
+ *
+ * MÉTRICAS VERTICALES. Ajustar solo el ancho movería el alto: `size-adjust` escala TODO. Los tres `-override` fijan las
+ * de la real (ascenso 1,18 em, descenso 0,18 em, medidos con `fontBoundingBox*`), así el respaldo ocupa la misma caja.
+ *
+ * ESTO NO ARREGLA EL DEFECTO, lo amortigua: la causa raíz es la medida topada, y va en src/behavior/weight-modulator.ts
+ * (palanca A). Esta hoja hace que el estado transitorio no desborde AUNQUE la recalibración tarde.
+ */
+@font-face {
+  font-family: "modulator-fallback";
+  src: local("Helvetica Neue"), local("Arial"), local("Roboto");
+  size-adjust: 148%;
+  ascent-override: 118%;
+  descent-override: 18%;
+  line-gap-override: 0%;
+  font-display: swap;
+}

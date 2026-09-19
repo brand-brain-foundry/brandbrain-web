@@ -4,12 +4,19 @@ import { useEffect, useRef } from "react";
 import { createSampler, follow, framing, restState, REST_TRANSFORM, SUBJECT_TRACKING, transformFor } from "@/behavior/subject-tracking";
 import styles from "./HeroMedia.module.css";
 
-export type HeroMediaSource = { src: string; type: string };
+/**
+ * Una fuente del vídeo. `media` es la CONDICIÓN DE PANTALLA con la que el navegador elige (D-BBW-46): sin ella, la primera fuente gana
+ * siempre y un teléfono se descarga el derivado grande existiendo el pequeño. Las fuentes se declaran de la MÁS RESTRICTIVA a la más
+ * general, porque el navegador se queda con la PRIMERA cuya condición se cumple y no vuelve a mirar.
+ */
+export type HeroMediaSource = { src: string; type: string; media?: string };
 export type HeroMediaStill = { src: string; width: number; height: number };
 
 /**
  * HeroMedia — molecule CLIENTE. El VÍDEO DE FONDO del héroe (D-BBW-24, fase 6d) por el puerto de medios: derivados sin audio, póster del primer
  * fotograma, dimensiones intrínsecas declaradas (`width`/`height`: la caja no salta). Es MEDIO, no animación de interfaz.
+ * · UNA FUENTE POR TAMAÑO DE PANTALLA (D-BBW-46, fase 8a-bis): el elegido se decide UNA VEZ, al cargar, y no cambia al girar el teléfono
+ *   ni al redimensionar —así lo define la especificación—, que es justo lo que se quiere: nadie se descarga dos vídeos.
  * · Reproducción automática (MDN, verificado 2026-09-17): `muted` (sin ella ningún navegador arranca solo) + `playsInline` (Safari) + `loop`
  *   + `autoPlay`; sin controles, sin pantalla completa ni imagen-en-imagen. `preload="metadata"` es lo que la especificación aconseja.
  * · Decorativo para las tecnologías de asistencia (`aria-hidden`, fuera del orden de tabulación): toda la información está en el texto.
@@ -143,7 +150,7 @@ export function HeroMedia({ sources, poster }: { sources: readonly HeroMediaSour
         tabIndex={-1}
       >
         {sources.map((s) => (
-          <source key={s.src} src={s.src} type={s.type} />
+          <source key={s.src} src={s.src} type={s.type} media={s.media} />
         ))}
       </video>
       {/* eslint-disable-next-line @next/next/no-img-element -- export estático con images.unoptimized (D-BBW-03); el póster llega por el puerto de medios con sus dimensiones */}

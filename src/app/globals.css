@@ -1,5 +1,6 @@
 /* globals.css — orquestador: tokens (Eje A) y capa base. Sin color ni tipografía cruda aquí ni en ningún consumidor:
    los guardias scripts/lint/* bloquean HEX y font-size/font-weight crudos fuera de src/styles/tokens/primitives/. */
+@import "../styles/fonts/display-fallback.css";
 @import "../styles/tokens/index.css";
 @import "../styles/base/reset.css";
 @import "../styles/base/document.css";

@@ -3,16 +3,16 @@ id: BBW-DEPLOY-CONTRACT
 title: "Contrato de puerto de despliegue — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.3
+version: 1.4
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-15
 updated: 2026-09-19
-verified_against_code: 2026-09-19@feat/fase8a-publicacion-de-prueba (v1.3: §7 corregido contra el proveedor REAL — nombre de proyecto ocupado por un tercero y bloqueo de indexación —, §5 enmendado por D-BBW-44, `public/_headers` en el repo y declarado en `src/media/registry.ts`; `pnpm check && pnpm build` en verde)
+verified_against_code: 2026-09-19@feat/fase8a-publicacion-de-prueba (v1.3: §7 corregido contra el proveedor REAL — nombre de proyecto ocupado por un tercero y bloqueo de indexación —, §5 enmendado por D-BBW-44, `public/_headers` en el repo y declarado en `src/media/registry.ts`; `pnpm check && pnpm build` en verde. v1.4: el paso 1 del panel anotado contra el panel REAL del día)
 supersedes: []
 superseded_by: null
 related: [D-BBW-02, D-BBW-03, D-BBW-04, D-BBW-05, D-BBW-07, D-BBW-09, D-BBW-10, D-BBW-11, D-BBW-12, D-BBW-26, D-BBW-43, D-BBW-44, BBW-PORTS]
-summary: "Qué produce este repo, qué exige de cualquier host y qué NO vive aquí. El hosting es un puerto intercambiable: migrar de proveedor = cambiar de panel + un registro DNS, cero cambios de código. v1.1 (2026-09-16): el actor de despliegue es Cloudflare conectado al repo (D-BBW-10, enmienda D-BBW-04); Hostinger queda solo como correo y registro de dominios (D-BBW-11). El contrato de puerto no cambia. v1.2 (2026-09-17, D-BBW-26): §7 previsualización por rama adelantada (Cloudflare Pages con integración Git, sin dominio ni DNS; pasos [ZAVALA-MANUAL]) y comando local `pnpm preview` con rangos HTTP. v1.3 (2026-09-19, D-BBW-43/D-BBW-44): primera confrontación del contrato con el proveedor real — el nombre `brandbrain-web` está OCUPADO en `pages.dev` por un tercero y el proyecto pasa a llamarse `bbf-brandbrain-web`; la dirección del proyecto NO la bloquea el proveedor a la indexación y se bloquea con `public/_headers` acotado al anfitrión; §5 precisa que un manifiesto declarativo de cabeceras no es configuración propietaria."
+summary: "Qué produce este repo, qué exige de cualquier host y qué NO vive aquí. El hosting es un puerto intercambiable: migrar de proveedor = cambiar de panel + un registro DNS, cero cambios de código. v1.1 (2026-09-16): el actor de despliegue es Cloudflare conectado al repo (D-BBW-10, enmienda D-BBW-04); Hostinger queda solo como correo y registro de dominios (D-BBW-11). El contrato de puerto no cambia. v1.2 (2026-09-17, D-BBW-26): §7 previsualización por rama adelantada (Cloudflare Pages con integración Git, sin dominio ni DNS; pasos [ZAVALA-MANUAL]) y comando local `pnpm preview` con rangos HTTP. v1.3 (2026-09-19, D-BBW-43/D-BBW-44): primera confrontación del contrato con el proveedor real — el nombre `brandbrain-web` está OCUPADO en `pages.dev` por un tercero y el proyecto pasa a llamarse `bbf-brandbrain-web`; la dirección del proyecto NO la bloquea el proveedor a la indexación y se bloquea con `public/_headers` acotado al anfitrión; §5 precisa que un manifiesto declarativo de cabeceras no es configuración propietaria. v1.4 (2026-09-19): el panel de Cloudflare empuja hacia Workers y hay que entrar a Pages por «Continue to Pages» al final de la ventana de creación — los pasos escritos no coincidían con el panel del día."
 tags: [deploy, hosting, contrato, portabilidad]
 ---
 
@@ -105,7 +105,7 @@ ningún archivo: build, salida y rama se declaran en el panel. Si un día Pages 
 
 | # | Dónde | Qué | Valor |
 |---|---|---|---|
-| 1 | dash.cloudflare.com → **Workers & Pages** → **Create** → **Pages** → **Connect to Git** | Autorizar la aplicación de GitHub de Cloudflare | Alcance: **solo `brand-brain-foundry/brandbrain-web`** (no "todos los repositorios"). Es lo que permite *"deploy your projects, and update your PRs with preview deployments"*. |
+| 1 | dash.cloudflare.com → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**. **El panel empuja hacia Workers (verificado en vivo por Zavala el 2026-09-19 al crear el proyecto): hay que bajar hasta el final de la ventana de creación y entrar por el enlace «Continue to Pages».** Los pasos escritos no coincidían con el panel de ese día; queda anotado para quien venga detrás. | Autorizar la aplicación de GitHub de Cloudflare | Alcance: **solo `brand-brain-foundry/brandbrain-web`** (no "todos los repositorios"). Es lo que permite *"deploy your projects, and update your PRs with preview deployments"*. |
 | 2 | Mismo asistente | Nombre del proyecto | **`bbf-brandbrain-web`** (genera el host `bbf-brandbrain-web.pages.dev`; es solo una dirección del proveedor, no un dominio propio). **El nombre del proyecto YA NO COINCIDE con el del repositorio, y es a propósito:** `brandbrain-web.pages.dev` **está ocupado por un tercero** (verificado el 2026-09-19: HTTP 200 sirviendo una aplicación Expo ajena). En `pages.dev` el nombre es **global, no por cuenta**, así que no se asume libre: se comprueba. `bbf-brandbrain-web` verificado libre el 2026-09-19 por **NXDOMAIN** y por **cero certificados en crt.sh**. |
 | 3 | Mismo asistente | Production branch | `main` |
 | 4 | Mismo asistente | Framework preset | `Next.js (Static HTML Export)` (rellena build y salida; comprobar que quedan como en las filas 5 y 6) |
@@ -155,4 +155,4 @@ https://:project.pages.dev/*
 `x-robots-tag: noindex`. Y la contraprueba: la misma regla **no** puede aparecer en el dominio propio el día del cutover.
 
 ---
-*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 · `docs/system/DEPLOY_CONTRACT.md` · v1.3 · 2026-09-19 (v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*
+*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 · `docs/system/DEPLOY_CONTRACT.md` · v1.4 · 2026-09-19 (v1.3: 2026-09-19 · v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*
