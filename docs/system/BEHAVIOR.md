@@ -71,12 +71,22 @@ s = 0,5 del eje (dc:L515), que con 100–500 es 300. El rol de quietud `--bbf-mo
 **Lo que mide en ejecución (no se supone):** la tabla de avances por glifo y peso (n × 9 medidas uniformes + las del refinado: 27 relayouts
 hoy, cada uno compartido por los n glifos), el presupuesto y la caja anclada; se re-mide al montar, en `document.fonts.ready`, en cada `loadingdone` del conjunto de fuentes (si la display llega tarde, la primera
 tabla es de la de respaldo y la conservación sería falsa), a los 60/700/1800 ms y en cada `resize`. Cambiar palabra o fuente no exige recalibrar
-nada a mano: se remuestrea sola. Lo que SÍ está calibrado a esta familia: `SIGMA`, `GAUSS`, `SIGMOID_K` (cuántas letras engordan y cuánto) y el
+nada a mano: se remuestrea sola.
+
+**CÓMO se mide el ancho, y por qué no da igual (D-BBW-45, cierra HAL-BBW-22).** La palabra se mide con **`max-content`**, nunca con `auto`. Una caja
+con `auto` **encoge para ajustarse** y por tanto **queda topada por el ancho disponible**: en cuanto la palabra no cabe, la medida devuelve el disponible
+en vez del ancho real, y como el cuerpo se corrige con `objetivo × cuerpo / medido`, la corrección **se calcula a sí misma** y el cuerpo equivocado se
+congela hasta que se recarga. Es exactamente lo que pasaba cuando la display llegaba tarde y la tabla salía de la de respaldo. `max-content` es el ancho
+intrínseco y no lo topa el contenedor; además impide que los glifos, que son elementos flexibles, encojan durante la medida. **La calibración desconfía
+de su propia medida:** compara el ancho real con el que daría la caja encogida y, si el topado coincide con el disponible —la firma del tope—, lo dice
+por consola en desarrollo. **Los tres retardos NO son la red de seguridad:** con red lenta la fuente llega a los ~7,6 s, mucho después de los 1.800 ms;
+quien salva la caja es `loadingdone`. El salto mientras tanto lo amortigua el respaldo con métricas ajustadas (`modulator-fallback`, ±1,5 %). Lo que SÍ está calibrado a esta familia: `SIGMA`, `GAUSS`, `SIGMOID_K` (cuántas letras engordan y cuánto) y el
 interletrado de la palabra (EXC-BBW-04).
 
 ## §3 — S7 · Ajuste óptico del rótulo y peso por puntero (`src/behavior/optical-fit.ts`)
 
-**Qué hace:** el rótulo cierra al ancho **anclado** del titular (por eso la caja del titular no puede reflotar); el sobrante tras la última
+**Qué hace:** el rótulo cierra al ancho **anclado** del titular (por eso la caja del titular no puede reflotar; el ancla se calcula con
+`max-content`, D-BBW-45, para que el tope del contenedor no la falsee); el sobrante tras la última
 letra se recorta con margen negativo.
 
 **Fase 6m (D-BBW-41) — cuál de las dos incógnitas se fija.** El cierre tiene dos incógnitas acopladas, el **tamaño** del rótulo y su

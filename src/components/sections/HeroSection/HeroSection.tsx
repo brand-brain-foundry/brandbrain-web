@@ -32,7 +32,16 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
   return (
     <section id={section.id} className={styles.hero} aria-labelledby={headingId} data-component="bbf-hero">
       <HeroBackdrop />
-      <HeroMedia sources={[media.heroLoop720]} poster={media.heroLoopPoster} />
+      {/*
+        D-BBW-46 — el derivado pequeño en pantallas pequeñas. Medido el 2026-09-19 sobre la dirección de prueba: a 360 px la página
+        se traía los 871,8 KB del derivado de 1280×720 de un total de 1.187 KB, teniendo el de 640×360 (315 KB) ya construido y
+        servido. El corte es la madre `--bbf-bp-nav` (780 px), el único punto de ruptura del sistema; el literal se repite aquí
+        porque el atributo `media` es HTML y no admite `var()`, igual que ocurre con `@media` (R8).
+      */}
+      <HeroMedia
+        sources={[{ ...media.heroLoop360, media: "(max-width: 780px)" }, media.heroLoop720]}
+        poster={media.heroLoopPoster}
+      />
       <div className={styles.veil} aria-hidden="true" />
       <HeroParticles />
       <div className={styles.lockup}>
