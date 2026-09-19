@@ -88,6 +88,12 @@ es el valor inicial hasta la primera medida.
 **la guarda cubre todo el recorrido**: la caja anclada mide lo del reposo (+ ≤ 0,1 %), y el reposo es lo que la guarda garantiza (a 360 px,
 52,56 px de cuerpo: 311 px anclados frente a 332 disponibles, medido en el output 6h).
 
+**Fase 7b (D-BBW-42): la guarda deja de ser solo un tope de pantalla estrecha.** Mide contra el ancho OBJETIVO
+(`--bbf-lockup-target` = `--bbf-lockup-width-per-size` × `--bbf-size-display`, con el disponible como suelo), que es el ancho que el lockup
+tenía en el diseño. El ancho es la invariante y el cuerpo la consecuencia en TODO el recorrido, no solo abajo: a 1728 el titular baja de 124
+a 103,17 px y mide 735,23 px, los 735,36 del diseño (Δ −0,13 px). **La conservación de ancho del modulador no se mueve**: cambia el cuerpo,
+no el mecanismo (amplitud de la caja anclada 0,00 px en 90 tomas, los cinco anchos).
+
 **Comprobación (ejecutada en la fase 6h, `OUTPUT-BBW-2026-09-17-fase6h-P1-modulador-de-peso` §F5):** (a) Σ avances medidos por cuadro
 frente al presupuesto en cinco anchos durante varios segundos (deriva bajo el umbral del inventario); (b) cajas del titular, bloque, rótulo,
 afirmaciones y barra idénticas cuadro a cuadro; (c) re-calibración cuando la fuente real está lista, demostrada por el evento
