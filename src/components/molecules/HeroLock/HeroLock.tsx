@@ -21,14 +21,17 @@ import styles from "./HeroLock.module.css";
  *   La preferencia se lee por el ROL `--bbf-motion-loop-play-state` (semantic/motion.css), como los bucles CSS, no repitiendo la consulta.
  * · Accesibilidad: el titular partido lleva su texto como nombre accesible y las letras quedan ocultas a la asistencia; al desmontar se
  *   restaura el texto. El rótulo se tiñe por `data-pull` (CSS), nunca con un color desde aquí.
+ * Fase 7b (D-BBW-42): el afinado deja de medir contra el ancho DISPONIBLE y mide contra el ancho OBJETIVO
+ *   (`--bbf-lockup-target`): el ancho es la invariante y el cuerpo la consecuencia, también en pantallas anchas. Aquí cambia
+ *   UNA lectura; el punto fijo, el número de pasadas y el mecanismo son los mismos.
  * Fase 6m (D-BBW-40 · D-BBW-41), dos cosas y las dos por MEDIDA, no por número:
  *   · LAS DOS GUARDAS DE ANCHO necesitan saber cuántas letras hay, y esa es la única cosa del contenido que la presentación puede
  *     preguntar: el componente publica `--bbf-display-chars` y `--bbf-lead-chars` (una CUENTA, no el texto) y la hoja deriva el tope
  *     del margen de seguridad. Van en el HTML servido, así que la guarda vale también sin JavaScript.
  *   · LA GUARDA DEL TITULAR SE AFINA CON LA MEDIDA: la de la hoja usa el avance del glifo más ancho de la familia, que es una COTA y
  *     por eso sobra (con `DEEPBRAND`, un 22 %). En cuanto el modulador ha anclado la caja se conoce el ancho real, y el componente
- *     escribe `--bbf-display-fit-measured` con el cuerpo exacto que llena el ancho disponible. Es punto fijo en UN paso
- *     (`exacto = disponible × cuerpo ÷ anclado` no depende del cuerpo del que se parta), así que se recalibra una vez y para.
+ *     escribe `--bbf-display-fit-measured` con el cuerpo exacto que llena el ancho objetivo. Es punto fijo en UN paso
+ *     (`exacto = objetivo × cuerpo ÷ anclado` no depende del cuerpo del que se parta), así que se recalibra una vez y para.
  *   · EL LOCK CIERRA RESOLVIENDO EL TAMAÑO del rótulo con la razón de interletrado fija (D-BBW-41): el componente solo cablea; la
  *     resolución vive en behavior/optical-fit.ts.
  * Fase 6l: el contenido trae la palabra EN MINÚSCULAS (el modelo de contenido prohíbe presentación dentro del contenido) y la mayúscula la
@@ -98,9 +101,9 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
       if (!cal || cal.pinned <= 0) return false;
       const cs = getComputedStyle(word);
       const size = parseFloat(cs.fontSize);
-      const avail = parseFloat(cs.getPropertyValue("--bbf-lockup-avail"));
-      if (!Number.isFinite(size) || size <= 0 || !Number.isFinite(avail) || avail <= 0) return false;
-      lock.style.setProperty("--bbf-display-fit-measured", ((avail * size) / cal.pinned).toFixed(3) + "px");
+      const target = parseFloat(cs.getPropertyValue("--bbf-lockup-target"));
+      if (!Number.isFinite(size) || size <= 0 || !Number.isFinite(target) || target <= 0) return false;
+      lock.style.setProperty("--bbf-display-fit-measured", ((target * size) / cal.pinned).toFixed(3) + "px");
       return Math.abs(parseFloat(getComputedStyle(word).fontSize) - size) > OPTICAL_FIT.MIN_DELTA_PX;
     };
 
@@ -125,6 +128,7 @@ export function HeroLock({ headingId, display, lead }: { headingId: string; disp
             pinned: cal?.pinned ?? 0,
             samples: cal?.samples ?? 0,
             avail: parseFloat(getComputedStyle(word).getPropertyValue("--bbf-lockup-avail")),
+            target: parseFloat(getComputedStyle(word).getPropertyValue("--bbf-lockup-target")),
             size: parseFloat(getComputedStyle(word).fontSize),
             leadSize: lockFit?.size ?? 0,
             leadTrack: lockFit?.track ?? 0,

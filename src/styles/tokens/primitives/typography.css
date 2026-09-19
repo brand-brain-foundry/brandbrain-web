@@ -140,6 +140,29 @@
      (124 y 49) y el diseño está plenamente expresado. `--bbf-size-lead-ratio` NO se retira: queda como el tamaño SERVIDO
      (sin JavaScript, y antes de la primera medida), que ya no es el tamaño final. ──────────────────────────────────────────── */
   --bbf-tracking-lead-lock-ratio: 0.72327;
+
+  /* ── FASE 7b (D-BBW-42) · EL ANCHO DEL LOCKUP ES LA INVARIANTE, Y EL CUERPO LA CONSECUENCIA ──────────────────────
+     ANCHO QUE EL LOCKUP DEL DISEÑO OCUPA POR CADA PÍXEL DE CUERPO DEL TITULAR. Medido en el export con sus palabras
+     originales (`Creative`), 90 tomas por rAF en cada uno de NUEVE anchos, con el titular ya asentado:
+       360 → 5,93013 · 780 → 5,92961 · 1000 → 5,93043 · 1280 → 5,93000 · 1440 → 5,92978 · 1600/1728/1920/2560 → 5,93032
+     Amplitud 0,00083 sobre 5,93013: **0,0139 %**. Es constante en TODO el recorrido, incluidos los tres regímenes del
+     `clamp` de EXC-BBW-01 (suelo, pendiente y tope), y por eso es el invariante de verdad del diseño.
+     POR QUÉ NO LA PROPORCIÓN SOBRE LA VENTANA, que es lo que se fue a buscar: NO es estable. Medida, 0,86580 (360) ·
+     0,49811 (780–1440, la banda de pendiente) · 0,45960 (1600) · 0,42556 (1728) · 0,38300 (1920) · 0,28725 (2560). Solo es
+     constante dentro de la banda de pendiente, y decae por encima del codo porque ahí el diseño CONGELA el ancho (su cuerpo
+     topa en 124). Las dos lecturas son la misma cosa vista desde sitios distintos —en la banda de pendiente
+     0,084 × 5,93013 = 0,49813— pero solo ÉSTA vale en los tres regímenes.
+     QUÉ RESUELVE: `deepbrand` tiene nueve letras frente a las ocho de `Creative`, así que al mismo cuerpo ocupa más ancho
+     (7,13 px de lockup por px de cuerpo frente a 5,93) e invadía el encuadre del vídeo en pantallas grandes. Con el ancho
+     como invariante el titular mide lo que medía en el diseño y el cuerpo sale de ahí; a 1728 baja de 124 a ~103 px.
+     POR QUÉ NO HAY NINGÚN LITERAL ATADO A UNA PALABRA: el ancho objetivo (`--bbf-lockup-target`, semantic/composition.css)
+     es esta razón por el tamaño del rol, y NO depende de cuántas letras haya; la cuenta de letras entra solo al dividir para
+     obtener el cuerpo, igual que en la guarda de la 6m. Si mañana cambia la palabra, se recalibra sola.
+     POR QUÉ MULTIPLICA A `--bbf-size-display` Y NO A `100vw`: así los TRES regímenes del diseño salen gratis y con su mismo
+     codo — suelo (62 px ⇒ 367,7 px de lockup, hasta 738 px de ancho), pendiente (8,4vw ⇒ 0,498 del ancho) y tope
+     (124 px ⇒ 735,3 px, desde 1476 px de ancho). No hay que escribir ni el codo ni el suelo: ya están en el `clamp`. ───── */
+  --bbf-lockup-width-per-size: 5.93013;
+
   --bbf-size-lead-ratio: 0.4;
   --bbf-size-lead-min: calc(var(--bbf-size-display-min) * var(--bbf-size-lead-ratio));
   --bbf-size-lead-max: calc(var(--bbf-size-display-max) * var(--bbf-size-lead-ratio));

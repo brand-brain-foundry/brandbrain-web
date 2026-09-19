@@ -23,6 +23,10 @@
  * pantalla estrecha; el componente del titular aplica `min(size, fit)`. Fase 6m (D-BBW-40): las dos guardas dejan de ser literales del
  * diseño (14,6vw y su derivada, calibrados contra `Creative`) y pasan a DERIVARSE del margen de seguridad y de las métricas de cada
  * familia, así que valen para cualquier palabra; por eso viven aquí y ya no en primitivos (dependen de la composición, que es Tier 2).
+ * Fase 7b (D-BBW-42): las dos guardas dejan de medir contra el ancho DISPONIBLE y pasan a medir contra el ancho OBJETIVO
+ * (`--bbf-lockup-target`, semantic/composition.css), que es el del diseño con el disponible como suelo. Deja de ser un tope que solo
+ * actúa en pantalla estrecha y pasa a ser quien FIJA el ancho en todo el recorrido: el ancho es la invariante y el cuerpo la
+ * consecuencia. La fórmula no cambia; cambia de qué ancho parte.
  * Fase 6l (portado P5 del N1, doc B §11): nace la propiedad `shadow` del rol — la SOMBRA DE TEXTO, que el diseño aplica a ocho elementos con
  * seis sombras distintas y que la 6a dejó pendiente por falta de mapeo (P-BBW-31, CERRADO aquí). El inventario del N1 lo completó elemento a
  * elemento y las seis caen en los cuatro pasos que `primitives/shadows.css` ya tenía: nav `0 2px 18px .95` → md · hoja `0 2px 22px .9` → lg ·
@@ -42,7 +46,7 @@
   --bbf-type-display-tracking: var(--bbf-tracking-display); /* EXC-BBW-04 (D-BBW-32): el valor del diseño, atado a los sidebearings de la familia */
   /* GUARDA DE ANCHO DEL TITULAR (fase 6m, D-BBW-40) — DERIVADA, no calibrada. El cuerpo más grande al que la palabra cabe entre los
      dos márgenes: ancho disponible ÷ (letras × (avance máximo de la familia + interletrado)). Las tres piezas son o un hecho medido
-     de la familia (`--bbf-advance-display-max`), o un rol de composición (`--bbf-lockup-avail`), o el interletrado del propio rol:
+     de la familia (`--bbf-advance-display-max`), o un rol de composición (`--bbf-lockup-target`), o el interletrado del propio rol:
      ninguna es un número atado a una palabra, que es lo que rompió la guarda anterior al cambiar `Creative` por `deepbrand`.
      `--bbf-display-chars` lo pone el componente desde el contenido (es una MEDIDA del texto, no el texto). El avance máximo es una
      COTA, así que este valor nunca recorta y a veces sobra: el cliente lo afina con la medida real (`-fit-measured`) en cuanto puede,
@@ -51,7 +55,7 @@
      EN `:root`, donde `--bbf-display-chars` no existe; metiendo la cuenta en el rol la declaración entera queda inválida y el titular
      cae al tamaño heredado (medido: 18 px sin JavaScript). Así que el rol da el cuerpo al que cabría una palabra de UNA letra y la hoja
      del lock lo divide entre la cuenta, que es donde la cuenta vive. */
-  --bbf-type-display-fit-unit: calc(var(--bbf-lockup-avail) / (var(--bbf-advance-display-max) + var(--bbf-tracking-display-ratio)));
+  --bbf-type-display-fit-unit: calc(var(--bbf-lockup-target) / (var(--bbf-advance-display-max) + var(--bbf-tracking-display-ratio)));
   --bbf-type-display-shadow: var(--bbf-shadow-xl);
 
   --bbf-type-lead-family: var(--bbf-font-text);
@@ -61,7 +65,7 @@
   --bbf-type-lead-tracking: var(--bbf-tracking-7);
   /* Guarda del rótulo: la MISMA derivación con las métricas y el interletrado de SU familia y su rol (×7 de la madre). Solo manda
      mientras no hay medida: con el cliente vivo el tamaño del rótulo lo resuelve el cierre del lock (D-BBW-41, optical-fit.ts). */
-  --bbf-type-lead-fit-unit: calc(var(--bbf-lockup-avail) / (var(--bbf-advance-text-max) + var(--bbf-tracking-base-ratio) * 7));
+  --bbf-type-lead-fit-unit: calc(var(--bbf-lockup-target) / (var(--bbf-advance-text-max) + var(--bbf-tracking-base-ratio) * 7));
   /* RAZÓN INVARIANTE del lock (D-BBW-41): interletrado ÷ tamaño del rótulo, medida en el export con sus palabras. La lee
      src/behavior/optical-fit.ts por `getPropertyValue` y nunca la repite (D-BBW-30). */
   --bbf-type-lead-track-ratio: var(--bbf-tracking-lead-lock-ratio);

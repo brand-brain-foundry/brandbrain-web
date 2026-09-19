@@ -294,7 +294,15 @@ comprobación que mire el documento.
 
 **Lo que SÍ vive en una guardia de código** (`scripts/lint/check-typography-system.ts`, R9): la **causa**, no el síntoma. R9 obliga a que el
 margen de seguridad esté declarado a los dos lados del punto de corte con suelo de 16 px, a que toda guarda `-fit-unit` derive de
-`--bbf-lockup-avail` **sin ningún literal de longitud**, y a que todo rol de borde (`-pad`, `-side`, `-page`) tome `max(var(--bbf-space-safe), …)`.
+`--bbf-lockup-target` **sin ningún literal de longitud**, y a que todo rol de borde (`-pad`, `-side`, `-page`) tome `max(var(--bbf-space-safe), …)`.
+
+**Fase 7b (D-BBW-42): el ancho deja de ser un TOPE y pasa a ser la INVARIANTE.** Las guardas ya no miden contra el ancho *disponible* sino
+contra el ancho *objetivo* (`--bbf-lockup-target`), que es el que el lockup tenía en el diseño — `--bbf-lockup-width-per-size` (5,93013 px de
+lockup por px de cuerpo del titular, medido en el export en nueve anchos con amplitud del 0,0139 %) por `--bbf-size-display` — con el
+disponible como **suelo de seguridad**. La guardia crece con un apartado (d) que ata el propio objetivo al disponible y a la razón medida,
+**sin literales**: sin él, (b) sería aflojar la regla, porque bastaría escribir el objetivo a mano para saltarse D-BBW-40. Comprobada contra
+las dos regresiones (objetivo escrito a mano, y objetivo que se salta el margen): las caza.
+
 Comprobado que detecta las dos formas de la regresión: devolver `14.6vw` a la guarda da dos errores R9, y quitarle el suelo a `--bbf-bar-side`
 da uno.
 

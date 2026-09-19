@@ -38,8 +38,11 @@
  *        síntoma (el síntoma NO es comprobable aquí: exige tipografía cargada y disposición; vive en el arnés, docs/system/BEHAVIOR.md §7):
  *        (a) `--bbf-space-safe` está declarado en semantic/viewport.css a los dos lados del punto de corte, los dos valores apuntan a un paso
  *            de la escala de espaciado, y el valor de la vista estrecha no baja del suelo de industria de 16 px.
- *        (b) toda guarda de ancho (`--bbf-type-<rol>-fit-unit`) se DERIVA: consume `--bbf-lockup-avail` y no contiene ningún literal de
+ *        (b) toda guarda de ancho (`--bbf-type-<rol>-fit-unit`) se DERIVA: consume `--bbf-lockup-target` y no contiene ningún literal de
  *            longitud. Un `14.6vw` calibrado a mano contra una palabra concreta es exactamente lo que rompió la marca al cambiarla.
+ *        (d) y el propio `--bbf-lockup-target` (fase 7b, D-BBW-42) consume `--bbf-lockup-avail` y `--bbf-lockup-width-per-size`, sin
+ *            literales de longitud: así la cadena hasta el margen NO se rompe al meter el ancho objetivo por en medio. Sin (d), (b)
+ *            sería aflojar la regla — bastaría escribir el objetivo a mano para saltarse D-BBW-40.
  *        (c) todo rol que separe contenido de un BORDE de la pantalla (por convención de nombre: `-pad`, `-side`, `-page`) toma
  *            `--bbf-space-safe` como suelo con `max(...)`. Un rol de borde nuevo sin suelo es error aunque hoy dé un número mayor.
  *   R8 · PUNTO DE CORTE: todo literal `<N>px` dentro de un `@media (...)` bajo src/ fuera de primitives/ coincide con el valor de una
@@ -353,14 +356,42 @@ let r9Checked = 0;
       if (!m) return;
       r9Checked++;
       const value = m[2];
-      if (!value.includes('--bbf-lockup-avail')) {
-        problems.push({ rule: 'R9', where: `${rp}:${i + 1}`, detail: `${m[1]} no deriva de --bbf-lockup-avail: la guarda de ancho tiene que salir del margen (D-BBW-40), no de un valor propio` });
+      if (!value.includes('--bbf-lockup-target')) {
+        problems.push({ rule: 'R9', where: `${rp}:${i + 1}`, detail: `${m[1]} no deriva de --bbf-lockup-target: la guarda de ancho tiene que salir del ancho objetivo (D-BBW-42), y ese del margen (D-BBW-40), no de un valor propio` });
       }
       const literal = /(?<![a-z0-9-])\d+(?:\.\d+)?(px|vw|vh|vmin|vmax|cqw|cqh|em|rem|%)/.exec(value);
       if (literal) {
         problems.push({ rule: 'R9', where: `${rp}:${i + 1}`, detail: `${m[1]} contiene el literal "${literal[0]}": una guarda calibrada a mano se rompe al cambiar la palabra (HAL-BBW-20)` });
       }
     });
+  }
+  // (d) el ANCHO OBJETIVO, del que ahora cuelgan las guardas, sigue atado al margen y a la razón medida del diseño (D-BBW-42).
+  //     Sin esto (b) sería aflojar la regla: bastaría declarar un `--bbf-lockup-target` a mano para saltarse D-BBW-40.
+  {
+    const abs = tokenFiles.find((f) => rel(f).endsWith('semantic/composition.css'));
+    if (!abs) {
+      problems.push({ rule: 'R9', where: 'semantic/composition.css', detail: 'no encontrado: es donde vive --bbf-lockup-target (D-BBW-42)' });
+    } else {
+      const rp = rel(abs);
+      const src = fs.readFileSync(abs, 'utf8').replace(/\/\*[\s\S]*?\*\//g, ' ');
+      const lines = src.split('\n');
+      const idx = lines.findIndex((l) => /--bbf-lockup-target\s*:/.test(l));
+      if (idx < 0) {
+        problems.push({ rule: 'R9', where: rp, detail: '--bbf-lockup-target no declarado: es el ancho del que cuelgan las dos guardas (D-BBW-42)' });
+      } else {
+        r9Checked++;
+        const value = /--bbf-lockup-target\s*:\s*([^;]+);/.exec(lines[idx])?.[1] ?? '';
+        for (const dep of ['--bbf-lockup-avail', '--bbf-lockup-width-per-size']) {
+          if (!value.includes(dep)) {
+            problems.push({ rule: 'R9', where: `${rp}:${idx + 1}`, detail: `--bbf-lockup-target no consume ${dep}: el ancho objetivo es la razón MEDIDA del diseño con el disponible como suelo (D-BBW-42 sobre D-BBW-40)` });
+          }
+        }
+        const literal = /(?<![a-z0-9-])\d+(?:\.\d+)?(px|vw|vh|vmin|vmax|cqw|cqh|em|rem|%)/.exec(value);
+        if (literal) {
+          problems.push({ rule: 'R9', where: `${rp}:${idx + 1}`, detail: `--bbf-lockup-target contiene el literal "${literal[0]}": el ancho objetivo se DERIVA, no se calibra a mano (D-BBW-42)` });
+        }
+      }
+    }
   }
   // (c) todo rol de BORDE toma el margen de seguridad como suelo
   for (const abs of tokenFiles.filter((f) => f.endsWith('.css') && /\/semantic\//.test(rel(f)))) {
@@ -388,5 +419,5 @@ for (const p of problems) console.error(`  ${p.rule} ${p.where}: ${p.detail}`);
 console.error('  Regla: todo peso lleva familia (--bbf-weight-<familia>-*), dentro de su rango declarado; ningún wght crudo fuera de primitives/typography.css.');
 console.error('  Regla: ningún paso, excepción ni rol de tamaño baja de --bbf-text-floor (D-BBW-18); todo --bbf-type-<rol>-size consume var(--bbf-size-*) del canon (D-BBW-17).');
 console.error('  Regla: toda EXCEPCIÓN EXC-BBW-NN del canon tiene fila firmada en docs/system/DESIGN_EXCEPTIONS.md §1 y viceversa (D-BBW-16); todo literal px de @media fuera de primitivos coincide con una madre --bbf-bp-*.');
-console.error('  Regla: --bbf-space-safe declarado a los dos lados del corte con suelo de 16 px; toda guarda -fit-unit deriva de --bbf-lockup-avail sin literales; todo rol -pad/-side/-page toma max(var(--bbf-space-safe), ...) (D-BBW-40).');
+console.error('  Regla: --bbf-space-safe declarado a los dos lados del corte con suelo de 16 px; toda guarda -fit-unit deriva de --bbf-lockup-target y ese de --bbf-lockup-avail + --bbf-lockup-width-per-size, sin literales; todo rol -pad/-side/-page toma max(var(--bbf-space-safe), ...) (D-BBW-40 · D-BBW-42).');
 process.exit(1);

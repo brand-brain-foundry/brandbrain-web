@@ -8,12 +8,23 @@
  * Fase 6m (D-BBW-40): los dos roles que pegan contenido a un borde lateral (el margen del bloque de texto y el de la barra del pie)
  * toman el MARGEN DE SEGURIDAD (`--bbf-space-safe`, semantic/viewport.css) como SUELO, y nace `--bbf-lockup-avail`, el ancho
  * disponible del que se derivan las guardas de ancho del lock.
+ * Fase 7b (D-BBW-42): nace `--bbf-lockup-target`, el ancho que el lockup DEBE ocupar — el del diseño, con el disponible como
+ * suelo de seguridad. Pasa a ser él, y ya no el disponible, el que alimenta las dos guardas: el ancho es la invariante y el
+ * cuerpo del titular la consecuencia.
  * CLASE (D-DOC-13): estático (roles); a qué madre y a qué paso apunta cada rol = dinámico.
  */
 /* El ancho disponible lo LEE el cliente (HeroLock, para afinar la guarda con la medida real). Una custom property sin registrar
    devolvería el texto sin evaluar ("calc(100cqw - ...)"); registrada como longitud, `getComputedStyle` da los px del elemento y
    `cqw` se resuelve contra el contenedor que le toca. Es la única razón del registro: no cambia nada de la cascada. */
 @property --bbf-lockup-avail {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+/* el ANCHO OBJETIVO del lockup se registra por la misma razón que el disponible: el cliente lo lee resuelto en px
+   para afinar la guarda con la medida real (HeroLock). Sin registrar, `getComputedStyle` devolvería el `min()` sin evaluar. */
+@property --bbf-lockup-target {
   syntax: "<length>";
   inherits: true;
   initial-value: 0px;
@@ -45,6 +56,17 @@
      `vw` una barra de desplazamiento vertical mentiría. De aquí derivan las dos guardas de ancho del lock, y por eso la guarda ya no
      conoce ninguna palabra. */
   --bbf-lockup-avail: calc(100cqw - 2 * var(--bbf-lockup-pad));
+  /* ANCHO OBJETIVO DEL LOCKUP (fase 7b, D-BBW-42) — la invariante, de la que el cuerpo del titular es consecuencia.
+     Dos términos y el menor manda:
+       · EL DISEÑO: su lockup ocupa `--bbf-lockup-width-per-size` px por cada px de cuerpo del titular (5,93013, medido en
+         el export en nueve anchos con amplitud del 0,0139 %). Multiplicando por `--bbf-size-display` —el `clamp` de
+         EXC-BBW-01, que es el del diseño— salen sus TRES regímenes con su mismo codo, sin escribir ninguno.
+       · EL SUELO DE SEGURIDAD: el ancho disponible entre los dos márgenes (D-BBW-40). Manda solo si el ancho del diseño
+         no cupiera entre ellos, y garantiza que el texto NUNCA toca el borde. Con esta palabra no llega a mandar en
+         ninguno de los cinco anchos (a 360 el diseño pide 311,7 y hay 328 disponibles), y así queda dicho.
+     En `vw` el primer término (es el `clamp` del diseño, que es de ventana) y en `cqw` el segundo (es el margen, que es
+     de la caja del héroe, 6m): cada uno contra lo que de verdad lo determina. */
+  --bbf-lockup-target: min(var(--bbf-lockup-avail), calc(var(--bbf-lockup-width-per-size) * var(--bbf-size-display)));
 
   --bbf-chrome-nav-top: clamp(var(--bbf-space-4), var(--bbf-chrome-nav-top-slope), var(--bbf-space-10));
   --bbf-chrome-nav-gap: clamp(var(--bbf-space-5), var(--bbf-chrome-nav-gap-slope), var(--bbf-space-10));

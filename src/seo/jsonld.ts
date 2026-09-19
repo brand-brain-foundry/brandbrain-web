@@ -11,10 +11,12 @@ import { media } from "@/media";
  *   (developers.google.com/search/docs/appearance/structured-data/local-business, "Required properties", actualizada 2026-09-08) y este
  *   sitio no tiene dirección publicada. Inventarla sería el dato falso que §5 del despacho prohíbe. Cuando exista dirección real y visible
  *   en la página, el tipo entra aquí y no antes.
- * · `sameAs` NO se emite: los perfiles del pie (`site.links.linkedin`, `site.links.github`) son cuentas personales y la página NO dice de
- *   quién son (sus nombres accesibles son "Perfil de LinkedIn" y "Perfil de GitHub", deliberadamente sin atribuir). `sameAs` afirmaría que
- *   esos perfiles SON la organización. Si Zavala confirma que lo son, es una línea: añadir `sameAs: [site.links.linkedin, site.links.github]`
- *   a `organization`.
+ * · `sameAs` SÍ se emite desde la fase 7b: la fase 7 lo dejó fuera porque la página no dice de quién son los perfiles del pie (sus nombres
+ *   accesibles son "Perfil de LinkedIn" y "Perfil de GitHub", deliberadamente sin atribuir) y `sameAs` afirma que SON la organización.
+ *   **Zavala confirma el 2026-09-18 que los perfiles son de la marca**, que es justo el hecho que faltaba, así que entran — leídos de la
+ *   fuente única (`site.links`), nunca repetidos aquí. Queda dicho, porque es el límite de la regla y no un descuido: la afirmación se
+ *   apoya en la confirmación de Zavala, no en algo que el texto de la página diga; atribuirlos también en el nombre accesible del enlace
+ *   sería copy, y este turno no cambia palabras.
  * · `site.links.agency` y `site.links.works` tampoco entran en `sameAs`: son OTRAS entidades (la agencia hermana y un portafolio), no esta
  *   organización con otra dirección.
  * · `aggregateRating`, `review`, `priceRange`, `telephone`, `foundingDate`: no existen en la página. No se emiten.
@@ -57,6 +59,9 @@ export function homeGraph(locale: Locale, description: string): object {
         logo: absolute(media.appleTouchIcon.src),
         // el buzón oficial (D-BBW-13(a)); la página lo lleva literal en el `href` del enlace de contacto
         email: site.contact.email,
+        // los PERFILES de la marca (Zavala, 2026-09-18), por su llave de rol en la fuente única: `sameAs` dice "esta organización también
+        // está aquí". `agency` y `works` NO entran: son OTRAS entidades (la agencia hermana y un portafolio), no esta con otra dirección.
+        sameAs: [site.links.linkedin, site.links.github],
         description,
       },
       {
