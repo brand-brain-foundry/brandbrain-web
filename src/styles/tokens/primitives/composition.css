@@ -53,7 +53,17 @@
   --bbf-stage-width-cap-split: 0.9;
   --bbf-stage-width-cap-single: 2;
   --bbf-stage-height-floor: var(--bbf-space-63);
-  --bbf-stage-anchor-y: 43%;
+  /* ANCLA VERTICAL DEL ESCENARIO, POR VISTA (D-BBW-57). El 43 % del diseño se queda donde el diseño lo puso: en la vista de DOS ZONAS,
+     donde el texto va al lado y nunca lo estorba. En la de UNA, el texto va debajo y la opción B (D-BBW-53) redujo el solape sin
+     eliminarlo, así que el arte sube — lo MÍNIMO que lo elimina, no más:
+       · `-single` = **40,5 %**. Medido barriendo el ancla contra la TINTA del sujeto bajo el bloque de texto (no contra su caja), con
+         el máximo sobre el bucle del vídeo y la ventana entera de traslación. A 360 px la tinta baja hasta y=418 y el bloque empieza
+         en 420: **cero solape con 2 px de holgura**. A 41 % todavía quedaban 699 px de tinta dentro del bloque. A 780, holgura de 11 px.
+         Estable en tres muestreos distintos (6, 8 y 14 muestras). Con 40 % la holgura sería 6 px, pero eso ya es subir más de lo
+         necesario.
+       · `-split`  = **43 %**, el valor del diseño, sin tocar. */
+  --bbf-stage-anchor-y-split: 43%;
+  --bbf-stage-anchor-y-single: 40.5%;
   /* La proporción del escenario, en DOS madres además de la razón, porque CSS no sabe dividir por un `<ratio>` y la cota de ancho
      necesita hacerlo. Una sola fuente de verdad: la razón se compone de ellas. */
   --bbf-stage-aspect-w: 16;
