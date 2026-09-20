@@ -1,0 +1,1 @@
+export { HeroClaim } from "./HeroClaim";

@@ -21,6 +21,24 @@ tags: [tipografia, pesos, ejes-variables, animacion, accesibilidad, brandbrain-w
 > **Qué es:** la nota de sistema que dice cómo se piden pesos en este repo y qué restricciones absorbe el sistema para que el titular
 > animado no traiga números escritos a mano. **Qué no es:** el componente del titular (vive en `src/components/sections/HeroSection/`).
 
+
+## Héroe rediagramado (D-BBW-47) — el modulador cambia de sujeto, no de algoritmo
+
+La animación de peso deja de aplicarse a **una palabra** (el titular `deepbrand`) y pasa a aplicarse a **la última línea de un claim
+de tres**, una frase con espacios y punto. Las otras dos líneas quedan al peso de reposo del rol.
+
+- **La conservación de ancho es POR LÍNEA.** La caja anclada es la de la tercera línea; las otras dos, el encabezado y la firma son
+  hermanos en una columna y no se enteran. Medido: cero recolocación de las seis cajas en 150 cuadros × cinco anchos.
+- **El espacio es un glifo con avance** y hay que impedir que se colapse. Un glifo del modulador es elemento flexible, es decir caja de
+  bloque, y en una caja de bloque un espacio suelto se colapsa y se recorta: mediría cero, la frase saldría sin espacios y el
+  presupuesto se calcularía sobre una tabla falsa. Se arregla con `white-space: pre` en el glifo (HAL-BBW-24).
+- **La discontinuidad de avance de la familia la tienen tres glifos**, no uno: `e`, `s` y `S`, todas en el peso **224,73** con un salto
+  de **0,02373 em**. Los otros catorce del claim están limpios. La tolerancia del refinado por bisección pasa a ir **en em**
+  (`0,00485 em`, el mismo valor que la 6h validó dicho en la unidad en la que era cierto), porque un umbral en píxeles solo dispara por
+  encima de ~105 px de cuerpo y el claim tiene cuerpos de 28,56 a 64,01 px (HAL-BBW-25).
+- **El ancho lo fija la línea más larga** (D-BBW-48): la guarda servida divide entre la cuenta de letras de la más larga, y el afinado
+  por medida toma el máximo de los tres anchos reales, con la tercera línea ya anclada.
+
 ## §1 — Dos familias, dos escalas incompatibles
 
 | Familia (D-BBW-14) | Origen del rango | Eje `wght` real | Qué significa "500" | Qué pasa fuera del rango |

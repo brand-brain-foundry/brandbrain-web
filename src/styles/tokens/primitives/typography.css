@@ -31,9 +31,8 @@
  *   · claims 14 → 15 = paso −1 (15 → 16) · nav 9,5 → 11,5 = paso −2 (12,5 → 12,8; sube por el suelo) · nav de la hoja 20 → 30 = paso 2
  *     (25,9 → 31,3, comparado en su rango real ≤ 780 px: |Δ| ≤ 3,5 px) · legal/estado 9 → 10 = paso −2 (sube por el suelo; HAL-BBW-09
  *     cerrado para legal) · display 62 → 124 = EXCEPCIÓN EXC-BBW-01 (bloque abajo).
- *   · lead "Technologist" 24 → 49 NO cae en ningún paso con ningún juego de anclajes (plana hasta 706 px y luego proporcional al ancho,
- *     como el display). RESUELTO en la fase 6b (D-BBW-19): se DERIVA del display por una proporción única = EXCEPCIÓN EXC-BBW-02 (bloque
- *     abajo, una sola madre). HAL-BBW-09 cerrado.
+ *   · lead "Technologist" 24 → 49: resuelto en la fase 6b (D-BBW-19) derivándolo del display por una proporción única, que fue la
+ *     excepción 02. RETIRADA en el héroe rediagramado (D-BBW-47): el rótulo deja de existir y la excepción sale con él.
  *
  * CLASE (D-DOC-13): fórmula, criterio del 200 % y suelo = estático · madres (min/max/vw/proporciones/suelo), familias, rangos/pesos
  * de eje y las excepciones = dinámico · archivo = plantilla.
@@ -52,11 +51,12 @@
      hace que la guarda de ancho valga para CUALQUIER palabra sin conocerla: ancho natural ≤ letras × (avance máximo + interletrado).
      Medido en Chrome 152 sobre la página construida, barriendo A–Z a un cuerpo de referencia de 1000 px (output 6m §F2):
        · display `modulator-vf` al peso de reposo (300): máximo `W` = 0,95 em (mínimo `I` = 0,39625)
-       · text Space Grotesk al peso regular (400): máximo `W` = 0,87528 em (mínimo `I` = 0,24413)
-     CAMBIAR DE FAMILIA O DE PESO DE REPOSO OBLIGA A RE-MEDIR estas dos madres (misma nota que EXC-BBW-04). La guarda solo se
-     vuelve holgada, nunca corta: una cota alta encoge el titular, no lo recorta. ─────────────────────────────────────────────── */
+     CAMBIAR DE FAMILIA O DE PESO DE REPOSO OBLIGA A RE-MEDIR esta madre (misma nota que EXC-BBW-04). La guarda solo se
+     vuelve holgada, nunca corta: una cota alta encoge el claim, no lo recorta.
+     La madre gemela de la familia de texto (`--bbf-advance-text-max` = 0,87528 em, medida igual el mismo día) se RETIRA con el
+     rótulo (D-BBW-47): su único consumidor era la guarda de ancho de aquél, y ningún rol de texto corrido necesita una cota
+     de avance porque ninguno se ajusta al ancho — se envuelven. Queda medida y dicha aquí por si vuelve a hacer falta. ── */
   --bbf-advance-display-max: 0.95;
-  --bbf-advance-text-max: 0.87528;
 
   /* ── Madres de tamaño (unitless = px): paso cero = texto corrido (D-BBW-17), ventana fluida (criterio técnico) ── */
   --bbf-text-min: 18;
@@ -116,33 +116,13 @@
   /* la guarda `-fit` YA NO VIVE AQUÍ (fase 6m, D-BBW-40): dejó de ser un literal del diseño calibrado contra una palabra y pasó a
      DERIVARSE del margen de seguridad; es composición, así que es un rol de Tier 2 (`--bbf-type-display-fit`, semantic/typography.css). */
 
-  /* ── EXCEPCIÓN EXC-BBW-02 · tamaño del rótulo (`lead`) DERIVADO del titular (D-BBW-19 · D-BBW-16 · registro: docs/system/DESIGN_EXCEPTIONS.md)
-     VALOR: una sola madre, la proporción rótulo/titular. Medida del diseño (N0 §2.2: `min(clamp(24px, 3.4vw, 49px), 5.9vw)` frente a
-     `min(clamp(62px, 8.4vw, 124px), 14.6vw)`): 24/62 = 0,387 · 49/124 = 0,395 · 3,4/8,4 = 0,405 · 5,9/14,6 = 0,404 → 0,40 en todo el recorrido.
-     Resultado: 24,8 → 49,6 px con pendiente 3,36vw (diseño 24 → 49, 3,4vw): |Δ| < 1 px en cualquier ancho, mismo codo (plano hasta que el
-     display arranca a 738 px, luego proporcional al ancho). Sigue fuera de la escala (ningún paso lineal la sigue: 26 anclajes probados,
-     mejor error 28 %, OUTPUT-BBW-2026-09-16-fase6a-bis §2), pero con UNA madre en lugar de tres (24/49/3,4vw).
-     RAZÓN: el diseño calibró rótulo y titular como una unidad (el N0 los ajusta por interletrado medido para igualar anchos): si el rótulo
-     existe para acompañar al titular, que dependa de él. Cambiar el display (madres de EXC-BBW-01) arrastra el rótulo sin tocar nada aquí.
-     Suelo (R5) y ampliación al 200 % se comprueban sobre el derivado (24,8 ≥ 12; escala lineal del display, que pasa el 200 %).
-     LO QUE NO ES TAMAÑO: el tope `5.9vw` del diseño es la misma guarda de ajuste al ancho que el `14.6vw` del display (5,9/14,6 = 0,404):
-     fase 6e, se DERIVA de la guarda del display por la misma madre (0,4 → 5,84vw; |Δ| 0,06vw = 0,2 px a 360 px) y la consume el componente
-     del titular por rol (`--bbf-type-lead-fit`). Por debajo de ~425 px el rótulo baja de 24,8 a 21 px: cruza el umbral de texto grande de
-     WCAG (24 px) y su mínimo de contraste pasa de 3:1 a 4,5:1 (medido en el output 6e). ─────────────────────────────────────── */
-  /* ── FASE 6m (D-BBW-41) · CUÁL DE LAS DOS PROPORCIONES ES LA INVARIANTE ────────────────────────────────────────────────────
-     El lock tiene DOS incógnitas acopladas, el tamaño del rótulo y su interletrado, y solo una puede fijarse: la otra la resuelve
-     el cierre al ancho del titular. MEDIDO EN EL EXPORT (output 6m §F3) con las palabras originales, en los cinco anchos:
-       r_tamaño       = 0,40411 (360) · 0,40476 (780 y 1000) · 0,39516 (1728 y 1920)   → la madre 0,40 de abajo
-       r_interletrado = 0,69303 (360) · 0,69080 (780 y 1000) · 0,72327 (1728 y 1920)
-     El diseño fija la PRIMERA y resuelve la segunda: r_interletrado no es un parámetro suyo, es una consecuencia exacta de
-     r_tamaño y de las dos palabras — `r_track = (A_D/r_size − A_L)/(n−1)` reproduce las cinco filas al quinto decimal.
-     Con las palabras nuevas esa elección ROMPE el bloque: `ecosystem` tiene 8 huecos (frente a 11 de `Technologist`) para un
-     titular 20 % más ancho, pediría 70,4 px de interletrado y el tope del diseño son 40 → el rótulo se queda en el 72,5 % del
-     titular (output 6l §2.5). D-BBW-41 INVIERTE cuál es cuál: la invariante pasa a ser **r_interletrado** y se resuelve el tamaño.
-     Se conserva el valor medido en el ancho de referencia del diseño (1728/1920), donde ambos cuerpos están en su tope autorado
-     (124 y 49) y el diseño está plenamente expresado. `--bbf-size-lead-ratio` NO se retira: queda como el tamaño SERVIDO
-     (sin JavaScript, y antes de la primera medida), que ya no es el tamaño final. ──────────────────────────────────────────── */
-  --bbf-tracking-lead-lock-ratio: 0.72327;
+  /* ── EXC-BBW-02 RETIRADA (D-BBW-47) ───────────────────────────────────────────────────────────────────────────
+     El rótulo ya no existe. La excepción derivaba su TAMAÑO del titular por una sola madre (0,40) porque el diseño había
+     calibrado titular y rótulo como una unidad que cerraba al mismo ancho; con el héroe rediagramado el lockup de dos líneas
+     desaparece entero y con él su ajuste óptico (D-BBW-41, `src/behavior/optical-fit.ts`) y la razón invariante de
+     interletrado que lo cerraba. Salen en el mismo commit que entra su sustituto (I-6): una excepción registrada sin código
+     es tan agujero como código sin registro, y la guardia R7 lo comprueba en los dos sentidos.
+     Lo que NO se va: EXC-BBW-01 (el tamaño del display, que ahora lo consume el claim) y EXC-BBW-04 (su interletrado). ── */
 
   /* ── FASE 7b (D-BBW-42) · EL ANCHO DEL LOCKUP ES LA INVARIANTE, Y EL CUERPO LA CONSECUENCIA ──────────────────────
      ANCHO QUE EL LOCKUP DEL DISEÑO OCUPA POR CADA PÍXEL DE CUERPO DEL TITULAR. Medido en el export con sus palabras
@@ -166,11 +146,6 @@
      (124 px ⇒ 735,3 px, desde 1476 px de ancho). No hay que escribir ni el codo ni el suelo: ya están en el `clamp`. ───── */
   --bbf-lockup-width-per-size: 5.93013;
 
-  --bbf-size-lead-ratio: 0.4;
-  --bbf-size-lead-min: calc(var(--bbf-size-display-min) * var(--bbf-size-lead-ratio));
-  --bbf-size-lead-max: calc(var(--bbf-size-display-max) * var(--bbf-size-lead-ratio));
-  --bbf-size-lead: calc(var(--bbf-size-display) * var(--bbf-size-lead-ratio));
-  /* ídem la guarda del rótulo: se deriva del mismo margen con las métricas de SU familia (`--bbf-type-lead-fit`, Tier 2). */
 
   /* ── Pesos: DOS ESCALAS INCOMPATIBLES (hallazgo de fase 5, HAL-BBW-08). Cada familia tiene su propio eje `wght`:
      · display `modulator-vf`: el kit sirve 25–500 (medido en vivo 2026-09-16). Su máximo, 500, es lo que la web llama "medium":
@@ -217,14 +192,20 @@
      VALOR: 0,01em, el del diseño (dc:L785). La 6a lo había ajustado a ×0 como imperceptible (Δ 1,2 px por glifo a 124 px); el N1 leyó la razón
      del diseño (comentario dc:L782-784): `modulator-vf` trae ~0,5 px de sidebearing y a cero los pares de letras CHOCAN, es decir, la
      diferencia es perceptible → por D-BBW-16 no se ajusta: se registra.
-     RAZÓN: está atado a las métricas de esta familia concreta (no es una decisión de ritmo: es la corrección de sus sidebearings) y el
-     ajuste óptico del rótulo (src/behavior/optical-fit.ts) se mide sobre la caja del titular FIJADA con este valor; un valor dinámico o distinto
-     invalidaría esa medida. Cambiar de familia display (puerto) obliga a re-medir esta madre.
+     RAZÓN: está atado a las métricas de esta familia concreta (no es una decisión de ritmo: es la corrección de sus sidebearings).
+     Entra además en la guarda de ancho derivada (`--bbf-type-display-fit-unit`, que suma avance máximo + interletrado) y en la tabla de
+     avances que el modulador mide sobre la caja fijada con este valor: un valor dinámico o distinto invalidaría las dos medidas.
+     Cambiar de familia display (puerto) obliga a re-medir esta madre.
      LO QUE NO ES: no es paso de la escala (×0,25 no existe) ni entra en la retícula: la madre sigue siendo 0,04em × N para todo lo demás. ── */
   --bbf-tracking-display-ratio: 0.01;
   --bbf-tracking-display: calc(var(--bbf-tracking-display-ratio) * 1em);
 
-  /* ── Interlineado: los dos valores del N0 (display 1.02, mono 1); sin fórmula posible entre dos puntos → madres ── */
+  /* ── Interlineado: los dos valores del N0 (display 1.02, mono 1); sin fórmula posible entre dos puntos → madres.
+     `--bbf-leading-text` es la TERCERA y nace con el primer texto corrido de verdad del sitio (D-BBW-47: el encabezado de la
+     portada y la firma). El N0 no la trae porque el diseño no tenía párrafos. Valor 1,5, y no es de gusto: WCAG 2.2 §1.4.12
+     (Text Spacing, AA) exige que el contenido siga siendo legible cuando el interlineado se lleva a 1,5 veces el tamaño, así
+     que partir de 1,5 lo cumple por construcción en vez de depender de que el texto aguante el ajuste. ── */
   --bbf-leading-none: 1;
   --bbf-leading-display: 1.02;
+  --bbf-leading-text: 1.5;
 }

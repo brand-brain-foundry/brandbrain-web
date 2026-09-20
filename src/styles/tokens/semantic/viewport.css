@@ -17,6 +17,20 @@
      de ancho del titular se deriva de él y por eso deja de estar calibrada contra una palabra concreta. */
   --bbf-space-safe: var(--bbf-space-6);
 
+  /* ── LAS DOS ZONAS DEL HÉROE POR VISTA (D-BBW-47) ────────────────────────────────────────────────────────
+     La vista AMPLIA es la de dos zonas: el texto ocupa su parte izquierda y se centra verticalmente (que es lo que la
+     referencia muestra con el arte al lado), y el escenario se va al medio de la derecha.
+     La vista COLAPSADA es la de una zona, y es exactamente la composición que ya existía: las dos zonas no caben en un
+     teléfono, así que el texto recupera el ancho entero anclado al pie del héroe y el escenario vuelve al centro. No se
+     inventa una disposición que la referencia no muestra: se vuelve a la que sí muestra.
+     El anclaje vertical se expresa como alineación + separación al borde inferior en vez de como una posición: con
+     `flex-end` y la separación de siempre sale el anclaje al pie EXACTO de la 6f, y con `center` y cero sale el centrado.
+     Una sola caja, dos enums, ninguna geometría duplicada. */
+  --bbf-stage-anchor-x: var(--bbf-stage-anchor-x-split);
+  --bbf-hero-text-zone: var(--bbf-hero-text-zone-split);
+  --bbf-hero-text-align-block: center;
+  --bbf-hero-text-inset-bottom: 0px;
+
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
   /* fase 6f (composición del pie leída del export): en la vista amplia legal + perfiles a la izquierda y aviso a la derecha; en la
@@ -28,6 +42,11 @@
 @media (max-width: 780px) {
   :root {
     --bbf-space-safe: var(--bbf-space-4);
+
+    --bbf-stage-anchor-x: var(--bbf-stage-anchor-x-single);
+    --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
+    --bbf-hero-text-align-block: flex-end;
+    --bbf-hero-text-inset-bottom: var(--bbf-lockup-offset);
 
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;

@@ -1,6 +1,6 @@
 /* HeroMedia — Tier 3: solo consume Tier 1/2. Capa de medio por rol (semantic/layers.css).
    Fase 6f (composición leída del export): el vídeo NO va a sangre. Es un ESCENARIO 16:9 (rol --bbf-stage-aspect) de alto
-   --bbf-stage-height (max(56 % del héroe, suelo)), centrado en x y anclado al 43 % del alto (--bbf-stage-top), con MÁSCARA radial por rol
+   --bbf-stage-height (max(56 % del héroe, suelo)), anclado en x por el rol --bbf-stage-left y al 43 % del alto (--bbf-stage-top), con MÁSCARA radial por rol
    (--bbf-stage-mask: opaca hasta el 44 % del radio, mitad de tinta al 74 %, transparente en el borde): el pez se funde con el fondo y deja
    ver los resplandores alrededor. En pantallas estrechas el escenario es más ancho que la ventana y el héroe lo recorta por los lados (el
    sujeto está centrado; comportamiento del diseño). El vídeo o la imagen fija cubren el escenario sin deformar (object-fit: cover; 100 % y
@@ -8,14 +8,18 @@
    Fase 6j (seguimiento del sujeto, src/behavior/subject-tracking.ts): el vídeo y la imagen fija llevan su ENCUADRE en línea (escala al zoom
    + traslación acotada; el reposo viene en el HTML servido); el escenario lo recorta (overflow) y la máscara va sobre el escenario, no sobre
    el vídeo: por eso la traslación no mueve la máscara y sus radios (50 %/50 %) no pueden crecer sin que se vea el borde. `will-change` avisa
-   al compositor de que el vídeo se transforma cada cuadro (dc:L70); el origen de la transformación es el centro (valor por defecto). */
+   al compositor de que el vídeo se transforma cada cuadro (dc:L70); el origen de la transformación es el centro (valor por defecto).
+   Héroe rediagramado (D-BBW-47): el ancla horizontal deja de ser el 50 % fijo y pasa a ser un ROL DE VISTA (--bbf-stage-left → 72 % en la
+   vista de dos zonas, 50 % en la de una). Es el DESTINO del seguimiento lo que se mueve, no su algoritmo: el sujeto se sigue llevando al
+   centro de SU escenario con la misma traslación acotada, y por eso ni la holgura (la mitad del sobrante del zoom) ni los radios de la
+   máscara (50 %/50 %) se tocan. Llevar el sujeto a la derecha con la traslación era imposible sin tocarlos: la holgura es ±3,7 % del vídeo. */
 .media {
   --bbf-enter-duration: var(--bbf-motion-enter-duration-stage);
   --bbf-enter-delay: var(--bbf-motion-enter-delay-stage);
 
   position: absolute;
   top: var(--bbf-stage-top);
-  left: 50%;
+  left: var(--bbf-stage-left);
   z-index: var(--bbf-layer-media);
   height: var(--bbf-stage-height);
   aspect-ratio: var(--bbf-stage-aspect);

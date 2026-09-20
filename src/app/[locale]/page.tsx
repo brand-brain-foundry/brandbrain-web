@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale, site } from "@/config/site";
-import { getPage } from "@/content";
+import { getGlobal, getPage } from "@/content";
 import { media } from "@/media";
 import { homeGraph, homeUrl } from "@/seo/jsonld";
 import { renderSection } from "@/components/sections";
@@ -64,6 +64,9 @@ export default async function LocalePage({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const page = getPage(locale, "home");
+  // La FIRMA es global (D-BBW-49): la consumen el héroe y el pie desde la MISMA llave, y por eso viaja hasta la sección como
+  // props en vez de que el componente la lea. El pie la recibe por su lado desde el layout.
+  const { signature } = getGlobal(locale);
   const where = `pages/home (${locale})`;
   return (
     <>
@@ -74,7 +77,7 @@ export default async function LocalePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeGraph(locale, page.meta.description)).replace(/</g, "\\u003c") }}
       />
       <main id={MAIN_ID} className={styles.main} data-component="bbf-main">
-        {page.sections.map((section) => renderSection(section, where))}
+        {page.sections.map((section) => renderSection(section, { signature }, where))}
       </main>
     </>
   );

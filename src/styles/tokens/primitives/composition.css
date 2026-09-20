@@ -40,11 +40,31 @@
   --bbf-vignette-clear: 52%;
   --bbf-vignette-mid: 80%;
 
+  /* ── DOS ZONAS DEL HÉROE (D-BBW-47) ────────────────────────────────────────────────────────────────────
+     La rediagramación parte el héroe en una zona de TEXTO a la izquierda y una de ARTE a la derecha. Las dos madres son
+     proporciones, como todo lo demás de este archivo, y cada una tiene su valor para las dos vistas del sistema (el reparto
+     por vista vive en semantic/viewport.css, que es la categoría `breakpoint` de la matriz):
+       · `-split`  = la vista de DOS ZONAS. El texto ocupa el 52 % del ancho del héroe (la mitad más el pico que necesita la
+         línea más larga del claim para no bajar de cuerpo antes de tiempo) y el centro del escenario se lleva al 72 %, es
+         decir al medio de la zona derecha: el sujeto vive donde manda la composición.
+       · `-single` = la vista de UNA ZONA, que es la que ya existía y la que la referencia muestra en estrecho: el texto ocupa
+         el ancho entero y el escenario vuelve a estar centrado. No se inventa composición donde las dos zonas no caben.
+     El escenario mide más que su zona y la máscara radial lo funde por los bordes: que su borde izquierdo entre en la zona de
+     texto es lo que hace que el pez se funda con el fondo, no un desbordamiento. Lo que no puede pasar es que el SUJETO caiga
+     sobre el texto, y de eso se ocupa el ancla. ──────────────────────────────────────────────────────────────── */
+  --bbf-stage-anchor-x-split: 72%;
+  --bbf-stage-anchor-x-single: 50%;
+  --bbf-hero-text-zone-split: 0.52;
+  --bbf-hero-text-zone-single: 1;
+
   /* ── bloque de texto (unidades del contenedor del héroe) ── */
   --bbf-lockup-offset-slope: 14cqh;
-  --bbf-lockup-gap-lead-slope: 0.5cqh;
-  --bbf-lockup-gap-claims-slope: 2.4cqh;
-  --bbf-lockup-gap-claim-slope: 0.7cqh;
+  /* Las dos separaciones del bloque se CONSERVAN y cambian de pieza (D-BBW-47): la que iba del lock a las afirmaciones pasa a ir
+     del claim al encabezado, y la que iba entre afirmaciones pasa a ir del encabezado a la firma. Es la misma relación —bloque
+     grande → texto → texto más pequeño— y por eso se reutiliza la madre en vez de inventar dos. La separación titular/rótulo
+     (0,5 % del alto) se RETIRA con el rótulo: las tres líneas del claim se separan por su interlineado, no por un hueco. */
+  --bbf-hero-gap-heading-slope: 2.4cqh;
+  --bbf-hero-gap-signature-slope: 0.7cqh;
   --bbf-lockup-pad-slope: 4vw;
 
   /* ── cromo ── */

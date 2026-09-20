@@ -3,6 +3,10 @@
  * content/<locale>/… Este archivo dice QUÉ FORMA tiene el contenido y la hace cumplir; el build y la guardia
  * (scripts/lint/check-content.ts) fallan cuando algo no cumple.
  *
+ * Héroe rediagramado (D-BBW-47 · D-BBW-49, v3.0 del modelo, cambio NO aditivo): la sección `hero` cambia de forma entera —
+ *   `display` + `lead` + `claimPrimary` + `claimSecondary` salen; entran `claimLine1..3` y `heading`— y nace `signature` en lo
+ *   global, mientras `footer.notice` sale. El esquema es ESTRICTO en los dos sentidos, así que un documento con la forma vieja
+ *   rompe la compilación nombrando cada llave: no hay forma de que un texto retirado siga saliendo publicado en silencio.
  * Fase 6b: +1 llave `nav.skipLabel` (el enlace para saltar al contenido exige un texto y ningún texto vive en un componente). Cambio ADITIVO
  * del modelo (v2.1), propuesto en el PR de la fase 6b: el esquema estricto lo exige en todo locale publicado.
  * Reglas del modelo (fase 6a, DESPACHO-BBW-2026-09-16-fase6a §F3):
@@ -46,6 +50,12 @@ export type LinkItem = {
 };
 
 export type GlobalDocument = {
+  /**
+   * LA FIRMA, en UNA SOLA LLAVE (D-BBW-49). La consumen DOS superficies —el héroe y el pie— y por eso vive en lo global
+   * y no en la página: la biblia v2 §12 exige consistencia de entidad, es decir la MISMA CADENA EXACTA siempre. Si algún
+   * día las dos superficies necesitaran cadenas distintas, hace falta una segunda llave y registrar el choque con esa regla.
+   */
+  signature: string;
   nav: {
     /** texto del enlace para saltar al contenido principal (primer elemento enfocable de la página; fase 6b) */
     skipLabel: string;
@@ -55,8 +65,6 @@ export type GlobalDocument = {
     items: LinkItem[];
   };
   footer: {
-    /** aviso corto junto al punto de estado */
-    notice: string;
     /** línea legal */
     legal: string;
     /** enlaces a perfiles externos, en orden */
@@ -65,18 +73,24 @@ export type GlobalDocument = {
 };
 
 // ── Página ──────────────────────────────────────────────────────────────────────────────────────────────
-/** Sección de portada: el lockup de marca (N0 §2.3: display + lead + dos afirmaciones). */
+/**
+ * Sección de portada (fase «héroe rediagramado», D-BBW-47): el CLAIM en tres líneas + el encabezado + la firma.
+ * El claim son TRES llaves y no una lista porque las tres líneas NO son intercambiables: la última es la que respira
+ * (el modulador de peso se aplica solo a ella, D-BBW-47) y las otras dos quedan quietas. La llave nombra la POSICIÓN,
+ * que aquí es el rol; nunca lo que la línea dice hoy (regla 2 del modelo).
+ * El claim NO es un encabezado: solo hay un encabezado principal por página y es `heading`, el párrafo (biblia v2 §10/§12).
+ */
 export type HeroSection = {
   type: "hero";
   id: string;
-  /** la palabra de marca del titular (animada por peso: tokens en primitives/motion.css). Es el `<h1>`. */
-  display: string;
-  /** la línea que acompaña al titular */
-  lead: string;
-  /** primera afirmación del lockup */
-  claimPrimary: string;
-  /** segunda afirmación del lockup */
-  claimSecondary: string;
+  /** primera línea del claim (quieta) */
+  claimLine1: string;
+  /** segunda línea del claim (quieta) */
+  claimLine2: string;
+  /** TERCERA y última línea del claim: es la que lleva la animación de peso (tokens en primitives/motion.css) */
+  claimLine3: string;
+  /** el encabezado de la página. Es el `<h1>`, y va en cuerpo de texto debajo del claim */
+  heading: string;
 };
 
 /** Unión de tipos de sección. Un tipo nuevo se añade aquí y en SECTION_KEYS (y su renderizador, fase 6b). */
@@ -101,7 +115,7 @@ const ID_RE = /^[a-z][a-z0-9-]*$/;
 const HTML_RE = /<\/?[a-zA-Z!]/;
 
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
-  hero: ["type", "id", "display", "lead", "claimPrimary", "claimSecondary"],
+  hero: ["type", "id", "claimLine1", "claimLine2", "claimLine3", "heading"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -150,7 +164,8 @@ function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
 export function validateGlobal(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  checkKeys(v, ["nav", "footer"], "$", problems);
+  checkKeys(v, ["signature", "nav", "footer"], "$", problems);
+  checkText(v.signature, "$.signature", problems);
   if (isRecord(v.nav)) {
     checkKeys(v.nav, ["skipLabel", "toggleLabel", "items"], "$.nav", problems);
     checkText(v.nav.skipLabel, "$.nav.skipLabel", problems);
@@ -158,8 +173,7 @@ export function validateGlobal(v: unknown): Problem[] {
     checkLinkItems(v.nav.items, "$.nav.items", problems);
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });
   if (isRecord(v.footer)) {
-    checkKeys(v.footer, ["notice", "legal", "social"], "$.footer", problems);
-    checkText(v.footer.notice, "$.footer.notice", problems);
+    checkKeys(v.footer, ["legal", "social"], "$.footer", problems);
     checkText(v.footer.legal, "$.footer.legal", problems);
     checkLinkItems(v.footer.social, "$.footer.social", problems);
   } else if ("footer" in v) problems.push({ path: "$.footer", message: "debe ser un objeto" });
