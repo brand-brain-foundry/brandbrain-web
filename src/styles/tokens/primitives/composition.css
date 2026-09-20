@@ -13,7 +13,7 @@
  *     clamp(14 → ×4, 4vw, 72 = ×18).
  *   · Cromo: nav a clamp(14 → ×4, 2.4vw, 38 → ×10) del borde superior con separación clamp(20 = ×5, 2.6vw, 38 → ×10); barra del pie a
  *     clamp(14 → ×4, 2.4vw, 34 → ×9) del borde inferior con margen lateral clamp(14 → ×4, 3.2vw, 40 = ×10), separación 22 → ×6 entre
- *     grupos (clamp(12 = ×3, 4vw, 22 → ×6) en la vista colapsada) y clamp(8 = ×2, 1.2vw, 16 = ×4) entre legal y perfiles.
+ *     grupos (clamp(12 = ×3, 4vw, 22 → ×6) en la vista colapsada). La separación entre legal y perfiles (clamp(8 = ×2, 1.2vw, 16 = ×4)) queda RETIRADA en D-BBW-51: con la barra en dos piezas repartidas entre los extremos, las separa el rol de vista de la barra y no una madre propia.
  *   · Resplandores: RETIRADOS en la fase 6i (portado P2 del N1, D-BBW-33). Las 28 madres de resplandores de la 6f (anclas, radios, derivas,
  *     lavados, borde y núcleo circular) aproximaban con degradados el sombreador del diseño; el fondo es ahora el propio sombreador (comp
  *     1920×1080 en px, en `src/behavior/backdrop-shader.ts`, con el núcleo deformado por ruido que aquí no existía). Las madres `sea`/`deep`
@@ -73,5 +73,4 @@
   --bbf-bar-bottom-slope: 2.4vw;
   --bbf-bar-side-slope: 3.2vw;
   --bbf-bar-gap-narrow-slope: 4vw;
-  --bbf-bar-gap-legal-slope: 1.2vw;
 }

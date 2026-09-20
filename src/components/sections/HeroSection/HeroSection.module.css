@@ -90,12 +90,17 @@
   text-wrap: pretty;
 }
 
+/* LA FIRMA (D-BBW-50: una sola aparición en toda la página, aquí, bajo el encabezado; sale del pie).
+   TINTE (D-BBW-52): sube un peldaño, de `muted` a `secondary`, y no es decisión de gusto — es la garantía D-BBW-25. Certificada
+   con el instrumento de pico fiel de la 6k, la firma era **el término que manda**: con `muted` daba 3,97 contra su mínimo de
+   4,5 a 360 px, y taparlo por la otra vía habría pedido subir el velo del héroe entero de 48 a 57 %. Con un peldaño de tinte
+   pasa a 7,82 y el velo se queda donde estaba. Medido en el output del turno. */
 .signature {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-signature);
 
   margin: var(--bbf-hero-gap-signature) 0 0;
   max-width: var(--bbf-lockup-target);
-  color: var(--bbf-text-on-base-muted);
+  color: var(--bbf-text-on-base-secondary);
   font-family: var(--bbf-type-signature-family);
   font-size: var(--bbf-type-signature-size);
   font-weight: var(--bbf-type-signature-weight);

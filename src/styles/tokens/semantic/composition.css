@@ -85,5 +85,4 @@
   --bbf-bar-side: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-bar-side-slope), var(--bbf-space-10)));
   --bbf-bar-gap: var(--bbf-space-6);
   --bbf-bar-gap-narrow: clamp(var(--bbf-space-3), var(--bbf-bar-gap-narrow-slope), var(--bbf-space-6));
-  --bbf-bar-gap-legal: clamp(var(--bbf-space-2), var(--bbf-bar-gap-legal-slope), var(--bbf-space-4));
 }
