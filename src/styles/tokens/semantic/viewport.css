@@ -27,6 +27,9 @@
      `flex-end` y la separación de siempre sale el anclaje al pie EXACTO de la 6f, y con `center` y cero sale el centrado.
      Una sola caja, dos enums, ninguna geometría duplicada. */
   --bbf-stage-anchor-x: var(--bbf-stage-anchor-x-split);
+  --bbf-stage-anchor-y: var(--bbf-stage-anchor-y-split);
+  --bbf-stage-height-ratio: var(--bbf-stage-height-ratio-split);
+  --bbf-stage-width-cap: var(--bbf-stage-width-cap-split);
   --bbf-hero-text-zone: var(--bbf-hero-text-zone-split);
   --bbf-hero-text-align-block: center;
   --bbf-hero-text-inset-bottom: 0px;
@@ -44,6 +47,9 @@
     --bbf-space-safe: var(--bbf-space-4);
 
     --bbf-stage-anchor-x: var(--bbf-stage-anchor-x-single);
+    --bbf-stage-anchor-y: var(--bbf-stage-anchor-y-single);
+    --bbf-stage-height-ratio: var(--bbf-stage-height-ratio-single);
+    --bbf-stage-width-cap: var(--bbf-stage-width-cap-single);
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
     --bbf-hero-text-inset-bottom: var(--bbf-lockup-offset);

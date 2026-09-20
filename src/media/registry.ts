@@ -167,5 +167,9 @@ export type InlineIconId = keyof typeof inlineIcons;
  * · `_headers` (D-BBW-44) — manifiesto declarativo de cabeceras de respuesta. No se sirve como recurso: el host lo lee y lo aplica.
  *   Es política de entrega, versionada y auditable; no es configuración que el proveedor necesite para construir ni desplegar
  *   (eso lo sigue prohibiendo `docs/system/DEPLOY_CONTRACT.md` §5). Su contenido se explica dentro del propio fichero.
+ * · `_redirects` (D-BBW-55) — manifiesto declarativo de REDIRECCIONES, la misma clase de fichero y por la misma razón. Lleva la regla
+ *   primaria de D-BBW-07 (`/` → `/es/`, 301), que hasta ahora solo existía como página de defensa con `meta refresh` — y un refresh de
+ *   cero segundos espera al evento de carga, así que dejaba una página blanca de ~900 ms. Un host que no lo entienda lo ignora y sigue
+ *   sirviendo el artefacto con su defensa debajo.
  */
-export const publicAllowList: readonly string[] = ["_headers"];
+export const publicAllowList: readonly string[] = ["_headers", "_redirects"];

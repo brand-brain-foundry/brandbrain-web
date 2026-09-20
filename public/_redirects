@@ -1,0 +1,24 @@
+# MANIFIESTO DE REDIRECCIONES — D-BBW-55 (sobre D-BBW-07 y D-BBW-44)
+#
+# QUÉ ES. Política de ENTREGA, declarativa, versionada y auditable, de la misma clase que `_headers`
+# (D-BBW-44). NO es configuración que el proveedor necesite para construir ni para desplegar: eso lo
+# sigue prohibiendo el contrato de puerto (docs/system/DEPLOY_CONTRACT.md §5), y ningún fichero de esa
+# clase entra aquí. Un servidor estático que no entienda este fichero lo ignora y sigue sirviendo el
+# artefacto: la página de defensa de `/` sigue ahí debajo.
+#
+# POR QUÉ EXISTE. D-BBW-07 dice desde el principio que la regla primaria de `/` → `/es/` es un 301 en
+# el borde, y que la página con `meta refresh` es solo la DEFENSA por si el borde no responde. Pero el
+# 301 nunca se configuró para la dirección de prueba, así que la defensa era el único mecanismo — y la
+# defensa, medida, tarda: un `meta refresh` de cero segundos **no se dispara al parsear, espera al
+# evento de carga del documento**, y la raíz de un export de Next se trae antes todos sus fragmentos de
+# JavaScript. Mientras tanto se ve una página **sin hoja de estilos, blanca**: 904 ms medidos en
+# localhost con todo caliente, y segundos en red real. Aislado el mecanismo: 174 ms sin recurso pesado
+# contra 948 ms con él.
+#
+# POR QUÉ NO VA ACOTADA AL ANFITRIÓN, a diferencia de la regla de no indexar de `_headers`. Ésta no es
+# una regla de la prueba: es la regla CANÓNICA de D-BBW-07, y vale igual en el dominio propio. Ponerla
+# aquí es lo que hace que el cutover no tenga que configurarla a mano en ningún panel.
+#
+# ORDEN. La primera regla que casa gana, así que las específicas van antes que las generales.
+
+/    /es/    301

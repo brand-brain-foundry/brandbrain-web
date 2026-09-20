@@ -31,7 +31,15 @@
 }
 
 :root {
-  --bbf-stage-height: max(var(--bbf-stage-height-ratio), var(--bbf-stage-height-floor));
+  /* ALTO DEL ESCENARIO = la proporción de vista, TOPADA por la cota de ancho (D-BBW-56) y con el suelo de siempre por debajo.
+     La cota se expresa como alto porque el componente dimensiona por alto: ancho del héroe × cota × (h/w de la proporción). */
+  --bbf-stage-height: max(
+    var(--bbf-stage-height-floor),
+    min(
+      var(--bbf-stage-height-ratio),
+      calc(100cqw * var(--bbf-stage-width-cap) * var(--bbf-stage-aspect-h) / var(--bbf-stage-aspect-w))
+    )
+  );
   --bbf-stage-top: var(--bbf-stage-anchor-y);
   /* DÓNDE VIVE EL ARTE (D-BBW-47). El escenario deja de estar siempre centrado: en la vista de dos zonas su centro se va al
      medio de la zona derecha. Es el DESTINO lo que cambia, no el algoritmo: el seguimiento del sujeto (behavior/subject-tracking.ts)
