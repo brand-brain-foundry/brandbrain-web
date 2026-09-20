@@ -67,12 +67,17 @@ La columna que importa es la última. Si alguna fila deja de leer **ninguno**, e
 - **SDK o cliente del proveedor** de hosting en `dependencies`.
 - **Archivos que el host NECESITA para construir o desplegar**, en cualquier parte del repo (p. ej. `vercel.json`, `netlify.toml`, `app.yaml`,
   `wrangler.toml` con el directorio de assets, workflows de CI con tokens o CLI del proveedor). Son los que acoplan el código al proveedor.
-  **No lo es** un **manifiesto declarativo de cabeceras de respuesta** (`public/_headers`): declara **política de entrega**, no configuración
-  de un proveedor, y **debe estar versionado y auditable** — es donde vivirán las cabeceras de seguridad, caché y compresión (**D-BBW-44**,
-  que enmienda este punto). Condición: **ninguna regla escribe el nombre del anfitrión** (se usa el comodín `:project`), y toda regla propia
-  de la dirección de prueba va **acotada a ese anfitrión**, de modo que el dominio propio no la recibe y el cutover no deshace nada.
-  Si un día se migra de proveedor, este fichero se traduce al formato del host nuevo: es una **traducción de una política escrita**, no una
-  configuración que haya que reconstruir.
+  **No lo son** los **manifiestos declarativos de entrega**: el de **cabeceras de respuesta** (`public/_headers`, **D-BBW-44**) y el de
+  **redirecciones** (`public/_redirects`, **D-BBW-55**). Declaran **política de entrega**, no configuración de un proveedor, y **deben estar
+  versionados y auditables** — es donde viven la regla de no indexar la dirección de prueba, la redirección canónica de `/` al locale, y
+  donde vivirán las cabeceras de seguridad, caché y compresión. Condición: **ninguna regla escribe el nombre del anfitrión** (se usa el
+  comodín `:project`). Lo que sí cambia entre los dos ficheros es el **alcance**, y por una razón, no por costumbre: una regla propia de la
+  dirección de prueba (no indexar) va **acotada a ese anfitrión**, de modo que el dominio propio no la recibe y el cutover no deshace nada;
+  una regla **canónica del sitio** (`/` → `/es/`, que es D-BBW-07) va **sin acotar**, porque vale igual en todo anfitrión y es justo lo que
+  evita tener que configurarla a mano en un panel el día del cutover.
+  Si un día se migra de proveedor, estos ficheros se traducen al formato del host nuevo: es una **traducción de una política escrita**, no una
+  configuración que haya que reconstruir. Y un host que no los entienda **no rompe nada**: ignora el fichero y sigue sirviendo el artefacto,
+  que lleva su propia defensa debajo (la página de `meta refresh` de `/`).
 - **Workflows de CI que conozcan al host** (tokens, CLI del proveedor, FTP). El deploy lo dispara el host observando `main`, no el repo empujando al host.
 - **URLs del host** (subdominios `*.pages.dev` / `*.workers.dev`, IPs) escritas en código o contenido. El único dominio conocido es `site.url` en `src/config/site.ts`. Los actores externos que sí aparecen en `src/` pasan por un puerto declarado en `docs/system/PORTS.md`.
 - **Valores** de variables de entorno en el repo (S-1/S-6).

@@ -22,8 +22,19 @@
  * el archivo = plantilla.
  */
 :root {
-  /* ── escenario del vídeo ── */
-  --bbf-stage-height-ratio: 56%;
+  /* ── escenario del vídeo ──
+     EL ALTO ES UN ROL DE VISTA (D-BBW-53 · D-BBW-54), como ya lo eran el ancla horizontal y el ancho de la zona de texto. El 56 % del
+     diseño se calibró para una composición CENTRADA que ya no existe, así que deja de ser un valor único:
+       · `-split`  = **88 %** en la vista de dos zonas. Las tres proporciones medidas (56 · 72 · 88 %) cumplen la garantía con el velo a
+         CERO, así que la elección no cuesta legibilidad y es estética; manda la observación de Zavala de que el arte se veía pequeño.
+         El margen de la garantía incluso MEJORA al crecer (2,087× → 2,336×): al agrandarse el escenario su núcleo claro se aleja de la
+         zona de texto.
+       · `-single` = **42 %** en la vista de una zona, que es la salida al solape elegida (opción B): baja la tinta del sujeto bajo el
+         bloque de texto del 18,44 % al 5,45 % del bloque a 360 px y, a cambio, hace que el pez entero quepa en pantalla por primera vez.
+     El suelo (`--bbf-stage-height-floor`) sigue mandando si la ventana es muy baja: a 800 px de alto, el 42 % son 336 px contra los 252
+     del suelo, así que hoy manda la proporción. */
+  --bbf-stage-height-ratio-split: 88%;
+  --bbf-stage-height-ratio-single: 42%;
   --bbf-stage-height-floor: var(--bbf-space-63);
   --bbf-stage-anchor-y: 43%;
   --bbf-stage-aspect: 16 / 9;
