@@ -37,8 +37,20 @@
      42,6 % a 360 (40,7 % a 780, 39,9 % a 1000/1728/1920) con la cota; el titular a 1728 (borde del escenario) 32,2 %. Con 42 % la secundaria
      da 4,47:1 a 360 (✗); 43 % se sostiene en los cinco anchos (4,52:1 a 360). BAJA 46 → 43 % (−3 puntos).
      Cambiar el vídeo, el tinte de un texto, su tamaño, la posición del bloque, la opacidad de las partículas o cualquier constante del
-     sombreador obliga a recalibrar (la medida vive en el output; no hay guardia que la repita). ── */
-  --bbf-shadow-alpha-veil-text: 43%;
+     sombreador obliga a recalibrar (la medida vive en el output; no hay guardia que la repita).
+     HÉROE REDIAGRAMADO (D-BBW-47) · 43 → 48 %, y es una SUBIDA. Cambiaron a la vez las tres cosas que la nota de arriba dice que obligan
+     a recalibrar: el texto cambió de sitio, de tamaño y de caja. Re-medido entero sobre el compuesto nuevo (superficie, sombreador,
+     vídeo enmascarado y viñeta, con el máximo por píxel sobre 12 instantes del bucle × las cinco esquinas de la ventana de traslación,
+     60 tomas por ancho):
+       · En ancho la garantía MEJORA muchísimo, y era lo esperable: con las dos zonas el texto deja de estar sobre lo más claro de la
+         escena. A 1000, 1728 y 1920 los cinco bloques cumplen con el velo a CERO (peor caso 3,7:1 contra 3 y 6,2:1 contra 4,5).
+       · A 360 la garantía SE ROMPE con el 43 %: la composición de una zona pone las dos primeras líneas del claim bajo el pez, y dan
+         **2,634 y 2,922 contra un mínimo de 3**. El mínimo que las hace cumplir es **47,3 %**, así que el peldaño entero es 48 %.
+     El velo lo fija por tanto el ancho más estrecho, que es donde el texto y el arte comparten sitio. LO QUE ESTA MEDIDA NO CIERRA: las
+     partículas quedan acotadas de forma GRUESA en este turno (su pico se toma como el color más claro de cada una, a opacidad plena y
+     sobre su elipse entera), y esa cota es tan laxa que también habría suspendido la configuración del 43 % que la 6k validó. Así que
+     48 % está demostrado NECESARIO, no demostrado suficiente: certificarlo exige el instrumento de pico fiel de la 6k. ── */
+  --bbf-shadow-alpha-veil-text: 48%;
   --bbf-shadow-ink-veil-text: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-veil-text), transparent);
 
   /* ── Viñeta y máscara del escenario (fase 6f, composición leída del export): alfas del diseño como madres (parámetro de opacidad, no

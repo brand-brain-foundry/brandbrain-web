@@ -33,6 +33,13 @@
 :root {
   --bbf-stage-height: max(var(--bbf-stage-height-ratio), var(--bbf-stage-height-floor));
   --bbf-stage-top: var(--bbf-stage-anchor-y);
+  /* DÓNDE VIVE EL ARTE (D-BBW-47). El escenario deja de estar siempre centrado: en la vista de dos zonas su centro se va al
+     medio de la zona derecha. Es el DESTINO lo que cambia, no el algoritmo: el seguimiento del sujeto (behavior/subject-tracking.ts)
+     sigue llevando el centroide al centro DE SU ESCENARIO con la misma traslación acotada y la misma holgura, y por eso ni las
+     cotas ni los radios de la máscara se tocan. Mover el escenario es la única forma de llevar el sujeto a la derecha sin
+     tocarlas: la holgura de la traslación es la mitad del sobrante del zoom (±3,7 % del vídeo) y no alcanza ni de lejos a
+     cruzar media pantalla; forzarla descubriría el borde del rectángulo. */
+  --bbf-stage-left: var(--bbf-stage-anchor-x);
   --bbf-stage-mask: radial-gradient(
     ellipse var(--bbf-stage-mask-rx) var(--bbf-stage-mask-ry) at center,
     var(--bbf-color-ink-900) var(--bbf-stage-mask-solid),
@@ -47,15 +54,19 @@
   );
 
   --bbf-lockup-offset: clamp(var(--bbf-space-21), var(--bbf-lockup-offset-slope), var(--bbf-space-38));
-  --bbf-lockup-gap-lead: clamp(var(--bbf-space-half), var(--bbf-lockup-gap-lead-slope), var(--bbf-space-2));
-  --bbf-lockup-gap-claims: clamp(var(--bbf-space-4), var(--bbf-lockup-gap-claims-slope), var(--bbf-space-8));
-  --bbf-lockup-gap-claim: clamp(var(--bbf-space-2), var(--bbf-lockup-gap-claim-slope), var(--bbf-space-3));
+  --bbf-hero-gap-heading: clamp(var(--bbf-space-4), var(--bbf-hero-gap-heading-slope), var(--bbf-space-8));
+  --bbf-hero-gap-signature: clamp(var(--bbf-space-2), var(--bbf-hero-gap-signature-slope), var(--bbf-space-3));
   --bbf-lockup-pad: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-lockup-pad-slope), var(--bbf-space-18)));
   /* ANCHO DISPONIBLE del bloque de texto = ancho del héroe menos DOS márgenes (fase 6m, D-BBW-40). En `cqw` y no en `vw` porque la
      sección del héroe es el contenedor de tamaño (HeroSection: container-type: size) y es su caja, no la ventana, la que manda: con
      `vw` una barra de desplazamiento vertical mentiría. De aquí derivan las dos guardas de ancho del lock, y por eso la guarda ya no
      conoce ninguna palabra. */
-  --bbf-lockup-avail: calc(100cqw - 2 * var(--bbf-lockup-pad));
+  /* Héroe rediagramado (D-BBW-47): el disponible deja de ser el héroe entero y pasa a ser LA ZONA DE TEXTO menos sus dos
+     márgenes. Es la misma regla de la 6m —el contenido nunca toca el borde— aplicada al borde que ahora manda: en la vista de
+     dos zonas el texto no puede invadir el arte, así que el límite de la derecha es el final de su zona y no el de la pantalla.
+     En la vista de una zona el factor vale 1 y la fórmula es exactamente la de antes. Sigue en `cqw` y no en `vw` porque el
+     contenedor de tamaño es la sección del héroe: con `vw`, una barra de desplazamiento vertical mentiría. */
+  --bbf-lockup-avail: calc(100cqw * var(--bbf-hero-text-zone) - 2 * var(--bbf-lockup-pad));
   /* ANCHO OBJETIVO DEL LOCKUP (fase 7b, D-BBW-42) — la invariante, de la que el cuerpo del titular es consecuencia.
      Dos términos y el menor manda:
        · EL DISEÑO: su lockup ocupa `--bbf-lockup-width-per-size` px por cada px de cuerpo del titular (5,93013, medido en

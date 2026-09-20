@@ -1,25 +1,21 @@
-/* Footer — Tier 3: solo consume Tier 1/2. Punto de estado (N0 §2.3): 4 px = ×1 · separación 6 → ×2 · halo `0 0 10px acento .85` → blur ×3
-   con --bbf-accent-glow (composición prevista en primitives/shadows.css, fase 6a) · círculo por el radio del sistema. Sin pulso (movimiento).
+/* Footer — Tier 3: solo consume Tier 1/2.
+   D-BBW-49 · EL PUNTO DE ESTADO SE RETIRA CON SU AVISO. El punto (4 px = ×1, separación ×2, halo de acento) y su PULSO de la 6g
+   (`ef-pulse`, 3,6 s = ×15, el halo respirando entre glow y glow-soft) eran el indicador del aviso «En construcción»; con el aviso fuera
+   no tienen sujeto —un punto de estado latiendo junto al nombre de una persona no significa nada— y salen en el mismo commit (I-6). Con
+   ellos se van los roles `--bbf-type-notice-*`, las tres madres locales del punto y el consumo de `--bbf-motion-pulse-*`.
    Fase 6f (composición leída del export): la BARRA va superpuesta al pie del escenario (position: absolute a --bbf-bar-bottom del borde
-   inferior, margen lateral --bbf-bar-side), en fila INVERTIDA (el aviso, primero en el HTML, queda a la derecha; legal + perfiles a la
+   inferior, margen lateral --bbf-bar-side), en fila INVERTIDA (la firma, primera en el HTML, queda a la derecha; legal + perfiles a la
    izquierda) con justificación y separación por rol de vista (semantic/viewport.css: entre extremos en la vista amplia, centrada en la
-   colapsada). Los perfiles solo en la vista amplia (rol --bbf-nav-inline-display): en la colapsada están en la hoja del panel. Las dos
-   líneas no parten (nowrap, estructura); si la barra no cabe (el suelo de 12 px, D-BBW-18, hace el texto más grande que los 9 px del
-   diseño), la fila envuelve y queda centrada.
-   Fase 6g · PULSO del punto (N0 `ef-pulse`, 3,6 s = ×15): el halo va y vuelve entre los dos halos de acento que el sistema ya tiene (glow →
-   glow-soft), ease-in-out; el inventario trae la duración, no la forma del pulso: la forma (respiración del halo entre dos tintes existentes) es
-   composición de este componente, reportada. Bucle pausado por rol con movimiento reducido. Fase 6l: la barra deja de entrar como una
-   pieza; entran por separado el AVISO (1320 ms) y el grupo legal (1420 ms), que es lo que hace el diseño, y las dos líneas reciben su sombra
-   de texto por rol (paso sm, mapeo del N1 doc B §11).
+   colapsada). Los perfiles solo en la vista amplia (rol --bbf-nav-inline-display): en la colapsada están en la hoja del panel.
+   LA LÍNEA LEGAL NO PARTE (nowrap, estructura); LA FIRMA SÍ, y es la única diferencia con la barra de la 6f: tiene 62 caracteres frente a
+   los 15 del aviso que sustituye y en un teléfono no cabe en una línea (medido). Se envuelve en vez de recortarse o de desbordar la barra,
+   que es lo que exige el criterio de no recortar; si la barra entera no cabe, la fila envuelve y queda centrada, como ya hacía.
+   Fase 6l: la barra no entra como una pieza; entran por separado la firma (1320 ms) y el grupo legal (1420 ms), que es lo que hace el
+   diseño, y las dos líneas reciben su sombra de texto por rol (paso sm, mapeo del N1 doc B §11).
    CAPA (corregida en la 6g): la barra va en la capa de CONTENIDO, no en la de cromo (N0 §2.2: "lockup y barra 8 · logo/nav 9 · hoja 10"):
    con la capa de cromo, la barra (posterior en el DOM) se pintaba sobre la hoja abierta del panel a ≤ 780 px; en contenido queda bajo la
    cabecera y su hoja, como en el diseño. */
 .footer {
-  --bbf-footer-dot-size: var(--bbf-space-1);
-  --bbf-footer-dot-gap: var(--bbf-space-2);
-  --bbf-footer-dot-glow: 0 0 var(--bbf-space-3) var(--bbf-accent-glow);
-  --bbf-footer-dot-glow-soft: 0 0 var(--bbf-space-3) var(--bbf-accent-glow-soft);
-
   position: absolute;
   right: 0;
   bottom: var(--bbf-bar-bottom);
@@ -36,46 +32,25 @@
   pointer-events: none;
 }
 
-.notice,
+.signature,
 .legal {
   margin: 0;
   text-transform: uppercase;
+}
+
+.legal {
   white-space: nowrap;
 }
 
-.notice {
-  --bbf-enter-delay: var(--bbf-motion-enter-delay-notice);
+.signature {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-signature);
 
-  display: inline-flex;
-  align-items: center;
-  column-gap: var(--bbf-footer-dot-gap);
   color: var(--bbf-text-on-base-muted);
-  font-family: var(--bbf-type-notice-family);
-  font-size: var(--bbf-type-notice-size);
-  font-weight: var(--bbf-type-notice-weight);
-  letter-spacing: var(--bbf-type-notice-tracking);
-  text-shadow: var(--bbf-type-notice-shadow);
-}
-
-.dot {
-  flex: none;
-  width: var(--bbf-footer-dot-size);
-  height: var(--bbf-footer-dot-size);
-  border-radius: var(--bbf-radius-full);
-  background: var(--bbf-accent);
-  box-shadow: var(--bbf-footer-dot-glow);
-  animation: pulse var(--bbf-motion-pulse-duration) var(--bbf-motion-pulse-ease) infinite alternate;
-  animation-play-state: var(--bbf-motion-loop-play-state);
-}
-
-@keyframes pulse {
-  from {
-    box-shadow: var(--bbf-footer-dot-glow);
-  }
-
-  to {
-    box-shadow: var(--bbf-footer-dot-glow-soft);
-  }
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking);
+  text-shadow: var(--bbf-type-legal-shadow);
 }
 
 .legalGroup {

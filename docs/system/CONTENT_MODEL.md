@@ -25,6 +25,23 @@ tags: [contenido, modelo, puerto, i18n, esquema, brandbrain-web]
 > contenido necesita un texto y ningún texto vive en un componente; cambio aditivo, propuesto en el PR de la fase) y el renderizado por tipo (§4).
 > **v2.2 (fase 6c, D-BBW-23):** sustituciones en el contenido (§2 regla 8): un conjunto pequeño, cerrado y declarado, resuelto al compilar.
 
+
+## Héroe rediagramado (D-BBW-47 · D-BBW-49) — v3.0 del modelo, cambio NO aditivo
+
+La sección `hero` cambia de forma entera y lo global estrena una llave. Es el primer cambio **no aditivo** del modelo, y por eso se
+declara aquí: un documento con la forma vieja **rompe la compilación** nombrando cada llave, que es justo lo que se quiere (el esquema
+es estricto en los dos sentidos: ni una llave de más, ni una de menos).
+
+| Antes | Ahora | Por qué |
+|---|---|---|
+| `hero.display` (la palabra de marca, era el `<h1>`) | `hero.claimLine1` · `claimLine2` · `claimLine3` | El claim son **tres líneas** y **no son intercambiables**: la última es la que respira. Tres llaves y no una lista, por la regla 1 (cada texto su llave). La llave nombra la POSICIÓN, que aquí es el rol. |
+| `hero.lead` | — | El rótulo desaparece con el lockup de dos líneas. |
+| `hero.claimPrimary` · `claimSecondary` | `hero.heading` | El `<h1>` pasa a ser **el párrafo**: solo puede haber un encabezado principal por página, y el claim no lo es (biblia v2 §10/§12). |
+| `footer.notice` | `signature` (en la raíz de lo global) | La firma la consumen **dos superficies**, el héroe y el pie, y por eso vive en lo global y no en la página. **Una sola llave**: la biblia v2 §12 exige consistencia de entidad, la misma cadena exacta siempre. Si algún día las dos superficies necesitaran cadenas distintas, hace falta una segunda llave **y registrar el choque** con esa regla. |
+
+Nada de esto cambia las siete reglas del modelo. La regla 2 (llaves por rol, nunca por lo que dicen hoy) es la que decide los nombres:
+`claimLine1..3` nombra posición, no contenido; `heading` nombra el papel en el documento, no la frase; `signature` nombra la pieza.
+
 ## §1 — Principio
 
 - **El contenido nace en su propia capa** (D-BBW-09, I-2): `content/<locale>/…`, fuera de `src/` y fuera de todo componente. Un componente

@@ -1,21 +1,22 @@
 /* HeroSection — Tier 3: solo consume Tier 1/2.
-   Colores: display → on-base (el diseño usa el paso mint-50, sin rol; residual reportado) · lead → on-base · claim 1 → secondary ·
-   claim 2 → muted (diseño mint-500, sin rol; residual reportado).
-   Fase 6f · ESCENARIO (composición leída del export): la sección es el contexto de apilamiento (isolation), recorta (overflow) y es el
+   ESCENARIO (fase 6f, composición leída del export): la sección es el contexto de apilamiento (isolation), recorta (overflow) y es el
    CONTENEDOR DE TAMAÑO de todas las proporciones del héroe (container-type: size → cqh/cqw/cqmin en los roles de semantic/composition.css);
    mide al menos una ventana (100svh es estructura: la ventana pequeña, para que el pie superpuesto se vea al cargar en móvil) y crece con
-   `main` (flex con base 0: con base `auto` y contención de tamaño, Chrome resuelve `cqh` a 0 aunque la caja mida la ventana; medido en la 6f). Capas por rol: fondo (HeroBackdrop, sombreador; antes HeroGlow, 6f-6h) · medio (HeroMedia) · velo (la VIÑETA del diseño, rol --bbf-vignette: elipse transparente en el
-   centro, 26 % de tinta al 80 %, 50 % en el borde) · partículas · contenido. Los fundidos superior e inferior de la 6d desaparecen: la
-   cabecera y el pie van superpuestos al escenario (Header/Footer, position: absolute) y no hay borde que disimular.
-   BLOQUE DE TEXTO: banda absoluta anclada al pie del héroe (rol --bbf-lockup-offset = 14 % del alto entre ×21 y ×38), centrada, con el margen
-   lateral del diseño (rol --bbf-lockup-pad); dentro, el bloque ajusta al contenido (fit-content) y lleva su VELO LOCAL de legibilidad
-   (D-BBW-25, ::before: tinta al rol surface-veil-text calibrada al mínimo que cumple, borde desenfocado σ y sangrado 3σ). Separaciones por
-   rol (--bbf-lockup-gap-*: 0,5 % · 2,4 % · 0,7 % del alto del héroe, con sus extremos en pasos). Sombras de texto (fase 6l, mapeo del N1 doc B §11): las afirmaciones
-   llevan el rol `claim-shadow` (paso md), y cada pieza del bloque su retardo de entrada por rol (las dos afirmaciones entran las últimas del
-   bloque, 1160 y 1280 ms en el diseño). Guarda de ancho (EXC-BBW-01/02): min(tamaño, guarda) por rol.
-   Fase 6h (portado P1): el titular y el rótulo pasan a `HeroLock` (molecule cliente) con el modulador de peso por conservación de ancho y el
-   ajuste óptico; aquí quedan la banda, el bloque con su velo local y las afirmaciones. La rejilla de una celda, la copia oculta, los fotogramas
-   clave del peso y los roles de duración/vista del peso de la 6g quedaron retirados en el mismo commit que su sustituto (N1 doc C §4). */
+   `main` (flex con base 0: con base `auto` y contención de tamaño, Chrome resuelve `cqh` a 0 aunque la caja mida la ventana; medido en la 6f).
+   Capas por rol: fondo (HeroBackdrop, sombreador) · medio (HeroMedia) · velo (la VIÑETA del diseño, rol --bbf-vignette) · partículas · contenido.
+   DOS ZONAS (D-BBW-47). La rediagramación parte el héroe: el texto vive en una zona a la izquierda y el arte en la de la derecha. La zona de
+   texto es una CAJA A TODA LA ALTURA (inset: 0) de ancho `--bbf-hero-text-zone` que alinea su bloque con dos roles de vista en vez de con una
+   geometría por vista: `--bbf-hero-text-align-block` (center en la vista de dos zonas, flex-end en la de una) y
+   `--bbf-hero-text-inset-bottom` (cero arriba, la separación de siempre abajo). Con `flex-end` + esa separación sale EXACTAMENTE el anclaje al
+   pie del héroe de la 6f, así que la vista estrecha conserva la composición que ya estaba medida y no se inventa ninguna.
+   `text-align: start`: el claim, el encabezado y la firma se alinean a la izquierda, que es lo que la referencia muestra; el centrado de la
+   6f se va con el lockup centrado.
+   BLOQUE: ajusta al contenido (fit-content) y lleva su VELO LOCAL de legibilidad (D-BBW-25, ::before: tinta al rol surface-veil-text calibrada
+   al mínimo que cumple, borde desenfocado σ y sangrado 3σ), que se re-mide entero con la composición nueva porque el texto cambia de sitio, de
+   tamaño y de caja.
+   SEPARACIONES por rol (`--bbf-hero-gap-*`: 2,4 % y 0,7 % del alto del héroe, las dos del bloque de la 6f reasignadas a las piezas nuevas).
+   Sombras de texto y retardos de entrada por rol (mapeo del N1 doc B §11); las piezas del bloque entran escalonadas (`data-enter`, regla del
+   sistema en base/document.css). */
 .hero {
   --bbf-hero-veil-text: var(--bbf-surface-veil-text);
   --bbf-hero-veil-text-blur: var(--bbf-blur-veil-text);
@@ -27,7 +28,7 @@
   flex: 1 1 0;
   min-height: 100svh;
   overflow: hidden;
-  text-align: center;
+  text-align: start;
 }
 
 .veil {
@@ -38,23 +39,25 @@
   background: var(--bbf-vignette);
 }
 
-.lockup {
+.text {
   position: absolute;
-  right: 0;
-  bottom: var(--bbf-lockup-offset);
-  left: 0;
+  inset: 0;
   z-index: var(--bbf-layer-content);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: var(--bbf-hero-text-align-block);
+  width: calc(100cqw * var(--bbf-hero-text-zone));
   padding-inline: var(--bbf-lockup-pad);
+  padding-block-end: var(--bbf-hero-text-inset-bottom);
+  pointer-events: none;
 }
 
 .block {
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   width: fit-content;
   max-width: 100%;
 }
@@ -69,26 +72,34 @@
   filter: blur(var(--bbf-hero-veil-text-blur));
 }
 
-.claim {
-  margin: 0;
-  font-family: var(--bbf-type-claim-family);
-  font-size: var(--bbf-type-claim-size);
-  font-weight: var(--bbf-type-claim-weight);
-  letter-spacing: var(--bbf-type-claim-tracking);
-  text-shadow: var(--bbf-type-claim-shadow);
-  text-transform: uppercase;
-}
+/* el ENCABEZADO: el único `<h1>` de la página, en cuerpo de texto (rol `body`, que estrena consumidor aquí). Se envuelve —es un
+   párrafo, no una línea— y su ancho máximo es el MISMO objetivo que fija el claim (`--bbf-lockup-target`), así que el bloque tiene
+   un solo ancho y la medida de legibilidad una sola caja. `text-wrap: pretty` evita la línea huérfana al final. */
+.heading {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-heading);
 
-.claimPrimary {
-  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim);
-
-  margin-top: var(--bbf-lockup-gap-claims);
+  margin: var(--bbf-hero-gap-heading) 0 0;
+  max-width: var(--bbf-lockup-target);
   color: var(--bbf-text-on-base-secondary);
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-body-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-body-tracking);
+  text-shadow: var(--bbf-type-body-shadow);
+  text-wrap: pretty;
 }
 
-.claimSecondary {
-  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-secondary);
+.signature {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-signature);
 
-  margin-top: var(--bbf-lockup-gap-claim);
+  margin: var(--bbf-hero-gap-signature) 0 0;
+  max-width: var(--bbf-lockup-target);
   color: var(--bbf-text-on-base-muted);
+  font-family: var(--bbf-type-signature-family);
+  font-size: var(--bbf-type-signature-size);
+  font-weight: var(--bbf-type-signature-weight);
+  line-height: var(--bbf-type-signature-leading);
+  letter-spacing: var(--bbf-type-signature-tracking);
+  text-shadow: var(--bbf-type-signature-shadow);
 }

@@ -11,9 +11,10 @@
  *      Después, REJILLA Y PULIDO (`quantize`, fase 6i, HAL-BBW-16): los pesos se ajustan a medio punto y un pulido discreto glifo a glifo
  *      devuelve la suma cuantizada al presupuesto. Pura.
  *   3. CALIBRACIÓN (`calibrate`): mide en ejecución la tabla de avances por glifo y peso (SAMPLES pesos × n letras), la REFINA por bisección
- *      donde la medida se aparta de la recta (la fuente tiene discontinuidades de avance por sustitución de glifo según el peso: la `e` de
- *      `modulator-vf` pierde 2,79 px de golpe en 225, medido en el diseño y en la construcción; una tabla uniforme de 9 muestras no lo ve y
- *      la conservación deriva 0,4 %), fija el presupuesto como la suma de avances al PESO DE REPOSO y ancla la caja al fotograma más ancho
+ *      donde la medida se aparta de la recta (la fuente tiene discontinuidades de avance por sustitución de glifo según el peso: en
+ *      `modulator-vf` el corte está en 224,73 y lo tienen `e`, `s` y `S` —las tres medidas en este repo—, con un salto de 0,02373 em; una
+ *      tabla uniforme de 9 muestras no lo ve y la conservación deriva 0,4 %), fija el presupuesto como la suma de avances al PESO DE REPOSO
+ *      y ancla la caja al fotograma más ancho
  *      de una muestra de la señal real. Toca el DOM (mide). Todo peso escrito o medido va en la REJILLA de medio punto (HAL-BBW-16, fase 6i).
  *
  * TOKENS QUE LEE (nunca los repite; D-BBW-30): extremos del eje por rol `--bbf-type-display-weight-from` / `-to` (= WMIN/WMAX del diseño,
@@ -32,10 +33,18 @@ export const WEIGHT_MODULATOR = Object.freeze({
   /** pesos muestreados por glifo al calibrar, uniformes (dc:L503) · estático */
   SAMPLES: 9,
   /** refinado de la tabla por bisección (fase 6h, medido en el output; el diseño no lo tiene): se subdivide un intervalo cuando el avance medido
-   *  en su punto medio se aparta de la recta entre sus extremos más de `tolerancePx` (por encima del ruido de cuantización del avance, pasos de
-   *  0,47–0,78 px por 2 unidades de peso, que da ≤ 0,22 px de error lineal; muy por debajo del salto de 2,79 px) hasta que el intervalo mide
-   *  `minStepWeight` unidades de peso, con un tope de medidas por calibración · estático (criterio técnico) */
-  REFINE: Object.freeze({ tolerancePx: 0.5, minStepWeight: 1, maxSamples: 64 }),
+   *  en su punto medio se aparta de la recta entre sus extremos más de la tolerancia, hasta que el intervalo mide `minStepWeight` unidades de
+   *  peso, con un tope de medidas por calibración · estático (criterio técnico).
+   *  LA TOLERANCIA VA EN EM, NO EN PÍXELES (D-BBW-47, medido en este turno). La 6h la fijó en 0,5 px, que es 0,00485 em al cuerpo que el titular
+   *  tenía entonces (103,17 px a 1728). Un umbral ABSOLUTO no sirve, y la razón es geométrica: para un ESCALÓN dentro del intervalo, la
+   *  desviación del punto medio respecto de la cuerda vale `salto / 2` **en todos los niveles de la bisección** —no decrece al acercarse—, así
+   *  que el refinado continúa si y solo si `salto/2 > tolerancia`. Como el salto escala con el cuerpo (0,02373 em en `modulator-vf`), con
+   *  0,5 px fijos el refinado solo dispara por encima de ~105 px de cuerpo. Medido con el claim de tres líneas, cuyos cuerpos van de 28,56 a
+   *  64,01 px: con 0,5 px la tabla dejaba un hueco de 12,5 unidades de peso SOBRE el corte a 360/780/1000 (19 posiciones) y la conservación
+   *  derivaba 0,218–0,258 % con 6–12 excursiones; con la tolerancia en em quedan 27 posiciones y hueco de 1 unidad en los CINCO anchos, sin
+   *  acercarse al tope de 64. El valor no cambia: es el mismo 0,00485 em que la 6h validó, dicho en la unidad en la que era cierto.
+   *  Sigue por encima del ruido de cuantización del avance (≤ 0,00214 em de error lineal, factor 2,27) y por debajo de medio salto (0,01187 em). */
+  REFINE: Object.freeze({ toleranceEm: 0.00485, minStepWeight: 1, maxSamples: 64 }),
   /** cuadros simulados de la señal real para anclar la caja al más ancho, y su paso en segundos (dc:L518-519) · estático */
   PIN_FRAMES: 40,
   PIN_STEP_S: 0.45,
@@ -62,6 +71,10 @@ export const WEIGHT_MODULATOR = Object.freeze({
   NEWTON: Object.freeze({ passes: 14, tolerancePx: 0.04, minSlopePx: 0.001 }),
   /** re-calibraciones tras el montaje, en ms: absorben la llegada tardía de la fuente (dc:L449-451) · estático (patrón de carga de fuente) */
   REFIT_DELAYS_MS: Object.freeze([60, 700, 1800]),
+  /** histéresis del afinado de la guarda: cambio mínimo de cuerpo, en px, para dar por bueno que el cuerpo ha cambiado y volver a
+   *  calibrar (dc:L617, donde era `OPTICAL_FIT.MIN_DELTA_PX`; el ajuste óptico se retira con el rótulo en D-BBW-47 y la constante
+   *  se muda aquí, que es su único consumidor desde entonces) · estático */
+  REFIT_MIN_DELTA_PX: 0.15,
   /** REJILLA DE ESCRITURA DEL PESO (fase 6i, HAL-BBW-16; el diseño escribía un decimal, dc:L591): todo peso que se escribe o se mide se ajusta a
    *  medio punto. Por qué: Chrome resuelve `font-weight` en cuartos de punto y, medido en cuatro cuerpos (52,56 · 65,52 · 84 · 124 px), los
    *  cubos 382,25 y 468,75 COLISIONAN entre sí (el segundo que se instancia dibuja con el glifo del primero: −12 px o +12 px de avance en la
@@ -233,6 +246,8 @@ export function calibrate(word: HTMLElement, glyphs: readonly HTMLElement[], tok
    * Además impide que los glifos, que son elementos flexibles, ENCOJAN durante la medida y corrompan la tabla de avances.
    */
   word.style.width = "max-content";
+  /** la tolerancia del refinado es una fracción del CUERPO (ver REFINE): se resuelve aquí, donde el cuerpo se conoce */
+  const tolerancePx = C.REFINE.toleranceEm * parseFloat(getComputedStyle(word).fontSize);
   const span = tokens.max - tokens.min;
   const measured = new Map<number, number[]>();
   const measure = (x: number): number[] => {
@@ -260,7 +275,7 @@ export function calibrate(word: HTMLElement, glyphs: readonly HTMLElement[], tok
     const yb = measure(b);
     const ym = measure(m);
     let bent = false;
-    for (let i = 0; i < n && !bent; i++) bent = Math.abs(ym[i] - (ya[i] + yb[i]) / 2) > C.REFINE.tolerancePx;
+    for (let i = 0; i < n && !bent; i++) bent = Math.abs(ym[i] - (ya[i] + yb[i]) / 2) > tolerancePx;
     if (bent) queue.push([a, m], [m, b]);
   }
   const xs = [...measured.keys()].sort((p, q) => p - q);

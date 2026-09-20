@@ -7,10 +7,10 @@
     {
       "type": "hero",
       "id": "hero",
-      "display": "deepbrand",
-      "lead": "ecosystem",
-      "claimPrimary": "Diseño cerebros de marca",
-      "claimSecondary": "Estrategia + agentes de IA"
+      "claimLine1": "Una marca",
+      "claimLine2": "no se automatiza.",
+      "claimLine3": "Se mantiene viva.",
+      "heading": "Tu marca ya sabe cómo habla y qué aprueba. Estructuro ese criterio en un sistema y lo mantengo vivo mientras la empresa cambia."
     }
   ]
 }

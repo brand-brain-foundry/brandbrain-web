@@ -42,16 +42,22 @@ tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, 
    `grep` en el output de cada despacho (tabla ⇔ módulo, ningún token repetido). Guardia propia solo a la segunda necesidad real de bloquear
    algo (D-DOC-13 §3): hoy no hay defecto que haya escapado.
 
-## §2 — S5 · Modulador de peso del titular (`src/behavior/weight-modulator.ts`)
+## §2 — S5 · Modulador de peso de la tercera línea del claim (`src/behavior/weight-modulator.ts`)
 
-**Qué hace:** la palabra se parte en letras y cada una interpola su peso siguiendo una señal continua sin periodo, con la restricción de que
+**Qué hace:** la línea se parte en letras y cada una interpola su peso siguiendo una señal continua sin periodo, con la restricción de que
 **Σ avances = presupuesto** (el ancho total nunca cambia: el grosor se redistribuye). Tres partes: señal (pura) → conservación por water-fill
 de Newton contra la tabla de avances medida (pura) → calibración (mide el DOM). Inventario: N1 doc A §5.
+
+**Héroe rediagramado (D-BBW-47).** El módulo no cambia de algoritmo, cambia de sujeto: deja de animar **una palabra** (el titular) y pasa a
+animar **la última línea de un claim de tres**, una frase con espacios y punto. La conservación es **por línea**: la caja anclada es la de esa
+línea y las otras dos, el encabezado y la firma son hermanos que no se enteran. Dos cosas que la frase trae y la palabra no tenía, las dos
+medidas en el turno: **el espacio es un glifo con avance** y hay que impedir que se colapse (HAL-BBW-24, `white-space: pre` en el glifo), y
+**la discontinuidad de avance la tienen tres glifos**, no uno, con el refinado perdiéndola en cuerpos pequeños (HAL-BBW-25, fila `REFINE`).
 
 | Constante | Valor | Origen | Clase | Qué es |
 |---|---|---|---|---|
 | `SAMPLES` | 9 | dc:L503 | estático | pesos muestreados por glifo al medir la tabla de avances, uniformes (100, 150, … 500 con los tokens de hoy) |
-| `REFINE` | tolerancia 0,5 px · paso mínimo 1 unidad de peso · tope 64 medidas | fase 6h (no existe en el diseño) | estático (criterio técnico) | refinado de la tabla por bisección donde el avance medido en el punto medio se aparta de la recta más de la tolerancia. **Por qué:** la fuente tiene discontinuidades de avance por sustitución de glifo según el peso (`modulator-vf`: la `e` pierde 2,79 px de golpe entre 224,5 y 225, medido con las dos propiedades en el diseño y en la construcción); una tabla uniforme de 9 muestras no la ve y la conservación deriva (simulado 60 s sobre curvas medidas: −4,08…+1,01 px a 1728, 0,69 %; con el refinado −0,59…+0,47 px, 0,14 %, ningún cuadro fuera del ±0,1 % del inventario). La tolerancia queda por encima del ruido de cuantización del avance (pasos de 0,47–0,78 px por 2 unidades de peso → ≤ 0,22 px de error lineal en 50 unidades) y muy por debajo del salto; resultado hoy: 27 posiciones, 18 más que el diseño, todas concentradas alrededor de 225 |
+| `REFINE` | tolerancia **0,00485 em** · paso mínimo 1 unidad de peso · tope 64 medidas | fase 6h, corregida a em en el héroe rediagramado (no existe en el diseño) | estático (criterio técnico) | refinado de la tabla por bisección donde el avance medido en el punto medio se aparta de la recta más de la tolerancia. **Por qué:** la fuente tiene discontinuidades de avance por sustitución de glifo según el peso. Medido en este repo sobre los 17 glifos del claim, barriendo los 801 pesos de medio punto del eje: el corte está en **224,73** y lo tienen **`e`, `s` y `S`** (la 6h solo conocía la `e`), con un salto de **0,02373 em**; los otros catorce están limpios. Una tabla uniforme de 9 muestras no lo ve y la conservación deriva (simulado 60 s sobre curvas medidas: −4,08…+1,01 px a 1728, 0,69 %; con el refinado −0,59…+0,47 px, 0,14 %). **La tolerancia va en em y no en píxeles**, y la razón es geométrica: para un ESCALÓN, la desviación del punto medio respecto de la cuerda vale `salto/2` **en todos los niveles** de la bisección —no decrece al acercarse—, así que el refinado continúa si y solo si `salto/2 > tolerancia`; como el salto escala con el cuerpo, un umbral absoluto solo dispara por encima de ~105 px de cuerpo (HAL-BBW-25). El valor **no cambia**: 0,00485 em es los 0,5 px de la 6h al cuerpo que el titular tenía entonces (103,17 px), dicho en la unidad en la que era cierto. Queda por encima del ruido de cuantización (≤ 0,00214 em) y por debajo de medio salto (0,01187 em). Resultado: **27 posiciones y hueco de 1 unidad de peso sobre el corte en los cinco anchos**, sin acercarse al tope |
 | `PIN_FRAMES` · `PIN_STEP_S` | 40 · 0,45 s | dc:L518-519 | estático | cuadros simulados de la señal real (0…17,55 s) para anclar la caja al más ancho |
 | `MIN_PIN_PX` | 20 | dc:L522 | estático | ancho mínimo para aceptar un anclaje |
 | `SIGMA` | 0,34 | dc:L552 | **dinámico** | anchura de la joroba: cuántas letras engordan a la vez (carácter de la marca) |
@@ -83,42 +89,15 @@ por consola en desarrollo. **Los tres retardos NO son la red de seguridad:** con
 quien salva la caja es `loadingdone`. El salto mientras tanto lo amortigua el respaldo con métricas ajustadas (`modulator-fallback`, ±1,5 %). Lo que SÍ está calibrado a esta familia: `SIGMA`, `GAUSS`, `SIGMOID_K` (cuántas letras engordan y cuánto) y el
 interletrado de la palabra (EXC-BBW-04).
 
-## §3 — S7 · Ajuste óptico del rótulo y peso por puntero (`src/behavior/optical-fit.ts`)
+## §3 — S7 · Ajuste óptico del rótulo y peso por puntero — **RETIRADO** (D-BBW-47)
 
-**Qué hace:** el rótulo cierra al ancho **anclado** del titular (por eso la caja del titular no puede reflotar; el ancla se calcula con
-`max-content`, D-BBW-45, para que el tope del contenedor no la falsee); el sobrante tras la última
-letra se recorta con margen negativo.
-
-**Fase 6m (D-BBW-41) — cuál de las dos incógnitas se fija.** El cierre tiene dos incógnitas acopladas, el **tamaño** del rótulo y su
-**interletrado**. El diseño fija el tamaño (proporción 0,40 del titular) y resuelve el interletrado; con las palabras nuevas eso satura
-(`ecosystem` tiene 8 huecos para un titular 20 % más ancho: pediría 70,4 px por hueco y el tope del diseño eran 40, así que el rótulo se
-quedaba en el 72,5 % del titular). Se invierte: la **invariante** pasa a ser la razón interletrado/tamaño medida en el export
-(`--bbf-type-lead-track-ratio` = 0,72327) y `fitLock` **resuelve el tamaño**:
-
-    ancho(size) = size · A + r · size · (n − 1)   →   size = objetivo / (A + r · (n − 1))
-
-con `A` = ancho natural del rótulo por px de cuerpo, medido con una **sonda a cuerpo de referencia fijo** (`PROBE_SIZE_PX`, invariante de
-escala). Cierra con cualquier par de palabras, y por eso `MAX_TRACK_PX` (dc:L616) queda **retirado**: existía para que un rótulo corto no se
-desparramase, y con la razón fija esa condición la garantiza la proporción. La sonda lleva `max-width: none` — hereda la clase del rótulo y sin
-eso el ancho natural se mide **recortado** al ancho del bloque en cuanto el cuerpo de referencia lo supera. El puntero mueve el peso del rótulo dentro del rango de su familia y
-lo tiñe de acento al acercarse. Inventario: N1 doc A §7 (el "tracking por puntero" del comentario del diseño no existe en su código).
-
-| Constante | Valor | Origen | Clase | Qué es |
-|---|---|---|---|---|
-| `OPTICAL_FIT.MIN_TARGET_PX` | 20 | dc:L601 | estático | ancho mínimo del titular para ajustar |
-| `OPTICAL_FIT.PROBE_SIZE_PX` | 100 | fase 6m | estático | cuerpo de la sonda que mide el ancho natural (invariante de escala) |
-| ~~`OPTICAL_FIT.MAX_TRACK_PX`~~ | ~~40~~ | ~~dc:L616~~ | — | **RETIRADO en la 6m** (D-BBW-41): con la razón invariante, el tope sobra y era lo que impedía cerrar |
-| `OPTICAL_FIT.MIN_DELTA_PX` | 0,15 | dc:L617 | estático | cambio mínimo para reescribir (histéresis) |
-| `POINTER_WEIGHT.REACH_MIN_PX` | 420 | dc:L470 | **dinámico** | alcance mínimo de la atracción (cae en ×105 de espaciado, pero ningún estilo lo consume: constante, no token; residual reportado) |
-| `POINTER_WEIGHT.PULL_GAIN` · `LATERAL_GAIN` | 140 · 130 | dc:L473 | **dinámico** | cuánto engorda al acercarse; cuánto más a la derecha y menos a la izquierda |
-| `POINTER_WEIGHT.LATERAL_SPAN` | 0,75 | dc:L472 | **dinámico** | fracción del ancho del lock que cubre el recorrido lateral |
-| `POINTER_WEIGHT.WEIGHT_STEP` · `PULL_STEP` | 5 · 0,04 | dc:L474 | estático | histéresis de reescritura |
-| `POINTER_WEIGHT.TINT_THRESHOLD` | 0,02 | dc:L802 | estático | atracción a partir de la cual el rótulo se tiñe (`data-pull="near"`, color por CSS) |
-
-**Tokens que lee (nunca repite):** peso de reposo del rótulo como `font-weight` computado (rol `--bbf-type-lead-weight`); rango de la familia
-de texto por `--bbf-weight-text-range-min/-max`. **Tokens que consume el CSS del componente** (no el módulo): interletrado inicial
-`--bbf-type-lead-tracking` (hasta la primera medida; diseño 0,3em → ×7), transiciones `--bbf-motion-lead-weight-*` / `--bbf-motion-lead-tint-*`
-(`semantic/motion.css`), tinte `--bbf-accent`.
+El módulo `src/behavior/optical-fit.ts` **ya no existe**. Cerraba el rótulo al ancho anclado del titular resolviendo su tamaño con la razón de
+interletrado como invariante (D-BBW-41), y teñía y engordaba el rótulo según la distancia del puntero. Las dos cosas eran del **lockup de dos
+líneas que cerraban entre sí**; el héroe rediagramado lo sustituye por un claim de tres líneas alineadas a la izquierda que no cierran contra
+nada, así que el sistema se queda sin sujeto y sale en el mismo commit que entra su sustituto (I-6). Con él salen la excepción **EXC-BBW-02**
+(y su registro en `DESIGN_EXCEPTIONS.md`), los roles `--bbf-type-lead-*`, las madres `--bbf-size-lead-*`, `--bbf-tracking-lead-lock-ratio` y
+`--bbf-advance-text-max`, y las transiciones `--bbf-motion-lead-*`. Su única constante que sigue viva, `MIN_DELTA_PX` (0,15, la histéresis del
+afinado del cuerpo, `dc:L617`), se muda a `WEIGHT_MODULATOR.REFIT_MIN_DELTA_PX`, que es su único consumidor desde entonces.
 
 ## §4 — S1 · Fondo: sombreador WebGL2 de cuatro pasadas (`src/behavior/backdrop-shader.ts`)
 
@@ -181,6 +160,13 @@ suavizado (puras) → encuadre y cadena de transformación (puras) → muestread
 | `SMOOTHING` | 0,085 | dc:L421-423 | plantilla | suavizado exponencial por muestra (~14 muestras ≈ 1 s para el 71 %); la primera muestra fija sin suavizar |
 | `RETRY` | 350 ms × 24 | dc:L650 | estático | cadena de reintentos de reproducción: cada 350 ms hasta 24 intentos (8,4 s) o hasta que reproduce; más `loadeddata`, `canplay`, visibilidad y primer gesto |
 | `MIN_READY_STATE` · `DECIMALS` | 2 · 3 | dc:L398, L433 | estático | `readyState` mínimo para muestrear (HAVE_CURRENT_DATA); decimales de la traslación escrita |
+
+**Héroe rediagramado (D-BBW-47) — cambia el DESTINO, no el algoritmo.** El arte pasa a vivir en la zona derecha del héroe. El seguimiento sigue
+llevando el centroide al **centro de su escenario**, con la misma traslación acotada y la misma holgura; lo que se mueve es **el escenario**, por
+el rol de vista `--bbf-stage-left` (72 % en la vista de dos zonas, 50 % en la de una). Es la única forma de llevar el sujeto a la derecha sin tocar
+las cotas: **la holgura de la traslación es la mitad del sobrante del zoom, ±3,7037 % del vídeo**, y no alcanza ni de lejos a cruzar media pantalla;
+forzarla descubriría el borde del rectángulo, que es justo lo que la restricción de radios de la máscara (50 %/50 %) impide. No se tocan `ZOOM`,
+`slackPercent`, `framing` ni los radios.
 
 **Tokens que lee (nunca repite):** ninguno por valor. La geometría del escenario y su **máscara** son roles de composición que consume el CSS
 del componente (`--bbf-stage-*`, `--bbf-stage-mask`, primitives/composition.css); la máscara va sobre el ESCENARIO, no sobre el vídeo (la

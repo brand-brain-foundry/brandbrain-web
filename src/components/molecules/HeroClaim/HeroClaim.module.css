@@ -1,0 +1,74 @@
+/* HeroClaim — Tier 3: solo consume Tier 1/2 (D-BBW-47 · D-BBW-48; sustituye a HeroLock, fase 6h/6m/7b).
+   EL CLAIM: columna de TRES LÍNEAS alineadas a la izquierda, con el mismo cuerpo y sin separación propia entre ellas (el
+   interlineado del rol es el ritmo: `--bbf-type-display-leading`). No lleva `text-transform`: el contenido trae la ortografía
+   real de una frase, que es ortografía y no presentación — la `capitalize` y el `data-split` de la 6l desaparecen con la
+   palabra de marca que los necesitaba.
+   EL CUERPO LO FIJA LA LÍNEA MÁS LARGA (D-BBW-48): las tres comparten `font-size`, y ese tamaño es `min(tamaño de rol, guarda)`
+   donde la guarda MEDIDA (`--bbf-display-fit-measured`, que el componente escribe en la raíz del claim) gana a la derivada en
+   cuanto existe. La cadena de respaldo se resuelve AQUÍ y no en `:root`: el valor medido se hereda del claim, así que
+   sustituirlo en la raíz elegiría siempre el respaldo. Sin JavaScript queda la derivada, que es una cota y cabe siempre.
+   LA TERCERA LÍNEA ES LA QUE RESPIRA: el cliente la parte en letras y anima `font-weight` por letra (D-BBW-29) anclando su caja
+   (`width` en px) al fotograma más ancho de la señal real; `contain: layout` aísla ese relayout del resto de la página. Las
+   otras dos quedan al peso de reposo del rol. La conservación de ancho es POR LÍNEA: ni las otras dos, ni el encabezado, ni la
+   firma se recolocan mientras respira.
+   `white-space: nowrap` en la línea: las letras no se comprimen ni se parten; que quepa lo garantiza la guarda. `white-space: pre`
+   en el glifo, y esto es la pieza nueva de la frase frente a la palabra: un glifo es elemento flexible (y por tanto caja de
+   bloque), y en una caja de bloque un espacio suelto se COLAPSA y se recorta al principio y al final de su línea — mediría cero,
+   la frase saldría sin espacios y la conservación repartiría un presupuesto falso. Con `pre` el espacio conserva su avance y
+   entra en la tabla como un glifo más, igual que el punto.
+   `width: max-content` en la línea: cada una mide su propio texto dentro de la columna y NO la queda topada el contenedor
+   (D-BBW-45), que es de donde salió el cuerpo congelado de HAL-BBW-22.
+   SOMBRA DE TEXTO por rol (`display-shadow`, paso xl; mapeo del N1 doc B §11): se pinta detrás del glifo y entra en la garantía
+   de legibilidad (D-BBW-25), que se re-mide con ella puesta.
+   ENTRADA: el enfoque progresivo lo pone la regla del sistema (base/document.css) con los roles de duración y retardo por
+   pieza; aquí solo el orden. */
+.claim {
+  --bbf-enter-duration: var(--bbf-motion-enter-duration-lock);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-display-family);
+  font-size: min(var(--bbf-type-display-size), var(--bbf-display-fit-measured, calc(var(--bbf-type-display-fit-unit) / var(--bbf-display-chars))));
+  font-weight: var(--bbf-type-display-weight);
+  line-height: var(--bbf-type-display-leading);
+  letter-spacing: var(--bbf-type-display-tracking);
+  text-shadow: var(--bbf-type-display-shadow);
+}
+
+/* SIN TOPE DE ANCHO, y es la misma razón que la 6m dejó escrita para el rótulo (D-BBW-45, HAL-BBW-22): con `max-width: 100%` el
+   navegador topa la caja al ancho disponible, y entonces la medida real que el afinado necesita (`objetivo × cuerpo ÷ medido`) se
+   calcula A SÍ MISMA y el cuerpo se congela. Medido a 360: con el tope la línea más larga medía 328,00 —exactamente el disponible,
+   la firma del tope— y sin él mide 328,13, que es su ancho verdadero. Que quepa lo garantiza la guarda, que es una cota y cabe
+   siempre; el tope no añadía seguridad, solo mentía en la medida. */
+.line {
+  width: max-content;
+  white-space: nowrap;
+}
+
+.line:nth-child(1) {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-1);
+}
+
+.line:nth-child(2) {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-2);
+}
+
+.line:nth-child(3) {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-3);
+}
+
+/* la línea que respira: caja de letras con el relayout contenido. `display: flex` solo cuando el cliente la ha partido, para
+   que el HTML servido siga siendo una línea de texto normal y no una caja vacía si el reparto no llegara. */
+.live[data-split] {
+  display: flex;
+  contain: layout;
+}
+
+.glyph {
+  display: inline-block;
+  flex: 0 0 auto;
+  white-space: pre;
+}

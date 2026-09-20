@@ -1,1 +1,0 @@
-export { HeroLock } from "./HeroLock";

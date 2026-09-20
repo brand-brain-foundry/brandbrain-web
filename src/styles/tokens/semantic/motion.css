@@ -72,11 +72,16 @@
   --bbf-motion-enter-delay-stage: var(--bbf-stagger-2-5);
   --bbf-motion-enter-delay-brand: var(--bbf-stagger-3-5);
   --bbf-motion-enter-delay-nav: var(--bbf-stagger-5);
-  --bbf-motion-enter-delay-display: var(--bbf-stagger-11);
-  --bbf-motion-enter-delay-lead: var(--bbf-stagger-12-5);
-  --bbf-motion-enter-delay-claim: var(--bbf-stagger-14-5);
-  --bbf-motion-enter-delay-claim-secondary: var(--bbf-stagger-16);
-  --bbf-motion-enter-delay-notice: var(--bbf-stagger-16-5);
+  /* Héroe rediagramado (D-BBW-47): las piezas del bloque de texto son otras, pero la ESCALERA del diseño es la misma y se
+     reparte EN ORDEN entre ellas, peldaño a peldaño, sin inventar ninguno: las tres líneas del claim toman los tres peldaños
+     que tenían titular, rótulo y primera afirmación (11 · 12,5 · 14,5), el encabezado el de la segunda afirmación (16) y la
+     firma el del aviso (16,5). La firma es UNA pieza con UN rol aunque salga en dos superficies (héroe y pie): entran a la
+     vez, que es lo que significa ser la misma pieza. El grupo legal del pie conserva el suyo (18). */
+  --bbf-motion-enter-delay-claim-1: var(--bbf-stagger-11);
+  --bbf-motion-enter-delay-claim-2: var(--bbf-stagger-12-5);
+  --bbf-motion-enter-delay-claim-3: var(--bbf-stagger-14-5);
+  --bbf-motion-enter-delay-heading: var(--bbf-stagger-16);
+  --bbf-motion-enter-delay-signature: var(--bbf-stagger-16-5);
   --bbf-motion-enter-delay-legal: var(--bbf-stagger-18);
   --bbf-motion-enter-stagger-nav: var(--bbf-stagger-1-5);
   --bbf-motion-loop-play-state: running;

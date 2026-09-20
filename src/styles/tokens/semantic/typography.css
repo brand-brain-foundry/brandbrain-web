@@ -58,31 +58,30 @@
   --bbf-type-display-fit-unit: calc(var(--bbf-lockup-target) / (var(--bbf-advance-display-max) + var(--bbf-tracking-display-ratio)));
   --bbf-type-display-shadow: var(--bbf-shadow-xl);
 
-  --bbf-type-lead-family: var(--bbf-font-text);
-  --bbf-type-lead-size: var(--bbf-size-lead); /* EXC-BBW-02 (D-BBW-19): derivado del display por una madre; registro docs/system/DESIGN_EXCEPTIONS.md §1 */
-  --bbf-type-lead-weight: var(--bbf-weight-text-regular);
-  --bbf-type-lead-leading: var(--bbf-leading-none);
-  --bbf-type-lead-tracking: var(--bbf-tracking-7);
-  /* Guarda del rótulo: la MISMA derivación con las métricas y el interletrado de SU familia y su rol (×7 de la madre). Solo manda
-     mientras no hay medida: con el cliente vivo el tamaño del rótulo lo resuelve el cierre del lock (D-BBW-41, optical-fit.ts). */
-  --bbf-type-lead-fit-unit: calc(var(--bbf-lockup-target) / (var(--bbf-advance-text-max) + var(--bbf-tracking-base-ratio) * 7));
-  /* RAZÓN INVARIANTE del lock (D-BBW-41): interletrado ÷ tamaño del rótulo, medida en el export con sus palabras. La lee
-     src/behavior/optical-fit.ts por `getPropertyValue` y nunca la repite (D-BBW-30). */
-  --bbf-type-lead-track-ratio: var(--bbf-tracking-lead-lock-ratio);
-  --bbf-type-lead-shadow: var(--bbf-shadow-lg);
-
-  /* texto corrido: paso cero de la escala (18 → 20 px). Sin interletrado: el ×4 era de los claims y se va con ellos. */
+  /* TEXTO CORRIDO: paso cero de la escala (18 → 20 px). Deja de estar sin consumidor visible (D-BBW-47): es el rol del
+     ENCABEZADO de la portada, que la biblia v2 §10 pide «en cuerpo de texto» y que es el único `<h1>` de la página.
+     Dos propiedades que el rol no tenía porque nadie lo usaba, y que un párrafo de verdad sí necesita:
+       · `leading` → `--bbf-leading-text`, la madre nueva. Un párrafo con interlineado de título no se lee.
+       · `shadow`  → paso `md`, el MISMO que llevaban las dos afirmaciones que este párrafo sustituye: es texto de cuerpo
+         sobre el mismo fondo y en el mismo sitio, así que hereda su sombra en lugar de estrenar una (mapeo del N1 doc B §11).
+     Sin interletrado: el ×4 era de los claims y se va con ellos. */
   --bbf-type-body-family: var(--bbf-font-text);
   --bbf-type-body-size: var(--bbf-size-0);
   --bbf-type-body-weight: var(--bbf-weight-text-regular);
+  --bbf-type-body-leading: var(--bbf-leading-text);
   --bbf-type-body-tracking: var(--bbf-tracking-0);
+  --bbf-type-body-shadow: var(--bbf-shadow-md);
 
-  /* claims de la landing: un paso por debajo del cuerpo (15 → 16; diseño 14 → 15) */
-  --bbf-type-claim-family: var(--bbf-font-text);
-  --bbf-type-claim-size: var(--bbf-size-n1);
-  --bbf-type-claim-weight: var(--bbf-weight-text-regular);
-  --bbf-type-claim-tracking: var(--bbf-tracking-4);
-  --bbf-type-claim-shadow: var(--bbf-shadow-md);
+  /* LA FIRMA (D-BBW-47 · D-BBW-49): «línea aparte y cuerpo pequeño». Un paso por debajo del cuerpo, que es literalmente eso, y
+     el mismo peldaño que ocupaban las afirmaciones retiradas. En el PIE la misma cadena se sirve con el rol `legal`, porque
+     allí es una línea de barra junto a la línea legal y no el cierre de un bloque de texto: la decisión obliga a una sola
+     LLAVE DE CONTENIDO (la consistencia de entidad es sobre la cadena), no a un solo rol tipográfico. */
+  --bbf-type-signature-family: var(--bbf-font-text);
+  --bbf-type-signature-size: var(--bbf-size-n1);
+  --bbf-type-signature-weight: var(--bbf-weight-text-regular);
+  --bbf-type-signature-leading: var(--bbf-leading-text);
+  --bbf-type-signature-tracking: var(--bbf-tracking-1);
+  --bbf-type-signature-shadow: var(--bbf-shadow-sm);
 
   --bbf-type-label-family: var(--bbf-font-text);
   --bbf-type-label-size: var(--bbf-size-n2);
@@ -105,10 +104,4 @@
   --bbf-type-legal-tracking: var(--bbf-tracking-6);
   --bbf-type-legal-shadow: var(--bbf-shadow-sm);
 
-  /* aviso de estado del pie (N0: "En construcción", 9 → 10 px con 0.34em): mismo paso que legal, interletrado ×9 */
-  --bbf-type-notice-family: var(--bbf-font-text);
-  --bbf-type-notice-size: var(--bbf-size-n2);
-  --bbf-type-notice-weight: var(--bbf-weight-text-regular);
-  --bbf-type-notice-tracking: var(--bbf-tracking-9);
-  --bbf-type-notice-shadow: var(--bbf-shadow-sm);
 }
