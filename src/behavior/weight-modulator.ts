@@ -39,6 +39,8 @@ export const WEIGHT_MODULATOR = Object.freeze({
   /** cuadros simulados de la señal real para anclar la caja al más ancho, y su paso en segundos (dc:L518-519) · estático */
   PIN_FRAMES: 40,
   PIN_STEP_S: 0.45,
+  /** margen bajo el cual dos anchos se consideran EL MISMO, para detectar la medida topada (D-BBW-45) · estático (criterio técnico) */
+  CLAMP_EPS_PX: 0.05,
   /** ancho mínimo para aceptar un anclaje (dc:L522) · estático */
   MIN_PIN_PX: 20,
   /** anchura de la joroba: cuántas letras engordan a la vez (dc:L552) · dinámico (carácter de la marca) */
@@ -209,7 +211,7 @@ export function frame(t: number, glyphs: readonly HTMLElement[], curves: readonl
   return residual;
 }
 
-export type Calibration = { curves: Curve[]; budget: number; pinned: number; samples: number };
+export type Calibration = { curves: Curve[]; budget: number; pinned: number; samples: number; clamped: boolean };
 
 /**
  * Calibración (dc:L492-525), TOCA EL DOM: (1) mide la tabla de avances de cada glifo en SAMPLES pesos uniformes del eje y la refina por
@@ -221,7 +223,16 @@ export type Calibration = { curves: Curve[]; budget: number; pinned: number; sam
 export function calibrate(word: HTMLElement, glyphs: readonly HTMLElement[], tokens: Tokens, clock: number): Calibration | null {
   const n = glyphs.length;
   if (!n) return null;
-  word.style.width = "auto";
+  /**
+   * D-BBW-45 — SE MIDE CON `max-content`, NO CON `auto`.
+   * Con `auto` esta caja ENCOGE PARA AJUSTARSE, y una caja así queda TOPADA por el ancho disponible: en cuanto la palabra pide más
+   * de lo que cabe, la medida devuelve el disponible en vez del ancho real. Como el cuerpo se corrige con `objetivo × cuerpo / medido`,
+   * ese tope vuelve el lazo DEGENERADO justo cuando hace falta —la corrección se calcula a sí misma— y el cuerpo equivocado se congela
+   * hasta que se recarga (HAL-BBW-22: con la fuente de respaldo el cuerpo salía 60,28 px en vez de 46,02 y la palabra se recortaba
+   * 34,8 px por lado a 360, sin corregirse nunca). `max-content` es el ancho intrínseco: no lo topa el contenedor.
+   * Además impide que los glifos, que son elementos flexibles, ENCOJAN durante la medida y corrompan la tabla de avances.
+   */
+  word.style.width = "max-content";
   const span = tokens.max - tokens.min;
   const measured = new Map<number, number[]>();
   const measure = (x: number): number[] => {
@@ -263,8 +274,25 @@ export function calibrate(word: HTMLElement, glyphs: readonly HTMLElement[], tok
     const v = word.getBoundingClientRect().width;
     if (v > pinned) pinned = v;
   }
+  /**
+   * GUARDIA DEL TOPE (D-BBW-45). `topado` es lo que habría medido el método anterior. Si es MENOR que el ancho real, la palabra no cabe
+   * y aquella medida estaba topada; y su firma es delatora: coincide EXACTAMENTE con el ancho disponible. Se comprueba para que la
+   * regresión no pueda volver en silencio — es barato (un reflujo) frente a las decenas que ya cuesta la calibración.
+   */
+  word.style.width = "auto";
+  const topado = word.getBoundingClientRect().width;
+  const clamped = topado + C.CLAMP_EPS_PX < pinned;
+  if (process.env.NODE_ENV !== "production" && clamped) {
+    const avail = parseFloat(getComputedStyle(word).getPropertyValue("--bbf-lockup-avail"));
+    const firma = Number.isFinite(avail) && Math.abs(topado - avail) < C.CLAMP_EPS_PX;
+    console.error(
+      "[weight-modulator] la palabra NO CABE: ancho real " + pinned.toFixed(2) + " px contra " + topado.toFixed(2) + " px de caja encogida" +
+        (firma ? " (= el disponible, " + avail.toFixed(2) + " px: la firma del tope)" : "") +
+        ". Se mide con max-content, así que la corrección converge; si alguien vuelve a medir con auto, se congela.",
+    );
+  }
   if (pinned > C.MIN_PIN_PX) word.style.width = pinned.toFixed(2) + "px";
   else pinned = 0;
   frame(clock, glyphs, curves, budget, tokens);
-  return { curves, budget, pinned, samples: xs.length };
+  return { curves, budget, pinned, samples: xs.length, clamped };
 }

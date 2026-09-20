@@ -41,7 +41,10 @@
 :root {
   /* ── Familias ───────────────────────────────────────────────────────────────────────────────── */
   --bbf-font-text: var(--bbf-font-text-src, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
-  --bbf-font-display: "modulator-vf", "modulator-text-vf", var(--bbf-font-text);
+  /* `modulator-fallback` (D-BBW-45, src/styles/fonts/display-fallback.css): respaldo LOCAL con métricas ajustadas al 148 %, para que
+     mientras la display externa viaja el titular ocupe casi el mismo ancho y el bloque no salte. Va antes que la familia de texto
+     porque es la que se le parece; si ninguna de sus caras locales existe, la pila sigue igual que antes. */
+  --bbf-font-display: "modulator-vf", "modulator-text-vf", "modulator-fallback", var(--bbf-font-text);
 
   /* ── MÉTRICAS DE FAMILIA (fase 6m, D-BBW-40): hechos MEDIDOS de cada familia, no valores de marca. Son a la tipografía lo que
      `--bbf-weight-<familia>-range-min/-max` ya era: una propiedad del archivo de fuente que el sistema necesita para derivar.

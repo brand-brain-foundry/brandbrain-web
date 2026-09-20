@@ -34,6 +34,12 @@ tags: [medios, puerto, maestros, derivados, iconos, manifiesto, video, poster, b
 
 **Nomenclatura por rol y dimensión, nunca por contenido:** `icon.svg`, `icon-192.png`, `icon-512-maskable.png`, `apple-touch-icon-180.png`,
 `share-1200x630.png`, `favicon.ico`, `manifest.webmanifest`, `hero-loop-1280x720.mp4`, `hero-loop-640x360.mp4`, `hero-loop-poster-1280x720.jpg`.
+
+**Cuál de los dos vídeos recibe cada pantalla (D-BBW-46).** El `<video>` declara **las dos** fuentes con condición de pantalla, de la más restrictiva a
+la más general: **`640×360` por debajo de `--bbf-bp-nav` (780 px)** y `1280×720` por encima. Sin esa condición la primera fuente gana siempre y un
+teléfono se descargaba el derivado grande teniendo el pequeño: medido el 2026-09-19 a 360 px, **871,8 KB de los 1.187 KB** de la página. El navegador
+elige **una vez, al cargar**, y no rectifica al girar el teléfono: es lo que se quiere, que nadie se traiga dos vídeos. Construir un derivado no basta
+para que alguien lo reciba — hay que declarar **cuándo**.
 Cambiar lo que el icono dibuja o lo que el vídeo muestra no cambia ningún nombre ni ninguna referencia.
 
 ## §2 — Las piezas (verificadas)
