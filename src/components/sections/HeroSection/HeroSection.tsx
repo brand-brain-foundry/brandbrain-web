@@ -22,7 +22,7 @@ import styles from "./HeroSection.module.css";
  * Lo que NO cambia, que es casi todo lo caro: el sombreador, el seguimiento del sujeto, las partículas, el puerto de medios, el velo
  * local de legibilidad (D-BBW-25) y la entrada escalonada por pieza. Cambia la diagramación, no el sistema.
  */
-export function HeroSection({ section, signature }: { section: HeroSectionData; signature: string }) {
+export function HeroSection({ section }: { section: HeroSectionData; signature: string }) {
   const headingId = `${section.id}-heading`;
   return (
     <section id={section.id} className={styles.hero} aria-labelledby={headingId} data-component="bbf-hero">
@@ -45,9 +45,6 @@ export function HeroSection({ section, signature }: { section: HeroSectionData; 
           <h1 id={headingId} className={styles.heading} data-enter="">
             {section.heading}
           </h1>
-          <p className={styles.signature} data-enter="">
-            {signature}
-          </p>
         </div>
       </div>
     </section>
