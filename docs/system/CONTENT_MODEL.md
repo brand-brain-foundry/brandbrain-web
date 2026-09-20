@@ -37,7 +37,7 @@ es estricto en los dos sentidos: ni una llave de más, ni una de menos).
 | `hero.display` (la palabra de marca, era el `<h1>`) | `hero.claimLine1` · `claimLine2` · `claimLine3` | El claim son **tres líneas** y **no son intercambiables**: la última es la que respira. Tres llaves y no una lista, por la regla 1 (cada texto su llave). La llave nombra la POSICIÓN, que aquí es el rol. |
 | `hero.lead` | — | El rótulo desaparece con el lockup de dos líneas. |
 | `hero.claimPrimary` · `claimSecondary` | `hero.heading` | El `<h1>` pasa a ser **el párrafo**: solo puede haber un encabezado principal por página, y el claim no lo es (biblia v2 §10/§12). |
-| `footer.notice` | `signature` (en la raíz de lo global) | La firma la consumen **dos superficies**, el héroe y el pie, y por eso vive en lo global y no en la página. **Una sola llave**: la biblia v2 §12 exige consistencia de entidad, la misma cadena exacta siempre. Si algún día las dos superficies necesitaran cadenas distintas, hace falta una segunda llave **y registrar el choque** con esa regla. |
+| `footer.notice` | `signature` (en la raíz de lo global) | La firma vive en lo global y no en la página porque es un dato de identidad de la marca, no copy de la portada. **Una sola llave y —desde D-BBW-50— un solo consumidor**: el héroe, bajo el encabezado. Así la consistencia de entidad que exige la biblia v2 §12 se cumple por la vía limpia: con una sola aparición no hay dos cadenas que conciliar. Cierra Q-BBW-009. |
 
 Nada de esto cambia las siete reglas del modelo. La regla 2 (llaves por rol, nunca por lo que dicen hoy) es la que decide los nombres:
 `claimLine1..3` nombra posición, no contenido; `heading` nombra el papel en el documento, no la frase; `signature` nombra la pieza.

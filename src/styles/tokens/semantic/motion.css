@@ -82,7 +82,11 @@
   --bbf-motion-enter-delay-claim-3: var(--bbf-stagger-14-5);
   --bbf-motion-enter-delay-heading: var(--bbf-stagger-16);
   --bbf-motion-enter-delay-signature: var(--bbf-stagger-16-5);
-  --bbf-motion-enter-delay-legal: var(--bbf-stagger-18);
+  /* La barra del pie (D-BBW-51) sigue teniendo DOS piezas y conserva sus dos peldaños, repartidos en el orden en que se leen:
+     primero la línea legal, después los perfiles. El peldaño 16,5 lo comparten la firma del héroe y la legal del pie, que son
+     superficies distintas: entran a la vez, como ya hacía el diseño al unir dos duraciones en un mismo paso. */
+  --bbf-motion-enter-delay-legal: var(--bbf-stagger-16-5);
+  --bbf-motion-enter-delay-social: var(--bbf-stagger-18);
   --bbf-motion-enter-stagger-nav: var(--bbf-stagger-1-5);
   --bbf-motion-loop-play-state: running;
 }

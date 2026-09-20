@@ -46,10 +46,17 @@
          escena. A 1000, 1728 y 1920 los cinco bloques cumplen con el velo a CERO (peor caso 3,7:1 contra 3 y 6,2:1 contra 4,5).
        · A 360 la garantía SE ROMPE con el 43 %: la composición de una zona pone las dos primeras líneas del claim bajo el pez, y dan
          **2,634 y 2,922 contra un mínimo de 3**. El mínimo que las hace cumplir es **47,3 %**, así que el peldaño entero es 48 %.
-     El velo lo fija por tanto el ancho más estrecho, que es donde el texto y el arte comparten sitio. LO QUE ESTA MEDIDA NO CIERRA: las
-     partículas quedan acotadas de forma GRUESA en este turno (su pico se toma como el color más claro de cada una, a opacidad plena y
-     sobre su elipse entera), y esa cota es tan laxa que también habría suspendido la configuración del 43 % que la 6k validó. Así que
-     48 % está demostrado NECESARIO, no demostrado suficiente: certificarlo exige el instrumento de pico fiel de la 6k. ── */
+     El velo lo fija por tanto el ancho más estrecho, que es donde el texto y el arte comparten sitio.
+     CERTIFICADO (D-BBW-52, ajustes visuales): la reserva que dejó esa medida —las partículas acotadas de forma gruesa— queda cerrada con
+     el INSTRUMENTO DE PICO FIEL de la 6k: cada partícula se rasteriza con su CSS real (degradados, aro, sombra interior) por
+     SVG + foreignObject → lienzo y se compone con su opacidad de PICO, que no es cota sino el valor exacto de la meseta de sus
+     fotogramas (leído de `getAnimations()`), extendida sobre su recorrido. El instrumento se validó contra el render real: lee un
+     **+20 %** por encima en la partícula más brillante, o sea del lado conservador.
+     Y el veredicto fue que **48 % NO bastaba**: el término que mandaba era **la firma**, que con el tinte `muted` daba 3,97 contra su
+     mínimo de 4,5 a 360 px y habría exigido un velo del **56,6 %**. En vez de oscurecer el héroe entero nueve puntos, D-BBW-52 sube la
+     firma un peldaño de tinte (`muted` → `secondary`): pasa a 7,82 y **el 48 % queda certificado** con el mínimo del héroe en 47,3 %.
+     Comprobado además para las tres proporciones de arte y las dos salidas al solape que este turno propone: los cinco bloques cumplen
+     en las nueve combinaciones. ── */
   --bbf-shadow-alpha-veil-text: 48%;
   --bbf-shadow-ink-veil-text: color-mix(in oklch, var(--bbf-color-ink-900) var(--bbf-shadow-alpha-veil-text), transparent);
 

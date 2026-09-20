@@ -51,9 +51,10 @@ export type LinkItem = {
 
 export type GlobalDocument = {
   /**
-   * LA FIRMA, en UNA SOLA LLAVE (D-BBW-49). La consumen DOS superficies —el héroe y el pie— y por eso vive en lo global
-   * y no en la página: la biblia v2 §12 exige consistencia de entidad, es decir la MISMA CADENA EXACTA siempre. Si algún
-   * día las dos superficies necesitaran cadenas distintas, hace falta una segunda llave y registrar el choque con esa regla.
+   * LA FIRMA (D-BBW-49 · D-BBW-50). Una sola llave y, desde D-BBW-50, **un solo consumidor**: el héroe, bajo el encabezado.
+   * Sale del pie. Así la consistencia de entidad que exige la biblia v2 §12 —la misma cadena exacta siempre— se cumple por
+   * la vía limpia: con una sola aparición no hay dos cadenas que conciliar. Sigue viviendo en lo global y no en la página
+   * porque es un dato de identidad de la marca, no copy de la portada, y la próxima página lo querrá igual.
    */
   signature: string;
   nav: {
