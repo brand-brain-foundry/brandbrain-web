@@ -33,11 +33,32 @@
          bloque de texto del 18,44 % al 5,45 % del bloque a 360 px y, a cambio, hace que el pez entero quepa en pantalla por primera vez.
      El suelo (`--bbf-stage-height-floor`) sigue mandando si la ventana es muy baja: a 800 px de alto, el 42 % son 336 px contra los 252
      del suelo, así que hoy manda la proporción. */
-  --bbf-stage-height-ratio-split: 88%;
-  --bbf-stage-height-ratio-single: 42%;
+  --bbf-stage-height-ratio-split: 88cqh;
+  --bbf-stage-height-ratio-single: 42cqh;
+  /* COTA DE ANCHO DEL ESCENARIO (D-BBW-56) — la garantía, no el gusto. El alto es una proporción de la ALTURA del héroe, así que en
+     una ventana alta el escenario (16:9) se vuelve enorme respecto al ANCHO: a 1000×900 el 88 % da 1408 px de escenario sobre un héroe
+     de 1000, y se come el 97 % de la zona de texto. Barrido a 1000 px: pasa hasta el 102,4 % del ancho del héroe (ratio 64 %, margen
+     1,149×) y falla desde el 115,2 % (ratio 72 %, 0,765). Al ancho de diseño el 88 % da 90,5 % y a 1920 el 88,0 %: por debajo de la
+     cota, así que la proporción que Zavala eligió se aplica ENTERA justo donde la juzgó, y solo cede donde rompería la legibilidad.
+     LA COTA ES POR VISTA, y no por capricho: lo que acota es que el escenario **invada la zona de texto**, y esa zona solo existe a su
+     lado en la vista de DOS ZONAS. En la de una, el texto va DEBAJO del arte y el escenario mide más que la ventana a propósito desde
+     la 6f —el héroe lo recorta por los lados—, así que una cota de ancho ahí no protege nada y sí estropea: con la cota al 100 % el
+     alto a 360 px caía a 252 (el suelo) en vez de los 336 que fija la opción B de D-BBW-53, o sea la cota se comía la decisión.
+       · `-split`  = **0,9**: en dos zonas el escenario nunca mide más del 90 % del ancho del héroe. Se probó primero con 1 (el 100 %) y
+         **no daba margen**: a 1000 px el requisito quedaba en 46,5–48,4 % de velo contra el 47,8 % aplicado, o sea bailando sobre la
+         línea según cuántas muestras tomara el arnés. Con 0,9 el escenario a 1000 mide 900 px y el margen sube a holgura real. Lo que
+         cuesta donde Zavala la eligió es **0,6 %**: a 1728 el 88 % pedía 880 px de alto y la cota lo deja en 874,8.
+       · `-single` = **2**: en una zona puede medir hasta el doble, que es holgura suficiente para no atar nunca la proporción elegida
+         y sigue siendo un límite dicho, no un infinito. */
+  --bbf-stage-width-cap-split: 0.9;
+  --bbf-stage-width-cap-single: 2;
   --bbf-stage-height-floor: var(--bbf-space-63);
   --bbf-stage-anchor-y: 43%;
-  --bbf-stage-aspect: 16 / 9;
+  /* La proporción del escenario, en DOS madres además de la razón, porque CSS no sabe dividir por un `<ratio>` y la cota de ancho
+     necesita hacerlo. Una sola fuente de verdad: la razón se compone de ellas. */
+  --bbf-stage-aspect-w: 16;
+  --bbf-stage-aspect-h: 9;
+  --bbf-stage-aspect: var(--bbf-stage-aspect-w) / var(--bbf-stage-aspect-h);
   --bbf-stage-mask-rx: 50%;
   --bbf-stage-mask-ry: 50%;
   --bbf-stage-mask-solid: 44%;
