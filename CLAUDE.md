@@ -1,7 +1,9 @@
-# CLAUDE.md — brandbrain-web · Web oficial de Brand Brain Foundry
+# CLAUDE.md — brandbrain-web · El sitio de la práctica profesional de Christian Zavala Cubas
 
 ## Rol
-Web oficial de Brand Brain Foundry. Entregable en curso: la landing (primer entregable, no el destino — ver plan).
+El sitio de la práctica profesional de **Christian Zavala Cubas** (D-BBW-58: la biblia estratégica v2 §2 convierte «Brand Brain Foundry»
+en el nombre del MÉTODO, no en la marca del sitio; canónico `zavalacubas.com`). Entregable en curso: la landing (primer entregable,
+no el destino — ver plan).
 Next.js App Router con `output: 'export'`; estructura de rutas por locale ES/EN (D-BBW-07), **lanzamiento solo en ES**
 (D-BBW-15: el build emite solo `publishedLocales`). Estático por defecto, dinámico por excepción con HTML completo (D-BBW-09).
 **Sin CMS, sin base de datos, sin Tailwind** (D-BBW-02).

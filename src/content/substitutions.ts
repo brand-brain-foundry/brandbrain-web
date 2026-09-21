@@ -16,7 +16,12 @@ import { site } from "../config/site";
 
 /** El registro: llave → valor. Solo texto plano. */
 export const substitutions = {
-  /** nombre de marca (identidad, `site.name`) */
+  /**
+   * el NOMBRE DEL SITIO (identidad, `site.name`). Desde D-BBW-58 ese nombre es el de la persona cuya práctica profesional ES el sitio
+   * (`Christian Zavala Cubas`): la llave sigue llamándose `brand` porque lo que nombra es «la marca del sitio», y la marca del sitio pasó a
+   * ser él. Un texto que quiera nombrar al sujeto escribe `{{brand}}` y NUNCA la cadena: así la consistencia de entidad (biblia v2 §12) se
+   * cumple por construcción y no por revisión.
+   */
   brand: site.name,
   /** dominio canónico (identidad, `site.domain`) */
   domain: site.domain,

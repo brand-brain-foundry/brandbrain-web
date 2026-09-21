@@ -103,7 +103,7 @@ afinado del cuerpo, `dc:L617`), se muda a `WEIGHT_MODULATOR.REFIT_MIN_DELTA_PX`,
 
 **Procedencia (Q-BBW-008, respondida por Zavala el 2026-09-18).** Composición **propia de Zavala** en After Effects («SB_Blobs 2», 1920×1080)
 → réplica WebGL2 (`uploads/SB Blobs Background.html`) → elemento `<blob-bg>` (`blob-bg.js`) del export del canvas de diseño (2026-09-15) → el
-módulo. Autoría de la composición y del código: Christian Zavala (Brand Brain Foundry). **Sin código de terceros y sin licencia externa** que
+módulo. Autoría de la composición y del código: Christian Zavala Cubas (cadena de nombre única, D-BBW-58). **Sin código de terceros y sin licencia externa** que
 respetar; entra en este repositorio público como código propio. Consta aquí y en la cabecera del módulo porque el repositorio es público.
 
 **Qué hace:** cuatro lóbulos de color con unión suave derivan y respiran en un espacio anclado a la comp, se desenfocan (gaussiana separable),

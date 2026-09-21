@@ -7,7 +7,8 @@
  * «SB_Video - Blob 2» con gradiente de 4 colores, desenfoque gaussiano 12 y zoom radial con desvanecimiento; «Shape Layer 3» con las formas y
  * su gradiente; «Adjustment Layer 1» con el gradiente de grado) → réplica WebGL2 de la comp (`uploads/SB Blobs Background.html`) → elemento
  * `<blob-bg>` (`blob-bg.js`, 352 líneas) del export del canvas de diseño «Eye Fish Landing» (2026-09-15) → este módulo. Autoría de la
- * composición y del código: Christian Zavala (Brand Brain Foundry). SIN código de terceros y SIN licencia externa que respetar; entra en este
+ * composición y del código: Christian Zavala Cubas (cadena de nombre única, D-BBW-58). SIN código de terceros y SIN licencia externa que
+ * respetar; entra en este
  * repositorio público como código propio. Escrito aquí porque dentro de dos años nadie recordará de dónde salió.
  *
  * QUÉ HACE, en una frase: cuatro lóbulos de color con unión suave derivan y respiran en un espacio anclado a la comp, se desenfocan, se
