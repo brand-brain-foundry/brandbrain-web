@@ -53,10 +53,20 @@
        · display `modulator-vf` al peso de reposo (300): máximo `W` = 0,95 em (mínimo `I` = 0,39625)
      CAMBIAR DE FAMILIA O DE PESO DE REPOSO OBLIGA A RE-MEDIR esta madre (misma nota que EXC-BBW-04). La guarda solo se
      vuelve holgada, nunca corta: una cota alta encoge el claim, no lo recorta.
+     RE-MEDIDA 2026-09-22 (D-BBW-64), y la nota de arriba se cobró sola: el claim deja de ir todo al peso de reposo y sus dos
+     líneas grandes pasan a los extremos del eje, así que **0,95 dejó de ser cota**. Mismo método (Chrome, barrido de 76 glifos
+     —A–Z, a–z, dígitos, acentuadas y signos del claim— a cuerpo de referencia de 1000 px, interletrado a cero), por peso:
+       · peso 100 → máximo `W` = 0,445 em   · peso 300 → máximo `W` = 0,95 em (reproduce la medida de la 6m, que valida el método)
+       · peso 500 → máximo `W` = **1,43 em**
+     La madre pasa a **1,43**: el peso más pesado que el claim usa hoy. Es lo que la vuelve a hacer cota de verdad.
+     CONSECUENCIA DICHA: la guarda servida es ahora MÁS holgada de lo que necesita, porque aplica el avance del peso 500 a la
+     cuenta de letras de la línea MÁS LARGA, que es la del peso 100. Sin JavaScript el claim sale más pequeño de lo que podría
+     (nunca recortado). Con JavaScript no se nota: el afinado por medida real manda en cuanto llega. Afinar la cota por línea
+     —una cuenta y un avance por peso, en vez de una sola pareja— es trabajo propio, anotado como pendiente.
      La madre gemela de la familia de texto (`--bbf-advance-text-max` = 0,87528 em, medida igual el mismo día) se RETIRA con el
      rótulo (D-BBW-47): su único consumidor era la guarda de ancho de aquél, y ningún rol de texto corrido necesita una cota
      de avance porque ninguno se ajusta al ancho — se envuelven. Queda medida y dicha aquí por si vuelve a hacer falta. ── */
-  --bbf-advance-display-max: 0.95;
+  --bbf-advance-display-max: 1.43;
 
   /* ── Madres de tamaño (unitless = px): paso cero = texto corrido (D-BBW-17), ventana fluida (criterio técnico) ── */
   --bbf-text-min: 18;

@@ -40,6 +40,10 @@
   --bbf-type-display-family: var(--bbf-font-display);
   --bbf-type-display-size: var(--bbf-size-display);
   --bbf-type-display-weight: var(--bbf-weight-display-rest);
+  /* EL CLAIM VA AL EXTREMO PESADO DEL EJE (D-BBW-64). Con la animación apagada, el tope que la animación alcanzaba en su fotograma más
+     grueso deja de ser un fotograma y pasa a ser un peso: el titular se compone en el negro de la familia. No es un valor nuevo — es la
+     madre del diseño (N0 §2.2: WMAX 500) — y no toca al rol `display`, que conserva su reposo para cualquier otro consumidor. */
+  --bbf-type-display-weight-strong: var(--bbf-weight-display-anim-max);
   --bbf-type-display-weight-from: var(--bbf-weight-display-from);
   --bbf-type-display-weight-to: var(--bbf-weight-display-to);
   --bbf-type-display-leading: var(--bbf-leading-display);
@@ -82,6 +86,27 @@
   --bbf-type-signature-leading: var(--bbf-leading-text);
   --bbf-type-signature-tracking: var(--bbf-tracking-1);
   --bbf-type-signature-shadow: var(--bbf-shadow-sm);
+
+  /* EL ANTETÍTULO DEL CLAIM (D-BBW-64). El claim se compone en DOS familias: la primera línea en la de TEXTO (Space Grotesk) y las dos
+     siguientes en la display (Modulator) al negro. El contraste no lo hace un truco — lo hacen las tres cosas a la vez: familia, cuerpo
+     y peso. Es un rol propio y no una variante del display porque no comparte ninguna de las tres, y porque el display se ajusta al
+     ancho por la guarda y éste no se ajusta a nada: no vota en la guarda ni la guarda lo cubre.
+     Cuerpo `n−1`, un paso por debajo del texto corrido: «menor» dicho en la escala y no en un número, y el mismo peldaño que la firma.
+     Peso MEDIUM (500) de la familia de texto: es el que sostiene una línea corta en caja alta y a cuerpo pequeño sin adelgazarse contra
+     el negro de las dos líneas grandes, y es una madre ya declarada del eje de texto (300/400/500), no un valor nuevo.
+     INTERLINEADO propio y no el del texto corrido: un antetítulo es UNA línea, no un párrafo, y 1,5 le abre un hueco que lo despega del
+     titular al que pertenece. Toma el interlineado de la display, que es el ritmo de la columna en la que vive.
+     Interletrado ×6, el que el sistema ya empareja con mayúsculas en la línea legal — las mayúsculas sin interletrado se apelmazan, y
+     este rol es el único sitio del claim donde hay caja alta.
+     Sombra `md`, la del texto corrido: comparte bloque y fondo con el encabezado, así que hereda su paso en vez de estrenar uno.
+     LAS MAYÚSCULAS SON PRESENTACIÓN, NO CONTENIDO: el contenido trae la ortografía real de la frase (`Tu marca ya tiene criterio.`) y es
+     la hoja la que la pone en caja alta. Así el nombre accesible, el portapapeles y cualquier lector se llevan la frase bien escrita. */
+  --bbf-type-kicker-family: var(--bbf-font-text);
+  --bbf-type-kicker-size: var(--bbf-size-n1);
+  --bbf-type-kicker-weight: var(--bbf-weight-text-medium);
+  --bbf-type-kicker-leading: var(--bbf-leading-display);
+  --bbf-type-kicker-tracking: var(--bbf-tracking-6);
+  --bbf-type-kicker-shadow: var(--bbf-shadow-md);
 
   --bbf-type-label-family: var(--bbf-font-text);
   --bbf-type-label-size: var(--bbf-size-n2);

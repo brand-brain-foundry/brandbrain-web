@@ -44,6 +44,26 @@ tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, 
 
 ## §2 — S5 · Modulador de peso de la tercera línea del claim (`src/behavior/weight-modulator.ts`)
 
+> ### ⏸ APAGADO Y REVERSIBLE desde 2026-09-22 (D-BBW-65)
+>
+> **Ninguna línea del claim se anima.** Las tres salen con el peso de reposo de su rol, que es el mismo que el HTML servido ya traía, así
+> que lo que se ve ahora es exactamente lo que se veía sin JavaScript. **El módulo no se ha borrado ni tocado**: sigue entero, con su
+> algoritmo, sus constantes y sus orígenes por línea del export. Lo que se retira es su **aplicación** desde `HeroClaim`.
+>
+> Es una **excepción declarada a I-6** (nada sin consumidor): Zavala pidió conservarlo porque puede volver. Un módulo sin consumidor y sin
+> nota es basura; con nota es una pieza guardada, y el coste de guardarla es cero en el artefacto (nadie lo importa, así que no entra en
+> ningún fragmento del build).
+>
+> **Qué hay que devolver para encenderlo**, todo en `src/components/molecules/HeroClaim/HeroClaim.tsx`: el reparto de la línea en glifos
+> tras hidratar (con su `aria-label` y su restauración al desmontar), el bucle de `requestAnimationFrame` sobre `frame()`, el anclaje de
+> la caja vía `calibrate()` —que es lo que impide que la línea empuje a sus hermanas— y la quietud por pestaña oculta y por movimiento
+> reducido (D-BBW-31). En la hoja, `.glyph` y el `display: flex` + `contain: layout` de la línea viva. **El afinado del cuerpo con la
+> medida real no hay que tocarlo**: se quedó en el componente porque era de la composición y no del movimiento.
+>
+> La tabla que sigue describe el módulo **tal como está escrito**, que es como sigue estando. Mientras el apagado dure, describe una
+> capacidad disponible y no un comportamiento observable.
+
+
 **Qué hace:** la línea se parte en letras y cada una interpola su peso siguiendo una señal continua sin periodo, con la restricción de que
 **Σ avances = presupuesto** (el ancho total nunca cambia: el grosor se redistribuye). Tres partes: señal (pura) → conservación por water-fill
 de Newton contra la tabla de avances medida (pura) → calibración (mide el DOM). Inventario: N1 doc A §5.
