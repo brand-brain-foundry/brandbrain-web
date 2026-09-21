@@ -6,7 +6,8 @@
       {
         "id": "agency",
         "label": "Sivar Brains",
-        "link": "agency"
+        "link": "agency",
+        "badge": "Caso"
       },
       {
         "id": "works",

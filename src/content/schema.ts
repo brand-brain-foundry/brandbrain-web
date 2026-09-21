@@ -52,6 +52,16 @@ export type LinkItem = {
   label: string;
   /** llave de `site.links`; el destino nunca se escribe aquí */
   link: LinkKey;
+  /**
+   * ETIQUETA OPCIONAL del enlace (D-BBW-74): una palabra corta que CALIFICA el destino sin tocar su nombre. Nace para «Sivar Brains»,
+   * que es marca respaldada y cuyo nombre **no puede cambiar** por la regla de consistencia de entidad de la biblia v4 §4: la etiqueta
+   * dice «Caso» al lado, no «Sivar Brains (caso)».
+   * Es CONTENIDO y no presentación: la palabra la decide quien escribe, no la hoja de estilos, y por eso vive aquí. Opcional porque la
+   * mayoría de los enlaces no califican nada; un enlace sin ella se renderiza exactamente como antes.
+   * **Entra en el NOMBRE ACCESIBLE** del enlace por construcción: se pinta dentro del `<a>` como texto normal, así que un lector de
+   * pantalla anuncia «Sivar Brains Caso» sin que haya que declarar ningún `aria-label` que pudiera desincronizarse del texto visible.
+   */
+  badge?: string;
 };
 
 export type GlobalDocument = {
@@ -127,9 +137,15 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 }
 
 /** Objeto con EXACTAMENTE las llaves permitidas: ni una de más (presentación colada), ni una de menos (texto sin llave). */
-function checkKeys(v: Record<string, unknown>, allowed: readonly string[], path: string, problems: Problem[]): void {
+/**
+ * `allowed` = llaves OBLIGATORIAS (tienen que estar) · `optional` = llaves ADMITIDAS (pueden estar o no).
+ * El esquema sigue siendo estricto en los dos sentidos para las obligatorias: ni una de más, ni una de menos. Las opcionales existen
+ * desde D-BBW-74 para una etiqueta que solo tienen algunos enlaces; declararlas aquí es lo que impide que «opcional» acabe
+ * significando «cualquier llave vale».
+ */
+function checkKeys(v: Record<string, unknown>, allowed: readonly string[], path: string, problems: Problem[], optional: readonly string[] = []): void {
   for (const k of Object.keys(v)) {
-    if (!allowed.includes(k)) problems.push({ path: `${path}.${k}`, message: `llave desconocida (el modelo no la admite; ¿presentación dentro del contenido?)` });
+    if (!allowed.includes(k) && !optional.includes(k)) problems.push({ path: `${path}.${k}`, message: `llave desconocida (el modelo no la admite; ¿presentación dentro del contenido?)` });
   }
   for (const k of allowed) {
     if (!(k in v)) problems.push({ path: `${path}.${k}`, message: `falta la llave` });
@@ -156,7 +172,8 @@ function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   v.forEach((item, i) => {
     const p = `${path}[${i}]`;
     if (!isRecord(item)) return void problems.push({ path: p, message: `debe ser un objeto { id, label, link }` });
-    checkKeys(item, ["id", "label", "link"], p, problems);
+    checkKeys(item, ["id", "label", "link"], p, problems, ["badge"]);
+    if (item.badge !== undefined) checkText(item.badge, `${p}.badge`, problems);
     checkId(item.id, `${p}.id`, seen, problems);
     checkText(item.label, `${p}.label`, problems);
     if (typeof item.link !== "string" || !isLinkKey(item.link)) {

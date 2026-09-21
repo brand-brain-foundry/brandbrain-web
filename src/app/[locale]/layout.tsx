@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { site, isLocale } from "@/config/site";
 import { getGlobal } from "@/content";
-import { media } from "@/media";
+import { media, surfaceColor } from "@/media";
 import { textFont } from "@/styles/fonts/text";
 import { displayFont } from "@/styles/fonts/display";
 import { SkipLink } from "@/components/atoms/SkipLink";
@@ -25,6 +25,20 @@ export function generateStaticParams() {
 // Fase 7: el TÍTULO y la DESCRIPCIÓN ya NO viven aquí. Son texto (`meta.title` / `meta.description` del documento de la página) y los emite
 // `generateMetadata` de la página del locale, que es quien lee el contenido. El relleno `site.name — site.repo` que había aquí decía el
 // nombre del REPOSITORIO a buscadores y agentes: era exactamente el hueco que esta fase cierra.
+/**
+ * COLOR DE LA BARRA DEL NAVEGADOR (D-BBW-75). Zavala elige **la superficie base**, no el acento.
+ * Sale de `surfaceColor`, que el puerto de medios genera resolviendo `--bbf-surface-base`: **el mismo número y el mismo cálculo** que el
+ * `theme_color` del manifiesto, así que **no pueden divergir**. Ningún hex escrito a mano.
+ * LO QUE SAFARI HACE, comprobado y no supuesto: Safari 26 **ignora** esta etiqueta y pinta la barra con el FONDO DE LA PÁGINA. Como
+ * `html` y `body` llevan ya `background: var(--bbf-surface-base)` (base/document.css), Safari acaba en el mismo negro por otro camino.
+ * Es la razón de que elegir la superficie sea coherente en todos los navegadores y elegir el acento no lo habría sido: la barra habría
+ * salido violeta en Chrome y negra en Safari, y igualarlas exigiría cambiar el fondo del sitio entero.
+ * Sin pareja claro/oscuro: el sitio tiene un solo esquema (`color-scheme: dark`).
+ */
+export const viewport: Viewport = {
+  themeColor: surfaceColor,
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   manifest: media.manifest.src,

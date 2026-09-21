@@ -5,7 +5,7 @@ import styles from "./LinkList.module.css";
 
 const enterIndex = (i: number) => ({ "--bbf-enter-index": i }) as CSSProperties;
 
-export type ResolvedLink = { id: string; label: string; href: string; icon?: InlineIconName };
+export type ResolvedLink = { id: string; label: string; href: string; icon?: InlineIconName; badge?: string };
 
 /**
  * LinkList — molecule. Lista de enlaces (nav en línea, hoja móvil, perfiles del pie): el MISMO dato se renderiza en varios sitios
@@ -31,7 +31,7 @@ export function LinkList({
     <ul className={`${styles.list} ${styles[direction]}`} data-component="bbf-link-list">
       {items.map((item, i) => (
         <li key={item.id} className={styles.item} data-enter={enter ? "" : undefined} style={enter ? enterIndex(i) : undefined}>
-          <NavLink href={item.href} label={item.label} typeRole={typeRole} icon={item.icon} iconSize={iconSize} />
+          <NavLink href={item.href} label={item.label} typeRole={typeRole} icon={item.icon} iconSize={iconSize} badge={item.badge} />
         </li>
       ))}
     </ul>

@@ -12,6 +12,12 @@ export type NavLinkProps = {
   icon?: InlineIconName;
   /** tamaño del icono por rol de vista: sm = barra del pie · md = hoja del panel */
   iconSize?: "sm" | "md";
+  /**
+   * ETIQUETA que califica el destino (D-BBW-74), desde el contenido. **El texto NO se escribe aquí**: llega por `LinkItem.badge`.
+   * Se pinta como texto normal dentro del `<a>`, así que **entra en el nombre accesible por construcción** —«Sivar Brains Caso»— sin
+   * ningún `aria-label` que pudiera desincronizarse de lo visible. No lleva `aria-hidden` justamente por eso.
+   */
+  badge?: string;
 };
 
 /** Un destino saliente (http/https) se abre en pestaña nueva con `rel` seguro (N0 §2.4: los enlaces externos abren en `_blank`). */
@@ -25,7 +31,7 @@ function isOutbound(href: string): boolean {
  * ratón o recibir el foco; sin transición) y `menu` (siempre visible); iconos de perfil con el texto como nombre accesible.
  * Área táctil mínima por token. Sin literales, sin valores.
  */
-export function NavLink({ href, label, typeRole, icon, iconSize = "sm" }: NavLinkProps) {
+export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }: NavLinkProps) {
   const outbound = isOutbound(href);
   const sizeClass = iconSize === "md" ? styles.sizeMd : styles.sizeSm;
   return (
@@ -44,6 +50,10 @@ export function NavLink({ href, label, typeRole, icon, iconSize = "sm" }: NavLin
       ) : (
         <span className={styles.text}>
           {label}
+          {/* El espacio es LITERAL y no decorativo: el nombre accesible se calcula concatenando los nodos de texto, y sin él un lector de
+              pantalla anuncia «Sivar BrainsCaso» de corrido. El margen de la hoja separa a la vista, no al oído. Medido sobre el HTML
+              generado antes de añadirlo. */}
+          {badge ? <> <span className={styles.badge}>{badge}</span></> : null}
           {typeRole === "label" ? (
             <span className={styles.underline} aria-hidden="true">
               <Icon name="underlineWaveNav" className={`${styles.wave} ${styles.waveNav} ${styles.waveBase}`} />

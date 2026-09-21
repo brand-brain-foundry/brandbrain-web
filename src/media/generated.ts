@@ -4,6 +4,11 @@
  * el propio sitio (adaptador actual, docs/system/MEDIA.md), con sus dimensiones intrínsecas (se declaran en <img> para no provocar
  * saltos de composición), y los vectores inline (viewBox + trazado; pintan con currentColor y se dimensionan por tokens).
  */
+/** Color de SUPERFICIE resuelto del rol `--bbf-surface-base` (D-BBW-75). Lo consume la etiqueta `theme-color` del documento, que
+ * así sale del MISMO token y del MISMO cálculo que el `theme_color` del manifiesto: no pueden divergir, porque son el mismo número
+ * generado una sola vez. Escribirlo a mano en el layout habría sido un hex fuera de primitives y una segunda fuente de verdad. */
+export const surfaceColor = "#000000" as const; // COLOR-ALLOW: valor GENERADO resolviendo --bbf-surface-base, no escrito a mano; su correspondencia con el token la vigila check-media.ts (huella de este archivo contra el lock, que sella el rol y su sRGB)
+
 export const media = {
   icon: { src: "/icon.svg", type: "image/svg+xml", width: 263, height: 272, sizes: "263x272" },
   favicon: { src: "/favicon.ico", type: "image/x-icon", sizes: "16x16 32x32 48x48" },
