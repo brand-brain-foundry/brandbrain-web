@@ -5,14 +5,14 @@
       "master": "brandIcon",
       "path": "public/apple-touch-icon-180.png",
       "profile": "png 180×180 surface padding 0.1111",
-      "sha256": "d1a1fd7898817d3d1e0c1fa8f39e74a035f5cc44b865cbfd03f1f40f67131ed9",
+      "sha256": "12b53550d1882d2c4aff00677c899b35706042362cfa4b373c141389eed88fbe",
       "width": 180
     },
     "favicon": {
       "master": "brandIcon",
       "path": "public/favicon.ico",
       "profile": "ico 16/32/48",
-      "sha256": "72c972d9e211b7b6eda67fe0bc764f31e4e6e8e57e43816bde8b37b076dccb97"
+      "sha256": "b5b6f4652aa8517d967c5d3d3511e25366c9077bcbcde003f06b7960d1860e45"
     },
     "heroLoop360": {
       "budgetBytes": 400000,
@@ -47,19 +47,19 @@
       "width": 1280
     },
     "icon": {
-      "height": 274,
+      "height": 272,
       "master": "brandIcon",
       "path": "public/icon.svg",
       "profile": "svg-copy",
-      "sha256": "4dccf7f987565cb835454cb8ceeaa6f4638a9f23afa462c1b4abbca3670b946d",
-      "width": 264
+      "sha256": "d448eb244d295f4c83a9bec2929b0f20af865b2203041114a5bacb08e66a834a",
+      "width": 263
     },
     "icon192": {
       "height": 192,
       "master": "brandIcon",
       "path": "public/icon-192.png",
       "profile": "png 192×192 transparent padding 0",
-      "sha256": "8c1254ba4854125e01b3044549d1e57de58c12ff4af4b34e9993f8e82c1ee6e2",
+      "sha256": "31ba2eec88be583c5acdaf73637bf36d4585d05a6900d2a45cdb7effb7cf53c3",
       "width": 192
     },
     "icon512": {
@@ -67,7 +67,7 @@
       "master": "brandIcon",
       "path": "public/icon-512.png",
       "profile": "png 512×512 transparent padding 0",
-      "sha256": "26166140f7410c417a4e1b0bf7532e7c39a86c7281c4bbcd9eedeedcddcf7931",
+      "sha256": "ac4bdc6ec1b28dcfc05b934eb6e9fcdc984b8b8ffb15fc47ebf9502249a8b843",
       "width": 512
     },
     "icon512Maskable": {
@@ -75,7 +75,7 @@
       "master": "brandIcon",
       "path": "public/icon-512-maskable.png",
       "profile": "png 512×512 surface padding 0 safe-zone",
-      "sha256": "9883edc0445cf90ad815c462bd4fa7813e0ed8782ee29a1d7fdd003a81350f48",
+      "sha256": "4f3226069b27c3ff91d30bdc8a74fb37068d9a9172cf86f24fcc57a9a73890a6",
       "width": 512
     },
     "manifest": {
@@ -89,19 +89,19 @@
       "master": "brandIcon",
       "path": "public/share-1200x630.png",
       "profile": "share 1200×630 icon 0.5",
-      "sha256": "19a331b778968f7be1be9f7cee931d5347a2bf8e9a55dfe5a94ded6220c6fdb2",
+      "sha256": "cb5ccc32d098efe6501339c191e2d0e5880e7f520c6d9c4079041f3c3194edee",
       "width": 1200
     }
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "8c9bac2b8c187058f105c7cb9d4fe879913f2e05fb395a7b6e0c6dcda746627f"
+    "sha256": "00151cee802887e0f90a994b2add8570bc74b43e2ce8529029acbc94c23bdf3b"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
     "brandIcon": {
       "file": "brand-icon.svg",
-      "sha256": "4dccf7f987565cb835454cb8ceeaa6f4638a9f23afa462c1b4abbca3670b946d"
+      "sha256": "d448eb244d295f4c83a9bec2929b0f20af865b2203041114a5bacb08e66a834a"
     },
     "heroLoop": {
       "file": "hero-loop.mp4",

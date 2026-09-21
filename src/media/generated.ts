@@ -5,7 +5,7 @@
  * saltos de composición), y los vectores inline (viewBox + trazado; pintan con currentColor y se dimensionan por tokens).
  */
 export const media = {
-  icon: { src: "/icon.svg", type: "image/svg+xml", width: 264, height: 274, sizes: "264x274" },
+  icon: { src: "/icon.svg", type: "image/svg+xml", width: 263, height: 272, sizes: "263x272" },
   favicon: { src: "/favicon.ico", type: "image/x-icon", sizes: "16x16 32x32 48x48" },
   appleTouchIcon: { src: "/apple-touch-icon-180.png", type: "image/png", width: 180, height: 180, sizes: "180x180" },
   icon192: { src: "/icon-192.png", type: "image/png", width: 192, height: 192, sizes: "192x192" },
