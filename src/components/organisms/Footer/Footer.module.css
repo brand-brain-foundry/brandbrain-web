@@ -40,7 +40,11 @@
   font-weight: var(--bbf-type-legal-weight);
   letter-spacing: var(--bbf-type-legal-tracking);
   text-shadow: var(--bbf-type-legal-shadow);
-  text-transform: uppercase;
+  /* D-BBW-68 · A PRUEBA: la línea legal en minúscula normal, MISMO cuerpo. Zavala la compara contra la caja alta antes de decidir.
+     Volver a mayúsculas es esta línea: `text-transform: uppercase;`.
+     NOTA QUE LA COMPARACIÓN NECESITA: el interletrado del rol `legal` es ×6 y se eligió PARA CAJA ALTA («las mayúsculas sin interletrado
+     se apelmazan»). En minúscula ese mismo ×6 queda suelto. La prueba cambia SOLO la caja, que es lo pedido y lo que hace la comparación
+     justa; si gana la minúscula, el interletrado quiere su propio peldaño y eso es otra decisión, no un arreglo silencioso. */
   text-wrap: pretty;
 }
 
