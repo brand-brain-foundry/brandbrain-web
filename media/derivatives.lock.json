@@ -5,14 +5,14 @@
       "master": "brandIcon",
       "path": "public/apple-touch-icon-180.png",
       "profile": "png 180×180 surface padding 0.1111",
-      "sha256": "0feddf5745f26050d3b2e31edc7d8de41be7c82030c6c739967480a8ea283bc2",
+      "sha256": "0a72d6c2a8f621b412a4bb4f3f203f131feb91cbb73c1edb74a68c0d052b20aa",
       "width": 180
     },
     "favicon": {
       "master": "brandIcon",
       "path": "public/favicon.ico",
       "profile": "ico 16/32/48",
-      "sha256": "7665cd4938d6dc74204eb01d421425882fb172fc0619f468ee61566f97094ce7"
+      "sha256": "1e7f8b8a7a4dd0c6947ac79dfd0ed2325bf27efc53bf6a1c31037ad0ab4752b2"
     },
     "heroLoop360": {
       "budgetBytes": 400000,
@@ -51,7 +51,7 @@
       "master": "brandIcon",
       "path": "public/icon.svg",
       "profile": "svg-copy",
-      "sha256": "e11774248a1a18c68d97e414c3b4914efbfdb213299b85e6637b29e05b641020",
+      "sha256": "526aa8b34f153910da9058bd028d85cb436f65c54d6485c1ee71aeb302b5b426",
       "width": 263
     },
     "icon192": {
@@ -59,7 +59,7 @@
       "master": "brandIcon",
       "path": "public/icon-192.png",
       "profile": "png 192×192 transparent padding 0",
-      "sha256": "61729533ad5958adad3c17f9fb2da7753d21b4ed42683df4ba956eb2105d76d0",
+      "sha256": "94607347b88e31f489babbe7e86f5f762d1811e3a6318ed95c7e2085c3d522cb",
       "width": 192
     },
     "icon512": {
@@ -67,7 +67,7 @@
       "master": "brandIcon",
       "path": "public/icon-512.png",
       "profile": "png 512×512 transparent padding 0",
-      "sha256": "c1905b8807c3c99b041894a5937d423acec01eee241664a6f22c9abfc10e8b54",
+      "sha256": "b0e092a48c17304851814ee29faa1a7df5cd321169dbf73990601d0e9bfb1458",
       "width": 512
     },
     "icon512Maskable": {
@@ -75,7 +75,7 @@
       "master": "brandIcon",
       "path": "public/icon-512-maskable.png",
       "profile": "png 512×512 surface padding 0 safe-zone",
-      "sha256": "4b111a7e3d056f48bbc46677f90cdaa345f962acff35ce1f80222e14b4d24d54",
+      "sha256": "b16262000206e5976cc2e5ef322d0a1a8ab98b0bddf8c570d3cb9525de89406d",
       "width": 512
     },
     "manifest": {
@@ -89,7 +89,7 @@
       "master": "brandIcon",
       "path": "public/share-1200x630.png",
       "profile": "share 1200×630 icon 0.5",
-      "sha256": "0c1f9f1f6216d4fe90f0b0f1d4182ded97bbb815539b4434a25380979951d7b5",
+      "sha256": "765ef4870b39ec7c3c2d91c0579ad0cf2b6fba05868847ffc25dc96fa7f3dac5",
       "width": 1200
     }
   },
@@ -101,7 +101,8 @@
   "masters": {
     "brandIcon": {
       "file": "brand-icon.svg",
-      "sha256": "e11774248a1a18c68d97e414c3b4914efbfdb213299b85e6637b29e05b641020"
+      "paint": "#9299c6",
+      "sha256": "8cf6fb57414e3f43e09b32703f3a4b07ed60b063fbcf1638363d0d28a89a6b8b"
     },
     "heroLoop": {
       "file": "hero-loop.mp4",

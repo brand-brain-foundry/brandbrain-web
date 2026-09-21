@@ -20,10 +20,21 @@
   --bbf-text-on-base-secondary: var(--bbf-color-mint-200);
   --bbf-text-on-base-muted: var(--bbf-color-mint-400);
   --bbf-text-on-base-faint: var(--bbf-color-mint-700);
+  /* D-BBW-71 · LA LÍNEA LEGAL DEL PIE EN EL ACENTO. Rol propio y no el acento crudo, porque lo que el pie necesita no es «el acento» sino
+     «texto sobre el fondo, en el color de acento»: el día que el acento cambie de claridad, este rol es el sitio donde se decide si el pie
+     lo sigue o se queda en un peldaño más claro. Hoy apunta a la madre. Medido sobre el fondo real en el output del turno. */
+  --bbf-text-on-base-accent: var(--bbf-accent);
 
-  --bbf-accent: var(--bbf-color-accent-300);
-  --bbf-accent-glow: var(--bbf-color-accent-400);
-  --bbf-accent-glow-soft: var(--bbf-color-accent-800);
+  /* D-BBW-70 · LOS TRES ROLES SE RE-APUNTAN UN PELDAÑO, y no por gusto: la madre del acento se mudó del paso 300 al 400, así que dejar
+     `--bbf-accent` en el 300 habría servido un tinte MÁS CLARO que el color que Zavala eligió. Lo que se conserva es la RELACIÓN con la
+     madre, que es lo que los tres roles significan: el acento ES la madre, el resplandor va un peldaño por debajo y el resplandor suave
+     cuatro más abajo. Antes: 300 (madre) · 400 (+1) · 800. Ahora: 400 (madre) · 500 (+1) · 900.
+     `-glow-soft` pasa a 900, que es el extremo oscuro de la rampa (L = 0.2): con la madre en el 400 solo quedan cinco peldaños por debajo,
+     así que el cuarto y el quinto son 800 y 900. Se elige el 900 —y no el 800— porque el rol es el resplandor MÁS apagado de los dos y
+     debe seguir siéndolo; con el 800 quedaría a un solo peldaño del resplandor normal. */
+  --bbf-accent: var(--bbf-color-accent-400);
+  --bbf-accent-glow: var(--bbf-color-accent-500);
+  --bbf-accent-glow-soft: var(--bbf-color-accent-900);
 
   --bbf-focus-ring: var(--bbf-accent);
   --bbf-line-on-base: var(--bbf-color-mint-700);

@@ -127,6 +127,15 @@
   --bbf-type-legal-size: var(--bbf-size-n2);
   --bbf-type-legal-weight: var(--bbf-weight-text-regular);
   --bbf-type-legal-tracking: var(--bbf-tracking-6);
+  /* D-BBW-71 · EL MISMO ROL, EN CAJA MIXTA. El ×6 de arriba se eligió para MAYÚSCULAS, donde el interletrado es necesario porque las
+     versales sin él se apelmazan — y sigue siendo el correcto para lo que va en caja alta con este rol: las etiquetas de los enlaces de
+     perfil (`typeRole="legal"` en la hoja del panel y en la barra del pie, que NavLink pone en versales).
+     Pero la línea legal del pie ya no va en caja alta: muestra la ortografía real de su cadena. Y en caja mixta ese mismo ×6 la
+     desmadeja, porque el ojo lee por la FORMA de la palabra y separar las letras la destruye.
+     Por eso el interletrado se parte en dos y el resto del rol no: ×1 es el peldaño que el sistema ya empareja con texto pequeño en caja
+     mixta (el rol `signature` lo usa para esto mismo). **Tocar el ×6 compartido habría dejado sin interletrado a las versales de la nav**,
+     que es exactamente el daño que esta segunda llave evita. */
+  --bbf-type-legal-tracking-mixed: var(--bbf-tracking-1);
   --bbf-type-legal-shadow: var(--bbf-shadow-sm);
 
 }

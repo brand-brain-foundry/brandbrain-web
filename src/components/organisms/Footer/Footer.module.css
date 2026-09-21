@@ -34,17 +34,19 @@
   --bbf-enter-delay: var(--bbf-motion-enter-delay-legal);
 
   margin: 0;
-  color: var(--bbf-text-on-base-muted);
+  color: var(--bbf-text-on-base-accent);
   font-family: var(--bbf-type-legal-family);
   font-size: var(--bbf-type-legal-size);
   font-weight: var(--bbf-type-legal-weight);
-  letter-spacing: var(--bbf-type-legal-tracking);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
   text-shadow: var(--bbf-type-legal-shadow);
-  /* D-BBW-68 · A PRUEBA: la línea legal en minúscula normal, MISMO cuerpo. Zavala la compara contra la caja alta antes de decidir.
-     Volver a mayúsculas es esta línea: `text-transform: uppercase;`.
-     NOTA QUE LA COMPARACIÓN NECESITA: el interletrado del rol `legal` es ×6 y se eligió PARA CAJA ALTA («las mayúsculas sin interletrado
-     se apelmazan»). En minúscula ese mismo ×6 queda suelto. La prueba cambia SOLO la caja, que es lo pedido y lo que hace la comparación
-     justa; si gana la minúscula, el interletrado quiere su propio peldaño y eso es otra decisión, no un arreglo silencioso. */
+  /* D-BBW-68 CERRADA · la línea legal se queda en CAJA MIXTA, mostrando la ortografía real de la cadena de contenido
+     (`© 2026 Christian Zavala Cubas · Director creativo de sistemas de marca`). **Aquí no hay ninguna `text-transform`**, y esto
+     importa decirlo: no se ha quitado en este turno porque ya no estaba — salió en D-BBW-68 y lo que se ve es el contenido tal cual.
+     Lo que SÍ cambia ahora es la consecuencia que aquella decisión dejó pendiente (P-BBW-59): el interletrado del rol baja de ×6 a ×1,
+     porque el ×6 era para caja alta. D-BBW-71.
+     EL COLOR pasa al rol de acento (`--bbf-text-on-base-accent`), nunca un hex. Medido sobre el fondo real: es texto pequeño y su
+     mínimo es 4,5. */
   text-wrap: pretty;
 }
 

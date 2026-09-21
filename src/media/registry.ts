@@ -21,6 +21,17 @@ export const GENERATED_FILE = "src/media/generated.ts";
 /** Rol de superficie que reciben los derivados opacos. Resuelto a sRGB por el guion desde src/styles/tokens (nunca un valor aquí). */
 export const SURFACE_TOKEN = "--bbf-surface-base";
 
+/**
+ * D-BBW-70 — CON QUÉ TOKEN SE PINTA UN MAESTRO. Un maestro que dibuja marca no lleva su color dentro: lo declara `currentColor` y el
+ * generador lo resuelve AQUÍ, desde el rol, igual que ya hacía con la superficie de los derivados opacos. Así un cambio de acento se
+ * propaga solo a favicon, iconos, recortable, Apple, imagen para compartir y el logo de la cabecera, sin tocar ningún archivo de dibujo.
+ * Un maestro sin entrada aquí se queda con su `currentColor` sin resolver — que es lo correcto para los vectores que se pintan por CSS
+ * (las ondas de subrayado, los brazos del conmutador, los iconos de perfil): esos heredan el color del texto donde se insertan.
+ */
+export const MASTER_PAINT_TOKENS: Partial<Record<MasterId, string>> = {
+  brandIcon: "--bbf-accent",
+};
+
 export type MasterKind = "svg" | "video";
 export type Master = { file: string; kind: MasterKind; origin: string };
 

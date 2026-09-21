@@ -76,32 +76,32 @@
   --bbf-color-mint-800: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 0.875) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
   --bbf-color-mint-900: oklch(calc(var(--bbf-color-mint-l) - var(--bbf-color-mint-span-down) * 1) var(--bbf-color-mint-c) var(--bbf-color-mint-h));
 
-  /* ── Familia `accent` · madre #9bcac3 → oklch(0.8038 0.0503 185.0) · paso madre: 300 · origen: decisión de Zavala 2026-09-22 (D-BBW-67) ──
-     ENMIENDA DE MADRE: el acento deja de ser el violeta `#909fff` (oklch 0.7309 0.1399 275.6, N0 §2.2) y pasa a `#9bcac3`.
-     ⚠ EL ACENTO Y LA FAMILIA NEUTRA COLAPSAN EN TONO, y hay que decirlo porque cambia lo que el acento ES:
-       · acento nuevo H = 185.0 · blanco nuevo H = 186.4 → **1,4° de distancia**. Son el mismo tono.
-       · contra la madre mint ANTERIOR (174.4°) habrían sido 10,6°, que tampoco separa.
-       · el acento ANTERIOR estaba a **101,2°** de la familia neutra: era otro tono, y por eso funcionaba como acento.
-     Consecuencia: el acento **ya no se distingue por tono** sino solo por claridad y croma (L 0.8038 vs 0.9641; C 0.0503 vs 0.0377), y el
-     croma cae de 0.1399 a 0.0503 — **un tercio del que tenía**. Un anillo de foco y un estado de enlace que antes saltaban por color ahora
-     se apoyan en una diferencia de luminosidad pequeña sobre una rampa del mismo tono. Está medido en el output del turno; no se corrige
-     aquí porque es la decisión de Zavala y no un defecto de la fórmula.
-     LA FÓRMULA NO SE TOCA: el color nuevo cae en el **mismo paso madre (300)** que el viejo —ceil((0.98−0.8038)/(0.98−0.2)×9) = 3—, así que
-     las fracciones siguen siendo las que eran. */
-  --bbf-color-accent-l: 0.8038;
-  --bbf-color-accent-c: 0.0503;
-  --bbf-color-accent-h: 185.0;
+  /* ── Familia `accent` · madre #9299c6 → oklch(0.6936 0.0666 277.6) · paso madre: 400 · origen: decisión de Zavala 2026-09-22 (D-BBW-70) ──
+     ENMIENDA DE MADRE, la segunda del día: el acento vuelve al violeta. Deja `#9bcac3` (oklch 0.8038 0.0503 185.0, D-BBW-67) y pasa a
+     `#9299c6`.
+     EL TONO VUELVE A SEPARARSE DE LOS NEUTROS, que era el defecto que D-BBW-67 dejó anotado y este cambio corrige:
+       · acento nuevo H = 277.6 · familia neutra H = 186.4 → **91,2° de distancia**. Vuelve a ser otro tono.
+       · con el turquesa eran **1,4°**: el acento no se distinguía por tono sino solo por claridad y croma.
+       · el violeta ANTERIOR (#909fff, 275.6°) estaba a 101,2°. El nuevo se queda 10° más cerca, pero en el mismo lado del círculo.
+     EL CROMA SUBE, aunque no vuelve a donde estaba: 0.0503 → **0.0666** (el violeta viejo tenía 0.1399, el doble). Es un violeta apagado.
+     ⚠ EL PASO MADRE CAMBIA, 300 → 400, y eso NO es cosmético: la fórmula reparte las fracciones según dónde caiga la madre, así que la
+     rampa entera se re-deriva con repartos nuevos —cuatro peldaños por encima (1, 0.75, 0.5, 0.25) y cinco por debajo (0.2 … 1)— en vez
+     de los tres y seis de antes. Es la primera vez en este repo que una madre cambia de peldaño; por eso se dice aquí y por eso los roles
+     semánticos se re-apuntan (semantic/colors.css): `--bbf-accent` tiene que seguir siendo LA MADRE, y la madre ya no es el paso 300. */
+  --bbf-color-accent-l: 0.6936;
+  --bbf-color-accent-c: 0.0666;
+  --bbf-color-accent-h: 277.6;
   --bbf-color-accent-span-up: calc(var(--bbf-color-l-max) - var(--bbf-color-accent-l));
   --bbf-color-accent-span-down: calc(var(--bbf-color-accent-l) - var(--bbf-color-l-min));
   --bbf-color-accent-50: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 1) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-100: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 0.6667) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-200: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 0.3333) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-300: oklch(var(--bbf-color-accent-l) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-400: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.1667) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-500: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.3333) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-600: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.5) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-700: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.6667) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
-  --bbf-color-accent-800: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.8333) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-100: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 0.75) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-200: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 0.5) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-300: oklch(calc(var(--bbf-color-accent-l) + var(--bbf-color-accent-span-up) * 0.25) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-400: oklch(var(--bbf-color-accent-l) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-500: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.2) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-600: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.4) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-700: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.6) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
+  --bbf-color-accent-800: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 0.8) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
   --bbf-color-accent-900: oklch(calc(var(--bbf-color-accent-l) - var(--bbf-color-accent-span-down) * 1) var(--bbf-color-accent-c) var(--bbf-color-accent-h));
 
   /* ── Familia `sea` · madre rgb(38,87,83) → oklch(0.421 0.053 188.1) · paso madre: 700 · origen: N0 §2.2 sombreador `blob-bg` (fase 6g, D-BBW-27) ── */

@@ -37,6 +37,7 @@ import {
   MASTERS_DIR,
   PUBLIC_DIR,
   SURFACE_TOKEN,
+  MASTER_PAINT_TOKENS,
   derivatives,
   inlineIcons,
   masters,
@@ -48,12 +49,28 @@ import {
 import { REPO_ROOT, sha256, stableJson, type LockFile } from './lock';
 import { resolveColorToken } from './tokens';
 
-type SvgMaster = { id: MasterId; file: string; bytes: Buffer; viewBox: { x: number; y: number; w: number; h: number }; inner: string; paint: 'fill' | 'stroke'; d: string };
+type SvgMaster = { id: MasterId; file: string; bytes: Buffer; painted: Buffer; paintColor?: string; viewBox: { x: number; y: number; w: number; h: number }; inner: string; paint: 'fill' | 'stroke'; d: string };
 
+/**
+ * D-BBW-70 — EL COLOR DEL MAESTRO SALE DEL TOKEN, NO DEL ARCHIVO. Un maestro que dibuja marca declara `currentColor` y aquí se sustituye
+ * por el rol que `MASTER_PAINT_TOKENS` le asigne, resuelto a sRGB por el mismo camino que la superficie de los derivados opacos. La
+ * sustitución se hace sobre el TEXTO COMPLETO antes de partirlo, para que la alcancen las tres vías por las que un maestro sale:
+ * el `inner` que se rasteriza, la copia literal del perfil `svg-copy` y el `d` que se emite como vector inline.
+ * Un maestro SIN token asignado no se toca: su `currentColor` queda sin resolver, que es justo lo que necesitan los vectores que se
+ * pintan por CSS (ondas, brazos del conmutador, iconos de perfil), porque ésos heredan el color del texto donde se insertan.
+ */
 function loadSvgMaster(id: MasterId): SvgMaster {
   const file = path.join(REPO_ROOT, MASTERS_DIR, masters[id].file);
-  const bytes = fs.readFileSync(file);
-  const text = bytes.toString('utf8');
+  const raw = fs.readFileSync(file);
+  const token = MASTER_PAINT_TOKENS[id];
+  if (token && !raw.toString('utf8').includes('currentColor')) {
+    throw new Error(`[media] maestro ${masters[id].file}: tiene token de pintura "${token}" y no declara currentColor — el color no puede venir del archivo`);
+  }
+  const paintColor = token ? resolveColorToken(token).srgb : undefined;
+  const text = paintColor ? raw.toString('utf8').replace(/currentColor/g, paintColor) : raw.toString('utf8');
+  // `bytes` son los CRUDOS del archivo: es lo que el lock sella y lo que la guardia vuelve a hashear del disco. `painted` es lo que sale.
+  const bytes = raw;
+  const painted = paintColor ? Buffer.from(text, 'utf8') : raw;
   const vb = /viewBox="([^"]+)"/.exec(text);
   if (!vb) throw new Error(`[media] maestro ${masters[id].file}: sin viewBox`);
   const [x, y, w, h] = vb[1].trim().split(/[\s,]+/).map(Number);
@@ -65,7 +82,7 @@ function loadSvgMaster(id: MasterId): SvgMaster {
   const pathTag = /<path\b[^>]*>/.exec(inner);
   const d = pathTag ? (/\bd="([^"]+)"/.exec(pathTag[0])?.[1] ?? '') : '';
   const paint: 'fill' | 'stroke' = pathTag && /\bstroke="/.test(pathTag[0]) && /\bfill="none"/.test(pathTag[0]) ? 'stroke' : 'fill';
-  return { id, file: masters[id].file, bytes, viewBox: { x, y, w, h }, inner, paint, d };
+  return { id, file: masters[id].file, bytes, painted, paintColor, viewBox: { x, y, w, h }, inner, paint, d };
 }
 
 type VideoMaster = { id: MasterId; file: string; abs: string; bytes: Buffer };
@@ -249,7 +266,15 @@ async function main(): Promise<void> {
     generated: { path: GENERATED_FILE, sha256: '' },
   };
   for (const id of Object.keys(masters) as MasterId[]) {
-    lock.masters[id] = { file: masters[id].file, sha256: sha256(masters[id].kind === 'video' ? video(id).bytes : master(id).bytes) };
+    // D-BBW-70: además de la huella del archivo, el lock sella el COLOR RESUELTO con el que se pintó. Sin esto se abriría un hueco
+    // nuevo: cambiar el token del acento no cambia ningún maestro, así que la huella seguiría cuadrando y los derivados quedarían
+    // viejos en verde — justo la clase de fallo silencioso que este mecanismo venía a cerrar.
+    const svgPaint = masters[id].kind === 'video' ? undefined : master(id).paintColor;
+    lock.masters[id] = {
+      file: masters[id].file,
+      sha256: sha256(masters[id].kind === 'video' ? video(id).bytes : master(id).bytes),
+      ...(svgPaint ? { paint: svgPaint } : {}),
+    };
   }
 
   const outputs = new Map<DerivativeId, { bytes: Buffer; width?: number; height?: number; budgetBytes?: number; streams?: string }>();
@@ -286,7 +311,7 @@ async function main(): Promise<void> {
     }
     const m = master(d.master);
     if (p.kind === 'svg-copy') {
-      outputs.set(id, { bytes: m.bytes, width: Math.round(m.viewBox.w), height: Math.round(m.viewBox.h) });
+      outputs.set(id, { bytes: m.painted, width: Math.round(m.viewBox.w), height: Math.round(m.viewBox.h) });
     } else if (p.kind === 'png') {
       const pad = p.padding * p.size;
       let avail = p.size - 2 * pad;
