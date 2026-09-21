@@ -3,6 +3,15 @@
  * Dominio canónico, locales, nombre, contacto y ENLACES DE IDENTIDAD viven SOLO aquí.
  * Ningún otro archivo del repo repite estos valores literalmente: los importa. El contenido (`content/`) nunca
  * escribe una URL: referencia una llave de `links` y el puerto de contenido valida que exista (fase 6a).
+ *
+ * D-BBW-58 — ENMIENDA DE IDENTIDAD (2026-09-21). El sitio es la PRÁCTICA PROFESIONAL de Christian Zavala Cubas, no la web de una marca
+ * llamada Brand Brain Foundry: la biblia estratégica v2 §2 convierte «Brand Brain Foundry» en el nombre del MÉTODO. Cambian tres constantes
+ * —dominio, nombre y buzón— y con ellas cambia TODO lo que se deriva: la canónica, el mapa del sitio, el fichero de robots, el manifiesto,
+ * los datos estructurados, los metadatos para compartir y la línea legal del pie. Es exactamente lo que esta fuente única promete desde el
+ * principio: la identidad se cambia en un archivo. Enmienda D-BBW-05 (canónico) y D-BBW-13(a) (buzón oficial).
+ *
+ * CONSISTENCIA DE ENTIDAD (biblia v2 §12): `name` es la cadena del nombre y es SIEMPRE LA MISMA, completa y sin variantes. Ni abreviaturas,
+ * ni iniciales, ni el cargo pegado en unas superficies y no en otras. Quien necesite nombrar al sujeto del sitio lee esta constante.
  */
 export const locales = ["es", "en"] as const;
 export type Locale = (typeof locales)[number];
@@ -14,8 +23,8 @@ export type Locale = (typeof locales)[number];
  */
 export const publishedLocales = ["es"] as const satisfies readonly Locale[];
 
-const domain = "brandbrainfoundry.com";
-const contactEmail = "contacto@brandbrainfoundry.com";
+const domain = "zavalacubas.com";
+const contactEmail = "christian@zavalacubas.com";
 const contactMailto = `mailto:${contactEmail}`;
 
 /**
@@ -30,14 +39,22 @@ const links = {
   works: "https://branddesignerpro.com/proyectos-ia/",
   linkedin: "https://www.linkedin.com/in/zavalacubas/",
   github: "https://github.com/zavala-brander",
-  /** contacto = el buzón oficial (D-BBW-13(a)); misma fuente que `contact.mailto` */
+  /** contacto = el buzón oficial (D-BBW-13(a), reapuntado al dominio canónico nuevo por D-BBW-58); misma fuente que `contact.mailto` */
   contact: contactMailto,
 } as const;
 
 export type LinkKey = keyof typeof links;
 
 export const site = {
-  name: "Brand Brain Foundry",
+  /** la cadena del nombre, completa y sin variantes (D-BBW-58). Es el NOMBRE DEL SITIO y el del sujeto que lo publica: son el mismo. */
+  name: "Christian Zavala Cubas",
+  /**
+   * EL CARGO (D-BBW-61). La biblia estratégica v2 §2 lo declara como una CAPA de la arquitectura de nombres —igual que el nombre, la
+   * categoría o el método—, no como copy: por eso vive aquí y no en `content/`. Verbatim de §2, y la misma cadena exacta en las dos
+   * superficies que lo usan: la línea del pie (por sustitución `{{role}}`) y el `jobTitle` de los datos estructurados (por `site.role`).
+   * Es lo que hace que «lo declarado se ve en la página» sea cierto POR CONSTRUCCIÓN y no por revisión.
+   */
+  role: "Director creativo de sistemas de marca",
   repo: "brandbrain-web",
   domain,
   url: `https://${domain}`,

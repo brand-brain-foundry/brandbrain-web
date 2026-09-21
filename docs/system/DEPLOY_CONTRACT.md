@@ -43,10 +43,10 @@ tags: [deploy, hosting, contrato, portabilidad]
 
 | Cosa | Dónde vive | Por qué no aquí |
 |---|---|---|
-| DNS, certificados TLS, redirecciones (`cerebrosdemarca.com` → canónico, `/` → `/es/`), caché de edge | **Cloudflare** (D-BBW-05, D-BBW-07) | Son propiedad del dominio, no del código. Cambiar de host no las toca. |
+| DNS, certificados TLS, **redirecciones de dominio entero** (`brandbrainfoundry.com` y `cerebrosdemarca.com` → canónico; **el mapa está en §8**), caché de edge | **Cloudflare** (D-BBW-05 enmendada por D-BBW-58, D-BBW-59) | Son propiedad del dominio, no del código. Cambiar de host no las toca. **La regla interna `/` → `/es/` NO está aquí**: vive en `public/_redirects` desde D-BBW-55, porque es una regla del sitio y no del dominio. |
 | Adaptador de despliegue (aplicación de GitHub de Cloudflare, auto-deploy desde `main`) | **Panel de Cloudflare** (D-BBW-10, enmienda D-BBW-04) | Un workflow o token del host dentro del repo acopla el código al proveedor. Sin credenciales en el repo. |
 | Valores de variables de entorno | **Panel del host / Secret Manager** (S-1) | El repo solo conoce **nombres** (`.env.example`). Hoy no necesita ninguno en runtime. |
-| Correo (MX y afines de `brandbrainfoundry.com`) | Cloudflare DNS → Hostinger mail (D-BBW-11: Hostinger = correo + registro de dominios, **no** hosting web) | Fuera de ámbito de la web. No se toca en ninguna fase; el cutover recrea los registros contra la línea base medida. |
+| Correo (MX y afines de `zavalacubas.com`, y los de los dominios que redirigen) | Cloudflare DNS → Hostinger mail (D-BBW-11: Hostinger = correo + registro de dominios, **no** hosting web) | Fuera de ámbito de la web. No se toca en ninguna fase. **Para `zavalacubas.com` ya está hecho y verificado** (2026-09-21): la zona se movió a Cloudflare con sus 11 registros y el correo quedó probado en los dos sentidos con SPF, DKIM y DMARC en PASS. |
 
 ## 4. Capas, dueño y qué cambia al migrar de proveedor
 
@@ -88,7 +88,7 @@ La columna que importa es la última. Si alguna fila deja de leer **ninguno**, e
 1. **Conectar el host nuevo** al repo (su GitHub App, scope solo `brandbrain-web`), con build `pnpm build` y salida `out/`. Sin tocar Cloudflare todavía.
 2. **Verificar el build en la URL de preview del host nuevo**: `GET /es/` y `GET /en/` → 200 con el HTML esperado; `GET /` → redirige a `/es/`.
 3. **Cambiar en Cloudflare** el registro del apex y `www` para apuntar al host nuevo (proxy naranja se mantiene). TTL bajo antes del cambio.
-4. **Verificar en vivo** con `dig` (resuelve al host nuevo) y `curl -I https://brandbrainfoundry.com/es/` → 200 desde el host nuevo. Redirect de `cerebrosdemarca.com` y de `/` intactos (viven en Cloudflare, no se tocaron).
+4. **Verificar en vivo** con `dig` (resuelve al host nuevo) y `curl -I https://zavalacubas.com/es/` → 200 desde el host nuevo. Redirecciones de §8 intactas y `/` → `/es/` intacta (la primera vive en Cloudflare, la segunda en `public/_redirects`; ninguna se tocó).
 5. **Desconectar el host antiguo**: desinstalar su GitHub App, borrar el sitio en su panel.
 6. Registrar el cutover en el hub (`repos/brandbrain-web/ESTADO_CANONICO.md` §1/§4 + BITACORA).
 
@@ -159,5 +159,73 @@ https://:project.pages.dev/*
 **Verificación obligatoria** tras el primer despliegue: `curl -sI https://bbf-brandbrain-web.pages.dev/es/ | grep -i x-robots-tag` → debe aparecer
 `x-robots-tag: noindex`. Y la contraprueba: la misma regla **no** puede aparecer en el dominio propio el día del cutover.
 
+## 8. Mapa de redirecciones de dominio (D-BBW-59) — **ESCRITO, NO EJECUTADO**
+
+**Estado: nada de esta sección está aplicado.** Se ejecuta en el cutover, en el panel de Cloudflare, y lo ejecuta Zavala. Aquí queda
+escrito para que ese día no haya que decidir nada.
+
+**Por qué vive en el borde y no en `public/_redirects`.** El manifiesto del repositorio (D-BBW-55) solo alcanza a peticiones que ya han
+llegado **a este sitio**; una petición a `brandbrainfoundry.com` nunca llega aquí si ese dominio no apunta aquí. Redirigir un dominio
+entero es propiedad del dominio, no del código (§3). Por eso el manifiesto se queda exactamente como está y esta tabla no lo toca.
+
+### 8.1 · El mapa
+
+| Origen | Destino | Tipo | Qué se conserva del camino |
+|---|---|---|---|
+| `brandbrainfoundry.com` (apex) | `https://zavalacubas.com/` | **301 permanente**, **un solo salto**, ya cifrado | **El camino, cuando lo haya.** `…/algo` → `https://zavalacubas.com/algo`. La raíz va a la raíz. |
+| `www.brandbrainfoundry.com` | `https://zavalacubas.com/` | **301 permanente**, **un solo salto**, ya cifrado | Igual. **No encadena** por el apex ni por `http://`. |
+| `cerebrosdemarca.com` (apex) | `https://zavalacubas.com/` | **301 permanente**, **un solo salto**, ya cifrado | Igual. |
+| `www.cerebrosdemarca.com` | `https://zavalacubas.com/` | **301 permanente**, **un solo salto**, ya cifrado | Igual. **Es el que hoy encadena 2–3 saltos pasando por `http://`** (medido en el N0): el mapa lo arregla. |
+| `zavalacubas.es` | — | — | **FUERA DEL PLAN.** No está registrado (NXDOMAIN medido el 2026-09-20) y D-BBW-59 decide no registrarlo. La biblia v2 §8 lo listaba; hoy no aplica. |
+| `branddesignerpro.com` | — | — | **Fuera de este mapa.** Nunca se midió y D-BBW-59 no lo cubre. Si entra, es su propia decisión. |
+
+**Lo que este mapa SUSTITUYE.** La biblia v2 §8 mandaba `brandbrainfoundry.com` → `/es/metodo`, **una sección que todavía no existe**.
+Redirigir a una ruta inexistente produce un 404 al final de un 301, que es peor que no redirigir. Hoy va **a la raíz**; cuando la sección
+exista, se reconsidera y se enmienda D-BBW-59.
+
+**Lo que este mapa RETIRA.** Los dos dominios apuntan hoy a `https://sivarbrains.com/` (Bulk Redirect medido en el N0). Ese destino deja
+de ser correcto: es otra entidad.
+
+### 8.2 · Los pasos del cutover, para Zavala
+
+**No hagas nada de esto todavía.** Es la lista del día del cutover, y va **después** de que el sitio ya responda en el dominio nuevo.
+
+1. **Comprueba primero que el dominio nuevo sirve el sitio.** Abre `https://zavalacubas.com/` en el navegador y mira que se ve la página,
+   no la página de aparcamiento. Si todavía se ve la de aparcamiento, **para aquí**: los pasos siguientes mandarían gente a una página que
+   no existe.
+2. **Solo entonces**, en el panel de Cloudflare, entra en el dominio `brandbrainfoundry.com` y **busca la redirección que ya existe** (hoy
+   manda a la web de la agencia). **Cámbiale el destino**, no crees una segunda: dos redirecciones sobre lo mismo se estorban.
+3. El destino nuevo es `https://zavalacubas.com/`, con **«permanente»** y **conservando el camino**. Si el panel ofrece «preservar la ruta»
+   o «preservar la cadena de consulta», déjalas marcadas.
+4. **Repite el 2 y el 3 en `cerebrosdemarca.com`** — pero antes lee el punto 8, que puede ahorrarte el trabajo entero.
+5. **Comprueba que la versión con `www` también va**, en los dos dominios. Es la que hoy está mal: da dos o tres saltos y uno de ellos pasa
+   por una conexión **sin cifrar**. Tiene que quedar en **un solo salto** y empezando ya por `https`.
+6. **Pruébalo tú mismo**, con estas cuatro direcciones, una por una, en una ventana nueva del navegador: `brandbrainfoundry.com`,
+   `www.brandbrainfoundry.com`, `cerebrosdemarca.com`, `www.cerebrosdemarca.com`. Las cuatro tienen que acabar en `https://zavalacubas.com/`
+   y la barra de direcciones tiene que mostrar el dominio nuevo.
+7. **Dime que lo hiciste.** Entonces se verifica con peticiones reales que cada una da **un solo salto**, que el salto es **permanente** y
+   que ninguna pasa por `http://`.
+
+**8. La decisión que es tuya y que nadie puede tomar por ti:** `cerebrosdemarca.com` **caduca el 2026-10-13**. Si no lo renuevas, su
+redirección **muere ese día** y configurarla habrá sido trabajo tirado. Renovarlo o dejarlo caducar es decisión tuya; el mapa está escrito
+para los dos casos. Si decides dejarlo caducar, **sáltate el paso 4** y bórralo de este contrato.
+
+**Lo que NO debes hacer:**
+
+- **No** toques la zona DNS de `zavalacubas.com`. Está medida, verificada y el correo depende de ella.
+- **No** cambies nada de correo, en ningún dominio. Estas redirecciones son de web y no rozan el correo.
+- **No** uses redirección «temporal» (302): un buscador no traslada la reputación del dominio viejo con una temporal.
+- **No** apuntes a `http://zavalacubas.com` ni a una ruta interna: el destino es la raíz, ya cifrada.
+- **No** borres las redirecciones viejas antes de haber creado las nuevas. Cámbiales el destino.
+- **Si algo no cuadra: para y pregunta.** Una redirección a medias es peor que ninguna.
+
+### 8.3 · La cabecera de no indexar, comprobada contra el dominio nuevo
+
+**No cambia nada y hay que decir por qué.** La regla de `public/_headers` (D-BBW-44) está acotada al patrón
+`https://:project.pages.dev/*`. `:project` es un comodín de **una** etiqueta de anfitrión y el separador es el punto, así que el patrón
+solo casa con anfitriones de la forma `<algo>.pages.dev`. **`zavalacubas.com` no tiene esa forma y no puede casar**: el dominio nuevo
+**nunca recibe la cabecera**, igual que no la recibía el anterior. El cutover no deshace nada aquí. La contraprueba sigue siendo
+obligatoria el día del cutover: `curl -sI https://zavalacubas.com/es/ | grep -i x-robots-tag` no debe devolver **nada**.
+
 ---
-*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 · `docs/system/DEPLOY_CONTRACT.md` · v1.4 · 2026-09-19 (v1.3: 2026-09-19 · v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*
+*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 + D-BBW-55 + D-BBW-58/59 · `docs/system/DEPLOY_CONTRACT.md` · v1.5 · 2026-09-21 (v1.4: 2026-09-19 · v1.3: 2026-09-19 · v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*

@@ -15,14 +15,14 @@ import styles from "./HeroSection.module.css";
  *     letra a letra con conservación de ancho. El claim NO es un encabezado: solo hay un encabezado principal por página.
  *   · el ENCABEZADO (`<h1>`) debajo, en cuerpo de texto (rol `body`). Es el único `<h1>` y es el que declara de qué va la página,
  *     según la biblia estratégica v2 §10; la fase 7 lo tenía en la palabra de marca y esto la enmienda.
- *   · la FIRMA en línea aparte y cuerpo pequeño, desde la MISMA llave de contenido que consume el pie (D-BBW-49): consistencia de
- *     entidad, la misma cadena exacta en las dos superficies.
+ *   · (la FIRMA que D-BBW-49 puso aquí ya no está: PR#26 dejó de pintarla y D-BBW-60 retira la llave. El nombre vive ahora en la línea
+ *     legal del pie, en su única aparición visible.)
  * Lo que sale en este mismo commit (I-6): el lockup de dos líneas con su ajuste óptico y su peso por puntero (`HeroLock`,
  * `behavior/optical-fit.ts`, EXC-BBW-02) y las dos afirmaciones.
  * Lo que NO cambia, que es casi todo lo caro: el sombreador, el seguimiento del sujeto, las partículas, el puerto de medios, el velo
  * local de legibilidad (D-BBW-25) y la entrada escalonada por pieza. Cambia la diagramación, no el sistema.
  */
-export function HeroSection({ section }: { section: HeroSectionData; signature: string }) {
+export function HeroSection({ section }: { section: HeroSectionData }) {
   const headingId = `${section.id}-heading`;
   return (
     <section id={section.id} className={styles.hero} aria-labelledby={headingId} data-component="bbf-hero">

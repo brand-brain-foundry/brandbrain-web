@@ -63,7 +63,12 @@
          necesario.
        · `-split`  = **43 %**, el valor del diseño, sin tocar. */
   --bbf-stage-anchor-y-split: 43%;
-  --bbf-stage-anchor-y-single: 40.5%;
+  /* D-BBW-62 — el ancla de la vista de una zona pasa de PORCENTAJE a la unidad de ventana pequeña. Un porcentaje se resuelve contra
+     la altura del héroe, y desde D-BBW-62 el héroe CRECE cuando el texto no cabe: con `%` el arte bajaría persiguiendo al texto.
+     Con `svh` el arte se queda donde estaba, en el primer visor. **En toda pantalla donde el héroe mide exactamente una ventana
+     —que son todas las que no tenían el defecto— `40.5svh` y `40.5%` son el MISMO número**: el cambio solo actúa donde antes había
+     solape. El ancla de la vista de dos zonas sigue siendo `%` y no se toca. */
+  --bbf-stage-anchor-y-single: 40.5svh;
   /* La proporción del escenario, en DOS madres además de la razón, porque CSS no sabe dividir por un `<ratio>` y la cota de ancho
      necesita hacerlo. Una sola fuente de verdad: la razón se compone de ellas. */
   --bbf-stage-aspect-w: 16;

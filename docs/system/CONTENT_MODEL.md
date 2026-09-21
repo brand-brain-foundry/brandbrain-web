@@ -39,8 +39,23 @@ es estricto en los dos sentidos: ni una llave de más, ni una de menos).
 | `hero.claimPrimary` · `claimSecondary` | `hero.heading` | El `<h1>` pasa a ser **el párrafo**: solo puede haber un encabezado principal por página, y el claim no lo es (biblia v2 §10/§12). |
 | `footer.notice` | `signature` (en la raíz de lo global) | La firma vive en lo global y no en la página porque es un dato de identidad de la marca, no copy de la portada. **Una sola llave y —desde D-BBW-50— un solo consumidor**: el héroe, bajo el encabezado. Así la consistencia de entidad que exige la biblia v2 §12 se cumple por la vía limpia: con una sola aparición no hay dos cadenas que conciliar. Cierra Q-BBW-009. |
 
+> **Superado por la v3.1 (abajo):** `signature` ya no existe. Esta fila se conserva sin reescribir porque explica de dónde venía la llave.
+
 Nada de esto cambia las siete reglas del modelo. La regla 2 (llaves por rol, nunca por lo que dicen hoy) es la que decide los nombres:
 `claimLine1..3` nombra posición, no contenido; `heading` nombra el papel en el documento, no la frase; `signature` nombra la pieza.
+
+## Enmienda de identidad (D-BBW-58 · D-BBW-60) — v3.1 del modelo, cambio NO aditivo
+
+Una llave menos en lo global y un texto reescrito. No aditivo por la misma razón que la v3.0: el esquema es estricto en los dos sentidos,
+así que un `global.json` que todavía traiga `signature` **rompe la compilación nombrando la llave**.
+
+| Antes | Ahora | Por qué |
+|---|---|---|
+| `signature` (en la raíz de lo global) | — | **Se retira.** La creó D-BBW-49 para el héroe y el pie; D-BBW-50 la dejó con un solo consumidor y `fix(hero): la firma sale del héroe` (PR#26) le quitó también ése. Llevaba desde entonces **sin ningún consumidor** (I-6) y, peor, guardando una **segunda variante del nombre** —el nombre con el cargo pegado— que es justo lo que la consistencia de entidad de la biblia v2 §12 prohíbe. |
+| `footer.legal` = `© All rights reserved` | `footer.legal` = `© {{year}} {{brand}}` | El texto era inglés en un sitio en español y **no tenía sujeto**. Ahora nombra al sujeto del sitio y lleva el año, **los dos por sustitución** (D-BBW-23): el contenido no escribe ni el nombre ni la fecha. Es, además, **la única aparición visible del nombre** en la página, que es lo que la regla de los datos estructurados exige (D-BBW-60). |
+
+La regla 2 sigue mandando: `legal` nombra el ROL de la línea (la nota legal del pie), no lo que dice hoy — por eso la llave no se llama
+`name` ni `copyright` aunque hoy lleve el nombre y el símbolo de copia.
 
 ## §1 — Principio
 
@@ -65,7 +80,7 @@ Es el mismo principio que gobierna los tokens, aplicado al contenido: **nombrar 
 | 5 | **Secciones como lista ordenada con su tipo.** Reordenar o añadir una sección de un tipo existente es editar contenido. | `sections: [ { "type": "hero", "id": "hero", … } ]` | El esquema valida cada sección por su `type`; ids únicos. **Un tipo nuevo** exige su forma en `schema.ts` y su renderizador (fase 6b): eso es código, y se dice. |
 | 6 | **Enlaces e identidad desde la fuente única.** | `"link": "agency"` → `site.links.agency` | Una llave que no existe en `site.links` es error de build. |
 | 7 | **Marcadores de posición evidentes.** | `[[PENDIENTE: qué texto va aquí]]` | El validador los acepta (copy pendiente ≠ ausente) y la guardia los **cuenta**; `grep -rn 'PENDIENTE' content/` lista lo que falta. Un texto vacío es error. |
-| 8 | **Sustituciones: pequeñas, cerradas, declaradas; sin lógica** (D-BBW-23, fase 6c). Un texto puede escribir `{{brand}}`, `{{domain}}` o `{{year}}` y el puerto lo resuelve **al compilar** desde la fuente única (`site.ts`): el contenido no repite datos de identidad (criterio 1). | `"legal": "© {{year}} {{brand}}"` → `© 2026 Brand Brain Foundry` en el HTML | El registro es `src/content/substitutions.ts` (llave → valor). La única forma válida es `{{identificador}}`: **una llave no declarada, o cualquier otra cosa entre llaves (condición, bucle, argumento), rompe el build** (puerto) y la guardia (`check-content.ts` R5) con la ruta exacta. Ampliar el conjunto = añadir una llave al registro (y su origen en `site.ts` si es identidad), nunca lógica en el texto. |
+| 8 | **Sustituciones: pequeñas, cerradas, declaradas; sin lógica** (D-BBW-23, fase 6c). Un texto puede escribir `{{brand}}`, `{{domain}}` o `{{year}}` y el puerto lo resuelve **al compilar** desde la fuente única (`site.ts`): el contenido no repite datos de identidad (criterio 1). | `"legal": "© {{year}} {{brand}}"` → `© 2026 Christian Zavala Cubas` en el HTML (D-BBW-60: ése es hoy el contenido real de la llave, y la única aparición visible del nombre) | El registro es `src/content/substitutions.ts` (llave → valor). La única forma válida es `{{identificador}}`: **una llave no declarada, o cualquier otra cosa entre llaves (condición, bucle, argumento), rompe el build** (puerto) y la guardia (`check-content.ts` R5) con la ruta exacta. Ampliar el conjunto = añadir una llave al registro (y su origen en `site.ts` si es identidad), nunca lógica en el texto. |
 
 ## §3 — Estructura (verificada)
 

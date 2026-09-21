@@ -1,6 +1,7 @@
 # brandbrain-web
 
-Web oficial de **Brand Brain Foundry**. Next.js App Router con `output: 'export'`: estructura de rutas por locale
+Sitio de la práctica profesional de **Christian Zavala Cubas** (D-BBW-58; «Brand Brain Foundry» es el nombre del MÉTODO, no el del sitio).
+Next.js App Router con `output: 'export'`: estructura de rutas por locale
 (ES por defecto, EN previsto), **lanzamiento solo en español** (D-BBW-15). Sin CMS, sin base de datos, sin Tailwind.
 
 - Contrato de hosting (puerto intercambiable): [`docs/system/DEPLOY_CONTRACT.md`](docs/system/DEPLOY_CONTRACT.md)

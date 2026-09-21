@@ -1,5 +1,4 @@
 {
-  "signature": "Christian Zavala Cubas · Director creativo de sistemas de marca",
   "nav": {
     "skipLabel": "Saltar al contenido principal",
     "toggleLabel": "Menú",
@@ -22,7 +21,7 @@
     ]
   },
   "footer": {
-    "legal": "© All rights reserved",
+    "legal": "© {{year}} {{brand}} · {{role}}",
     "social": [
       {
         "id": "linkedin",

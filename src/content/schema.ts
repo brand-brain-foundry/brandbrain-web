@@ -7,6 +7,11 @@
  *   `display` + `lead` + `claimPrimary` + `claimSecondary` salen; entran `claimLine1..3` y `heading`— y nace `signature` en lo
  *   global, mientras `footer.notice` sale. El esquema es ESTRICTO en los dos sentidos, así que un documento con la forma vieja
  *   rompe la compilación nombrando cada llave: no hay forma de que un texto retirado siga saliendo publicado en silencio.
+ * Enmienda de identidad (D-BBW-60, v3.1 del modelo, cambio NO aditivo): **`signature` SALE**. La creó D-BBW-49 para el héroe y el pie,
+ *   D-BBW-50 la dejó con un solo consumidor y PR#26 le quitó también ése: llevaba desde entonces sin ningún consumidor y guardando una
+ *   SEGUNDA variante del nombre (con el cargo pegado), que es justo lo que la consistencia de entidad de la biblia v2 §12 prohíbe. El
+ *   nombre vuelve a la página por `footer.legal`, leído de la fuente única por sustitución. Un `global.json` que todavía traiga la llave
+ *   rompe la compilación nombrándola — que es lo que se quiere.
  * Fase 6b: +1 llave `nav.skipLabel` (el enlace para saltar al contenido exige un texto y ningún texto vive en un componente). Cambio ADITIVO
  * del modelo (v2.1), propuesto en el PR de la fase 6b: el esquema estricto lo exige en todo locale publicado.
  * Reglas del modelo (fase 6a, DESPACHO-BBW-2026-09-16-fase6a §F3):
@@ -50,13 +55,6 @@ export type LinkItem = {
 };
 
 export type GlobalDocument = {
-  /**
-   * LA FIRMA (D-BBW-49 · D-BBW-50). Una sola llave y, desde D-BBW-50, **un solo consumidor**: el héroe, bajo el encabezado.
-   * Sale del pie. Así la consistencia de entidad que exige la biblia v2 §12 —la misma cadena exacta siempre— se cumple por
-   * la vía limpia: con una sola aparición no hay dos cadenas que conciliar. Sigue viviendo en lo global y no en la página
-   * porque es un dato de identidad de la marca, no copy de la portada, y la próxima página lo querrá igual.
-   */
-  signature: string;
   nav: {
     /** texto del enlace para saltar al contenido principal (primer elemento enfocable de la página; fase 6b) */
     skipLabel: string;
@@ -66,7 +64,12 @@ export type GlobalDocument = {
     items: LinkItem[];
   };
   footer: {
-    /** línea legal */
+    /**
+     * LÍNEA LEGAL, y desde D-BBW-60 también **la única aparición visible del nombre** en toda la página. No escribe la cadena: la pide por
+     * sustitución (`© {{year}} {{brand}}`, D-BBW-23), así que el nombre sigue viniendo de la fuente única y el año del momento de compilar.
+     * Por qué el nombre vive aquí y no en una llave propia: la regla de los datos estructurados exige que lo declarado se VEA en la página,
+     * y el pie es la superficie que quedaba. Una llave, un consumidor.
+     */
     legal: string;
     /** enlaces a perfiles externos, en orden */
     social: LinkItem[];
@@ -165,8 +168,7 @@ function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
 export function validateGlobal(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  checkKeys(v, ["signature", "nav", "footer"], "$", problems);
-  checkText(v.signature, "$.signature", problems);
+  checkKeys(v, ["nav", "footer"], "$", problems);
   if (isRecord(v.nav)) {
     checkKeys(v.nav, ["skipLabel", "toggleLabel", "items"], "$.nav", problems);
     checkText(v.nav.skipLabel, "$.nav.skipLabel", problems);
