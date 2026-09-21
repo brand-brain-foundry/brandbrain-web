@@ -169,22 +169,34 @@
   clip-path: inset(50%);
 }
 
-/* LA ETIQUETA DEL ENLACE (D-BBW-74). Califica el destino sin tocar su nombre: «Sivar Brains» sigue siendo «Sivar Brains» —la regla de
-   consistencia de entidad de la biblia v4 §4 no admite variantes— y la palabra va al lado, no dentro.
-   DISEÑO MÍNIMO Y TODO POR ROL: el cuerpo es el peldaño más pequeño de la escala (`legal`, que ya respeta el suelo de 12 px de D-BBW-18),
-   el color es el del acento para texto (`--bbf-text-on-base-accent`, el mismo rol medido para la línea del pie) y la separación es el
-   cuanto de espaciado. **Sin caja, sin borde, sin fondo**: una píldora competiría con el nombre, que es justo lo que no puede pasar.
-   LA CAJA SE HEREDA y no se declara: el enlace de nav ya va en versales, y la etiqueta entra en esa caja como el resto — declararle una
-   propia la habría sacado del conjunto. El CONTENIDO conserva la ortografía real («Caso»), que es lo que se copia y lo que lee el
-   nombre accesible; las versales son presentación del enlace, no del dato. Comprobado sobre el HTML generado.
-   `white-space: nowrap` para que la etiqueta no se parta del nombre al envolver.
-   Va DENTRO del `<a>` y sin `aria-hidden`, así que entra en el nombre accesible por construcción («Sivar Brains Caso»). */
+/* LA PÍLDORA DEL ENLACE (D-BBW-74, forma de D-BBW-77). Califica el destino sin tocar su nombre: «Sivar Brains» sigue siendo «Sivar
+   Brains» —la consistencia de entidad de la biblia v4 §4 no admite variantes— y la palabra va al lado, dentro de su propia forma, como
+   las viñetas de «Nuevo».
+   TODO POR ROL: fondo `--bbf-surface-pill` (el acento MADRE, el de identidad), tinta `--bbf-text-on-pill` (la superficie base), cuerpo
+   `--bbf-type-pill-size` (el suelo de legibilidad, que es lo que la hace menor que la nav sin bajar de 12 px), relleno por la escala de
+   espaciado y radio por `--bbf-radius-pill`. **Ni un radio ni un relleno escritos a mano.**
+   LA TINTA VA OSCURA SOBRE CLARO, al revés que el resto del sitio, y es la medida quien lo manda: sobre el acento madre el negro
+   contrasta ~7,6 y el blanco ~2,8 — el blanco no llegaría ni al mínimo de texto grande.
+   ALINEADA CON LA ETIQUETA: `vertical-align: middle` centra la píldora contra el texto del enlace en vez de dejarla colgando de la línea
+   base, que es lo que hace una caja con relleno propio si no se le dice nada. `line-height: 1` para que el alto de la píldora lo fije su
+   relleno y no el interlineado heredado del enlace.
+   `white-space: nowrap` para que la palabra no se parta dentro de la forma, y `--bbf-radius-pill` para que el navegador recorte el radio
+   a la mitad del alto: eso es lo que convierte el rectángulo en píldora, sin depender de cuánto mida.
+   Va DENTRO del `<a>` y sin `aria-hidden`, así que entra en el nombre accesible por construcción («Sivar Brains Caso»). La caja alta se
+   HEREDA del enlace; el contenido conserva «Caso», que es lo que se copia y lo que lee un lector de pantalla. */
 .badge {
+  display: inline-block;
   margin-inline-start: var(--bbf-space-2);
-  color: var(--bbf-text-on-base-accent);
-  font-size: var(--bbf-type-legal-size);
-  font-weight: var(--bbf-type-legal-weight);
-  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  padding: var(--bbf-space-half) var(--bbf-space-2);
+  border-radius: var(--bbf-radius-pill);
+  background: var(--bbf-surface-pill);
+  color: var(--bbf-text-on-pill);
+  font-family: var(--bbf-type-pill-family);
+  font-size: var(--bbf-type-pill-size);
+  font-weight: var(--bbf-type-pill-weight);
+  line-height: 1;
+  letter-spacing: var(--bbf-type-pill-tracking);
+  text-shadow: none;
+  vertical-align: middle;
   white-space: nowrap;
 }
-

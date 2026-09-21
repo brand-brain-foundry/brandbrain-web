@@ -108,6 +108,20 @@
   --bbf-type-kicker-tracking: var(--bbf-tracking-6);
   --bbf-type-kicker-shadow: var(--bbf-shadow-md);
 
+  /* LA PÍLDORA DEL ENLACE (D-BBW-77). Califica un destino con una palabra dentro de una forma cerrada, como las viñetas de «Nuevo».
+     CUERPO: **el SUELO de legibilidad mismo** (`--bbf-text-floor`, 12 px), y ésta es la parte que hubo que resolver en vez de forzar.
+     Zavala lo pide «menor que la etiqueta de la nav», que va en `n−2` (12,5 → 12,8 px); el paso siguiente de la escala, `n−3`, daría
+     10,42 px y **rompería D-BBW-18**. Pero entre 12,8 y el suelo hay sitio: **12 px exactos es menor que la nav Y es el suelo**, así que
+     cumple por construcción y no por concesión. No es un número a mano — es la madre del suelo, consumida directamente.
+     COLOR: la **superficie base** sobre el acento madre. Es lo contrario de lo habitual (tinta clara sobre fondo oscuro) y es lo que el
+     contraste exige: sobre `#9299c6` el negro da ~7,6 y el blanco ~2,8, que no llegaría ni al mínimo de texto grande.
+     INTERLETRADO ×1: la píldora va en caja alta por herencia del enlace, pero es una sola palabra corta dentro de una caja estrecha; el
+     ×6 de la nav la haría reventar la forma. */
+  --bbf-type-pill-family: var(--bbf-font-text);
+  --bbf-type-pill-size: var(--bbf-size-floor);
+  --bbf-type-pill-weight: var(--bbf-weight-text-medium);
+  --bbf-type-pill-tracking: var(--bbf-tracking-1);
+
   --bbf-type-label-family: var(--bbf-font-text);
   --bbf-type-label-size: var(--bbf-size-n2);
   --bbf-type-label-weight: var(--bbf-weight-text-regular);
