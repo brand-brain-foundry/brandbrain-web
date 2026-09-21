@@ -111,7 +111,9 @@
      grande → texto → texto más pequeño— y por eso se reutiliza la madre en vez de inventar dos. La separación titular/rótulo
      (0,5 % del alto) se RETIRA con el rótulo: las tres líneas del claim se separan por su interlineado, no por un hueco. */
   --bbf-hero-gap-heading-slope: 2.4cqh;
-  --bbf-hero-gap-signature-slope: 0.7cqh;
+  /* D-BBW-64: era `-signature-slope` y se quedó sin consumidor cuando la firma salió del héroe (P-BBW-50). Vuelve a tenerlo con su nombre
+     verdadero: es el hueco pequeño DENTRO del bloque de texto, ahora entre el antetítulo y las dos líneas grandes. Mismo valor, mismo papel. */
+  --bbf-hero-gap-kicker-slope: 0.7cqh;
   --bbf-lockup-pad-slope: 4vw;
 
   /* ── cromo ── */

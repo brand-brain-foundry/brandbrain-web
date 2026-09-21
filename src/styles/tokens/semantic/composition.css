@@ -63,7 +63,7 @@
 
   --bbf-lockup-offset: clamp(var(--bbf-space-21), var(--bbf-lockup-offset-slope), var(--bbf-space-38));
   --bbf-hero-gap-heading: clamp(var(--bbf-space-4), var(--bbf-hero-gap-heading-slope), var(--bbf-space-8));
-  --bbf-hero-gap-signature: clamp(var(--bbf-space-2), var(--bbf-hero-gap-signature-slope), var(--bbf-space-3));
+  --bbf-hero-gap-kicker: clamp(var(--bbf-space-2), var(--bbf-hero-gap-kicker-slope), var(--bbf-space-3));
   --bbf-lockup-pad: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-lockup-pad-slope), var(--bbf-space-18)));
   /* ANCHO DISPONIBLE del bloque de texto = ancho del héroe menos DOS márgenes (fase 6m, D-BBW-40). En `cqw` y no en `vw` porque la
      sección del héroe es el contenedor de tamaño (HeroSection: container-type: size) y es su caja, no la ventana, la que manda: con

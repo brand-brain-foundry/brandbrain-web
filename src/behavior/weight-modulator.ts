@@ -1,5 +1,20 @@
 /**
  * behavior/weight-modulator.ts — S5 · MODULADOR DE PESO DEL TITULAR (fase 6h, portado P1; D-BBW-28 · D-BBW-29 · D-BBW-30 · D-BBW-31).
+ *
+ * ⏸ APAGADO Y REVERSIBLE DESDE 2026-09-22 (D-BBW-65). **Este módulo no tiene hoy ningún consumidor, y es a propósito.** Zavala apagó la
+ * animación de peso del claim y pidió expresamente **no borrarlo**: puede volver. Es una excepción declarada a I-6 (nada sin consumidor),
+ * y por eso se escribe aquí en vez de dejarla implícita — un módulo sin consumidor y sin nota es basura; con nota es una pieza guardada.
+ *
+ * NADA DE ESTE FICHERO HA CAMBIADO: el algoritmo, las constantes, sus orígenes por línea del export y la conservación de ancho siguen
+ * exactamente como estaban. Tampoco cambian los roles que lee: `--bbf-type-display-weight-from` y `--bbf-type-display-weight-to` siguen
+ * declarados en semantic/typography.css, igual que `--bbf-weight-display-from/to` en primitivos.
+ *
+ * PARA VOLVER A ENCENDERLO hay que tocar UN sitio, `src/components/molecules/HeroClaim/HeroClaim.tsx`, y devolverle cuatro cosas que se
+ * retiraron juntas y solo sirven a esto: (1) el reparto de la línea en glifos tras hidratar, con su `aria-label` y su restauración al
+ * desmontar; (2) el bucle de `requestAnimationFrame` sobre `frame()`; (3) el anclaje de la caja al fotograma más ancho vía `calibrate()`,
+ * que es lo que evita que la línea empuje a sus hermanas; y (4) la quietud por pestaña oculta y por movimiento reducido (D-BBW-31), que
+ * sin movimiento no tiene objeto. La hoja del claim necesita de vuelta `.glyph` y el `display:flex` + `contain: layout` de la línea viva.
+ * El afinado del cuerpo con la medida real NO hay que tocarlo: se quedó en el componente porque era de la composición, no del movimiento.
  * Contrato: docs/system/BEHAVIOR.md. Inventario de origen: N1 doc A §5 (`dc:Lnnn` = `Eye Fish Landing.dc.html`, línea).
  *
  * QUÉ HACE, en una frase: la palabra se parte en letras y cada una interpola su peso de forma independiente siguiendo una señal continua

@@ -1,90 +1,54 @@
 "use client";
 
 import { useEffect, useRef, type CSSProperties } from "react";
-import { WEIGHT_MODULATOR, calibrate, frame, readTokens, type Calibration, type Tokens } from "@/behavior/weight-modulator";
 import styles from "./HeroClaim.module.css";
 
 /**
- * HeroClaim — molecule CLIENTE (D-BBW-47, héroe rediagramado; sustituye a `HeroLock`): el CLAIM en TRES LÍNEAS alineadas a la
- * izquierda, de las cuales **solo la última respira**. Algoritmo y constantes en src/behavior/weight-modulator.ts (D-BBW-30);
- * aquí solo el cableado con el documento.
- * · QUÉ SE CONSERVA de la 6h/6m/7b, que es casi todo: el MODULADOR DE PESO con su conservación de ancho (Σ avances = presupuesto
- *   al peso de reposo), la caja anclada al fotograma más ancho de la señal real, la medida con `max-content` (D-BBW-45) y el
- *   afinado de la guarda con la medida real (D-BBW-40). Cambia la diagramación, no el sistema.
- * · QUÉ SE RETIRA: el rótulo, su AJUSTE ÓPTICO y su PESO POR PUNTERO (src/behavior/optical-fit.ts, EXC-BBW-02, D-BBW-41). Eran
- *   del lockup de dos líneas que cerraban entre sí; sin segunda línea que cerrar no tienen objeto, y salen en el mismo commit
- *   que entra su sustituto (I-6).
- * · EL ANCHO LO FIJA LA LÍNEA MÁS LARGA (D-BBW-48). Con tres líneas de longitudes distintas y sin cierre entre ellas, la más
- *   larga es la que determina el espacio ocupado, así que el invariante de D-BBW-42 se aplica a ELLA:
- *     - la guarda servida divide entre `--bbf-display-chars`, que es la cuenta de letras de la línea más larga (una MEDIDA del
- *       texto, no el texto), y por tanto vale sin JavaScript;
- *     - el afinado por medida escribe `--bbf-display-fit-measured` con `objetivo × cuerpo ÷ máximo de los TRES anchos reales`,
- *       tomando el de la tercera línea YA ANCLADO por el modulador (que es su ancho máximo en todo el recorrido, no el de reposo).
- *   Sigue siendo punto fijo en un paso: el cociente no depende del cuerpo del que se parta.
- * · LA CONSERVACIÓN DE ANCHO ES POR LÍNEA: la caja anclada es la de la tercera línea y `contain: layout` aísla su relayout. Las
- *   otras dos no se tocan, el encabezado y la firma son hermanos posteriores en una columna: nada de alrededor se recoloca.
- * · UN SOLO BUCLE `requestAnimationFrame` que escribe `font-weight` por letra directo al documento (D-BBW-29), sin estado del marco.
- * · CALIBRACIÓN al montar, con las fuentes listas, cada vez que LLEGA una fuente (`loadingdone`), a 60/700/1800 ms y al cambiar el
- *   tamaño de la ventana. Cada calibración avisa con `bbf:weight-calibrated`: es lo que lee el arnés.
- * · QUIETO con movimiento reducido y con la pestaña oculta (D-BBW-31): el bucle se cancela y las letras vuelven al peso de rol.
- * · HTML COMPLETO (D-BBW-09/28): el servidor emite las tres líneas como TEXTO LITERAL con el peso de reposo por rol; el cliente
- *   parte la tercera en letras DESPUÉS de hidratar (imperativo, fuera del árbol de React: el texto no cambia, React no lo retoca)
- *   y solo mueve. Sin JavaScript queda exactamente lo servido.
- * · ACCESIBILIDAD: la línea partida lleva su texto como nombre accesible y las letras quedan ocultas a la asistencia; al
- *   desmontar se restaura el texto. El claim NO es un encabezado (D-BBW-47): el `<h1>` es el párrafo, y lo pone la sección.
- * Cero texto, cero valores.
+ * HeroClaim — molecule CLIENTE. El CLAIM en TRES LÍNEAS alineadas a la izquierda, **en DOS REGISTROS** (D-BBW-64, diagramación de la
+ * referencia de Zavala sobre la biblia v4): la PRIMERA en la familia de texto, en mayúsculas y menor (rol `kicker`), y la SEGUNDA y la
+ * TERCERA en la display. Cero texto y cero valores aquí.
+ *
+ * LA ANIMACIÓN DE PESO ESTÁ APAGADA (D-BBW-65). Ninguna línea respira: las tres salen con el peso de reposo de su rol, el mismo que el
+ * HTML servido ya traía. **El modulador NO se ha borrado**: `src/behavior/weight-modulator.ts` sigue entero, con su algoritmo, sus
+ * constantes y su conservación de ancho, y los roles `--bbf-type-display-weight-from/to` siguen declarados. Lo que se retira es su
+ * APLICACIÓN — el reparto en letras, el bucle de `requestAnimationFrame` y el anclaje de la caja. Volver a encenderlo es volver a
+ * llamarlo desde aquí, no reconstruirlo: la decisión lo registra como **reversible** y el pendiente dice qué tocar.
+ * Lo que se va con la animación, porque solo existía para ella: el reparto en glifos con su `aria-label` y su restauración al desmontar,
+ * la quietud por pestaña oculta y por movimiento reducido (sin movimiento no hay nada que detener), y el anclaje de ancho por línea.
+ *
+ * LO QUE SE QUEDA, porque no era de la animación sino de la COMPOSICIÓN: el afinado del cuerpo con la medida real (D-BBW-40 · D-BBW-42 ·
+ * D-BBW-45 · D-BBW-48). El cuerpo de la display es `min(tamaño de rol, guarda)`, y la guarda servida divide entre `--bbf-display-chars`
+ * usando el avance MÁXIMO de la familia: es una cota, así que cabe siempre pero casi siempre sobra. El cliente la afina midiendo el texto
+ * de verdad. Sin JavaScript queda la cota y el claim cabe igual, solo que más pequeño de lo que podría.
+ *
+ * EL CUERPO LO FIJA LA MÁS LARGA DE LAS DOS LÍNEAS DISPLAY, no de las tres (D-BBW-64): la primera está en otra familia y a otro cuerpo,
+ * así que no tiene voto ni en la cuenta de letras servida ni en la medida del cliente. Meterla falsearía las dos.
+ *
+ * MEDIDA CON `max-content` (D-BBW-45): una caja que se ajusta queda topada por el disponible, y entonces el cociente del afinado se
+ * calcularía a sí mismo y congelaría el cuerpo. La hoja ya pone `width: max-content` en la línea; el ayudante lo fuerza igualmente para
+ * no depender de ella.
+ *
+ * HTML COMPLETO (D-BBW-09/28): el servidor emite las tres líneas como texto literal, con el peso y el cuerpo de reposo de su rol. Ahora
+ * el cliente **solo mide**: no parte, no anima y no reemplaza ningún nodo. Sin JavaScript queda exactamente lo servido.
+ * ACCESIBILIDAD: sin reparto en letras, las tres líneas son texto normal. El claim NO es un encabezado; el `<h1>` es el párrafo y lo
+ * pone la sección.
  */
 export function HeroClaim({ lines }: { lines: readonly [string, string, string] }) {
   const rootRef = useRef<HTMLParagraphElement>(null);
-  const liveRef = useRef<HTMLSpanElement>(null);
-  const still1Ref = useRef<HTMLSpanElement>(null);
-  const still2Ref = useRef<HTMLSpanElement>(null);
+  const display1Ref = useRef<HTMLSpanElement>(null);
+  const display2Ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
-    const live = liveRef.current;
-    const still1 = still1Ref.current;
-    const still2 = still2Ref.current;
-    if (!root || !live || !still1 || !still2) return;
-    const stillEls: HTMLElement[] = [still1, still2];
-    const doc = live.ownerDocument;
+    const d1 = display1Ref.current;
+    const d2 = display2Ref.current;
+    if (!root || !d1 || !d2) return;
+    const displayEls: HTMLElement[] = [d1, d2];
+    const doc = root.ownerDocument;
     const win = doc.defaultView;
     if (!win) return;
 
-    // ── partir la ÚLTIMA línea en letras (después de hidratar; el HTML servido trae el texto literal) ──
-    // El espacio y el punto son glifos como cualquier otro: tienen avance y entran en la conservación. Que el espacio conserve
-    // el suyo lo garantiza `white-space: pre` en la hoja (un glifo es elemento flexible, y un espacio en una caja de bloque se
-    // colapsa y se recorta al principio y al final de su línea: mediría cero y la frase saldría sin espacios).
-    const text = live.textContent ?? "";
-    const original = Array.from(live.childNodes);
-    const glyphs: HTMLElement[] = Array.from(text).map((ch) => {
-      const g = doc.createElement("span");
-      g.className = styles.glyph;
-      g.setAttribute("aria-hidden", "true");
-      g.textContent = ch;
-      return g;
-    });
-    live.setAttribute("aria-label", text);
-    live.replaceChildren(...glyphs);
-    live.setAttribute("data-split", "");
-
-    let tokens: Tokens | null = null;
-    let cal: Calibration | null = null;
-    let raf = 0;
-    let stopped = true;
-    const t0 = win.performance.now();
-    const clock = () => (win.performance.now() - t0) / 1000;
-
-    const rest = () => {
-      for (const g of glyphs) g.style.removeProperty("font-weight");
-    };
-    const stillness = () => getComputedStyle(doc.documentElement).getPropertyValue("--bbf-motion-loop-play-state").trim() === "paused";
-
-    /**
-     * Ancho intrínseco de una línea que NO se anima. Se mide con `max-content` por la misma razón que la calibración
-     * (D-BBW-45): una caja que se ajusta queda TOPADA por el disponible, y entonces el cociente del afinado se calcularía a
-     * sí mismo y congelaría el cuerpo. Se restaura el valor de la hoja al terminar.
-     */
+    /** Ancho intrínseco de una línea, forzando `max-content` para que el disponible no la tope (D-BBW-45). */
     const naturalWidth = (el: HTMLElement): number => {
       const had = el.style.width;
       el.style.width = "max-content";
@@ -95,74 +59,42 @@ export function HeroClaim({ lines }: { lines: readonly [string, string, string] 
     };
 
     /**
-     * Afina la guarda de ancho con la medida real (D-BBW-40) generalizada a tres líneas (D-BBW-48): el objetivo lo ocupa la
-     * línea MÁS ANCHA de las tres, contando la tercera por su caja YA ANCLADA (su máximo en todo el recorrido) y no por su
-     * reposo. Devuelve si el cuerpo ha cambiado de verdad, leyéndolo del documento y no del cálculo: si la guarda no estaba
-     * mandando, `min()` se queda con el tamaño del rol y no hay nada que recalibrar.
+     * Afina la guarda con la medida real: `objetivo × cuerpo ÷ ancho de la línea display más ancha`. Punto fijo en un paso — el
+     * cociente no depende del cuerpo del que se parta—, pero se repite mientras el cuerpo cambie de verdad, porque al cambiar el
+     * cuerpo cambia el ancho medido. Se lee el resultado del documento y no del cálculo: si la guarda no estaba mandando, `min()`
+     * se queda con el tamaño del rol y no hay nada que afinar.
      */
-    const refit = () => {
-      if (!cal || cal.pinned <= 0) return false;
-      const cs = getComputedStyle(live);
+    const fit = (): boolean => {
+      const cs = getComputedStyle(d1);
       const size = parseFloat(cs.fontSize);
       const target = parseFloat(cs.getPropertyValue("--bbf-lockup-target"));
       if (!Number.isFinite(size) || size <= 0 || !Number.isFinite(target) || target <= 0) return false;
-      const widest = Math.max(cal.pinned, ...stillEls.map(naturalWidth));
+      const widest = Math.max(...displayEls.map(naturalWidth));
+      if (!(widest > 0)) return false;
       root.style.setProperty("--bbf-display-fit-measured", ((target * size) / widest).toFixed(3) + "px");
-      return Math.abs(parseFloat(getComputedStyle(live).fontSize) - size) > WEIGHT_MODULATOR.REFIT_MIN_DELTA_PX;
+      return Math.abs(parseFloat(getComputedStyle(d1).fontSize) - size) > REFIT_MIN_DELTA_PX;
     };
 
-    let refitPass = 0;
-    const recalibrate = () => {
-      tokens = readTokens(live);
-      if (!tokens) return;
-      const fontFace = getComputedStyle(live);
-      cal = calibrate(live, glyphs, tokens, clock());
-      if (refitPass < 2 && refit()) {
-        refitPass += 1;
-        recalibrate();
+    let pass = 0;
+    const measure = () => {
+      if (pass < 2 && fit()) {
+        pass += 1;
+        measure();
         return;
       }
-      refitPass = 0;
-      if (stopped) rest();
-      live.dispatchEvent(
-        new CustomEvent("bbf:weight-calibrated", {
+      pass = 0;
+      root.dispatchEvent(
+        new CustomEvent("bbf:claim-fitted", {
           bubbles: true,
           detail: {
-            budget: cal?.budget ?? 0,
-            pinned: cal?.pinned ?? 0,
-            samples: cal?.samples ?? 0,
-            clamped: cal?.clamped ?? false,
-            still: stillEls.map(naturalWidth),
-            avail: parseFloat(getComputedStyle(live).getPropertyValue("--bbf-lockup-avail")),
-            target: parseFloat(getComputedStyle(live).getPropertyValue("--bbf-lockup-target")),
-            size: parseFloat(getComputedStyle(live).fontSize),
+            display: displayEls.map(naturalWidth),
+            avail: parseFloat(getComputedStyle(d1).getPropertyValue("--bbf-lockup-avail")),
+            target: parseFloat(getComputedStyle(d1).getPropertyValue("--bbf-lockup-target")),
+            size: parseFloat(getComputedStyle(d1).fontSize),
             fontsStatus: doc.fonts.status,
-            displayLoaded: doc.fonts.check(`${fontFace.fontWeight} ${fontFace.fontSize} ${fontFace.fontFamily.split(",")[0]}`),
           },
         }),
       );
-    };
-
-    const step = () => {
-      raf = win.requestAnimationFrame(step);
-      if (!tokens || !cal) return;
-      frame(clock(), glyphs, cal.curves, cal.budget, tokens);
-    };
-    const start = () => {
-      if (!stopped) return;
-      stopped = false;
-      raf = win.requestAnimationFrame(step);
-    };
-    const stop = () => {
-      if (stopped) return;
-      stopped = true;
-      win.cancelAnimationFrame(raf);
-      rest();
-    };
-    /** una sola política para las dos causas de quietud: pestaña oculta y movimiento reducido (D-BBW-31) */
-    const sync = () => {
-      if (doc.hidden || stillness()) stop();
-      else start();
     };
 
     let queued = 0;
@@ -170,38 +102,30 @@ export function HeroClaim({ lines }: { lines: readonly [string, string, string] 
       if (queued) return;
       queued = win.requestAnimationFrame(() => {
         queued = 0;
-        recalibrate();
+        measure();
       });
     };
-    recalibrate();
-    sync();
-    const timers = WEIGHT_MODULATOR.REFIT_DELAYS_MS.map((ms) => win.setTimeout(queue, ms));
+    measure();
+    // La medida depende de la FUENTE: con la de respaldo el texto mide otra cosa. Se rehace al llegar cada fuente y en los tres
+    // instantes en los que el kit suele haber resuelto, más al cambiar el tamaño de la ventana (cambia el objetivo).
+    const timers = REFIT_DELAYS_MS.map((ms) => win.setTimeout(queue, ms));
     void doc.fonts.ready.then(queue);
     doc.fonts.addEventListener("loadingdone", queue);
     win.addEventListener("resize", queue);
-    doc.addEventListener("visibilitychange", sync);
-    const reduced = win.matchMedia("(prefers-reduced-motion: reduce)");
-    reduced.addEventListener("change", sync);
 
     return () => {
-      stop();
       for (const id of timers) win.clearTimeout(id);
       if (queued) win.cancelAnimationFrame(queued);
       doc.fonts.removeEventListener("loadingdone", queue);
       win.removeEventListener("resize", queue);
-      doc.removeEventListener("visibilitychange", sync);
-      reduced.removeEventListener("change", sync);
-      live.replaceChildren(...original);
-      live.removeAttribute("data-split");
-      live.removeAttribute("aria-label");
-      live.style.removeProperty("width");
       root.style.removeProperty("--bbf-display-fit-measured");
     };
   }, []);
 
-  // La cuenta que la guarda necesita es la de la línea MÁS LARGA (D-BBW-48): es una MEDIDA del texto, no el texto, y es lo
-  // único del contenido que la presentación puede preguntar. Va en el HTML servido, así que la guarda vale sin JavaScript.
-  const chars = Math.max(...lines.map((l) => l.length));
+  // La cuenta que la guarda servida necesita es la de la línea DISPLAY más larga (D-BBW-48, acotado a las dos por D-BBW-64): es una
+  // MEDIDA del texto, no el texto, y es lo único del contenido que la presentación puede preguntar. Va en el HTML servido, así que la
+  // guarda vale sin JavaScript.
+  const chars = Math.max(lines[1].length, lines[2].length);
   return (
     <p
       ref={rootRef}
@@ -209,15 +133,20 @@ export function HeroClaim({ lines }: { lines: readonly [string, string, string] 
       data-component="bbf-hero-claim"
       style={{ "--bbf-display-chars": chars } as CSSProperties}
     >
-      <span ref={still1Ref} className={styles.line} data-enter="">
+      <span className={styles.kicker} data-enter="">
         {lines[0]}
       </span>
-      <span ref={still2Ref} className={styles.line} data-enter="">
+      <span ref={display1Ref} className={styles.line} data-enter="">
         {lines[1]}
       </span>
-      <span ref={liveRef} className={`${styles.line} ${styles.live}`} data-enter="">
+      <span ref={display2Ref} className={styles.line} data-enter="">
         {lines[2]}
       </span>
     </p>
   );
 }
+
+/** Cuándo se rehace la medida (ms). Mismos instantes que usaba el afinado del modulador: no son del movimiento, son de la carga de fuentes. */
+const REFIT_DELAYS_MS = [60, 700, 1800] as const;
+/** Por debajo de esta diferencia de cuerpo, repetir el afinado no cambia nada visible y solo gasta un fotograma. */
+const REFIT_MIN_DELTA_PX = 0.1;
