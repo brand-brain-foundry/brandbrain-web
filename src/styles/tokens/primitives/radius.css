@@ -1,8 +1,14 @@
 /**
  * primitives/radius.css — Tier 1 · RADIO
  * El N0 (§2.2) trae UN solo valor: `border-radius: 50%` ×53 (todo es círculo). No hay escala que derivar: una madre sin pasos.
- * CLASE (D-DOC-13): plantilla (el archivo); el valor es de la marca (dinámico).
+ * D-BBW-77: nace una SEGUNDA madre, y no es un paso de la primera sino **otra geometría**. `50%` sobre una caja rectangular da una
+ * ELIPSE —los lados se curvan sin parar—, no una píldora; una píldora exige un radio en LONGITUD igual o mayor que la mitad de su
+ * altura, y el navegador lo recorta a esa mitad exacta. Ese recorte ES la definición de píldora, así que el número concreto es
+ * ESTRUCTURA y no un valor de diseño: cualquiera lo bastante grande da el mismo resultado, igual que `100svh` es estructura y no
+ * una altura elegida. Se declara una vez aquí para que ningún componente escriba un radio.
+ * CLASE (D-DOC-13): plantilla (el archivo); `radius-full` es valor de marca (dinámico) · `radius-pill` es estático (estructura).
  */
 :root {
   --bbf-radius-full: 50%;
+  --bbf-radius-pill: 9999px;
 }
