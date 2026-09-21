@@ -20,12 +20,15 @@
   --bbf-text-on-base-secondary: var(--bbf-color-mint-200);
   --bbf-text-on-base-muted: var(--bbf-color-mint-400);
   --bbf-text-on-base-faint: var(--bbf-color-mint-700);
-  /* D-BBW-72 · LA LÍNEA LEGAL DEL PIE, EN LA VERSIÓN CLARA DEL ACENTO. El rol existe precisamente para esto: lo que el pie necesita no es
-     «el acento» sino «texto pequeño legible sobre el fondo, en el color de acento», y son dos cosas distintas en cuanto el acento baja de
-     luminosidad. Con la madre (`accent-400`) el peor caso medido sobre el fondo real era **3,52**, por debajo del mínimo de 4,5 que exige
-     el texto pequeño; con `accent-300` sube a **5,37**. **La madre no se toca**: sigue siendo la identidad — el icono, el logo y lo que
-     pinte marca. Lo que cambia es de qué peldaño tira el TEXTO, que es la decisión que este rol estaba puesto para poder tomar. */
-  --bbf-text-on-base-accent: var(--bbf-color-accent-300);
+  /* D-BBW-73 · LA LÍNEA LEGAL DEL PIE, DOS PELDAÑOS POR ENCIMA DE LA MADRE. El rol existe precisamente para esto: lo que el pie necesita
+     no es «el acento» sino «texto pequeño legible sobre el fondo, en el color de acento», y son dos cosas distintas en cuanto el acento
+     baja de luminosidad. **La madre no se toca**: sigue siendo la identidad — el icono, el logo y lo que pinte marca.
+     POR QUÉ `accent-200` Y NO `accent-300`, que es la corrección del criterio con el que se midió antes: **el fondo de este sitio se
+     mueve**, así que el contraste de una pieza no es un número sino una banda que depende del fotograma. Con `accent-300` la banda al
+     ancho peor rozaba el mínimo —diez muestras dieron 4,67–5,32, pero otra dio **4,49**— y **la garantía se juzga por el PEOR momento,
+     no por la mayoría de las muestras**, igual que D-BBW-25 la juzga por el peor píxel y no por el píxel medio. Un solo fotograma por
+     debajo es un incumplimiento, no ruido. `accent-200` sube la banda entera y deja el margen fuera del alcance de la oscilación. */
+  --bbf-text-on-base-accent: var(--bbf-color-accent-200);
 
   /* D-BBW-70 · LOS TRES ROLES SE RE-APUNTAN UN PELDAÑO, y no por gusto: la madre del acento se mudó del paso 300 al 400, así que dejar
      `--bbf-accent` en el 300 habría servido un tinte MÁS CLARO que el color que Zavala eligió. Lo que se conserva es la RELACIÓN con la
@@ -38,9 +41,11 @@
   --bbf-accent-glow: var(--bbf-color-accent-500);
   --bbf-accent-glow-soft: var(--bbf-color-accent-900);
 
-  /* D-BBW-72 · EL ANILLO DE FOCO, EN LA VERSIÓN CLARA DEL ACENTO. Mismo motivo y mismo peldaño que la línea legal: con la madre el peor
-     caso contra el fondo real era **2,73**, por debajo del 3:1 que exige WCAG 1.4.11 para un indicador no textual; con `accent-300` sube
-     a **3,54**. El anillo sigue siendo del color de la marca — es la misma familia y el mismo tono, un peldaño más claro. */
+  /* D-BBW-72 · EL ANILLO DE FOCO, UN PELDAÑO POR ENCIMA DE LA MADRE. Con la madre el peor caso contra el fondo real era **2,73**, por
+     debajo del 3:1 que exige WCAG 1.4.11 para un indicador no textual; con `accent-300` sube a **3,54**.
+     **SE QUEDA EN `accent-300` y no sigue al pie hasta el 200** (D-BBW-73), y la razón es la medida y no la simetría: su banda entre
+     fotogramas es **3,54–3,55**, prácticamente plana, porque el anillo vive en la franja de la cabecera, donde el sombreador apenas
+     varía. Donde no hay oscilación no hace falta comprar margen contra ella, y un anillo más claro se aleja más del color de marca. */
   --bbf-focus-ring: var(--bbf-color-accent-300);
   --bbf-line-on-base: var(--bbf-color-mint-700);
   --bbf-surface-veil: var(--bbf-shadow-ink-soft);
