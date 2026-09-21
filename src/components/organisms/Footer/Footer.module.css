@@ -8,7 +8,12 @@
    tener UNA SOLA aparición en toda la página, bajo el encabezado del héroe. Con ellos se van los roles `--bbf-type-notice-*`, las madres
    locales del punto y el consumo de `--bbf-motion-pulse-*`.
    CAPA (corregida en la 6g): la barra va en la capa de CONTENIDO, no en la de cromo (N0 §2.2), para quedar bajo la cabecera y su hoja.
-   LA LÍNEA LEGAL NO PARTE (nowrap, estructura); si la barra entera no cabe, la fila envuelve y queda centrada. */
+   D-BBW-63 · LA LÍNEA LEGAL SÍ PARTE. Hasta la enmienda de identidad decía `© All rights reserved` y `nowrap` era gratis: cabía a
+   cualquier ancho. Con el cargo (D-BBW-61) la cadena mide **511 px en mayúsculas** y **no cabe en ninguna ventana de teléfono**: medido a
+   360, con `nowrap` no se recortaba —se salía, y arrastraba al documento entero a tener barra horizontal—. Envolver es la salida correcta
+   y no una concesión: es la misma que el propio Zavala aceptó para esta misma cadena cuando era la firma del héroe («envuelve en dos
+   líneas en vez de recortarse»). `text-wrap: pretty` evita que la última línea quede con una palabra suelta, igual que en el encabezado.
+   Lo que `nowrap` protegía —que la barra no se desarmara— lo sigue haciendo `flex-wrap` sobre las dos piezas. */
 .footer {
   position: absolute;
   right: 0;
@@ -36,7 +41,7 @@
   letter-spacing: var(--bbf-type-legal-tracking);
   text-shadow: var(--bbf-type-legal-shadow);
   text-transform: uppercase;
-  white-space: nowrap;
+  text-wrap: pretty;
 }
 
 .social {

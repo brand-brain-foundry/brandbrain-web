@@ -17,9 +17,20 @@ import { site, type Locale } from "@/config/site";
  *   el icono de la cabecera, el favicon, el icono de Apple y los iconos del manifiesto, todos por el puerto de medios (D-BBW-21)—, deja de
  *   estar DECLARADO como logo de una entidad que ya no se declara. No se sustituye por `image`: `image` en una `Person` es una imagen DE la
  *   persona, y en esta página no hay ninguna.
- * · NO entra `jobTitle`. El cargo («Director creativo de sistemas de marca») vivía en la llave `signature`, que D-BBW-60 retira porque
- *   llevaba sin consumidor desde PR#26. **La página ya no dice el cargo, así que los datos estructurados tampoco lo dicen.** El día que el
- *   cargo vuelva a una superficie visible, entra aquí y no antes: es la misma regla que mantuvo fuera a `ProfessionalService`.
+ * · `jobTitle` SÍ entra (D-BBW-61), y entra por la razón que la regla exige: **el cargo volvió a ser visible**. La línea del pie lo dice
+ *   ahora en voz alta, y la cadena que declara este campo es literalmente la misma que el pie compone, porque las dos salen de `site.role`.
+ *   Ésta es la regla funcionando en la dirección buena: el turno anterior lo dejó fuera porque la página había dejado de decirlo, y entra
+ *   en cuanto la página vuelve a decirlo. No se declara un cargo porque sea verdad; se declara porque **está escrito en la página**.
+ *
+ * LO QUE LA BIBLIA v2 §12 PIDE Y ESTA PÁGINA NO SOSTIENE TODAVÍA, dicho aquí para que no parezca olvido (despacho §5: si la biblia pide
+ * declarar algo que la página no muestra, no se declara y se dice):
+ * · `alumniOf` — la página no dice dónde estudió ni dónde trabajó. §10 lo prevé para la sección «Quién» (`#quien`, con Ogilvy), que **no
+ *   está construida**. Entra con esa sección.
+ * · `ProfessionalService` con `areaServed` (ES, SV, LatAm) — además de que la página no declara territorio, Google exige `address` con
+ *   localidad física para todo `LocalBusiness` y no hay dirección publicada. Es la misma razón que ya lo mantenía fuera en la fase 7.
+ * · `Service` por nivel — `/es/niveles` no existe; §13 de la biblia lo declara BLOQUEADO a la espera de decidir la forma del mantenimiento.
+ * · `BreadcrumbList` — no hay páginas internas: el sitio es una sola portada.
+ * · `FAQPage` — §12 lo condiciona a «preguntas reales» y no hay ninguna.
  * · SIGUE FUERA `ProfessionalService` (y cualquier `LocalBusiness`): Google exige `address` con la localidad física
  *   (developers.google.com/search/docs/appearance/structured-data/local-business) y este sitio no tiene dirección publicada. Inventarla
  *   sería el dato falso que §5 del despacho prohíbe. Cuando exista dirección real y visible en la página, el tipo entra y no antes.
@@ -58,6 +69,8 @@ export function homeGraph(locale: Locale, description: string): object {
         // la cadena del nombre, completa y sin variantes, desde la fuente única (D-BBW-58). Es la MISMA que el pie muestra en su línea legal.
         name: site.name,
         url: home,
+        // el CARGO (D-BBW-61), de la misma constante que compone la línea del pie: lo declarado y lo visible son la misma cadena por construcción
+        jobTitle: site.role,
         // el buzón oficial (D-BBW-13(a), reapuntado por D-BBW-58); la página lo lleva literal en el `href` del enlace de contacto
         email: site.contact.email,
         // los PERFILES personales, por su llave de rol en la fuente única. `agency` y `works` NO entran: son OTRAS entidades.

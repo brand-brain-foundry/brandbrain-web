@@ -25,7 +25,30 @@
      inventa una disposición que la referencia no muestra: se vuelve a la que sí muestra.
      El anclaje vertical se expresa como alineación + separación al borde inferior en vez de como una posición: con
      `flex-end` y la separación de siempre sale el anclaje al pie EXACTO de la 6f, y con `center` y cero sale el centrado.
-     Una sola caja, dos enums, ninguna geometría duplicada. */
+     Una sola caja, dos enums, ninguna geometría duplicada.
+
+     D-BBW-62 · EL HÉROE DEJA DE EXIGIR CABER EXACTO EN LA ALTURA (solo en la vista de UNA zona).
+     El defecto: en pantallas bajas el bloque de texto se montaba sobre el vídeo. Medido antes del arreglo, con el escenario en su
+     SUELO (que es quien manda cuando la ventana es baja) y el bloque en su alto intrínseco (211,4 px, que no encoge porque lo fija
+     la escala tipográfica): 61,3 px de solape a 360×640, 89,7 a 360×568 y 142,1 a 360×480.
+     La causa no era una altura escrita en ningún sitio: era `container-type: size`. La contención de TAMAÑO hace que la caja se
+     dimensione **como si no tuviera contenido**, así que el héroe medía siempre una ventana exacta y lo que no cabía se superponía
+     en vez de empujar. Por eso el `min-height: 100svh` que ya estaba no servía de nada: nada podía superarlo.
+     El arreglo, por roles de vista y sin una sola media query en un componente:
+       · `--bbf-hero-size-containment`: en una zona pasa a `inline-size`. El eje de bloque deja de estar contenido —el héroe CRECE con
+         su contenido— y, por la regla de las unidades de consulta, **todo `cqh` de dentro pasa a resolverse contra la ventana pequeña**,
+         que es exactamente la unidad que se quiere ahí. El eje en línea sigue contenido, así que `cqw` no cambia.
+       · `--bbf-hero-text-flow`: la zona de texto entra EN FLUJO (`static`) para que su alto cuente. Mientras fue `absolute` con
+         `inset: 0` no aportaba ni un píxel, y una caja que no aporta altura no puede empujar.
+       · `--bbf-hero-text-min-block`: `100svh`, para que en las pantallas donde SÍ cabía la composición sea la de siempre —el texto
+         anclado al pie de una caja de una ventana— y el arreglo no se note.
+       · `--bbf-hero-text-inset-top`: reserva la banda del escenario, de su ancla a su borde inferior. Es lo que garantiza que el
+         texto empiece por debajo del arte en vez de encima.
+       · `--bbf-hero-flex`: con la contención de tamaño fuera, la base del flex vuelve a ser `auto`. Es obligatorio: con base `0` y un
+         `min-height` explícito (que sustituye al mínimo automático por contenido), el héroe podría encogerse por debajo de su propio
+         contenido y el crecimiento no serviría de nada. La advertencia de la 6f —base `auto` + contención de tamaño resuelve `cqh` a 0
+         en Chrome— no aplica aquí justamente porque la contención de tamaño es lo que se acaba de quitar.
+     La vista de dos zonas conserva los cinco valores que tenía. Lo que se toca es **solo** la vista donde estaba el defecto. */
   --bbf-stage-anchor-x: var(--bbf-stage-anchor-x-split);
   --bbf-stage-anchor-y: var(--bbf-stage-anchor-y-split);
   --bbf-stage-height-ratio: var(--bbf-stage-height-ratio-split);
@@ -33,6 +56,11 @@
   --bbf-hero-text-zone: var(--bbf-hero-text-zone-split);
   --bbf-hero-text-align-block: center;
   --bbf-hero-text-inset-bottom: 0px;
+  --bbf-hero-size-containment: size;
+  --bbf-hero-text-flow: absolute;
+  --bbf-hero-text-min-block: 0px;
+  --bbf-hero-text-inset-top: 0px;
+  --bbf-hero-flex: 1 1 0;
 
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
@@ -53,6 +81,14 @@
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
     --bbf-hero-text-inset-bottom: var(--bbf-lockup-offset);
+    --bbf-hero-size-containment: inline-size;
+    --bbf-hero-text-flow: static;
+    --bbf-hero-text-min-block: 100svh;
+    /* la banda del escenario: de su ancla al borde inferior de su caja. Se reserva la caja ENTERA y no el dibujo, que la máscara radial
+       desvanece mucho antes: es la cota conservadora, y es lo que convierte «cero tinta del sujeto bajo el texto» en algo cierto por
+       construcción en vez de por medida. */
+    --bbf-hero-text-inset-top: calc(var(--bbf-stage-top) + var(--bbf-stage-height) / 2);
+    --bbf-hero-flex: 1 0 auto;
 
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;

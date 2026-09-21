@@ -48,6 +48,13 @@ export type LinkKey = keyof typeof links;
 export const site = {
   /** la cadena del nombre, completa y sin variantes (D-BBW-58). Es el NOMBRE DEL SITIO y el del sujeto que lo publica: son el mismo. */
   name: "Christian Zavala Cubas",
+  /**
+   * EL CARGO (D-BBW-61). La biblia estratégica v2 §2 lo declara como una CAPA de la arquitectura de nombres —igual que el nombre, la
+   * categoría o el método—, no como copy: por eso vive aquí y no en `content/`. Verbatim de §2, y la misma cadena exacta en las dos
+   * superficies que lo usan: la línea del pie (por sustitución `{{role}}`) y el `jobTitle` de los datos estructurados (por `site.role`).
+   * Es lo que hace que «lo declarado se ve en la página» sea cierto POR CONSTRUCCIÓN y no por revisión.
+   */
+  role: "Director creativo de sistemas de marca",
   repo: "brandbrain-web",
   domain,
   url: `https://${domain}`,

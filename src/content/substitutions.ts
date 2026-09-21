@@ -25,6 +25,8 @@ export const substitutions = {
   brand: site.name,
   /** dominio canónico (identidad, `site.domain`) */
   domain: site.domain,
+  /** el cargo (identidad, `site.role`; biblia v2 §2 lo declara capa de la arquitectura de nombres, D-BBW-61) */
+  role: site.role,
   /** año de la compilación (el sitio se regenera en cada build; p. ej. para la línea legal) */
   year: String(new Date().getFullYear()),
 } as const;

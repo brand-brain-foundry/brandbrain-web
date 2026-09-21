@@ -21,7 +21,7 @@
     ]
   },
   "footer": {
-    "legal": "© {{year}} {{brand}}",
+    "legal": "© {{year}} {{brand}} · {{role}}",
     "social": [
       {
         "id": "linkedin",

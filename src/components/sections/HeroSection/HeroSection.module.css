@@ -3,6 +3,10 @@
    CONTENEDOR DE TAMAÑO de todas las proporciones del héroe (container-type: size → cqh/cqw/cqmin en los roles de semantic/composition.css);
    mide al menos una ventana (100svh es estructura: la ventana pequeña, para que el pie superpuesto se vea al cargar en móvil) y crece con
    `main` (flex con base 0: con base `auto` y contención de tamaño, Chrome resuelve `cqh` a 0 aunque la caja mida la ventana; medido en la 6f).
+   D-BBW-62 · EN LA VISTA DE UNA ZONA el héroe deja de exigir caber exacto en la altura: la contención de TAMAÑO (que dimensiona la caja como
+   si no tuviera contenido, y era la causa real del solape con el vídeo en pantallas bajas) pasa a ser de eje en línea, la zona de texto entra
+   en flujo para que su alto cuente, y el `min-height: 100svh` de aquí arriba deja de ser decorativo y pasa a ser lo que dice: un MÍNIMO.
+   Los cuatro conmutadores son roles de vista (semantic/viewport.css), donde está la razón entera; aquí no se decide nada.
    Capas por rol: fondo (HeroBackdrop, sombreador) · medio (HeroMedia) · velo (la VIÑETA del diseño, rol --bbf-vignette) · partículas · contenido.
    DOS ZONAS (D-BBW-47). La rediagramación parte el héroe: el texto vive en una zona a la izquierda y el arte en la de la derecha. La zona de
    texto es una CAJA A TODA LA ALTURA (inset: 0) de ancho `--bbf-hero-text-zone` que alinea su bloque con dos roles de vista en vez de con una
@@ -24,8 +28,8 @@
 
   position: relative;
   isolation: isolate;
-  container-type: size;
-  flex: 1 1 0;
+  container-type: var(--bbf-hero-size-containment);
+  flex: var(--bbf-hero-flex);
   min-height: 100svh;
   overflow: hidden;
   text-align: start;
@@ -40,7 +44,7 @@
 }
 
 .text {
-  position: absolute;
+  position: var(--bbf-hero-text-flow);
   inset: 0;
   z-index: var(--bbf-layer-content);
   display: flex;
@@ -48,8 +52,9 @@
   align-items: flex-start;
   justify-content: var(--bbf-hero-text-align-block);
   width: calc(100cqw * var(--bbf-hero-text-zone));
+  min-height: var(--bbf-hero-text-min-block);
   padding-inline: var(--bbf-lockup-pad);
-  padding-block-end: var(--bbf-hero-text-inset-bottom);
+  padding-block: var(--bbf-hero-text-inset-top) var(--bbf-hero-text-inset-bottom);
   pointer-events: none;
 }
 
