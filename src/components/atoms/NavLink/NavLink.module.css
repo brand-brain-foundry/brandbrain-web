@@ -168,3 +168,23 @@
   white-space: nowrap;
   clip-path: inset(50%);
 }
+
+/* LA ETIQUETA DEL ENLACE (D-BBW-74). Califica el destino sin tocar su nombre: «Sivar Brains» sigue siendo «Sivar Brains» —la regla de
+   consistencia de entidad de la biblia v4 §4 no admite variantes— y la palabra va al lado, no dentro.
+   DISEÑO MÍNIMO Y TODO POR ROL: el cuerpo es el peldaño más pequeño de la escala (`legal`, que ya respeta el suelo de 12 px de D-BBW-18),
+   el color es el del acento para texto (`--bbf-text-on-base-accent`, el mismo rol medido para la línea del pie) y la separación es el
+   cuanto de espaciado. **Sin caja, sin borde, sin fondo**: una píldora competiría con el nombre, que es justo lo que no puede pasar.
+   LA CAJA SE HEREDA y no se declara: el enlace de nav ya va en versales, y la etiqueta entra en esa caja como el resto — declararle una
+   propia la habría sacado del conjunto. El CONTENIDO conserva la ortografía real («Caso»), que es lo que se copia y lo que lee el
+   nombre accesible; las versales son presentación del enlace, no del dato. Comprobado sobre el HTML generado.
+   `white-space: nowrap` para que la etiqueta no se parta del nombre al envolver.
+   Va DENTRO del `<a>` y sin `aria-hidden`, así que entra en el nombre accesible por construcción («Sivar Brains Caso»). */
+.badge {
+  margin-inline-start: var(--bbf-space-2);
+  color: var(--bbf-text-on-base-accent);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  white-space: nowrap;
+}
+

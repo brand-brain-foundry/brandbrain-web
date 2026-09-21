@@ -95,7 +95,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "00151cee802887e0f90a994b2add8570bc74b43e2ce8529029acbc94c23bdf3b"
+    "sha256": "39df9a4aef0ef03a11467543b322ccddf0606a0fd3f70a4d3d365004855bba77"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {

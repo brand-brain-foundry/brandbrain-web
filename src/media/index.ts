@@ -3,7 +3,7 @@
  * desde el propio sitio (`public/`, rutas absolutas). La alternativa prevista (almacenamiento externo) cambiaría el prefijo de `src`
  * aquí, no los componentes. `generated.ts` lo escribe `scripts/media/build.ts`; no se edita a mano (guardia check-media).
  */
-export { media, inlineIcons } from "./generated";
+export { media, surfaceColor, inlineIcons } from "./generated";
 import { inlineIcons as icons } from "./generated";
 
 export type InlineIconName = keyof typeof icons;

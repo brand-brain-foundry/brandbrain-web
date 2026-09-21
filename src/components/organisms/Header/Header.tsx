@@ -9,7 +9,7 @@ import styles from "./Header.module.css";
 /** El destino de cada enlace vive SOLO en `site.links` (criterio 1); el contenido solo referencia la llave. Fase 6c: si el puerto de medios
  * tiene un icono de perfil con el `id` del enlace, viaja con él (el organismo resuelve; el átomo solo pinta). */
 export function resolveLinks(items: LinkItem[]): ResolvedLink[] {
-  return items.map((item) => ({ id: item.id, label: item.label, href: site.links[item.link], icon: iconFor(item.id) }));
+  return items.map((item) => ({ id: item.id, label: item.label, href: site.links[item.link], icon: iconFor(item.id), badge: item.badge }));
 }
 
 /**

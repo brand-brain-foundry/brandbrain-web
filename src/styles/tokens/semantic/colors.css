@@ -47,6 +47,11 @@
      fotogramas es **3,54–3,55**, prácticamente plana, porque el anillo vive en la franja de la cabecera, donde el sombreador apenas
      varía. Donde no hay oscilación no hace falta comprar margen contra ella, y un anillo más claro se aleja más del color de marca. */
   --bbf-focus-ring: var(--bbf-color-accent-300);
+  /* D-BBW-76 · LA BARRA DE DESPLAZAMIENTO. El agarrador toma el acento en su peldaño claro —el mismo que el anillo de foco (D-BBW-72),
+     y por la misma razón: sobre este fondo la madre no llega al 3:1 que exige un elemento no textual—. El carril es TRANSPARENTE: el
+     fondo del sitio ya es la superficie, y pintarlo dibujaría un canal vertical que compite con el contenido. */
+  --bbf-scrollbar-thumb: var(--bbf-color-accent-300);
+  --bbf-scrollbar-track: transparent;
   --bbf-line-on-base: var(--bbf-color-mint-700);
   --bbf-surface-veil: var(--bbf-shadow-ink-soft);
   --bbf-surface-veil-text: var(--bbf-shadow-ink-veil-text);

@@ -2,6 +2,25 @@
 html {
   color-scheme: dark;
   background: var(--bbf-surface-base);
+
+  /* D-BBW-76 · LA BARRA DE DESPLAZAMIENTO, por las propiedades ESTÁNDAR y no por los seudoelementos de WebKit: `scrollbar-width` y
+     `scrollbar-color` están en la especificación y hoy las entienden los tres motores, así que no hace falta el bloque `::-webkit-*`
+     —que además obliga a repintar el carril entero y a reconstruir a mano lo que el navegador ya sabe hacer—.
+     `thin`: fina, no oculta. Una barra que desaparece deja al visitante sin saber cuánto queda por leer, y esta página **crece** por
+     debajo del pliegue desde D-BBW-62.
+     EL HUECO SE RESERVA (`scrollbar-gutter: stable`): sin esto, la barra aparece al crecer el documento y **empuja la composición**
+     ~15 px hacia dentro — un salto lateral en cuanto la página pasa de caber a no caber, que es justo lo que ocurre al redimensionar.
+     Reservarlo cuesta ese ancho siempre y a cambio la página no salta nunca.
+     SOLO EN APUNTADOR FINO: en móvil la barra es un indicador efímero que el sistema dibuja y retira solo; darle ancho estable ahí
+     robaría 15 px de una pantalla estrecha para nada. Por eso va tras `(pointer: fine)` y el móvil queda intacto. */
+  scrollbar-color: var(--bbf-scrollbar-thumb) var(--bbf-scrollbar-track);
+}
+
+@media (pointer: fine) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-gutter: stable;
+  }
 }
 
 body {
