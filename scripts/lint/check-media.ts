@@ -25,7 +25,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import sharp from 'sharp';
-import { GENERATED_FILE, LOCK_FILE, MASTERS_DIR, PUBLIC_DIR, derivatives, masters, publicAllowList } from '../../src/media/registry';
+import { GENERATED_FILE, LOCK_FILE, MASTERS_DIR, MASTER_PAINT_TOKENS, PUBLIC_DIR, derivatives, masters, publicAllowList } from '../../src/media/registry';
+import { resolveColorToken } from '../media/tokens';
 import { REPO_ROOT, readLock, sha256File } from '../media/lock';
 
 type Fail = { rule: string; where: string; detail: string };
@@ -45,6 +46,45 @@ for (const [id, m] of Object.entries(masters)) {
   if (!h) fails.push({ rule: 'R1', where: `${MASTERS_DIR}/${m.file}`, detail: 'maestro declarado en el registro que no existe' });
   else if (!rec) fails.push({ rule: 'R3', where: `${MASTERS_DIR}/${m.file}`, detail: `maestro "${id}" sin entrada en el lock: regenerar (pnpm media:build)` });
   else if (rec.sha256 !== h) fails.push({ rule: 'R1', where: `${MASTERS_DIR}/${m.file}`, detail: `el maestro cambió y los derivados NO se regeneraron (lock ${rec.sha256.slice(0, 12)}… ≠ ${h.slice(0, 12)}…): pnpm media:build` });
+
+  /**
+   * R7 · NINGÚN COLOR ESCRITO A MANO EN UN MAESTRO (P-BBW-57, D-BBW-70). La guardia de color (`check-color-tokens.ts`) escanea `src/**`
+   * y no puede ver esto: los maestros son SVG y viven en `media/`. Por ahí sobrevivió un `#909fff` a un cambio de paleta entero —el
+   * isotipo quedó como el único elemento del color viejo en toda la página, y todas las guardias dieron verde (L-87).
+   * **Esa guardia no se toca**: es COPIA POR CONTRATO (D-BBW-06, CONTRATO-04) y se actualiza re-pinneando, no editando. La regla vive
+   * aquí, que es donde el repo ya es dueño de `media/masters/**`.
+   * Qué se acepta en un maestro: `currentColor` —que el generador resuelve desde el token (`MASTER_PAINT_TOKENS`) o deja para que lo
+   * ponga el CSS— y `none`. Cualquier literal de color es error, con la línea.
+   */
+  /**
+   * R8 · EL COLOR DEL TOKEN, SELLADO (D-BBW-70). Un maestro pintado por token no cambia de bytes cuando cambia el token: la huella del
+   * archivo seguiría cuadrando y los derivados quedarían viejos **en verde**. El lock sella el color resuelto y aquí se vuelve a
+   * resolver y a comparar, que es lo que convierte «el color viene del token» en una promesa comprobable y no en una intención.
+   */
+  const tokenPintura = MASTER_PAINT_TOKENS[id as keyof typeof MASTER_PAINT_TOKENS];
+  if (rec && tokenPintura) {
+    const ahora = resolveColorToken(tokenPintura).srgb;
+    if (rec.paint !== ahora) {
+      fails.push({
+        rule: 'R8',
+        where: `${MASTERS_DIR}/${m.file}`,
+        detail: `el token de pintura "${tokenPintura}" vale ahora ${ahora} y los derivados se generaron con ${rec.paint ?? '(ninguno)'}: pnpm media:build`,
+      });
+    }
+  }
+
+  if (h && /\.svg$/i.test(m.file)) {
+    const texto = fs.readFileSync(abs, 'utf8');
+    texto.split(/\r?\n/).forEach((linea, i) => {
+      for (const hit of linea.matchAll(/#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab|lab|lch|color)\(/g)) {
+        fails.push({
+          rule: 'R7',
+          where: `${MASTERS_DIR}/${m.file}:${i + 1}`,
+          detail: `color escrito a mano en un maestro ("${hit[0]}"): un maestro declara \`currentColor\` y el color se resuelve al construir desde su token en MASTER_PAINT_TOKENS (D-BBW-70). Un literal aquí no lo ve ninguna otra guardia (L-87)`,
+        });
+      }
+    });
+  }
 }
 for (const id of Object.keys(lock.masters)) {
   if (!(id in masters)) fails.push({ rule: 'R3', where: LOCK_FILE, detail: `maestro "${id}" en el lock que ya no está en el registro: regenerar` });

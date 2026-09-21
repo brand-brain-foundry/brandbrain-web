@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 
 export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
-export type LockMaster = { file: string; sha256: string };
+export type LockMaster = { file: string; sha256: string; /** D-BBW-70: color resuelto del token con el que se pintó el maestro, si tiene uno */ paint?: string };
 export type LockDerivative = {
   path: string;
   master: string;
