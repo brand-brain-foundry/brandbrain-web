@@ -30,11 +30,14 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
       {/*
         D-BBW-46 — el derivado pequeño en pantallas pequeñas. Medido el 2026-09-19 sobre la dirección de prueba: a 360 px la página
         se traía los 871,8 KB del derivado de 1280×720 de un total de 1.187 KB, teniendo el de 640×360 (315 KB) ya construido y
-        servido. El corte es la madre `--bbf-bp-nav` (780 px), el único punto de ruptura del sistema; el literal se repite aquí
-        porque el atributo `media` es HTML y no admite `var()`, igual que ocurre con `@media` (R8).
+        servido. El corte es la madre `--bbf-bp-nav` (790 px desde D-BBW-79), el único punto de ruptura del sistema; el literal se
+        repite aquí porque el atributo `media` es HTML y no admite `var()`, igual que ocurre con `@media` (R8).
+        OJO AL MOVER LA MADRE: este espejo **no lo vigila ninguna guardia**. R8 solo inspecciona literales de `@media` en CSS bajo
+        `src/`, y esto es un atributo HTML dentro de TSX. Al subir el corte a 790 se movió a mano, y el efecto es coherente: la banda
+        781–790, que ahora sirve el panel, pasa a recibir también el derivado pequeño. Reportado para que se decida si R8 crece.
       */}
       <HeroMedia
-        sources={[{ ...media.heroLoop360, media: "(max-width: 780px)" }, media.heroLoop720]}
+        sources={[{ ...media.heroLoop360, media: "(max-width: 790px)" }, media.heroLoop720]}
         poster={media.heroLoopPoster}
       />
       <div className={styles.veil} aria-hidden="true" />

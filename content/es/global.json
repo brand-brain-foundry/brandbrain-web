@@ -2,12 +2,19 @@
   "nav": {
     "skipLabel": "Saltar al contenido principal",
     "toggleLabel": "Menú",
+    "caseLabel": "Caso",
     "items": [
       {
         "id": "agency",
         "label": "Sivar Brains",
         "link": "agency",
-        "badge": "Caso"
+        "case": true
+      },
+      {
+        "id": "studio",
+        "label": "Pura kaSaka",
+        "link": "studio",
+        "case": true
       },
       {
         "id": "works",

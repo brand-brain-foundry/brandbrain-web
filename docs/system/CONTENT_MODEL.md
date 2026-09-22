@@ -3,16 +3,16 @@ id: BBW-CONTENT-MODEL
 title: "Modelo de contenido — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 2.2
+version: 3.2
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
-updated: 2026-09-17
-verified_against_code: 2026-09-17@feat/fase6c-sistema-de-medios-foco-y-piezas (content/es/global.json · content/es/pages/home.json · src/content/{schema,index,substitutions}.ts · scripts/lint/check-content.ts · src/app/[locale]/{layout,page}.tsx · src/components/sections/index.tsx)
+updated: 2026-09-22
+verified_against_code: 2026-09-22@feat/contenido-editable-y-navegacion (content/site.json · content/es/global.json · content/es/pages/home.json · src/content/{site,schema,index,substitutions}.ts · src/config/site.ts · scripts/lint/check-content.ts · scripts/media/build.ts · src/seo/jsonld.ts · src/components/organisms/Header/Header.tsx)
 supersedes: []
 superseded_by: null
-related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-02, D-BBW-07, D-BBW-09, D-BBW-15, D-BBW-23, D-DOC-06]
-summary: "El contenido vive en archivos versionados bajo content/<locale>/, fuera de src/ y de los componentes. v2.0 (fase 6a): modelo granular de toda la landing — cada texto con su propia llave nombrada por rol, sin presentación dentro (esquema estricto: llave desconocida o HTML = error), lo global (navegación, pie) separado de la página, secciones como lista ordenada con tipo, enlaces por llave de site.ts, marcadores [[PENDIENTE: …]] evidentes. Puerto src/content (getGlobal, getPage) fail-closed en build + guardia check-content.ts sobre el árbol completo. v2.1 (fase 6b): +1 llave nav.skipLabel (enlace de salto al contenido); renderizado por tipo de sección (SECTION_RENDERERS) con comportamiento definido ante un tipo sin renderizador (§4). v2.2 (fase 6c, D-BBW-23): sustituciones {{brand}} / {{domain}} / {{year}} resueltas al compilar desde la fuente única; conjunto cerrado y declarado (src/content/substitutions.ts); una no declarada o cualquier lógica entre llaves rompe el build y la guardia (R5). Colecciones de la dimensión (cases, articles): cómo entrarían sin rediseño, no creadas (P-BBW-18)."
+related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-02, D-BBW-07, D-BBW-09, D-BBW-15, D-BBW-23, D-BBW-74, D-BBW-77, D-BBW-78, D-DOC-06]
+summary: "El contenido vive en archivos versionados bajo content/<locale>/, fuera de src/ y de los componentes. v2.0 (fase 6a): modelo granular de toda la landing — cada texto con su propia llave nombrada por rol, sin presentación dentro (esquema estricto: llave desconocida o HTML = error), lo global (navegación, pie) separado de la página, secciones como lista ordenada con tipo, enlaces por llave de site.ts, marcadores [[PENDIENTE: …]] evidentes. Puerto src/content (getGlobal, getPage) fail-closed en build + guardia check-content.ts sobre el árbol completo. v2.1 (fase 6b): +1 llave nav.skipLabel (enlace de salto al contenido); renderizado por tipo de sección (SECTION_RENDERERS) con comportamiento definido ante un tipo sin renderizador (§4). v2.2 (fase 6c, D-BBW-23): sustituciones {{brand}} / {{domain}} / {{year}} resueltas al compilar desde la fuente única; conjunto cerrado y declarado (src/content/substitutions.ts); una no declarada o cualquier lógica entre llaves rompe el build y la guardia (R5). Colecciones de la dimensión (cases, articles): cómo entrarían sin rediseño, no creadas (P-BBW-18). v3.2 (D-BBW-78): LO EDITABLE VIVE EN DATOS — nombre, cargo, buzón y destinos de los enlaces bajan de src/config/site.ts a content/site.json (raíz, fuera de los locales); en código se queda solo lo técnico (dominio, locales, rutas). Nace nav.caseLabel (la palabra del caso, una sola vez) y LinkItem.badge pasa a LinkItem.case booleano."
 tags: [contenido, modelo, puerto, i18n, esquema, brandbrain-web]
 ---
 
@@ -57,13 +57,61 @@ así que un `global.json` que todavía traiga `signature` **rompe la compilació
 La regla 2 sigue mandando: `legal` nombra el ROL de la línea (la nota legal del pie), no lo que dice hoy — por eso la llave no se llama
 `name` ni `copyright` aunque hoy lleve el nombre y el símbolo de copia.
 
+
+## Lo editable en datos (D-BBW-78) — v3.2 del modelo, cambio NO aditivo
+
+**La pregunta que lo origina** (Zavala, 2026-09-22): *¿por qué no están todos los textos y enlaces en `global.json` y `home.json`, si todo
+debería tener su fuente de verdad?* La respuesta honesta era: tenían una sola fuente, pero **no estaba en la capa de contenido**. El nombre,
+el cargo, el buzón y las direcciones vivían en `src/config/site.ts`, y los JSON llevaban solo una llave que apuntaba allí. Era correcto para
+la fuente única y **equivocado para quien edita**: un archivo de TypeScript no lo cambia alguien no técnico sin riesgo.
+
+**La regla, ahora:** lo **editable** vive en datos; lo **técnico** vive en código.
+
+| | Qué es | Dónde vive | Por qué |
+|---|---|---|---|
+| **Editable** | nombre de marca · cargo · buzón publicado · destinos de los enlaces · todos los textos | `content/site.json` y `content/<locale>/…` | Lo cambia quien redacta, en un PR, sin tocar código |
+| **Técnico** | dominio canónico · locales · locales publicados · rutas internas · el esquema `mailto:` | `src/config/site.ts` y los componentes | Cambiarlo es una decisión de **despliegue**, no de redacción |
+
+**Por qué `content/site.json` está en la RAÍZ y no dentro de un locale.** Un nombre propio, un buzón y una dirección web **no se traducen**.
+Dentro de `content/<locale>/` habría que repetirlos el día que se publique el inglés, que es justo lo que esta decisión prohíbe. La guardia
+(R1) admite **ese archivo y ningún otro** suelto en la raíz. El `role` viaja con ellos y es el único de los cuatro que un día podría querer
+traducirse: cuando exista copy EN pasa al documento global del locale, y el esquema estricto nombrará la llave en la compilación.
+
+**Por qué pasar a JSON no debilita nada.** El documento se importa como **módulo** (`resolveJsonModule`), así que TypeScript infiere sus
+llaves: `LinkKey` se deriva de las llaves reales del archivo y una llave de enlace inexistente en el contenido **sigue siendo error de
+tipos**, igual que cuando los enlaces eran un `as const`. Encima, `validateSite` (en `src/content/site.ts`) comprueba lo que los tipos no
+pueden y **el puerto lo ejecuta**, rompiendo `next build`, mientras la guardia lo ejecuta sobre el árbol e informa con ruta exacta:
+
+| Lo que rechaza | Mensaje |
+|---|---|
+| llave de más | `$.tagline: llave desconocida (el modelo no la admite)` |
+| texto vacío o con HTML | `$.role: texto vacío` |
+| correo mal formado | `$.email: no es una dirección de correo` |
+| destino relativo o sin cifrar | `$.links.works: "http://…" no es una dirección absoluta y cifrada (https://…)` |
+| `contact` escrito a mano | `$.links.contact: reservada: el código la DERIVA de $.email, y escribirla aquí repetiría el buzón` |
+
+**`contact` es llave RESERVADA.** El buzón se escribe UNA vez, en `$.email`; el código compone `mailto:` + esa dirección. Escribir
+`links.contact` en datos guardaría el buzón dos veces, que es exactamente lo que la decisión prohíbe.
+
+**La palabra del caso vive una sola vez.** Cambio de forma en lo global:
+
+| Antes (D-BBW-74/77) | Ahora (D-BBW-78) | Por qué |
+|---|---|---|
+| `LinkItem.badge: string` — cada elemento escribía su palabra | `LinkItem.case: boolean` — el elemento **declara su condición** | Con un caso no se notaba; con dos serían **dos cadenas que conciliar**, que es lo que la consistencia de entidad evita en los nombres |
+| — | `nav.caseLabel: string` — la palabra, **una sola vez** | Si mañana «Caso» pasa a ser otra palabra, se cambia en un sitio y cambia en todos los enlaces que la llevan |
+
+El organismo (`Header.resolveLinks`) reparte la palabra a los elementos que la declaran. Se pinta dentro del `<a>` como texto normal, así que
+**entra en el nombre accesible por construcción** —«Sivar Brains Caso», «Pura kaSaka Caso»— sin ningún `aria-label` que pudiera desincronizarse.
+Un `global.json` con la forma vieja **rompe la compilación nombrando las dos llaves**.
+
 ## §1 — Principio
 
 - **El contenido nace en su propia capa** (D-BBW-09, I-2): `content/<locale>/…`, fuera de `src/` y fuera de todo componente. Un componente
   recibe el documento por props o lo pide al puerto; **jamás contiene un literal** (eslint `react/jsx-no-literals`, criterio transversal 2).
 - **Archivos versionados en el repo** (D-BBW-02): cada texto tiene una sola fuente, revisable en PR, con historia.
-- **Lo que NO es contenido:** los datos de identidad (nombre, dominio, buzón, locales) y los **enlaces** (a dónde apunta la web fuera de sí
-  misma) viven **solo** en `src/config/site.ts` (criterio 1). El contenido referencia un enlace por su **llave** (`site.links`), nunca por URL.
+- **Lo que NO es contenido:** solo lo **técnico** — dominio canónico, locales, locales publicados y rutas internas — vive en
+  `src/config/site.ts` (criterio 1). El nombre, el cargo, el buzón y los **enlaces** (a dónde apunta la web fuera de sí misma) son editables y
+  viven en `content/site.json` desde D-BBW-78. Un documento de texto referencia un enlace por su **llave** (`identity.links`), nunca por URL.
 - **Solo locales publicados** (D-BBW-15): existe `content/es/`. **Crear `content/en/` es declarar que existe una versión inglesa**; la guardia
   lo bloquea mientras `"en"` no esté en `publishedLocales`. La estructura por locale se conserva (D-BBW-07) para que sea aditivo.
 
@@ -78,7 +126,7 @@ Es el mismo principio que gobierna los tokens, aplicado al contenido: **nombrar 
 | 3 | **Nada de presentación dentro del contenido.** Ni clases, ni colores, ni tamaños, ni marcado. | Solo texto plano. | **Esquema estricto:** una llave que el modelo no admite (`color`, `size`, `className`…) es error; una etiqueta HTML dentro de un texto es error. |
 | 4 | **Lo global separado de lo de página.** | `global.json` (navegación, pie) · `pages/<slug>.json` (lo propio de cada página) | Dos tipos de documento, dos validadores, dos funciones del puerto. |
 | 5 | **Secciones como lista ordenada con su tipo.** Reordenar o añadir una sección de un tipo existente es editar contenido. | `sections: [ { "type": "hero", "id": "hero", … } ]` | El esquema valida cada sección por su `type`; ids únicos. **Un tipo nuevo** exige su forma en `schema.ts` y su renderizador (fase 6b): eso es código, y se dice. |
-| 6 | **Enlaces e identidad desde la fuente única.** | `"link": "agency"` → `site.links.agency` | Una llave que no existe en `site.links` es error de build. |
+| 6 | **Enlaces e identidad desde la fuente única.** Desde D-BBW-78 esa fuente es un archivo de **datos**, no de código; la regla no cambia, cambia dónde vive. | `"link": "agency"` → `content/site.json` `$.links.agency` | Una llave que no existe es **error de tipos** (el JSON se importa como módulo) **y** error del validador y de la guardia, con la ruta exacta. |
 | 7 | **Marcadores de posición evidentes.** | `[[PENDIENTE: qué texto va aquí]]` | El validador los acepta (copy pendiente ≠ ausente) y la guardia los **cuenta**; `grep -rn 'PENDIENTE' content/` lista lo que falta. Un texto vacío es error. |
 | 8 | **Sustituciones: pequeñas, cerradas, declaradas; sin lógica** (D-BBW-23, fase 6c). Un texto puede escribir `{{brand}}`, `{{domain}}` o `{{year}}` y el puerto lo resuelve **al compilar** desde la fuente única (`site.ts`): el contenido no repite datos de identidad (criterio 1). | `"legal": "© {{year}} {{brand}}"` → `© 2026 Christian Zavala Cubas` en el HTML (D-BBW-60: ése es hoy el contenido real de la llave, y la única aparición visible del nombre) | El registro es `src/content/substitutions.ts` (llave → valor). La única forma válida es `{{identificador}}`: **una llave no declarada, o cualquier otra cosa entre llaves (condición, bucle, argumento), rompe el build** (puerto) y la guardia (`check-content.ts` R5) con la ruta exacta. Ampliar el conjunto = añadir una llave al registro (y su origen en `site.ts` si es identidad), nunca lógica en el texto. |
 
@@ -86,12 +134,16 @@ Es el mismo principio que gobierna los tokens, aplicado al contenido: **nombrar 
 
 ```
 content/
+├── site.json                    ← SiteDocument (D-BBW-78): la identidad EDITABLE, fuera de los locales porque no se traduce
+│                                  brand · role · email · links{ agency, studio, works, linkedin, github }
+│                                  (`contact` NO se escribe: el código la deriva de `email`)
 └── es/                          ← un directorio por locale PUBLICADO (D-BBW-15); la guardia rechaza cualquier otro
     ├── global.json              ← GlobalDocument: lo que se repite en todas las páginas
-    │     nav.skipLabel · nav.toggleLabel · nav.items[]{id,label,link} · footer.notice · footer.legal · footer.social[]{id,label,link}
+    │     nav.skipLabel · nav.toggleLabel · nav.caseLabel · nav.items[]{id,label,link,case?} ·
+    │     footer.legal · footer.social[]{id,label,link}
     └── pages/                   ← colección `pages`: un documento por página
           └── home.json          ← PageDocument: meta{title,description} · sections[] (hoy: una sección `hero`)
-                                    hero: id · display · lead · claimPrimary · claimSecondary
+                                    hero: id · claimLine1..3 · heading
 ```
 
 **Origen del modelo:** el inventario de secciones y textos del N0 (`OUTPUT-BBW-2026-09-16-N0` §2.3–2.4): una página, una sección (hero a
@@ -108,6 +160,7 @@ inexistente sería un marcador que el build no puede verificar).
 
 | Pieza | Qué hace |
 |---|---|
+| `src/content/site.ts` | El **documento del sitio** (D-BBW-78): lo importa como módulo (de ahí sale `LinkKey`, con la fuerza de los tipos), lo valida (`validateSite`, estricto en los dos sentidos) y expone `identity` con `contact` **derivada** del buzón. No rompe al cargarse a propósito: lo importa también la guardia, y un `throw` en su carga la dejaría sin informe. |
 | `src/content/schema.ts` | Tipos (`GlobalDocument`, `PageDocument`, `HeroSection`, unión `Section`) y **validador estricto** (`validateGlobal`, `validatePage`): devuelve problemas con ruta exacta (`$.footer.social[1].link`). Sin texto. |
 | `src/content/index.ts` | `getGlobal(locale)` · `getPage(locale, slug)` · `requireSection(page, type)`: leen en **tiempo de build** (`fs`), validan, **resuelven las sustituciones** (v2.2) y **fallan el build con mensaje** si el locale no está publicado, falta el archivo, el JSON es inválido, no cumple el modelo o usa una sustitución no declarada. |
 | `src/content/substitutions.ts` | Registro cerrado de sustituciones (`brand`, `domain`, `year`) con sus valores desde la fuente única; `findUndeclaredSubstitutions` (lista cada `{{…}}` inválido con su ruta) y `resolveDocument` (copia del documento con los textos resueltos; las llaves estructurales `id`/`type`/`link`, intactas). Búsqueda en tabla: nada se evalúa (D-DOC-06). |
@@ -148,7 +201,7 @@ hoy cero dependencias de contenido; o párrafos como lista de cadenas, sin depen
 
 ## §6 — Edición por personas no técnicas (hoy)
 
-Editar `content/es/global.json` o `content/es/pages/home.json` en GitHub y abrir un PR: sustituir cada `[[PENDIENTE: …]]` por el texto.
+Editar `content/site.json`, `content/es/global.json` o `content/es/pages/home.json` en GitHub y abrir un PR: sustituir cada `[[PENDIENTE: …]]` por el texto.
 El build del PR falla si el JSON está mal formado, si falta una llave, si hay una llave de más, si hay HTML o si un enlace apunta a una llave
 que no existe, y el mensaje dice cuál. Para añadir un enlace nuevo: la URL se añade a `src/config/site.ts` (identidad) y el texto a
 `content/` (contenido). No hay más pasos.
@@ -166,4 +219,4 @@ parezca una directiva es contenido a revisar en el PR, no un comando. El contado
 - Guardia: `pnpm lint:content` → `[content-gate] OK — … N texto(s), M marcador(es)`; demostrada fallando en `OUTPUT-BBW-2026-09-16-fase6a` §4.
 
 ---
-*BBW-CONTENT-MODEL v2.2 · `docs/system/CONTENT_MODEL.md` · 2026-09-17 (v1.0 y v2.0/v2.1 el 2026-09-16: fase 5; fase 6a `DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`; fase 6b `skipLabel` y renderizado por tipo) · v2.2 fase 6c (sustituciones, D-BBW-23)*
+*BBW-CONTENT-MODEL v3.2 · `docs/system/CONTENT_MODEL.md` · 2026-09-22 (v3.2: D-BBW-78, lo editable en datos y la palabra del caso una sola vez) · 2026-09-17 (v1.0 y v2.0/v2.1 el 2026-09-16: fase 5; fase 6a `DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`; fase 6b `skipLabel` y renderizado por tipo) · v2.2 fase 6c (sustituciones, D-BBW-23)*

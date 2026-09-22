@@ -12,6 +12,9 @@
  * · SUSTITUCIONES (D-BBW-23, fase 6c): tras validar, el puerto resuelve `{{brand}}` / `{{domain}}` / `{{year}}` desde la fuente única
  *   (./substitutions.ts, conjunto cerrado y declarado). Una no declarada, o cualquier cosa entre llaves que no sea un identificador
  *   declarado (lógica), FALLA el build con la ruta exacta. La guardia check-content.ts lo comprueba además sobre el árbol completo.
+ * · EL DOCUMENTO DEL SITIO (D-BBW-78, `content/site.json`: nombre, cargo, buzón y destinos de los enlaces) se valida AQUÍ, al cargar el
+ *   puerto, y falla cerrado como todo lo demás: ninguna página sale con la identidad a medias. Se valida en el puerto y no en el módulo
+ *   que lo lee porque a ese módulo lo importa también la guardia, y romper en su carga la dejaría sin informe que dar.
  * · D-DOC-06: el contenido es DATO de negocio. Este lector lo parsea y valida; jamás lo interpreta ni lo ejecuta.
  */
 import { readFileSync } from "node:fs";
@@ -29,6 +32,7 @@ import {
   type Section,
   type SectionType,
 } from "./schema";
+import { siteDocument, validateSite } from "./site";
 import { findUndeclaredSubstitutions, resolveDocument } from "./substitutions";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
@@ -58,6 +62,9 @@ function failOn(problems: Problem[], relPath: string): void {
   const lines = problems.map((p) => `  ${p.path}: ${p.message}`).join("\n");
   throw new Error(`[content] content/${relPath} no cumple el modelo (${problems.length} problema(s)):\n${lines}`);
 }
+
+// FAIL-CLOSED del documento del sitio, al cargar el puerto: es la identidad, y la usan todas las páginas.
+failOn(validateSite(siteDocument), "site.json");
 
 /** Sustituciones: primero se rechaza cualquier `{{…}}` no declarado (con ruta), después se resuelve el documento entero. */
 function substitute<T>(doc: T, relPath: string): T {

@@ -1,7 +1,8 @@
 import { site, type Locale } from "@/config/site";
+import { identity } from "@/content/site";
 
 /**
- * DATOS ESTRUCTURADOS (fase 7; enmendados por D-BBW-58 y D-BBW-60). Se DERIVAN de la fuente única (`src/config/site.ts`) y del documento de
+ * DATOS ESTRUCTURADOS (fase 7; enmendados por D-BBW-58 y D-BBW-60). Se DERIVAN de la fuente única (`src/config/site.ts` para lo técnico, `content/site.json` para lo editable, D-BBW-78) y del documento de
  * la página; ningún dominio, buzón ni nombre se escribe literal aquí (criterio transversal 1). Salen como un solo
  * `<script type="application/ld+json">` con un `@graph`.
  *
@@ -18,7 +19,7 @@ import { site, type Locale } from "@/config/site";
  *   estar DECLARADO como logo de una entidad que ya no se declara. No se sustituye por `image`: `image` en una `Person` es una imagen DE la
  *   persona, y en esta página no hay ninguna.
  * · `jobTitle` SÍ entra (D-BBW-61), y entra por la razón que la regla exige: **el cargo volvió a ser visible**. La línea del pie lo dice
- *   ahora en voz alta, y la cadena que declara este campo es literalmente la misma que el pie compone, porque las dos salen de `site.role`.
+ *   ahora en voz alta, y la cadena que declara este campo es literalmente la misma que el pie compone, porque las dos salen de `identity.role`.
  *   Ésta es la regla funcionando en la dirección buena: el turno anterior lo dejó fuera porque la página había dejado de decirlo, y entra
  *   en cuanto la página vuelve a decirlo. No se declara un cargo porque sea verdad; se declara porque **está escrito en la página**.
  *
@@ -40,7 +41,7 @@ import { site, type Locale } from "@/config/site";
  *   sostener, no menos: los destinos son literalmente perfiles personales (`/in/zavalacubas/`), y desde D-BBW-60 el pie que los contiene
  *   lleva el nombre de esa persona en su línea legal. **El límite se estrecha pero no desaparece**: sigue sin haber, en el texto, una frase
  *   que diga «estos perfiles son míos». Queda dicho, como antes, porque es un límite y no un descuido.
- * · `site.links.agency` y `site.links.works` tampoco entran en `sameAs`: son OTRAS entidades (la agencia hermana y un portafolio), no este
+ * · `identity.links.agency`, `identity.links.studio` y `identity.links.works` tampoco entran en `sameAs`: son OTRAS entidades (la agencia hermana y un portafolio), no este
  *   sujeto con otra dirección.
  * · `aggregateRating`, `review`, `priceRange`, `telephone`, `birthDate`, `address`: no existen en la página. No se emiten.
  *
@@ -67,20 +68,20 @@ export function homeGraph(locale: Locale, description: string): object {
         "@type": "Person",
         "@id": personId,
         // la cadena del nombre, completa y sin variantes, desde la fuente única (D-BBW-58). Es la MISMA que el pie muestra en su línea legal.
-        name: site.name,
+        name: identity.brand,
         url: home,
         // el CARGO (D-BBW-61), de la misma constante que compone la línea del pie: lo declarado y lo visible son la misma cadena por construcción
-        jobTitle: site.role,
+        jobTitle: identity.role,
         // el buzón oficial (D-BBW-13(a), reapuntado por D-BBW-58); la página lo lleva literal en el `href` del enlace de contacto
-        email: site.contact.email,
+        email: identity.email,
         // los PERFILES personales, por su llave de rol en la fuente única. `agency` y `works` NO entran: son OTRAS entidades.
-        sameAs: [site.links.linkedin, site.links.github],
+        sameAs: [identity.links.linkedin, identity.links.github],
         description,
       },
       {
         "@type": "WebSite",
         "@id": websiteId,
-        name: site.name,
+        name: identity.brand,
         url: home,
         inLanguage: locale,
         // el sitio lo publica la persona: es su práctica profesional, no la web de una organización (D-BBW-58)

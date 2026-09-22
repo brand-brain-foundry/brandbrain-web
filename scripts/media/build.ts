@@ -31,6 +31,7 @@ import * as path from 'path';
 import { execFileSync } from 'child_process';
 import sharp from 'sharp';
 import { site } from '../../src/config/site';
+import { identity } from '../../src/content/site';
 import {
   GENERATED_FILE,
   LOCK_FILE,
@@ -342,7 +343,7 @@ async function main(): Promise<void> {
         return entry;
       });
       const manifest = {
-        name: site.name,
+        name: identity.brand,
         lang: site.defaultLocale,
         start_url: `/${site.defaultLocale}/`,
         display: 'browser',

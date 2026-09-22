@@ -2,9 +2,9 @@
  * SUSTITUCIONES EN EL CONTENIDO (D-BBW-23, fase 6c; docs/system/CONTENT_MODEL.md §2 regla 8).
  *
  * Un texto del contenido puede escribir `{{brand}}`, `{{domain}}` o `{{year}}` y el puerto lo resuelve AL COMPILAR desde la fuente única
- * (src/config/site.ts) — así el contenido nunca repite un dato de identidad (criterio transversal 1) y cambiarlo sigue siendo tocar un
- * solo archivo. El conjunto es PEQUEÑO, CERRADO y DECLARADO aquí: añadir una sustitución = añadir una llave a `substitutions` (y su
- * origen en `site.ts` si es identidad). Una sustitución no declarada ROMPE la compilación (puerto) y la guardia (check-content R5).
+ * (el documento del sitio para lo editable, `src/config/site.ts` para lo técnico) — así ningún texto repite un dato de identidad
+ * (criterio transversal 1) y cambiarlo sigue siendo tocar un solo sitio. El conjunto es PEQUEÑO, CERRADO y DECLARADO aquí: añadir una sustitución = añadir una llave a `substitutions` (y su
+ * origen en el documento del sitio si es identidad editable, o en `site.ts` si es técnica). Una sustitución no declarada ROMPE la compilación (puerto) y la guardia (check-content R5).
  *
  * SIN LÓGICA (D-BBW-23): la forma admitida es exactamente `{{identificador}}`. Nada más entre llaves: ni condiciones, ni bucles, ni
  * argumentos, ni expresiones. En cuanto el texto admite lógica deja de ser texto y vuelve a necesitar un programador para cambiarlo.
@@ -13,20 +13,21 @@
  * D-DOC-06: las sustituciones se resuelven por búsqueda en una tabla; el contenido jamás se evalúa ni se interpreta.
  */
 import { site } from "../config/site";
+import { identity } from "./site";
 
 /** El registro: llave → valor. Solo texto plano. */
 export const substitutions = {
   /**
-   * el NOMBRE DEL SITIO (identidad, `site.name`). Desde D-BBW-58 ese nombre es el de la persona cuya práctica profesional ES el sitio
+   * el NOMBRE DEL SITIO (identidad editable, `identity.brand`, desde `content/site.json` por D-BBW-78). Desde D-BBW-58 ese nombre es el de la persona cuya práctica profesional ES el sitio
    * (`Christian Zavala Cubas`): la llave sigue llamándose `brand` porque lo que nombra es «la marca del sitio», y la marca del sitio pasó a
    * ser él. Un texto que quiera nombrar al sujeto escribe `{{brand}}` y NUNCA la cadena: así la consistencia de entidad (biblia v2 §12) se
    * cumple por construcción y no por revisión.
    */
-  brand: site.name,
-  /** dominio canónico (identidad, `site.domain`) */
+  brand: identity.brand,
+  /** dominio canónico (TÉCNICO, `site.domain`: cambiarlo es una decisión de despliegue, no de redacción) */
   domain: site.domain,
-  /** el cargo (identidad, `site.role`; biblia v2 §2 lo declara capa de la arquitectura de nombres, D-BBW-61) */
-  role: site.role,
+  /** el cargo (identidad editable, `identity.role`; la biblia §4 lo declara capa de la arquitectura de nombres, D-BBW-61, bajado a datos por D-BBW-78) */
+  role: identity.role,
   /** año de la compilación (el sitio se regenera en cada build; p. ej. para la línea legal) */
   year: String(new Date().getFullYear()),
 } as const;
@@ -44,7 +45,7 @@ export function isSubstitutionKey(v: string): v is SubstitutionKey {
 export type UndeclaredSubstitution = { path: string; token: string };
 
 /** Llaves estructurales: identifican o enlazan, no son texto; no se sustituye dentro de ellas. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link"]);
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case"]);
 
 /** Recorre los textos de un documento y lista cada `{{…}}` que no sea una sustitución declarada (con su ruta). */
 export function findUndeclaredSubstitutions(doc: unknown, path = "$", acc: UndeclaredSubstitution[] = []): UndeclaredSubstitution[] {
