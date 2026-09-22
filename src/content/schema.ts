@@ -74,7 +74,7 @@ export type GlobalDocument = {
   nav: {
     /** texto del enlace para saltar al contenido principal (primer elemento enfocable de la página; fase 6b) */
     skipLabel: string;
-    /** nombre accesible del conmutador que abre y cierra el menú (≤ 780 px) */
+    /** nombre accesible del conmutador que abre y cierra el menú (≤ 790 px, la madre `--bbf-bp-nav`) */
     toggleLabel: string;
     /**
      * LA PALABRA CON LA QUE LA NAVEGACIÓN MARCA UN CASO, y vive aquí UNA SOLA VEZ (D-BBW-78). Los elementos no la escriben: declaran

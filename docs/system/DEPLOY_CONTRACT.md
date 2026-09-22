@@ -177,7 +177,28 @@ entero es propiedad del dominio, no del código (§3). Por eso el manifiesto se 
 | `cerebrosdemarca.com` (apex) | `https://zavalacubas.com/` | **301 permanente**, **un solo salto**, ya cifrado | Igual. |
 | `www.cerebrosdemarca.com` | `https://zavalacubas.com/` | **301 permanente**, **un solo salto**, ya cifrado | Igual. **Es el que hoy encadena 2–3 saltos pasando por `http://`** (medido en el N0): el mapa lo arregla. |
 | `zavalacubas.es` | — | — | **FUERA DEL PLAN.** No está registrado (NXDOMAIN medido el 2026-09-20) y D-BBW-59 decide no registrarlo. La biblia v2 §8 lo listaba; hoy no aplica. |
-| `branddesignerpro.com` | — | — | **Fuera de este mapa.** Nunca se midió y D-BBW-59 no lo cubre. Si entra, es su propia decisión. |
+| `branddesignerpro.com` | — | — | **NO SE REDIRIGE. Nunca** (D-BBW-80). Es el **portafolio anterior de Zavala**, sigue vivo, y **la navegación de este sitio lo enlaza**: «Trayectoria» apunta a `https://branddesignerpro.com/clientes/`. Redirigirlo rompería ese enlace y, peor, lo convertiría en un enlace a una redirección. **Contradice la biblia v4 §12 — ver abajo.** |
+
+### 8.1.1 · `branddesignerpro.com` NO se redirige, y eso contradice la biblia (D-BBW-80)
+
+**La decisión, firmada por Zavala el 2026-09-22:** `branddesignerpro.com` **queda fuera del mapa de forma permanente**, no «pendiente de
+decidir». Es el **portafolio anterior** de Zavala, sigue publicado, y desde D-BBW-78 **este sitio lo enlaza**: el elemento «Trayectoria» de
+la navegación apunta a `https://branddesignerpro.com/clientes/`.
+
+**Las redirecciones pendientes son, por tanto, SOLO DOS DOMINIOS:** `brandbrainfoundry.com` y `cerebrosdemarca.com` (con sus `www`).
+
+> ⚠️ **CONTRADICE LA BIBLIA ESTRATÉGICA v4 §12, y se deja escrito para que Zavala corrija la biblia.**
+>
+> La tabla de §12 declara `branddesignerpro.com | 301 → /es/identidad`. Esa fila **ya no aplica** y hay que retirarla o reescribirla.
+> No la corrijo yo: la biblia es documento de Zavala.
+>
+> **Y hay una segunda regla de §12 que esto resuelve en vez de romper.** §12 manda: *«En canales propios se publica el destino real, nunca
+> una redirección»*. Con la fila vieja en pie, «Trayectoria» habría acabado publicando una redirección el día del cutover — justo lo que la
+> regla prohíbe. **No redirigir el dominio es lo que hace que el enlace siga siendo un destino real.** La contradicción está en la tabla de
+> §12, no en la regla.
+>
+> **Queda además un dominio que §12 no recoge en absoluto:** `purakasaka.com`, que la navegación enlaza desde D-BBW-78. Tampoco se
+> redirige —es un sitio independiente, como `sivarbrains.com`— pero la biblia debería listarlo para que el mapa esté completo.
 
 **Lo que este mapa SUSTITUYE.** La biblia v2 §8 mandaba `brandbrainfoundry.com` → `/es/metodo`, **una sección que todavía no existe**.
 Redirigir a una ruta inexistente produce un 404 al final de un 301, que es peor que no redirigir. Hoy va **a la raíz**; cuando la sección
@@ -200,7 +221,8 @@ de ser correcto: es otra entidad.
 4. **Repite el 2 y el 3 en `cerebrosdemarca.com`** — pero antes lee el punto 8, que puede ahorrarte el trabajo entero.
 5. **Comprueba que la versión con `www` también va**, en los dos dominios. Es la que hoy está mal: da dos o tres saltos y uno de ellos pasa
    por una conexión **sin cifrar**. Tiene que quedar en **un solo salto** y empezando ya por `https`.
-6. **Pruébalo tú mismo**, con estas cuatro direcciones, una por una, en una ventana nueva del navegador: `brandbrainfoundry.com`,
+6. **Pruébalo tú mismo**, con estas cuatro direcciones —**y solo estas cuatro**: `branddesignerpro.com` **no se toca** (D-BBW-80)—, una
+   por una, en una ventana nueva del navegador: `brandbrainfoundry.com`,
    `www.brandbrainfoundry.com`, `cerebrosdemarca.com`, `www.cerebrosdemarca.com`. Las cuatro tienen que acabar en `https://zavalacubas.com/`
    y la barra de direcciones tiene que mostrar el dominio nuevo.
 7. **Dime que lo hiciste.** Entonces se verifica con peticiones reales que cada una da **un solo salto**, que el salto es **permanente** y

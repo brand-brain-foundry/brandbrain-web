@@ -70,7 +70,7 @@
   --bbf-bar-gap-view: var(--bbf-bar-gap);
 }
 
-@media (max-width: 780px) {
+@media (max-width: 790px) {
   :root {
     --bbf-space-safe: var(--bbf-space-4);
 

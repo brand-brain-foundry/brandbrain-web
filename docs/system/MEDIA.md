@@ -36,7 +36,7 @@ tags: [medios, puerto, maestros, derivados, iconos, manifiesto, video, poster, b
 `share-1200x630.png`, `favicon.ico`, `manifest.webmanifest`, `hero-loop-1280x720.mp4`, `hero-loop-640x360.mp4`, `hero-loop-poster-1280x720.jpg`.
 
 **Cuál de los dos vídeos recibe cada pantalla (D-BBW-46).** El `<video>` declara **las dos** fuentes con condición de pantalla, de la más restrictiva a
-la más general: **`640×360` por debajo de `--bbf-bp-nav` (780 px)** y `1280×720` por encima. Sin esa condición la primera fuente gana siempre y un
+la más general: **`640×360` por debajo de `--bbf-bp-nav` (790 px desde D-BBW-79; 780 hasta entonces)** y `1280×720` por encima. Sin esa condición la primera fuente gana siempre y un
 teléfono se descargaba el derivado grande teniendo el pequeño: medido el 2026-09-19 a 360 px, **871,8 KB de los 1.187 KB** de la página. El navegador
 elige **una vez, al cargar**, y no rectifica al girar el teléfono: es lo que se quiere, que nadie se traiga dos vídeos. Construir un derivado no basta
 para que alguien lo reciba — hay que declarar **cuándo**.

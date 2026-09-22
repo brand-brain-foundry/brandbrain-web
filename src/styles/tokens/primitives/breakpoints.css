@@ -1,6 +1,11 @@
 /**
  * primitives/breakpoints.css — Tier 1 · PUNTOS DE CORTE
- * N0 §2.2: UN solo breakpoint, `max-width: 780px` (burger/hoja vs. nav). Se declara como madre.
+ * N0 §2.2: UN solo breakpoint (burger/hoja vs. nav). Se declara como madre.
+ * D-BBW-79 — SUBE DE 780 A 790 px. Con el cuarto elemento de navegación (D-BBW-78) la lista en línea mide 651 px y, sumada a la marca y a
+ * los márgenes de página, NO cabe en una fila entre 781 y 788 px: la cabecera saltaba a dos filas en esa banda de 8 px justo por encima del
+ * corte. Medido: el primer ancho que cabe en una fila es 789. Se sube a 790 —no a 789— para dejar un píxel de holgura y un número redondo.
+ * Por debajo manda el panel, que ya lleva los seis enlaces dentro de la hoja. **No es un rediseño de la cabecera: es mover el número de la
+ * madre**, que es exactamente lo que una madre existe para permitir. Sigue habiendo UN SOLO punto de corte.
  * LIMITACIÓN CONOCIDA: una custom property NO puede usarse dentro de `@media (...)` (CSS no lo permite). ELECCIÓN DE LA FASE 6b:
  * el literal se repite UNA sola vez fuera de este archivo, en semantic/viewport.css (la media query que conmuta los roles de vista), y la
  * guardia propia scripts/lint/check-typography-system.ts (R8) obliga a que todo literal px de un `@media` fuera de primitivos coincida con
@@ -9,5 +14,5 @@
  * CLASE (D-DOC-13): dinámico (el valor) · la nota y la regla del espejo guardado = estático.
  */
 :root {
-  --bbf-bp-nav: 780px;
+  --bbf-bp-nav: 790px;
 }
