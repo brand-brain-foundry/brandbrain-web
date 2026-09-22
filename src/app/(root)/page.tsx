@@ -1,4 +1,5 @@
 import { site } from "@/config/site";
+import { identity } from "@/content/site";
 
 /**
  * D-BBW-07 — `/` resuelve al locale por defecto.
@@ -21,7 +22,7 @@ export default function RootPage() {
       <meta httpEquiv="refresh" content={`0; url=${target}`} />
       <main>
         <p>
-          <a href={target}>{site.name}</a>
+          <a href={target}>{identity.brand}</a>
         </p>
       </main>
     </>

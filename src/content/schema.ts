@@ -12,6 +12,10 @@
  *   SEGUNDA variante del nombre (con el cargo pegado), que es justo lo que la consistencia de entidad de la biblia v2 §12 prohíbe. El
  *   nombre vuelve a la página por `footer.legal`, leído de la fuente única por sustitución. Un `global.json` que todavía traiga la llave
  *   rompe la compilación nombrándola — que es lo que se quiere.
+ * D-BBW-78 (v3.2 del modelo, cambio NO aditivo): nace `nav.caseLabel` —la palabra con la que la navegación marca un caso, UNA sola vez—
+ *   y `LinkItem.badge` (una palabra por elemento) se convierte en `LinkItem.case` (una declaración booleana). Un `global.json` con la forma
+ *   vieja rompe la compilación nombrando las dos llaves. Además, las llaves de enlace ya no salen de `src/config/site.ts` sino de
+ *   `content/site.json`: lo editable vive en datos, lo técnico en código.
  * Fase 6b: +1 llave `nav.skipLabel` (el enlace para saltar al contenido exige un texto y ningún texto vive en un componente). Cambio ADITIVO
  * del modelo (v2.1), propuesto en el PR de la fase 6b: el esquema estricto lo exige en todo locale publicado.
  * Reglas del modelo (fase 6a, DESPACHO-BBW-2026-09-16-fase6a §F3):
@@ -22,11 +26,12 @@
  *   4. Lo global (navegación, pie) separado de lo de página. Un documento `global` por locale; un documento por página en `pages/`.
  *   5. Secciones como LISTA ORDENADA CON TIPO: reordenar o añadir una sección de un tipo existente es editar contenido, no código.
  *      Un tipo nuevo exige su forma aquí y su renderizador (fase 6b): eso sí es código, y es honesto decirlo.
- *   6. Enlaces e identidad vienen de src/config/site.ts: el contenido referencia una LLAVE de `site.links`; una llave inexistente
- *      es error de build. Nunca una URL en el contenido.
+ *   6. Enlaces e identidad vienen del DOCUMENTO DEL SITIO (`content/site.json`, leído por ./site.ts): un documento de contenido
+ *      referencia una LLAVE de `identity.links`; una llave inexistente es error de build. Nunca una URL en un documento de texto.
+ *      Hasta D-BBW-78 ese documento era `src/config/site.ts`, que es código; la regla no cambia, cambia dónde vive la fuente.
  *   7. Marcadores de posición EVIDENTES mientras no haya copy: `[[PENDIENTE: …]]`. Nadie los confunde con copy final y se cuentan.
  */
-import { isLinkKey, type LinkKey } from "../config/site";
+import { isLinkKey, type LinkKey } from "./site";
 
 /** Colecciones con un documento por slug (`content/<locale>/<colección>/<slug>.json`). */
 export const collections = {
@@ -44,24 +49,25 @@ export function isPlaceholder(text: string): boolean {
 }
 
 // ── Global ─────────────────────────────────────────────────────────────────────────────────────────────
-/** Un enlace con texto visible: la etiqueta es contenido; el destino es una llave de `site.links` (identidad). */
+/** Un enlace con texto visible: la etiqueta es contenido; el destino es una llave del documento del sitio (identidad editable). */
 export type LinkItem = {
   /** identificador estable por rol (llave de React, ancla en pruebas); único dentro de su lista */
   id: string;
   /** texto visible o nombre accesible del enlace */
   label: string;
-  /** llave de `site.links`; el destino nunca se escribe aquí */
+  /** llave de `identity.links` (content/site.json); el destino nunca se escribe aquí */
   link: LinkKey;
   /**
-   * ETIQUETA OPCIONAL del enlace (D-BBW-74): una palabra corta que CALIFICA el destino sin tocar su nombre. Nace para «Sivar Brains»,
-   * que es marca respaldada y cuyo nombre **no puede cambiar** por la regla de consistencia de entidad de la biblia v4 §4: la etiqueta
-   * dice «Caso» al lado, no «Sivar Brains (caso)».
-   * Es CONTENIDO y no presentación: la palabra la decide quien escribe, no la hoja de estilos, y por eso vive aquí. Opcional porque la
-   * mayoría de los enlaces no califican nada; un enlace sin ella se renderiza exactamente como antes.
-   * **Entra en el NOMBRE ACCESIBLE** del enlace por construcción: se pinta dentro del `<a>` como texto normal, así que un lector de
-   * pantalla anuncia «Sivar Brains Caso» sin que haya que declarar ningún `aria-label` que pudiera desincronizarse del texto visible.
+   * ¿ESTE DESTINO ES UN CASO? (D-BBW-78, sobre D-BBW-74/77). El elemento **declara su condición**; NO escribe la palabra.
+   * La palabra vive una sola vez, en `nav.caseLabel`, y el organismo la reparte a los elementos que la declaran: si mañana «Caso»
+   * pasa a ser otra palabra, se cambia en UN sitio y cambia en todos los enlaces que la llevan.
+   * Antes esta llave era `badge: string` y cada elemento escribía su propia palabra: con un solo caso no se notaba, con dos se
+   * convertía en dos cadenas que conciliar — exactamente lo que la consistencia de entidad de la biblia v4 §4 evita en los nombres.
+   * Es CONTENIDO y no presentación: que un destino sea un caso lo decide quien escribe, no la hoja de estilos.
+   * **Entra en el NOMBRE ACCESIBLE** del enlace por construcción: la palabra se pinta dentro del `<a>` como texto normal, así que un
+   * lector de pantalla anuncia «Sivar Brains Caso» sin ningún `aria-label` que pudiera desincronizarse del texto visible.
    */
-  badge?: string;
+  case?: boolean;
 };
 
 export type GlobalDocument = {
@@ -70,6 +76,11 @@ export type GlobalDocument = {
     skipLabel: string;
     /** nombre accesible del conmutador que abre y cierra el menú (≤ 780 px) */
     toggleLabel: string;
+    /**
+     * LA PALABRA CON LA QUE LA NAVEGACIÓN MARCA UN CASO, y vive aquí UNA SOLA VEZ (D-BBW-78). Los elementos no la escriben: declaran
+     * `case: true` y el organismo se la reparte. La llave nombra el ROL (la etiqueta de los casos), no lo que dice hoy («Caso»).
+     */
+    caseLabel: string;
     /** los enlaces de navegación, en orden; el mismo dato se renderiza en escritorio y en la hoja (N0 §2.3) */
     items: LinkItem[];
   };
@@ -140,8 +151,8 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 /**
  * `allowed` = llaves OBLIGATORIAS (tienen que estar) · `optional` = llaves ADMITIDAS (pueden estar o no).
  * El esquema sigue siendo estricto en los dos sentidos para las obligatorias: ni una de más, ni una de menos. Las opcionales existen
- * desde D-BBW-74 para una etiqueta que solo tienen algunos enlaces; declararlas aquí es lo que impide que «opcional» acabe
- * significando «cualquier llave vale».
+ * desde D-BBW-74 —y desde D-BBW-78 con la forma de una declaración booleana— para lo que solo tienen algunos enlaces; declararlas aquí
+ * es lo que impide que «opcional» acabe significando «cualquier llave vale».
  */
 function checkKeys(v: Record<string, unknown>, allowed: readonly string[], path: string, problems: Problem[], optional: readonly string[] = []): void {
   for (const k of Object.keys(v)) {
@@ -172,12 +183,14 @@ function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   v.forEach((item, i) => {
     const p = `${path}[${i}]`;
     if (!isRecord(item)) return void problems.push({ path: p, message: `debe ser un objeto { id, label, link }` });
-    checkKeys(item, ["id", "label", "link"], p, problems, ["badge"]);
-    if (item.badge !== undefined) checkText(item.badge, `${p}.badge`, problems);
+    checkKeys(item, ["id", "label", "link"], p, problems, ["case"]);
+    if (item.case !== undefined && typeof item.case !== "boolean") {
+      problems.push({ path: `${p}.case`, message: `debe ser true o false (la PALABRA del caso vive una sola vez, en $.nav.caseLabel)` });
+    }
     checkId(item.id, `${p}.id`, seen, problems);
     checkText(item.label, `${p}.label`, problems);
     if (typeof item.link !== "string" || !isLinkKey(item.link)) {
-      problems.push({ path: `${p}.link`, message: `"${String(item.link)}" no es una llave de site.links (los destinos viven solo en src/config/site.ts)` });
+      problems.push({ path: `${p}.link`, message: `"${String(item.link)}" no es una llave de enlace (los destinos viven solo en content/site.json; aquí va la llave, nunca la dirección)` });
     }
   });
 }
@@ -187,9 +200,10 @@ export function validateGlobal(v: unknown): Problem[] {
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
   checkKeys(v, ["nav", "footer"], "$", problems);
   if (isRecord(v.nav)) {
-    checkKeys(v.nav, ["skipLabel", "toggleLabel", "items"], "$.nav", problems);
+    checkKeys(v.nav, ["skipLabel", "toggleLabel", "caseLabel", "items"], "$.nav", problems);
     checkText(v.nav.skipLabel, "$.nav.skipLabel", problems);
     checkText(v.nav.toggleLabel, "$.nav.toggleLabel", problems);
+    checkText(v.nav.caseLabel, "$.nav.caseLabel", problems);
     checkLinkItems(v.nav.items, "$.nav.items", problems);
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });
   if (isRecord(v.footer)) {
@@ -239,8 +253,8 @@ export function isPageDocument(v: unknown): v is PageDocument {
   return validatePage(v).length === 0;
 }
 
-/** Llaves estructurales: identifican o enlazan, no son texto editable. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link"]);
+/** Llaves estructurales: identifican, enlazan o declaran una condición; no son texto editable. */
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case"]);
 
 /** Recorre los TEXTOS EDITABLES de un documento (para contar textos y marcadores; nunca para interpretarlos, D-DOC-06). */
 export function collectTexts(v: unknown, acc: string[] = []): string[] {

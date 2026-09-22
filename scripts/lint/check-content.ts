@@ -8,7 +8,10 @@
  *
  * Qué comprueba (exit 1 si falla, exit 2 si el tool rompe — fail-closed en .githooks/pre-commit):
  *   R1 · Todo directorio bajo content/ es un locale PUBLICADO (D-BBW-15: crear content/en/ es declarar EN; sin "en" en
- *        publishedLocales es error). Todo locale publicado tiene directorio.
+ *        publishedLocales es error). Todo locale publicado tiene directorio. El ÚNICO archivo admitido en la raíz de content/ es
+ *        `site.json` (D-BBW-78: la identidad editable y los destinos de los enlaces, que no se traducen y por eso no viven en un
+ *        locale); tiene que estar, y cualquier otro archivo suelto en la raíz es estructura sin modelo. Se valida contra su esquema
+ *        estricto (src/content/site.ts): llave desconocida, texto vacío, HTML, correo mal formado o destino no absoluto fallan aquí.
  *   R2 · Cada locale contiene exactamente: `global.json` + una carpeta por colección del esquema (`pages/`). Cualquier otra
  *        entrada = colección sin esquema = estructura sin modelo → error.
  *   R3 · `global.json` cumple GlobalDocument; cada `pages/*.json` cumple PageDocument; `pages/home.json` existe (la landing).
@@ -35,6 +38,7 @@ import {
   type Problem,
 } from '../../src/content/schema';
 import { findUndeclaredSubstitutions, substitutions } from '../../src/content/substitutions';
+import { validateSite } from '../../src/content/site';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -83,17 +87,27 @@ if (!fs.existsSync(CONTENT_ROOT) || !fs.statSync(CONTENT_ROOT).isDirectory()) {
   process.exit(2);
 }
 
-// R1 — locales
+// R1 — locales + el documento del sitio
+const SITE_DOCUMENT = 'site.json';
 const published = publishedLocales as readonly string[];
+let hasSite = false;
 for (const entry of fs.readdirSync(CONTENT_ROOT, { withFileTypes: true })) {
   if (!entry.isDirectory()) {
-    fails.push({ rule: 'R1', where: rel(path.join(CONTENT_ROOT, entry.name)), detail: 'solo se admiten directorios de locale bajo content/' });
+    if (entry.isFile() && entry.name === SITE_DOCUMENT) {
+      hasSite = true;
+      const abs = path.join(CONTENT_ROOT, entry.name);
+      const doc = readJson(abs);
+      if (doc !== undefined) report(abs, validateSite(doc), doc);
+      continue;
+    }
+    fails.push({ rule: 'R1', where: rel(path.join(CONTENT_ROOT, entry.name)), detail: `en la raíz de content/ solo se admiten directorios de locale y el documento del sitio (${SITE_DOCUMENT})` });
     continue;
   }
   if (!published.includes(entry.name)) {
     fails.push({ rule: 'R1', where: `content/${entry.name}/`, detail: `locale NO publicado (D-BBW-15): crear content/${entry.name}/ declara ese idioma; añadir "${entry.name}" a publishedLocales en src/config/site.ts o retirar el directorio` });
   }
 }
+if (!hasSite) fails.push({ rule: 'R1', where: `content/${SITE_DOCUMENT}`, detail: 'falta el documento del sitio (nombre, cargo, buzón y destinos de los enlaces)' });
 for (const locale of published) {
   const localeDir = path.join(CONTENT_ROOT, locale);
   if (!fs.existsSync(localeDir)) {
@@ -134,10 +148,10 @@ for (const locale of published) {
 }
 
 if (fails.length === 0) {
-  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s); ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente), ${substituted} sustitución(es) declarada(s) en uso.`);
+  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s) + el documento del sitio; ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente), ${substituted} sustitución(es) declarada(s) en uso.`);
   process.exit(0);
 }
 console.error(`[content-gate] ${fails.length} problema(s) en content/ — build roto.`);
 for (const f of fails) console.error(`  ${f.rule} ${f.where}: ${f.detail}`);
-console.error('  Regla: cada texto con su llave (por rol), sin presentación ni HTML, enlaces por llave de site.links, solo locales publicados, solo colecciones del esquema, sustituciones solo del conjunto declarado.');
+console.error('  Regla: cada texto con su llave (por rol), sin presentación ni HTML, enlaces por llave del documento del sitio, solo locales publicados, solo colecciones del esquema, sustituciones solo del conjunto declarado.');
 process.exit(1);

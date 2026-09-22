@@ -177,17 +177,21 @@
    espaciado y radio por `--bbf-radius-pill`. **Ni un radio ni un relleno escritos a mano.**
    LA TINTA VA OSCURA SOBRE CLARO, al revés que el resto del sitio, y es la medida quien lo manda: sobre el acento madre el negro
    contrasta ~7,6 y el blanco ~2,8 — el blanco no llegaría ni al mínimo de texto grande.
-   ALINEADA CON LA ETIQUETA: `vertical-align: middle` centra la píldora contra el texto del enlace en vez de dejarla colgando de la línea
-   base, que es lo que hace una caja con relleno propio si no se le dice nada. `line-height: 1` para que el alto de la píldora lo fije su
-   relleno y no el interlineado heredado del enlace.
+   MÁS DISCRETA POR EL RELLENO, NO POR LA LETRA (D-BBW-78). En escritorio la píldora pesaba demasiado al lado del enlace. El cuerpo NO
+   puede bajar: `--bbf-type-pill-size` es `--bbf-size-floor`, el SUELO de legibilidad de D-BBW-18, y por debajo de 12 px no se va. Lo que
+   la hacía grande era la caja: el relleno lateral pasa de ×2 a ×1 y el vertical se queda en el medio paso, que es el cuanto mínimo de la
+   escala — la forma encoge 8 px de ancho sin tocar una sola propiedad tipográfica. La separación del texto baja de ×2 a ×1 por lo mismo.
+   ALINEADA ARRIBA, COMO UNA ETIQUETA VOLADA (D-BBW-78): `vertical-align: top` la sube al alto de la línea del enlace en vez de centrarla
+   contra el texto (`middle`, que es lo que hacía D-BBW-77). Así deja de leerse como parte del nombre y pasa a leerse como una anotación
+   sobre él, que es lo que es. `line-height: 1` para que el alto de la píldora lo fije su relleno y no el interlineado heredado del enlace.
    `white-space: nowrap` para que la palabra no se parta dentro de la forma, y `--bbf-radius-pill` para que el navegador recorte el radio
    a la mitad del alto: eso es lo que convierte el rectángulo en píldora, sin depender de cuánto mida.
    Va DENTRO del `<a>` y sin `aria-hidden`, así que entra en el nombre accesible por construcción («Sivar Brains Caso»). La caja alta se
    HEREDA del enlace; el contenido conserva «Caso», que es lo que se copia y lo que lee un lector de pantalla. */
 .badge {
   display: inline-block;
-  margin-inline-start: var(--bbf-space-2);
-  padding: var(--bbf-space-half) var(--bbf-space-2);
+  margin-inline-start: var(--bbf-space-1);
+  padding: var(--bbf-space-half) var(--bbf-space-1);
   border-radius: var(--bbf-radius-pill);
   background: var(--bbf-surface-pill);
   color: var(--bbf-text-on-pill);
@@ -197,6 +201,6 @@
   line-height: 1;
   letter-spacing: var(--bbf-type-pill-tracking);
   text-shadow: none;
-  vertical-align: middle;
+  vertical-align: top;
   white-space: nowrap;
 }

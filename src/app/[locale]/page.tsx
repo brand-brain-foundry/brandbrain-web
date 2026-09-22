@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { isLocale, site } from "@/config/site";
+import { isLocale } from "@/config/site";
+import { identity } from "@/content/site";
 import { getPage } from "@/content";
 import { media } from "@/media";
 import { homeGraph, homeUrl } from "@/seo/jsonld";
@@ -11,7 +12,7 @@ import styles from "./page.module.css";
 /**
  * METADATOS DEL DOCUMENTO (fase 7). Título y descripción vienen del CONTENIDO (`meta.title` / `meta.description` de
  * `content/<locale>/pages/home.json`, con sus sustituciones ya resueltas por el puerto): cambiar una palabra es editar ese archivo, no este.
- * Todo lo demás se DERIVA de la fuente única (`src/config/site.ts`) y del puerto de medios: ningún dominio ni nombre literal aquí.
+ * Todo lo demás se DERIVA de la fuente única —el documento del sitio para el nombre, `src/config/site.ts` para el dominio (D-BBW-78)— y del puerto de medios: ningún dominio ni nombre literal aquí.
  *
  * Lo que se emite y por qué (industria verificada en vivo, no de memoria):
  * · `description` — Google la usa para el fragmento del resultado (developers.google.com/search/docs/crawling-indexing/special-tags,
@@ -35,11 +36,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     alternates: { canonical },
     openGraph: {
       type: "website",
-      siteName: site.name,
+      siteName: identity.brand,
       title: meta.title,
       description: meta.description,
       url: canonical,
-      images: [{ url: media.share.src, width: media.share.width, height: media.share.height, type: media.share.type, alt: site.name }],
+      images: [{ url: media.share.src, width: media.share.width, height: media.share.height, type: media.share.type, alt: identity.brand }],
     },
     twitter: {
       card: "summary_large_image",
