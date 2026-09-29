@@ -49,15 +49,27 @@ export const masters = {
   toggleArmTop: { file: "toggle-arm-top.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo superior del conmutador 34×6), 2026-09-17" },
   toggleArmBottom: { file: "toggle-arm-bottom.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo inferior del conmutador 34×6), 2026-09-17" },
   /**
-   * Vídeo del héroe (D-BBW-24, fase 6d). MAESTRO DE REGISTRO, no el render original: el diseño (N0 §2.1, `assets/fish-loop.mp4`) solo trae un
-   * H.264 1280×720 · 24 fps · 8 s · 192 fotogramas YA COMPRIMIDO (1,7 Mbit/s) y CON PISTA AAC. Recomprimir arrastra sus defectos (techo de
-   * calidad); se acepta porque es el mejor archivo disponible y SE REGENERA el día que exista el original (sustituir este archivo +
-   * `pnpm media:build`). Los perfiles eliminan el audio: un fondo decorativo no reproduce sonido.
+   * Vídeo del héroe (D-BBW-24, fase 6d). `heroLoop` es EL MAESTRO QUE MANDA: el archivo con el nombre del rol (`hero-loop.mp4`) es el que
+   * alimenta los tres derivados. 2026-09-29: Zavala entrega un render nuevo hecho con otra técnica (H.264 High 1504×846 · 30 fps con cadencia
+   * real de 24 fps por duplicación 4:5 · 8 s · 240 fotogramas · 10,1 Mbit/s · sin audio · Mainconcept/Adobe), una fuente más limpia que el
+   * maestro de registro anterior (1,7 Mbit/s, un solo fotograma clave, recomprimido por Google). El anterior NO se borra: queda declarado
+   * abajo como `heroLoopRegistro` con el sufijo de variante `-registro`, sin derivados. La nomenclatura del contrato (rol, no versión) es la
+   * que dice cuál manda: el rol es `hero-loop`; lo demás son variantes conservadas.
    */
   heroLoop: {
     file: "hero-loop.mp4",
     kind: "video",
-    origin: "diseño inventariado (N0 §2.1, assets/fish-loop.mp4 ≡ uploads/Crystal_fish_with_human_eye_20260915110026.mp4); dejado por Zavala en public/bb-landing-hero.mp4 el 2026-09-17 y movido aquí el mismo día. Ya comprimido, con audio: maestro de registro (D-BBW-24)",
+    origin: "render nuevo entregado por Zavala el 2026-09-29 como media/masters/hero-loop-2.mp4 (10 077 031 B, H.264 1504×846 30 fps, sin audio) y renombrado al rol el mismo día (DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro). Sustituye al maestro de registro de la 6d, que se conserva como hero-loop-registro.mp4",
+  },
+  /**
+   * MAESTRO DE REGISTRO anterior (fase 6d, D-BBW-24): H.264 1280×720 · 24 fps · 8 s · 192 fotogramas YA COMPRIMIDO (1,7 Mbit/s) y CON PISTA
+   * AAC. Fue el techo de calidad hasta el 2026-09-29. Se conserva SIN DERIVADOS por decisión del despacho («el maestro anterior no se borra»):
+   * la guardia R1 sigue sellando su hash y R3 lo exige en el lock, así que no puede cambiar ni desaparecer en silencio. No alimenta nada.
+   */
+  heroLoopRegistro: {
+    file: "hero-loop-registro.mp4",
+    kind: "video",
+    origin: "diseño inventariado (N0 §2.1, assets/fish-loop.mp4 ≡ uploads/Crystal_fish_with_human_eye_20260915110026.mp4); dejado por Zavala en public/bb-landing-hero.mp4 el 2026-09-17 y movido a media/masters/hero-loop.mp4 el mismo día; renombrado a hero-loop-registro.mp4 el 2026-09-29 al entrar el maestro nuevo. Ya comprimido, con audio: maestro de registro (D-BBW-24), conservado sin derivados",
   },
 } as const satisfies Record<string, Master>;
 export type MasterId = keyof typeof masters;
