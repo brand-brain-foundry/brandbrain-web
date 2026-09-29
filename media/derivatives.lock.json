@@ -16,34 +16,34 @@
     },
     "heroLoop360": {
       "budgetBytes": 400000,
-      "bytes": 337674,
+      "bytes": 327718,
       "height": 360,
       "master": "heroLoop",
       "path": "public/hero-loop-640x360.mp4",
       "profile": "video h264 640×360 crf 23 sin audio ≤ 400000 B",
-      "sha256": "ae3f55daf277e491b8255dbbfc5448cf2fdf26cf341df1619d569cde63cdb2e5",
+      "sha256": "d7e12ca27b8744bc571ea3f365dfc7da7345ea3c9324e0c0f3b73529ad88e555",
       "streams": "video:h264 640x360",
       "width": 640
     },
     "heroLoop720": {
       "budgetBytes": 1000000,
-      "bytes": 796865,
+      "bytes": 813553,
       "height": 720,
       "master": "heroLoop",
       "path": "public/hero-loop-1280x720.mp4",
       "profile": "video h264 1280×720 crf 23 sin audio ≤ 1000000 B",
-      "sha256": "594c9d2b7ab77a488a59961427cbffba3a7868556ae952d5e651bdf1863e92c2",
+      "sha256": "ee0c30b4741cff6dbffe399b8ca5ab1ebafdf9f3868f830998d7ebc3529d63b8",
       "streams": "video:h264 1280x720",
       "width": 1280
     },
     "heroLoopPoster": {
       "budgetBytes": 60000,
-      "bytes": 32027,
+      "bytes": 32922,
       "height": 720,
       "master": "heroLoop",
       "path": "public/hero-loop-poster-1280x720.jpg",
       "profile": "poster jpeg 1280×720 q 80 fotograma 0 ≤ 60000 B",
-      "sha256": "33ea7de13046ec185aeafe9fd7ef659b2316cea78f01ca78c0863ba80b6f1530",
+      "sha256": "a86e0358a1c5e1218460b26491eb2a2122c7eb87b60537aea3fd5b0e8fdbac38",
       "width": 1280
     },
     "icon": {
@@ -106,7 +106,7 @@
     },
     "heroLoop": {
       "file": "hero-loop.mp4",
-      "sha256": "f456bff1b80007733fb3acc263cb42681a56c344af40eadb31e4cc86dfe491f1"
+      "sha256": "d66ed2b917c1b7aa814b7c06d3cd8e7a3c33a4e1844dfd889881fa5f20a2b984"
     },
     "heroLoopRegistro": {
       "file": "hero-loop-registro.mp4",
