@@ -60,7 +60,7 @@
      cae al tamaño heredado (medido: 18 px sin JavaScript). Así que el rol da el cuerpo al que cabría una palabra de UNA letra y la hoja
      del lock lo divide entre la cuenta, que es donde la cuenta vive. */
   --bbf-type-display-fit-unit: calc(var(--bbf-lockup-target) / (var(--bbf-advance-display-max) + var(--bbf-tracking-display-ratio)));
-  --bbf-type-display-shadow: var(--bbf-shadow-xl);
+  --bbf-type-display-shadow: none; /* F0 §2.3 · F1: fondo claro, sombra de texto → eliminada en todos los roles */
 
   /* TEXTO CORRIDO: paso cero de la escala (18 → 20 px). Deja de estar sin consumidor visible (D-BBW-47): es el rol del
      ENCABEZADO de la portada, que la biblia v2 §10 pide «en cuerpo de texto» y que es el único `<h1>` de la página.
@@ -70,11 +70,11 @@
          sobre el mismo fondo y en el mismo sitio, así que hereda su sombra en lugar de estrenar una (mapeo del N1 doc B §11).
      Sin interletrado: el ×4 era de los claims y se va con ellos. */
   --bbf-type-body-family: var(--bbf-font-text);
-  --bbf-type-body-size: var(--bbf-size-0);
+  --bbf-type-body-size: var(--bbf-size-0flat); /* F0 §2.3 · F1: párrafo de la home en 18 px fijos (el diseño no fluye) */
   --bbf-type-body-weight: var(--bbf-weight-text-regular);
   --bbf-type-body-leading: var(--bbf-leading-text);
   --bbf-type-body-tracking: var(--bbf-tracking-0);
-  --bbf-type-body-shadow: var(--bbf-shadow-md);
+  --bbf-type-body-shadow: none;
 
   /* EL H1 TIPOGRÁFICO DE LA HOME NUEVA (P-BBW-66, D-BBW-66, Zavala 2026-11-01): familia texto, cuerpo grande.
      `size-4` (37–48 px): el paso más cercano al diseño (34–47 px del inventario N0b1); DERIVA CON Δ declarada en N0c §3.
@@ -95,7 +95,7 @@
   --bbf-type-signature-weight: var(--bbf-weight-text-regular);
   --bbf-type-signature-leading: var(--bbf-leading-text);
   --bbf-type-signature-tracking: var(--bbf-tracking-1);
-  --bbf-type-signature-shadow: var(--bbf-shadow-sm);
+  --bbf-type-signature-shadow: none;
 
   /* EL ANTETÍTULO DEL CLAIM (D-BBW-64). El claim se compone en DOS familias: la primera línea en la de TEXTO (Space Grotesk) y las dos
      siguientes en la display (Modulator) al negro. El contraste no lo hace un truco — lo hacen las tres cosas a la vez: familia, cuerpo
@@ -116,7 +116,7 @@
   --bbf-type-kicker-weight: var(--bbf-weight-text-medium);
   --bbf-type-kicker-leading: var(--bbf-leading-display);
   --bbf-type-kicker-tracking: var(--bbf-tracking-6);
-  --bbf-type-kicker-shadow: var(--bbf-shadow-md);
+  --bbf-type-kicker-shadow: none;
 
   /* LA PÍLDORA DEL ENLACE (D-BBW-77). Califica un destino con una palabra dentro de una forma cerrada, como las viñetas de «Nuevo».
      CUERPO: **el SUELO de legibilidad mismo** (`--bbf-text-floor`, 12 px), y ésta es la parte que hubo que resolver en vez de forzar.
@@ -133,19 +133,18 @@
   --bbf-type-pill-tracking: var(--bbf-tracking-1);
 
   --bbf-type-label-family: var(--bbf-font-text);
-  --bbf-type-label-size: var(--bbf-size-n2);
+  /* F0 §2.3 · F1: nav sin mayúsculas forzadas, cuerpo n−1 (12,5 → 12,8 px), tracking ×0, sin sombra.
+     La transición de interletrado en hover desaparece con el cromo (F3), así que -tracking-active sale aquí (I-6). */
+  --bbf-type-label-size: var(--bbf-size-n1);
   --bbf-type-label-weight: var(--bbf-weight-text-regular);
-  --bbf-type-label-tracking: var(--bbf-tracking-7);
-  --bbf-type-label-shadow: var(--bbf-shadow-md);
-  /* fase 6m: el interletrado del rol cuando el enlace está ACTIVO (cursor, foco o pulsación). Los dos valores del diseño caen exactos en la
-     retícula del interletrado: 0,28em = ×7 (reposo) y 0,32em = ×8 (activo). */
-  --bbf-type-label-tracking-active: var(--bbf-tracking-8);
+  --bbf-type-label-tracking: var(--bbf-tracking-0);
+  --bbf-type-label-shadow: none;
 
   --bbf-type-menu-family: var(--bbf-font-text);
   --bbf-type-menu-size: var(--bbf-size-2);
   --bbf-type-menu-weight: var(--bbf-weight-text-regular);
-  --bbf-type-menu-tracking: var(--bbf-tracking-3);
-  --bbf-type-menu-shadow: var(--bbf-shadow-lg);
+  --bbf-type-menu-tracking: var(--bbf-tracking-0); /* F0 §2.3 · F1: panel sin mayúsculas forzadas, tracking ×0 */
+  --bbf-type-menu-shadow: none;
 
   --bbf-type-legal-family: var(--bbf-font-text);
   --bbf-type-legal-size: var(--bbf-size-n2);
@@ -160,6 +159,15 @@
      mixta (el rol `signature` lo usa para esto mismo). **Tocar el ×6 compartido habría dejado sin interletrado a las versales de la nav**,
      que es exactamente el daño que esta segunda llave evita. */
   --bbf-type-legal-tracking-mixed: var(--bbf-tracking-1);
-  --bbf-type-legal-shadow: var(--bbf-shadow-sm);
+  --bbf-type-legal-shadow: none; /* F0 §2.3 · F1: fondo claro, sin sombra de texto en el pie */
+
+  /* ── ROL BOTÓN (F0 §2.3 · F1) ──────────────────────────────────────────────────────────────────────────
+     El CTA de la home. Cuerpo n−1 = mismo nivel que la etiqueta de nav (comparten jerarquía de segundo nivel).
+     Peso MEDIUM (500): el que sostiene una etiqueta corta en mayúsculas/caja mixta dentro de una píldora.
+     Sin shadow: los botones van sobre fondo claro y sobre la superficie base, no sobre el fondo oscuro del héroe. */
+  --bbf-type-button-family: var(--bbf-font-text);
+  --bbf-type-button-size: var(--bbf-size-n1);
+  --bbf-type-button-weight: var(--bbf-weight-text-medium);
+  --bbf-type-button-tracking: var(--bbf-tracking-0);
 
 }

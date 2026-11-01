@@ -32,10 +32,13 @@
   --bbf-space-12: calc(var(--bbf-space-base) * 12);
   --bbf-space-14: calc(var(--bbf-space-base) * 14);
   --bbf-space-16: calc(var(--bbf-space-base) * 16);
+  --bbf-space-17: calc(var(--bbf-space-base) * 17);
   --bbf-space-18: calc(var(--bbf-space-base) * 18);
   --bbf-space-20: calc(var(--bbf-space-base) * 20);
   --bbf-space-21: calc(var(--bbf-space-base) * 21);
+  --bbf-space-22: calc(var(--bbf-space-base) * 22);
   --bbf-space-24: calc(var(--bbf-space-base) * 24);
+  --bbf-space-27: calc(var(--bbf-space-base) * 27);
   --bbf-space-38: calc(var(--bbf-space-base) * 38);
   --bbf-space-40: calc(var(--bbf-space-base) * 40);
   --bbf-space-63: calc(var(--bbf-space-base) * 63);

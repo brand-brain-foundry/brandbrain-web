@@ -1,30 +1,30 @@
 /* CriterioSection — sección de portada (C1, 2026-11-01).
-   Dos zonas: texto+CTAs a la izquierda / contenedor del campo (S8) a la derecha.
-   Por debajo de --bbf-bp-nav (790 px): apiladas, texto primero. */
+   F5 (P-BBW-69): rejilla por roles de vista (sin @media); áreas `title / field / text`; píldoras por rol; placa + lectura.
+   Todas las decisiones de layout vienen de semantic/viewport.css (--bbf-home-*);
+   el componente CONSUME tokens y nunca escribe un valor de media query ni una dimensión. */
 
+/* Sección raíz: rejilla de dos zonas con las tres áreas.
+   padding-inline-start: el margen de página; padding-inline-end: 0 (el campo sangra al borde).
+   row-gap entre title y text; column-gap entre texto y campo. */
 .criterio {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: var(--bbf-home-grid-columns);
+  grid-template-areas: var(--bbf-home-grid-areas);
+  column-gap: var(--bbf-home-grid-gap);
+  row-gap: var(--bbf-space-6);
+  align-items: start;
   min-height: 100svh;
   padding-block: var(--bbf-space-8);
-  padding-inline: var(--bbf-space-safe);
-  gap: var(--bbf-space-8);
+  padding-inline-start: var(--bbf-bar-side);
+  padding-inline-end: 0;
   background: var(--bbf-surface-base);
   color: var(--bbf-text-on-base);
 }
 
-@media (min-width: 790px) { /* mirrors --bbf-bp-nav */
-  .criterio {
-    grid-template-columns: 1fr 1fr;
-    align-items: center;
-    gap: var(--bbf-space-10);
-  }
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--bbf-space-4);
+/* Área del título (h1). El padding-inline-end recupera el margen de página para el texto. */
+.title {
+  grid-area: title;
+  padding-inline-end: var(--bbf-bar-side);
 }
 
 .heading {
@@ -35,6 +35,15 @@
   letter-spacing: var(--bbf-type-heading-tracking);
   color: var(--bbf-text-on-base);
   margin: 0;
+}
+
+/* Área de cuerpo y CTAs. Mismo padding que el título para alinear el bloque de texto. */
+.text {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-4);
+  padding-inline-end: var(--bbf-bar-side);
 }
 
 .body {
@@ -55,44 +64,62 @@
   padding-block-start: var(--bbf-space-2);
 }
 
+/* Píldora primaria (F0 §2.3): fondo del acento, tinta oscura, border-radius completo por --bbf-space-24 (96 px). */
 .ctaPrimary {
   display: inline-flex;
   align-items: center;
   padding-block: var(--bbf-space-2);
-  padding-inline: var(--bbf-space-4);
+  padding-inline: var(--bbf-space-5);
   background: var(--bbf-surface-pill);
   color: var(--bbf-text-on-pill);
-  font-family: var(--bbf-type-label-family);
-  font-size: var(--bbf-type-label-size);
-  font-weight: var(--bbf-type-label-weight);
-  letter-spacing: var(--bbf-type-label-tracking);
+  font-family: var(--bbf-type-button-family);
+  font-size: var(--bbf-type-button-size);
+  font-weight: var(--bbf-type-button-weight);
+  letter-spacing: var(--bbf-type-button-tracking);
   text-decoration: none;
-  border-radius: var(--bbf-space-1);
+  border-radius: var(--bbf-space-24);
 }
 
+/* Píldora secundaria (F0 §2.4): sin fondo, borde del separador, tinta del acento, mismo radio. */
 .ctaSecondary {
   display: inline-flex;
   align-items: center;
   padding-block: var(--bbf-space-2);
-  padding-inline: var(--bbf-space-4);
+  padding-inline: var(--bbf-space-5);
   color: var(--bbf-text-on-base-accent);
-  font-family: var(--bbf-type-label-family);
-  font-size: var(--bbf-type-label-size);
-  font-weight: var(--bbf-type-label-weight);
-  letter-spacing: var(--bbf-type-label-tracking);
+  font-family: var(--bbf-type-button-family);
+  font-size: var(--bbf-type-button-size);
+  font-weight: var(--bbf-type-button-weight);
+  letter-spacing: var(--bbf-type-button-tracking);
   text-decoration: none;
   border: 1px solid var(--bbf-line-on-base);
-  border-radius: var(--bbf-space-1);
+  border-radius: var(--bbf-space-24);
 }
 
-/* Placeholder del campo de puntos (S8). Altura mínima para que el contenedor no colapse antes de que S8 entre. */
+/* Contenedor del campo de puntos (S8, F0 §2.5).
+   grid-row: var(--bbf-home-field-row) = span 2 en la vista amplia / auto en la colapsada.
+   margin-inline-end: var(--bbf-home-field-bleed): en la vista amplia el campo sangra hasta el borde de la página
+   (valor negativo = −var(--bbf-bar-side)); en la colapsada el valor es 0 y el campo no sangra. */
 .field {
-  min-height: calc(var(--bbf-space-safe) * 5);
-  border-radius: var(--bbf-space-1);
+  grid-area: field;
+  grid-row: var(--bbf-home-field-row);
+  display: flex;
+  flex-direction: column;
+  margin-inline-end: var(--bbf-home-field-bleed);
+  background: var(--bbf-field-lane);
+  border-radius: var(--bbf-space-2) 0 0 var(--bbf-space-2);
 }
 
-@media (min-width: 790px) { /* mirrors --bbf-bp-nav */
-  .field {
-    min-height: 60svh;
-  }
+/* Zona superior: donde vivirá el canvas de S8 (P-BBW-67). Altura mínima para que el contenedor no colapse. */
+.placa {
+  flex: 1 0 var(--bbf-space-63);
+}
+
+/* Zona inferior: lectura / contador. El padding-end recupera la sangría del borde
+   usando el opuesto de --bbf-home-field-bleed: en la vista amplia = var(--bbf-bar-side),
+   en la colapsada = 0 (bleed es 0, su opuesto también). */
+.lectura {
+  padding: var(--bbf-space-3);
+  padding-inline-end: calc(var(--bbf-home-field-bleed) * -1 + var(--bbf-space-3));
+  border-top: 1px solid var(--bbf-line-on-base);
 }

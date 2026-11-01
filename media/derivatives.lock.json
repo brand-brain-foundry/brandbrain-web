@@ -14,6 +14,38 @@
       "profile": "ico 16/32/48",
       "sha256": "1e7f8b8a7a4dd0c6947ac79dfd0ed2325bf27efc53bf6a1c31037ad0ab4752b2"
     },
+    "gcFoundational128": {
+      "height": 128,
+      "master": "gcFoundational",
+      "path": "public/gc-foundational-128.png",
+      "profile": "png-resize 128×128",
+      "sha256": "bf0f07655019a6ad313de105a53c00b4589bf0587e2931fe8d587484457e4d57",
+      "width": 128
+    },
+    "gcFoundational144": {
+      "height": 144,
+      "master": "gcFoundational",
+      "path": "public/gc-foundational-144.png",
+      "profile": "png-resize 144×144",
+      "sha256": "76814e4334df3efc3032c29fb3f7095738e2db722b12607b13e3a35f62e7b852",
+      "width": 144
+    },
+    "gcFoundational64": {
+      "height": 64,
+      "master": "gcFoundational",
+      "path": "public/gc-foundational-64.png",
+      "profile": "png-resize 64×64",
+      "sha256": "c612a9ecedc348e210b7350c222c26ede2f5ed4d3392ac69585f96db18ac073d",
+      "width": 64
+    },
+    "gcFoundational72": {
+      "height": 72,
+      "master": "gcFoundational",
+      "path": "public/gc-foundational-72.png",
+      "profile": "png-resize 72×72",
+      "sha256": "fe98940a5799e2911f2facca72aa8e5df2a716270fa4722ec207234e4623540b",
+      "width": 72
+    },
     "icon": {
       "height": 272,
       "master": "brandIcon",
@@ -63,7 +95,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "f7b0d8672d0a9f41dfa215b3f5c169cc975613bf9e01eae8c8aba5cd89a6bc5e"
+    "sha256": "62278b719334ce4170356e3846e29bec664a8e857375f77333b716aef38e78fc"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -71,6 +103,10 @@
       "file": "brand-icon.svg",
       "paint": "#9299c6",
       "sha256": "8cf6fb57414e3f43e09b32703f3a4b07ed60b063fbcf1638363d0d28a89a6b8b"
+    },
+    "gcFoundational": {
+      "file": "gc-foundational.png",
+      "sha256": "45179d3688d982570410387f6442cbd87467ec8e15070544e95983316ad1eb28"
     },
     "heroLoop": {
       "file": "hero-loop.mp4",
@@ -95,14 +131,6 @@
     "toggleArmTop": {
       "file": "toggle-arm-top.svg",
       "sha256": "7399dee05d20bda5470b44dfc1323a1fd7b20463a0020d317ef5817d409ea84e"
-    },
-    "underlineWaveMenu": {
-      "file": "underline-wave-menu.svg",
-      "sha256": "df618e94f2e1a27398682daf198194bc2b25f2b902da217ace67695ec323d8f0"
-    },
-    "underlineWaveNav": {
-      "file": "underline-wave-nav.svg",
-      "sha256": "383705cb1d3f39f811419cd6ddd11e436292a271fe89d7208f23d29c4ebc7e38"
     }
   },
   "surface": {

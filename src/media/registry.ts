@@ -32,7 +32,7 @@ export const MASTER_PAINT_TOKENS: Partial<Record<MasterId, string>> = {
   brandIcon: "--bbf-accent",
 };
 
-export type MasterKind = "svg" | "video";
+export type MasterKind = "svg" | "video" | "raster";
 export type Master = { file: string; kind: MasterKind; origin: string };
 
 /** Maestros. `origin` documenta de dónde salió el archivo: un maestro no se dibuja, se trae del diseño (despacho 6c §5). */
@@ -44,8 +44,6 @@ export const masters = {
   },
   iconLinkedin: { file: "icon-linkedin.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, iconos sociales, path inline), 2026-09-17" },
   iconGithub: { file: "icon-github.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, iconos sociales, path inline), 2026-09-17" },
-  underlineWaveNav: { file: "underline-wave-nav.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, onda de subrayado 160×7), 2026-09-17" },
-  underlineWaveMenu: { file: "underline-wave-menu.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, onda de la hoja 340×9), 2026-09-17" },
   toggleArmTop: { file: "toggle-arm-top.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo superior del conmutador 34×6), 2026-09-17" },
   toggleArmBottom: { file: "toggle-arm-bottom.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo inferior del conmutador 34×6), 2026-09-17" },
   /**
@@ -70,6 +68,13 @@ export const masters = {
     file: "hero-loop-registro.mp4",
     kind: "video",
     origin: "diseño inventariado (N0 §2.1, assets/fish-loop.mp4 ≡ uploads/Crystal_fish_with_human_eye_20260915110026.mp4); dejado por Zavala en public/bb-landing-hero.mp4 el 2026-09-17 y movido a media/masters/hero-loop.mp4 el mismo día; renombrado a hero-loop-registro.mp4 el 2026-09-29 al entrar el maestro nuevo. Ya comprimido, con audio: maestro de registro (D-BBW-24), conservado sin derivados",
+  },
+  /** Sello Google Cloud Certified — Foundational (F4, P-BBW-69). PNG raster 521×521 RGBA copiado byte a byte de handoff-diseno/assets/ el 2026-11-01.
+   *  Derivados: 72/144 px (pantalla) y 64/128 px (panel compacto). Enlace solo cuando links.credly está presente ([ZAVALA-MANUAL]). */
+  gcFoundational: {
+    file: "gc-foundational.png",
+    kind: "raster",
+    origin: "sello GC Foundational copiado byte a byte de handoff-diseno/assets/gc-foundational.png el 2026-11-01 (F4, P-BBW-69)",
   },
 } as const satisfies Record<string, Master>;
 export type MasterId = keyof typeof masters;
@@ -101,7 +106,9 @@ export type Profile =
   | { kind: "png"; size: number; background: "transparent" | "surface"; padding: number; safeZone?: true }
   | { kind: "ico"; sizes: readonly number[] }
   | { kind: "share"; width: number; height: number; iconHeight: number }
-  | { kind: "manifest"; icons: readonly string[] };
+  | { kind: "manifest"; icons: readonly string[] }
+  /** Redimensiona un maestro raster (PNG/JPEG) a `size`×`size` con fondo transparente preservado. Herramienta: sharp. */
+  | { kind: "png-resize"; size: number };
 
 export type Derivative = { master: MasterId; path: string; profile: Profile; role: string };
 
@@ -114,6 +121,10 @@ export type Derivative = { master: MasterId; path: string; profile: Profile; rol
    para que los scripts de build y guardia puedan comprobar todos los profile kinds (incluyendo video/poster si se reintroducen). */
 const _derivativesConst = {
   icon: { master: "brandIcon", path: "icon.svg", profile: { kind: "svg-copy" }, role: "icono escalable: pestaña del navegador y marca en la cabecera" },
+  gcFoundational72: { master: "gcFoundational", path: "gc-foundational-72.png", profile: { kind: "png-resize", size: 72 }, role: "sello GC Foundational 72 px (1×, pantalla estándar)" },
+  gcFoundational144: { master: "gcFoundational", path: "gc-foundational-144.png", profile: { kind: "png-resize", size: 144 }, role: "sello GC Foundational 144 px (2×, pantalla de alta densidad)" },
+  gcFoundational64: { master: "gcFoundational", path: "gc-foundational-64.png", profile: { kind: "png-resize", size: 64 }, role: "sello GC Foundational 64 px (1×, panel compacto)" },
+  gcFoundational128: { master: "gcFoundational", path: "gc-foundational-128.png", profile: { kind: "png-resize", size: 128 }, role: "sello GC Foundational 128 px (2×, panel compacto de alta densidad)" },
   favicon: { master: "brandIcon", path: "favicon.ico", profile: { kind: "ico", sizes: [16, 32, 48] }, role: "respaldo .ico multi-tamaño (agrupa los tamaños pequeños)" },
   appleTouchIcon: {
     master: "brandIcon",
@@ -151,12 +162,11 @@ export const derivatives: { readonly [K in DerivativeId]: Derivative } = _deriva
  * viewBox + trazado extraído del maestro y escrito en `src/media/generated.ts`. `paint` dice si el maestro es relleno o trazo;
  * `use` distingue los iconos de perfil (los resuelve `iconFor(id)` desde el contenido) de los ornamentos (los pide un componente por nombre).
  */
-export type InlineIcon = { master: MasterId; paint: "fill" | "stroke"; use: "profile" | "ornament" };
+export type InlineIcon = { master: MasterId; paint: "fill" | "stroke"; use: "profile" | "ornament" | "brand" };
 export const inlineIcons = {
+  brandIcon: { master: "brandIcon", paint: "fill", use: "brand" },
   linkedin: { master: "iconLinkedin", paint: "fill", use: "profile" },
   github: { master: "iconGithub", paint: "fill", use: "profile" },
-  underlineWaveNav: { master: "underlineWaveNav", paint: "stroke", use: "ornament" },
-  underlineWaveMenu: { master: "underlineWaveMenu", paint: "stroke", use: "ornament" },
   toggleArmTop: { master: "toggleArmTop", paint: "stroke", use: "ornament" },
   toggleArmBottom: { master: "toggleArmBottom", paint: "stroke", use: "ornament" },
 } as const satisfies Record<string, InlineIcon>;

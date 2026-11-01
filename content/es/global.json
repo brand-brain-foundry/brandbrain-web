@@ -38,11 +38,13 @@
       {
         "id": "linkedin",
         "label": "Perfil de LinkedIn",
+        "short": "LinkedIn",
         "link": "linkedin"
       },
       {
         "id": "github",
         "label": "Perfil de GitHub",
+        "short": "GitHub",
         "link": "github"
       }
     ]

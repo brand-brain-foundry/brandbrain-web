@@ -93,6 +93,13 @@ function loadVideoMaster(id: MasterId): VideoMaster {
   return { id, file: masters[id].file, abs, bytes: fs.readFileSync(abs) };
 }
 
+type RasterMaster = { id: MasterId; file: string; bytes: Buffer };
+
+function loadRasterMaster(id: MasterId): RasterMaster {
+  const file = path.join(REPO_ROOT, MASTERS_DIR, masters[id].file);
+  return { id, file: masters[id].file, bytes: fs.readFileSync(file) };
+}
+
 /** ffmpeg instalado: versión (primera línea de `ffmpeg -version`, p. ej. "8.1.2"). Falla con mensaje si no está: sin herramienta no hay derivado. */
 function ffmpegVersion(): string {
   let out: string;
@@ -237,6 +244,8 @@ function profileLabel(p: Profile): string {
       return `video ${p.codec} ${p.width}×${p.height} crf ${p.quality} sin audio ≤ ${p.budgetBytes} B`;
     case 'poster':
       return `poster ${p.format} ${p.width}×${p.height} q ${p.quality} fotograma 0 ≤ ${p.budgetBytes} B`;
+    case 'png-resize':
+      return `png-resize ${p.size}×${p.size}`;
   }
 }
 
@@ -251,6 +260,11 @@ async function main(): Promise<void> {
   const video = (id: MasterId) => {
     if (masters[id].kind !== 'video') throw new Error(`[media] el maestro "${id}" no es un vídeo: este perfil no lo admite`);
     return loadedVideo.get(id) ?? (loadedVideo.set(id, loadVideoMaster(id)), loadedVideo.get(id)!);
+  };
+  const loadedRaster = new Map<MasterId, RasterMaster>();
+  const raster = (id: MasterId) => {
+    if (masters[id].kind !== 'raster') throw new Error(`[media] el maestro "${id}" no es raster: este perfil no lo admite`);
+    return loadedRaster.get(id) ?? (loadedRaster.set(id, loadRasterMaster(id)), loadedRaster.get(id)!);
   };
   const needsFfmpeg = (Object.values(derivatives) as Derivative[]).some((d) => d.profile.kind === 'video' || d.profile.kind === 'poster');
   const ffmpeg = needsFfmpeg ? ffmpegVersion() : undefined;
@@ -270,10 +284,12 @@ async function main(): Promise<void> {
     // D-BBW-70: además de la huella del archivo, el lock sella el COLOR RESUELTO con el que se pintó. Sin esto se abriría un hueco
     // nuevo: cambiar el token del acento no cambia ningún maestro, así que la huella seguiría cuadrando y los derivados quedarían
     // viejos en verde — justo la clase de fallo silencioso que este mecanismo venía a cerrar.
-    const svgPaint = masters[id].kind === 'video' ? undefined : master(id).paintColor;
+    const kind = masters[id].kind;
+    const svgPaint = kind === 'svg' ? master(id).paintColor : undefined;
+    const masterBytes = kind === 'video' ? video(id).bytes : kind === 'raster' ? raster(id).bytes : master(id).bytes;
     lock.masters[id] = {
       file: masters[id].file,
-      sha256: sha256(masters[id].kind === 'video' ? video(id).bytes : master(id).bytes),
+      sha256: sha256(masterBytes),
       ...(svgPaint ? { paint: svgPaint } : {}),
     };
   }
@@ -308,6 +324,12 @@ async function main(): Promise<void> {
       const pct = ((out.bytes.length / p.budgetBytes) * 100).toFixed(0);
       if (out.bytes.length > p.budgetBytes) throw new Error(`[media] ${d.path}: ${out.bytes.length} B supera el presupuesto del perfil (${p.budgetBytes} B, ${pct} %): bajar calidad o resolución es una decisión con consecuencias visibles, no se acepta en silencio`);
       notes.push(`${d.path}: ${out.bytes.length} B = ${pct} % del presupuesto ${p.budgetBytes} B${out.streams ? ` · ${out.streams}` : ''}`);
+      continue;
+    }
+    if (p.kind === 'png-resize') {
+      const rm = raster(d.master);
+      const png = await sharp(rm.bytes).resize(p.size, p.size, { fit: 'cover', kernel: 'lanczos3' }).png({ compressionLevel: 9, adaptiveFiltering: false, palette: false, effort: 10 }).toBuffer();
+      outputs.set(id, { bytes: png, width: p.size, height: p.size });
       continue;
     }
     const m = master(d.master);

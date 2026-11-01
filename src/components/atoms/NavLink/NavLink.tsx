@@ -6,6 +6,8 @@ export type NavLinkProps = {
   href: string;
   /** texto visible / nombre accesible: llega del contenido (`LinkItem.label`) */
   label: string;
+  /** texto CORTO para el modo de texto inline del header (F3 · P-BBW-69): si llega, se muestra en lugar de `label` */
+  short?: string;
   /** rol tipográfico con el que se pinta (label = nav en línea · menu = hoja móvil · legal = pie) */
   typeRole: "label" | "menu" | "legal";
   /** icono de perfil del puerto de medios (fase 6c): si llega, se muestra el icono y la etiqueta queda como nombre accesible */
@@ -31,7 +33,7 @@ function isOutbound(href: string): boolean {
  * ratón o recibir el foco; sin transición) y `menu` (siempre visible); iconos de perfil con el texto como nombre accesible.
  * Área táctil mínima por token. Sin literales, sin valores.
  */
-export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }: NavLinkProps) {
+export function NavLink({ href, label, short, typeRole, icon, iconSize = "sm", badge }: NavLinkProps) {
   const outbound = isOutbound(href);
   const sizeClass = iconSize === "md" ? styles.sizeMd : styles.sizeSm;
   return (
@@ -49,22 +51,11 @@ export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }:
         </>
       ) : (
         <span className={styles.text}>
-          {label}
+          {short ?? label}
           {/* El espacio es LITERAL y no decorativo: el nombre accesible se calcula concatenando los nodos de texto, y sin él un lector de
               pantalla anuncia «Sivar BrainsCaso» de corrido. El margen de la hoja separa a la vista, no al oído. Medido sobre el HTML
               generado antes de añadirlo. */}
           {badge ? <> <span className={styles.badge}>{badge}</span></> : null}
-          {typeRole === "label" ? (
-            <span className={styles.underline} aria-hidden="true">
-              <Icon name="underlineWaveNav" className={`${styles.wave} ${styles.waveNav} ${styles.waveBase}`} />
-              <Icon name="underlineWaveNav" className={`${styles.wave} ${styles.waveNav} ${styles.waveInk}`} />
-            </span>
-          ) : null}
-          {typeRole === "menu" ? (
-            <span className={styles.underline} aria-hidden="true">
-              <Icon name="underlineWaveMenu" className={`${styles.wave} ${styles.waveMenu}`} />
-            </span>
-          ) : null}
         </span>
       )}
     </a>

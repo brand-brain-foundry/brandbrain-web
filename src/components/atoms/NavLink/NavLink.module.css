@@ -1,18 +1,11 @@
-/* NavLink — Tier 3: solo consume Tier 1/2. Fase 6g: ESTADOS con transición por rol (reposo → cursor encima / foco / activo: color y revelado
-   de la onda de tinta en --bbf-motion-link-*) y RIPPLE de la onda (N0 `ef-ripple`: se desplaza un periodo del trazado, --bbf-motion-ripple-shift,
-   en bucle lineal de --bbf-motion-ripple-duration) mientras el enlace está activo, enfocado o bajo el cursor (nav) y siempre en la hoja (menu).
-   Movimiento reducido: la transición colapsa con la madre de duración; el bucle se pausa por rol (--bbf-motion-loop-play-state).
-   Fase 6c · onda del subrayado (N0 §2.3): caja de 160×7 (nav) y 340×9 (hoja) → ancho ×40 / ×85, alto ×2; dos capas bajo la nav (base en
-   reposo con la línea tenue; tinta de acento revelada por clip-path al pasar o enfocar, sin transición) y una bajo la hoja (acento con
-   brillo, siempre visible). La onda se recorta al ancho del texto (overflow hidden), como en el diseño. Grosores por rol (semantic/lines.css).
+/* NavLink — Tier 3: solo consume Tier 1/2. Fase 6g: ESTADOS con transición por rol (reposo → cursor encima / foco / activo: color).
+   Movimiento reducido: la transición colapsa con la madre de duración.
+   F3 (P-BBW-69): sin mayúsculas ni ondas de subrayado (fondo claro). Hover en --bbf-interactive-hover (accent-600, contraste 4:1 vs niebla-50).
    Iconos de perfil: 15–16 px → ×4 (barra) y 22 → ×6 (hoja) con área táctil 44 → ×11 (rol touch-min) y 56 → ×14.
    Texto oculto visualmente (nombre accesible del icono): sin dimensiones a mano — ocupa la caja del enlace (inset 0) y se recorta entera.
    Fase 6l · SOMBRAS DE TEXTO por rol (mapeo del N1 doc B §11): enlaces de la nav → `label-shadow` (paso md) · enlaces de la hoja →
    `menu-shadow` (paso lg) · perfiles → `legal-shadow` (paso sm). Por rol, nunca un valor. */
 .navLink {
-  --bbf-nav-link-underline-height: var(--bbf-space-2);
-  --bbf-nav-link-underline-width-nav: var(--bbf-space-40);
-  --bbf-nav-link-underline-width-menu: var(--bbf-space-85);
   --bbf-nav-link-icon-sm: var(--bbf-space-4);
   --bbf-nav-link-icon-md: var(--bbf-space-6);
   --bbf-nav-link-touch-md: var(--bbf-space-14);
@@ -22,7 +15,6 @@
   align-items: center;
   min-height: var(--bbf-space-touch-min);
   color: var(--bbf-text-on-base-secondary);
-  text-transform: uppercase;
   text-decoration: none;
 }
 
@@ -32,7 +24,7 @@
 
 .navLink:hover,
 .navLink:active {
-  color: var(--bbf-accent);
+  color: var(--bbf-interactive-hover);
 }
 
 /* un enlace que solo muestra un icono garantiza su área táctil también en anchura (44 → rol touch-min en la barra; 56 → ×14 en la hoja);
@@ -54,18 +46,6 @@
   font-weight: var(--bbf-type-label-weight);
   letter-spacing: var(--bbf-type-label-tracking);
   text-shadow: var(--bbf-type-label-shadow);
-  transition: letter-spacing var(--bbf-motion-link-tracking-duration) var(--bbf-motion-link-ease);
-}
-
-/* fase 6m · el enlace ABRE SU INTERLETRADO al estar activo (N1 doc B §5). Es el segundo estado del diseño junto al color; el tercero que su
-   código declara, `translateY(-2px)`, NO se porta y no es una carencia: está MUERTO en el propio diseño, medido en el export — la entrada
-   `ef-emerge` lleva `fill: both` y `transform` entre sus propiedades, así que al terminar retiene la identidad y la elevación nunca llega a
-   aplicarse (`matrix(1,0,0,1,0,0)` antes y después de pasar el cursor). Portar un efecto que el diseño no renderiza no sería fidelidad.
-   Con movimiento reducido la transición colapsa con la madre de duración: el estado cambia, el recorrido no. */
-.navLink:hover .label,
-.navLink:focus-visible .label,
-.navLink:active .label {
-  letter-spacing: var(--bbf-type-label-tracking-active);
 }
 
 .menu {
@@ -87,64 +67,6 @@
 .text {
   position: relative;
   display: inline-block;
-}
-
-.underline {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  height: var(--bbf-nav-link-underline-height);
-  overflow: hidden;
-}
-
-.wave {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: auto;
-}
-
-.waveNav {
-  width: var(--bbf-nav-link-underline-width-nav);
-}
-
-.waveMenu {
-  width: var(--bbf-nav-link-underline-width-menu);
-  color: var(--bbf-accent-glow);
-  stroke-width: var(--bbf-line-underline);
-  animation: ripple var(--bbf-motion-ripple-duration) var(--bbf-ease-linear) infinite;
-  animation-play-state: var(--bbf-motion-loop-play-state);
-}
-
-.waveBase {
-  color: var(--bbf-line-on-base);
-  stroke-width: var(--bbf-line-underline-base);
-}
-
-.waveInk {
-  color: var(--bbf-accent);
-  stroke-width: var(--bbf-line-underline);
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path var(--bbf-motion-link-reveal-duration) var(--bbf-motion-link-ease);
-}
-
-.navLink:hover .waveInk,
-.navLink:focus-visible .waveInk,
-.navLink:active .waveInk {
-  clip-path: inset(0);
-  animation: ripple var(--bbf-motion-ripple-duration) var(--bbf-ease-linear) infinite;
-  animation-play-state: var(--bbf-motion-loop-play-state);
-}
-
-@keyframes ripple {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(calc(-1 * var(--bbf-motion-ripple-shift)));
-  }
 }
 
 .profileIcon {

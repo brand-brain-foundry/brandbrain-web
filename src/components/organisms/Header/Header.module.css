@@ -1,29 +1,21 @@
-/* Header — Tier 3: solo consume Tier 1/2. Margen de página por rol; capa de cromo por rol.
-   Fase 6f (composición leída del export): la cabecera va SUPERPUESTA al escenario del héroe (position: absolute en la parte superior del
-   documento; el fondo corre por detrás), la marca en el margen de página y la navegación alineada ARRIBA (no centrada con la marca): su
-   borde superior a --bbf-chrome-nav-top del borde de la ventana (el margen de página menos la diferencia) y separación entre enlaces por
-   rol (--bbf-chrome-nav-gap, sobre la variable de la lista). */
+/* Header — Tier 3: solo consume Tier 1/2. Margen de página por rol.
+   F3 (P-BBW-69): cabecera EN FLUJO (position: relative; no superpuesta al héroe); marca y nav centrados verticalmente.
+   Separación marca↔nav y nav↔perfiles: --bbf-space-17 (68 px); separación entre enlaces: --bbf-chrome-nav-gap por la variable de la lista.
+   El nav-shift y el z-index de cromo salen (I-6): sin consumidor tras pasar a in-flow. */
 .header {
-  --bbf-header-gap: var(--bbf-space-6);
-  --bbf-header-nav-shift: calc(var(--bbf-chrome-nav-top) - var(--bbf-space-page));
-
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: var(--bbf-layer-chrome);
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  column-gap: var(--bbf-header-gap);
+  column-gap: var(--bbf-space-17);
   row-gap: var(--bbf-space-2);
   padding: var(--bbf-space-page);
 }
 
 .nav {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .inline {
@@ -32,6 +24,6 @@
   --bbf-enter-step: var(--bbf-motion-enter-stagger-nav);
 
   display: var(--bbf-nav-inline-display);
-  align-items: flex-start;
-  margin-top: var(--bbf-header-nav-shift);
+  align-items: center;
+  gap: var(--bbf-space-17);
 }

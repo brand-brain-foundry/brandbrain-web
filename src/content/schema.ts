@@ -68,6 +68,12 @@ export type LinkItem = {
    * lector de pantalla anuncia «Sivar Brains Caso» sin ningún `aria-label` que pudiera desincronizarse del texto visible.
    */
   case?: boolean;
+  /**
+   * ETIQUETA CORTA del enlace (P-BBW-69 · F0 §2.6): texto breve para mostrar el perfil cuando el espacio es
+   * limitado (p. ej. «LinkedIn» en vez de «Perfil de LinkedIn»). OPCIONAL: solo los enlaces de perfil del pie lo necesitan.
+   * No es un destino ni una condición — es texto visible alternativo; quien no lo declara usa `label`.
+   */
+  short?: string;
 };
 
 export type GlobalDocument = {
@@ -124,6 +130,16 @@ export type CriterioSection = {
   ctaSecondary: string;
   /** llave del enlace del CTA secundario; el destino vive en content/site.json, nunca aquí */
   ctaSecondaryLink: LinkKey;
+  /** texto de estado inicial del campo de lectura (P-BBW-67 · F0 §4.3 — opcional hasta que S8 entre en producción) */
+  readoutStatic?: string;
+  /** texto de estado de carga del campo */
+  readoutReading?: string;
+  /** prefijo de la consulta activa */
+  readoutQuery?: string;
+  /** singular de resultado */
+  readoutSingular?: string;
+  /** plural de resultado */
+  readoutPlural?: string;
 };
 
 /** Unión de tipos de sección. Un tipo nuevo se añade aquí y en SECTION_KEYS (y su renderizador, fase 6b). */
@@ -154,6 +170,11 @@ const SECTION_KEYS: Record<SectionType, readonly string[]> = {
 /** Llaves de sección que son LinkKey (no texto): se validan como tales, no con checkText. */
 const SECTION_LINK_KEYS: Partial<Record<SectionType, ReadonlySet<string>>> = {
   criterio: new Set(["ctaSecondaryLink"]),
+};
+
+/** Llaves opcionales por tipo de sección: admitidas pero no requeridas; si están, se validan como texto. */
+const SECTION_OPTIONAL_KEYS: Partial<Record<SectionType, readonly string[]>> = {
+  criterio: ["readoutStatic", "readoutReading", "readoutQuery", "readoutSingular", "readoutPlural"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -196,10 +217,11 @@ function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   v.forEach((item, i) => {
     const p = `${path}[${i}]`;
     if (!isRecord(item)) return void problems.push({ path: p, message: `debe ser un objeto { id, label, link }` });
-    checkKeys(item, ["id", "label", "link"], p, problems, ["case"]);
+    checkKeys(item, ["id", "label", "link"], p, problems, ["case", "short"]);
     if (item.case !== undefined && typeof item.case !== "boolean") {
       problems.push({ path: `${p}.case`, message: `debe ser true o false (la PALABRA del caso vive una sola vez, en $.nav.caseLabel)` });
     }
+    if (item.short !== undefined) checkText(item.short, `${p}.short`, problems);
     checkId(item.id, `${p}.id`, seen, problems);
     checkText(item.label, `${p}.label`, problems);
     if (typeof item.link !== "string" || !isLinkKey(item.link)) {
@@ -243,7 +265,8 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     return void problems.push({ path: `${path}.type`, message: `tipo de sección desconocido "${String(type)}" (tipos: ${Object.keys(SECTION_KEYS).join(", ")})` });
   }
   const keys = SECTION_KEYS[type as SectionType];
-  checkKeys(v, keys, path, problems);
+  const optionalKeys = SECTION_OPTIONAL_KEYS[type as SectionType] ?? [];
+  checkKeys(v, keys, path, problems, optionalKeys);
   checkId(v.id, `${path}.id`, seen, problems);
   const linkKeys = SECTION_LINK_KEYS[type as SectionType];
   for (const k of keys) {
@@ -255,6 +278,9 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     } else {
       checkText(v[k], `${path}.${k}`, problems);
     }
+  }
+  for (const k of optionalKeys) {
+    if (v[k] !== undefined) checkText(v[k], `${path}.${k}`, problems);
   }
 }
 

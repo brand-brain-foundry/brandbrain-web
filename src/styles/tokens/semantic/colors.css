@@ -5,12 +5,10 @@
  * Los niveles de texto se toman de la RAMPA (L), no de alfas: el N0 usaba rgba() sobre negro, que compuesto equivale a un paso
  * de la rampa mint (tabla de mapeo con residuales en el output de fase 4).
  * Fase 6c: `focus` (D-BBW-22: el rol de la matriz que faltaba, derivado del acento; el anillo del navegador no es sistema), `line-on-base`
- * (categoría `border` de la matriz: la onda del subrayado en reposo, N0 rgba(224,236,234,.3) sobre negro ≈ L 0,39 → mint-700) y
- * `surface-veil` (la hoja del panel, N0 rgba(0,0,0,.9): es exactamente la tinta al 90 % que ya compone la sombra suave; misma madre, sin alfa
- * nueva). Sigue sin rol: mint-50 / mint-300 / mint-500 (decisión con argumento en OUTPUT-BBW-2026-09-17-fase6c §3: el juicio es visual con
- * el fondo, que llega en el turno de movimiento; un rol sin ese juicio sería especulativo). Fase 6d: juzgados con el fondo, cierre sin rol.
+ * (categoría `border` de la matriz: la onda del subrayado en reposo, N0 rgba(224,236,234,.3) sobre negro ≈ L 0,39 → mint-700). Sigue sin rol:
+ * mint-50 / mint-300 / mint-500 (decisión con argumento en OUTPUT-BBW-2026-09-17-fase6c §3: el juicio es visual con el fondo). Fase 6d: cierre.
  * Fase 6e (D-BBW-25): `surface-veil-text`, el velo LOCAL de legibilidad bajo el bloque de texto del héroe: tinta calibrada al mínimo que
- * cumple (madre en primitives/shadows.css), distinta del velo global (`surface-veil`, 90 %) porque su alfa la fija una medida, no el diseño.
+ * cumple (madre en primitives/shadows.css). F3 (P-BBW-69): `surface-veil` RETIRADO (I-6): NavPanel pasa a `surface-base`, sin consumidor.
  * CLASE (D-DOC-13): estático (los roles); a qué paso apunta cada rol = dinámico.
  */
 :root {
@@ -40,8 +38,20 @@
   --bbf-text-on-pill: var(--bbf-color-ink-900);
   --bbf-scrollbar-thumb: var(--bbf-color-accent-600);
   --bbf-scrollbar-track: transparent;
-  /* Separador sutil en fondo claro: mint-300 da una línea visible sin pesar. */
-  --bbf-line-on-base: var(--bbf-color-mint-300);
-  /* El velo sigue siendo el fondo del panel de navegación (hoja <details>): tinta al 90 %. */
-  --bbf-surface-veil: var(--bbf-shadow-ink-soft);
+  /* Separador sutil en fondo claro (F0 §2.4 · F1): mint-200 es un trazo más fino que mint-300 en el fondo niebla. */
+  --bbf-line-on-base: var(--bbf-color-mint-200);
+
+  /* ── ROLES INTERACTIVOS Y DE CAMPO (F0 §2.4 · F1) ───────────────────────────────────────────────────────
+     Hover de elementos de nav: un paso oscuro del acento que contraste sobre el fondo claro (accent-600 ≈ 4:1 vs niebla-50).
+     Hover de superficie (fondo de tarjeta, fila, zona resaltada): un paso muy sutil de mint para indicar estado. */
+  --bbf-interactive-hover: var(--bbf-color-accent-600);
+  --bbf-surface-hover: var(--bbf-color-mint-100);
+  /* Carril del campo: el fondo de la pista (niebla-100, un paso por encima de la superficie base).
+     Carril activo: toma el color del sistema mientras hay actividad (mint-300).
+     Lectura: el texto del contador en estado de lectura (accent-500, sobre niebla-100 ≈ 4:1).
+     Impacto: el acento oscuro usado para cifras de alto contraste sobre superficie (deep-700). */
+  --bbf-field-lane: var(--bbf-color-niebla-100);
+  --bbf-field-lane-live: var(--bbf-color-mint-300);
+  --bbf-field-read: var(--bbf-color-accent-500);
+  --bbf-field-hit: var(--bbf-color-deep-700);
 }

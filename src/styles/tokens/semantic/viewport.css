@@ -68,6 +68,20 @@
      colapsada una fila centrada (legal + aviso) y los perfiles viven en la hoja del panel (rol inline-display), no en la barra */
   --bbf-bar-justify: space-between;
   --bbf-bar-gap-view: var(--bbf-bar-gap);
+
+  /* ── REJILLA DE LA HOME / CriterioSection (F0 §2.5 · F1) ────────────────────────────────────────────────
+     Vista amplia: dos columnas iguales (título+texto izquierda / campo derecha que ocupa ambas filas).
+     Vista colapsada: una columna (título · campo · texto, en ese orden).
+     Un componente declara `grid-template-columns: var(--bbf-home-grid-columns)` y
+     `grid-template-areas: var(--bbf-home-grid-areas)` y nunca escribe una media query. */
+  --bbf-home-grid-columns: 1fr 1fr;
+  --bbf-home-grid-areas: "title field" "text field";
+  --bbf-home-field-row: span 2;
+  /* Separación texto-campo (P-BBW-71 NO firmada: fijo var(--bbf-space-11) = 44 px en vez de clamp(32px, 4.5vw, 68px); Δ reportado en F7). */
+  --bbf-home-grid-gap: var(--bbf-space-11);
+  /* El campo llega al borde derecho de la página: la rejilla ya tiene padding-inline-end:0, así que
+     el campo en su columna ya toca el borde sin necesitar sangría extra (bleed:0). */
+  --bbf-home-field-bleed: 0px;
 }
 
 @media (max-width: 790px) {
@@ -94,5 +108,13 @@
     --bbf-nav-panel-display: block;
     --bbf-bar-justify: center;
     --bbf-bar-gap-view: var(--bbf-bar-gap-narrow);
+
+    /* Rejilla de la home colapsada: una columna, campo en el medio (título · campo · texto). */
+    --bbf-home-grid-columns: 1fr;
+    --bbf-home-grid-areas: "title" "field" "text";
+    --bbf-home-field-row: auto;
+    /* En la vista colapsada no hay columnas que separar ni borde que sangrar. */
+    --bbf-home-grid-gap: 0px;
+    --bbf-home-field-bleed: 0px;
   }
 }

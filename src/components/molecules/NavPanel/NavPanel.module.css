@@ -5,9 +5,8 @@
    entero se desplazaba en vertical con el panel abierto. Si el contenido de la hoja no cabe, se desplaza DENTRO de la hoja (overflow-y), no
    la página. 100svh es estructura (la ventana), no valor de diseño. Sigue siendo <details> nativo, sin código de cliente.
    Fase 6c · conmutador (N0 §2.3): caja 34 → ×9 (36), dos brazos de 34×6 separados 8 = ×2, grosor por rol (semantic/lines.css); el conmutador
-   conserva el área táctil mínima y la caja de 48 → ×12 del diseño. Hoja: velo (N0 rgba(0,0,0,.9) = tinta al 90 %, rol surface-veil) +
-   desenfoque del fondo (rol blur-sheet, 22 → 24 px). `saturate(.7)` del diseño: sin escala, no aplicado (reportado).
-   Texto oculto visualmente del conmutador: ocupa su caja (inset 0) y se recorta entera, sin dimensiones a mano. */
+   conserva el área táctil mínima y la caja de 48 → ×12 del diseño.
+   F3 (P-BBW-69): hoja en superficie base (sin velo ni desenfoque); borde inferior del filete del sistema. */
 .panel {
   --bbf-nav-panel-sheet-padding-top: var(--bbf-space-10);
   --bbf-nav-panel-sheet-gap: var(--bbf-space-10);
@@ -76,7 +75,6 @@
   flex-direction: column;
   row-gap: var(--bbf-nav-panel-sheet-gap);
   padding: var(--bbf-nav-panel-sheet-padding-top) var(--bbf-space-page) var(--bbf-space-page);
-  background: var(--bbf-surface-veil);
-  -webkit-backdrop-filter: blur(var(--bbf-blur-sheet));
-  backdrop-filter: blur(var(--bbf-blur-sheet));
+  background: var(--bbf-surface-base);
+  border-bottom: 1px solid var(--bbf-line-on-base);
 }

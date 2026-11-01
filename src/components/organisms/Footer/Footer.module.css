@@ -14,20 +14,16 @@
    y no una concesión: es la misma que el propio Zavala aceptó para esta misma cadena cuando era la firma del héroe («envuelve en dos
    líneas en vez de recortarse»). `text-wrap: pretty` evita que la última línea quede con una palabra suelta, igual que en el encabezado.
    Lo que `nowrap` protegía —que la barra no se desarmara— lo sigue haciendo `flex-wrap` sobre las dos piezas. */
+/* F3 (P-BBW-69): pie EN FLUJO (sin posición absoluta); borde superior del filete del sistema; pointer-events salen (I-6). */
 .footer {
-  position: absolute;
-  right: 0;
-  bottom: var(--bbf-bar-bottom);
-  left: 0;
-  z-index: var(--bbf-layer-content);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: var(--bbf-bar-justify);
   column-gap: var(--bbf-bar-gap-view);
   row-gap: var(--bbf-space-2);
-  padding: 0 var(--bbf-bar-side);
-  pointer-events: none;
+  padding: var(--bbf-space-5) var(--bbf-bar-side) var(--bbf-bar-bottom);
+  border-top: 1px solid var(--bbf-line-on-base);
 }
 
 .legal {
@@ -53,6 +49,38 @@
 .social {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
-  display: var(--bbf-nav-inline-display);
-  pointer-events: auto;
+  /* Los perfiles van en el pie EN TODAS LAS VISTAS (la referencia F0 los muestra a 360 px y a 1440 px).
+     El diseño anterior los ocultaba en móvil (`--bbf-nav-inline-display`) porque vivían en la hoja del panel;
+     en la home nueva sin campo los perfiles aparecen en ambos sitios, así que el pie los muestra siempre. */
+  display: flex;
+}
+
+/* F4 (P-BBW-69): sello de certificación no interactivo (sin `links.credly` todavía, `[ZAVALA-MANUAL]`).
+   Visible en TODAS LAS VISTAS, igual que los perfiles. Icono 72 px + etiqueta de texto a la derecha. */
+.cert {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-legal);
+
+  display: flex;
+  align-items: center;
+  gap: var(--bbf-space-3);
+  flex-shrink: 0;
+}
+
+.cert img {
+  display: block;
+  flex-shrink: 0;
+  width: var(--bbf-space-18);
+  height: var(--bbf-space-18);
+}
+
+.certText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-1);
+  color: var(--bbf-text-on-base-accent);
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  line-height: var(--bbf-leading-body);
 }
