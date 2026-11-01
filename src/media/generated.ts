@@ -7,7 +7,7 @@
 /** Color de SUPERFICIE resuelto del rol `--bbf-surface-base` (D-BBW-75). Lo consume la etiqueta `theme-color` del documento, que
  * así sale del MISMO token y del MISMO cálculo que el `theme_color` del manifiesto: no pueden divergir, porque son el mismo número
  * generado una sola vez. Escribirlo a mano en el layout habría sido un hex fuera de primitives y una segunda fuente de verdad. */
-export const surfaceColor = "#000000" as const; // COLOR-ALLOW: valor GENERADO resolviendo --bbf-surface-base, no escrito a mano; su correspondencia con el token la vigila check-media.ts (huella de este archivo contra el lock, que sella el rol y su sRGB)
+export const surfaceColor = "#f1fbf9" as const; // COLOR-ALLOW: valor GENERADO resolviendo --bbf-surface-base, no escrito a mano; su correspondencia con el token la vigila check-media.ts (huella de este archivo contra el lock, que sella el rol y su sRGB)
 
 export const media = {
   icon: { src: "/icon.svg", type: "image/svg+xml", width: 263, height: 272, sizes: "263x272" },
@@ -17,9 +17,6 @@ export const media = {
   icon512: { src: "/icon-512.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   icon512Maskable: { src: "/icon-512-maskable.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   share: { src: "/share-1200x630.png", type: "image/png", width: 1200, height: 630, sizes: "1200x630" },
-  heroLoop720: { src: "/hero-loop-1280x720.mp4", type: "video/mp4", width: 1280, height: 720, sizes: "1280x720" },
-  heroLoop360: { src: "/hero-loop-640x360.mp4", type: "video/mp4", width: 640, height: 360, sizes: "640x360" },
-  heroLoopPoster: { src: "/hero-loop-poster-1280x720.jpg", type: "image/jpeg", width: 1280, height: 720, sizes: "1280x720" },
   manifest: { src: "/manifest.webmanifest", type: "application/manifest+json" },
 } as const;
 

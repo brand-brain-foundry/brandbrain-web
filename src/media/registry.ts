@@ -110,7 +110,9 @@ export type Derivative = { master: MasterId; path: string; profile: Profile; rol
  * "maskable-icon", MDN "Define app icons") + la imagen para compartir (developers.facebook.com: ≥ 1200×630, 1,91:1).
  * Sin los tamaños obsoletos (16/32/48/96 sueltos, la docena de Apple, tiles de Windows): servir peticiones que ya nadie hace.
  */
-export const derivatives = {
+/* Los valores con `as const` para inferir DerivativeId; se exportan con el tipo completo Derivative (sin estrechar)
+   para que los scripts de build y guardia puedan comprobar todos los profile kinds (incluyendo video/poster si se reintroducen). */
+const _derivativesConst = {
   icon: { master: "brandIcon", path: "icon.svg", profile: { kind: "svg-copy" }, role: "icono escalable: pestaña del navegador y marca en la cabecera" },
   favicon: { master: "brandIcon", path: "favicon.ico", profile: { kind: "ico", sizes: [16, 32, 48] }, role: "respaldo .ico multi-tamaño (agrupa los tamaños pequeños)" },
   appleTouchIcon: {
@@ -139,33 +141,10 @@ export const derivatives = {
     profile: { kind: "manifest", icons: ["icon192", "icon512", "icon512Maskable"] },
     role: "manifiesto de la aplicación web: iconos + color de tema y de fondo desde la superficie",
   },
-  /**
-   * VÍDEO DEL HÉROE (fase 6d, D-BBW-24; MEDIA.md §6). Solo H.264: el formato moderno (AV1, SVT-AV1) se midió y NO se justificó (a igual
-   * peso, menos parecido al maestro: SSIM 0,990 a 604 KB frente a 0,995 del H.264 a 598 KB; su SSIM se estanca en 0,991 hasta 995 KB).
-   * Calidad = CRF 23 (el valor por defecto de x264, no una elección). Presupuestos: 720p ≤ 1 000 000 B (la mitad del maestro y un quinto del
-   * umbral de peso total de página de Lighthouse, 5 000 KiB, leído en vivo 2026-09-17) · 360p ≤ 400 000 B · póster ≤ 60 000 B.
-   * El perfil 360p es el ligero para pantallas pequeñas; SERVIRLO según la pantalla es entrega adaptativa y este turno no la cablea (despacho 6d §6).
-   */
-  heroLoop720: {
-    master: "heroLoop",
-    path: "hero-loop-1280x720.mp4",
-    profile: { kind: "video", codec: "h264", width: 1280, height: 720, quality: 23, budgetBytes: 1_000_000 },
-    role: "fondo del héroe, respaldo universal H.264 a la resolución del maestro; sin audio",
-  },
-  heroLoop360: {
-    master: "heroLoop",
-    path: "hero-loop-640x360.mp4",
-    profile: { kind: "video", codec: "h264", width: 640, height: 360, quality: 23, budgetBytes: 400_000 },
-    role: "fondo del héroe, perfil ligero para pantallas pequeñas (previsto por el puerto; no servido aún: la entrega adaptativa no se cablea en la 6d)",
-  },
-  heroLoopPoster: {
-    master: "heroLoop",
-    path: "hero-loop-poster-1280x720.jpg",
-    profile: { kind: "poster", width: 1280, height: 720, format: "jpeg", quality: 80, budgetBytes: 60_000 },
-    role: "póster del vídeo: primer fotograma exacto; lo que se ve mientras carga y lo que se sirve con movimiento reducido (JPEG: formato universal, un solo URL en `poster`)",
-  },
 } as const satisfies Record<string, Derivative>;
-export type DerivativeId = keyof typeof derivatives;
+export type DerivativeId = keyof typeof _derivativesConst;
+/** Derivados exportados con el tipo Derivative completo (no estrechado por as const) para que los scripts accedan a todos los profile kinds. */
+export const derivatives: { readonly [K in DerivativeId]: Derivative } = _derivativesConst;
 
 /**
  * Vectores que van INLINE en los componentes (pintan con `currentColor` y se dimensionan por tokens): el derivado es el par

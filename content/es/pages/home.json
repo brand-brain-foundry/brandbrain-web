@@ -1,16 +1,18 @@
 {
   "meta": {
-    "title": "{{brand}} · Sistemas de marca",
-    "description": "El criterio de tu marca, estructurado y trabajando en cada canal. Método Brand Brain Foundry."
+    "title": "Christian Zavala Cubas — Brand Brain Foundry",
+    "description": "Estructuro el criterio de tu marca y lo convierto en un sistema que trabaja sin ti en cada pieza, canal y colaborador."
   },
   "sections": [
     {
-      "type": "hero",
-      "id": "hero",
-      "claimLine1": "Tu marca ya tiene criterio.",
-      "claimLine2": "Lo difícil es",
-      "claimLine3": "delegarlo",
-      "heading": "Construyo sistemas de marca: lo que tu marca sabe y nunca escribió, presente en cada pieza, la haga quien la haga."
+      "type": "criterio",
+      "id": "criterio",
+      "heading": "La IA sabe de todo, menos de tu marca.",
+      "paragraph1": "Tu equipo ya la usa, y las piezas siguen saliendo distintas. Ahí están las reuniones donde hay que alinear el tono otra vez. El brief que llega interpretado. La imagen que no termina de sonar a ti.",
+      "paragraph2": "Ahí está mi trabajo: estructuro el criterio que tu marca ya tiene y lo convierto en un sistema que trabaja sin ti.",
+      "ctaPrimary": "Hablemos del tuyo",
+      "ctaSecondary": "Mi trayectoria en LinkedIn",
+      "ctaSecondaryLink": "linkedin"
     }
   ]
 }

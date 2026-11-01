@@ -14,55 +14,34 @@
  * CLASE (D-DOC-13): estático (los roles); a qué paso apunta cada rol = dinámico.
  */
 :root {
-  --bbf-surface-base: var(--bbf-color-ink-900);
+  /* C1 (home nueva sin campo, 2026-11-01): el fondo pasa de tinta a niebla; texto e indicadores se invierten en consecuencia.
+     La superficie es `niebla-50` (oklch(0.98 0.01 186.4), el ancla de la rampa, prácticamente blanco con matiz verde muy frío).
+     Los roles de texto pasan al extremo oscuro de la rampa `mint` (mint-900 primario, mint-700 secundario, mint-600 apagado). */
+  --bbf-surface-base: var(--bbf-color-niebla-50);
 
-  --bbf-text-on-base: var(--bbf-color-mint-100);
-  --bbf-text-on-base-secondary: var(--bbf-color-mint-200);
-  --bbf-text-on-base-muted: var(--bbf-color-mint-400);
-  --bbf-text-on-base-faint: var(--bbf-color-mint-700);
-  /* D-BBW-73 · LA LÍNEA LEGAL DEL PIE, DOS PELDAÑOS POR ENCIMA DE LA MADRE. El rol existe precisamente para esto: lo que el pie necesita
-     no es «el acento» sino «texto pequeño legible sobre el fondo, en el color de acento», y son dos cosas distintas en cuanto el acento
-     baja de luminosidad. **La madre no se toca**: sigue siendo la identidad — el icono, el logo y lo que pinte marca.
-     POR QUÉ `accent-200` Y NO `accent-300`, que es la corrección del criterio con el que se midió antes: **el fondo de este sitio se
-     mueve**, así que el contraste de una pieza no es un número sino una banda que depende del fotograma. Con `accent-300` la banda al
-     ancho peor rozaba el mínimo —diez muestras dieron 4,67–5,32, pero otra dio **4,49**— y **la garantía se juzga por el PEOR momento,
-     no por la mayoría de las muestras**, igual que D-BBW-25 la juzga por el peor píxel y no por el píxel medio. Un solo fotograma por
-     debajo es un incumplimiento, no ruido. `accent-200` sube la banda entera y deja el margen fuera del alcance de la oscilación. */
-  --bbf-text-on-base-accent: var(--bbf-color-accent-200);
+  --bbf-text-on-base: var(--bbf-color-mint-900);
+  --bbf-text-on-base-secondary: var(--bbf-color-mint-700);
+  --bbf-text-on-base-muted: var(--bbf-color-mint-600);
+  --bbf-text-on-base-faint: var(--bbf-color-mint-400);
+  /* Sobre fondo claro, el acento legible es un paso oscuro de la rampa. `accent-200` era el paso claro del esquema de tinta. */
+  --bbf-text-on-base-accent: var(--bbf-color-accent-700);
 
-  /* D-BBW-70 · LOS TRES ROLES SE RE-APUNTAN UN PELDAÑO, y no por gusto: la madre del acento se mudó del paso 300 al 400, así que dejar
-     `--bbf-accent` en el 300 habría servido un tinte MÁS CLARO que el color que Zavala eligió. Lo que se conserva es la RELACIÓN con la
-     madre, que es lo que los tres roles significan: el acento ES la madre, el resplandor va un peldaño por debajo y el resplandor suave
-     cuatro más abajo. Antes: 300 (madre) · 400 (+1) · 800. Ahora: 400 (madre) · 500 (+1) · 900.
-     `-glow-soft` pasa a 900, que es el extremo oscuro de la rampa (L = 0.2): con la madre en el 400 solo quedan cinco peldaños por debajo,
-     así que el cuarto y el quinto son 800 y 900. Se elige el 900 —y no el 800— porque el rol es el resplandor MÁS apagado de los dos y
-     debe seguir siéndolo; con el 800 quedaría a un solo peldaño del resplandor normal. */
+  /* D-BBW-70 · sin cambio: la madre del acento es identidad de marca. */
   --bbf-accent: var(--bbf-color-accent-400);
   --bbf-accent-glow: var(--bbf-color-accent-500);
   --bbf-accent-glow-soft: var(--bbf-color-accent-900);
 
-  /* D-BBW-72 · EL ANILLO DE FOCO, UN PELDAÑO POR ENCIMA DE LA MADRE. Con la madre el peor caso contra el fondo real era **2,73**, por
-     debajo del 3:1 que exige WCAG 1.4.11 para un indicador no textual; con `accent-300` sube a **3,54**.
-     **SE QUEDA EN `accent-300` y no sigue al pie hasta el 200** (D-BBW-73), y la razón es la medida y no la simetría: su banda entre
-     fotogramas es **3,54–3,55**, prácticamente plana, porque el anillo vive en la franja de la cabecera, donde el sombreador apenas
-     varía. Donde no hay oscilación no hace falta comprar margen contra ella, y un anillo más claro se aleja más del color de marca. */
-  --bbf-focus-ring: var(--bbf-color-accent-300);
-  /* D-BBW-76 · LA BARRA DE DESPLAZAMIENTO. El agarrador toma el acento en su peldaño claro —el mismo que el anillo de foco (D-BBW-72),
-     y por la misma razón: sobre este fondo la madre no llega al 3:1 que exige un elemento no textual—. El carril es TRANSPARENTE: el
-     fondo del sitio ya es la superficie, y pintarlo dibujaría un canal vertical que compite con el contenido. */
-  /* D-BBW-77 · LA PÍLDORA: fondo en el acento MADRE —el de identidad, `#9299c6`, no el peldaño claro que usan el foco y el pie— y tinta
-     en la superficie base. La inversión no es estética: sobre ese fondo el negro contrasta ~7,6 y el blanco ~2,8. */
+  /* El anillo de foco necesita un paso más oscuro sobre fondo claro para llegar al 3:1 que exige WCAG 1.4.11.
+     `accent-600` cumple contra `niebla-50`; el paso claro `accent-300` del esquema oscuro no llegaría. */
+  --bbf-focus-ring: var(--bbf-color-accent-600);
+  /* D-BBW-77 · LA PÍLDORA: fondo en el acento madre. La tinta se fija explícitamente en `ink-900` (no en surface-base)
+     porque sobre el acento el negro contrasta ~7,6 y el blanco (niebla-50) solo ~2,8. */
   --bbf-surface-pill: var(--bbf-accent);
-  --bbf-text-on-pill: var(--bbf-surface-base);
-  --bbf-scrollbar-thumb: var(--bbf-color-accent-300);
+  --bbf-text-on-pill: var(--bbf-color-ink-900);
+  --bbf-scrollbar-thumb: var(--bbf-color-accent-600);
   --bbf-scrollbar-track: transparent;
-  --bbf-line-on-base: var(--bbf-color-mint-700);
+  /* Separador sutil en fondo claro: mint-300 da una línea visible sin pesar. */
+  --bbf-line-on-base: var(--bbf-color-mint-300);
+  /* El velo sigue siendo el fondo del panel de navegación (hoja <details>): tinta al 90 %. */
   --bbf-surface-veil: var(--bbf-shadow-ink-soft);
-  --bbf-surface-veil-text: var(--bbf-shadow-ink-veil-text);
-
-  /* fase 6f (composición): la viñeta del diseño en dos paradas y la parada media de la máscara del escenario del vídeo (alfas en
-     primitives/shadows.css). El velo global de la 6d (transparente → tinta al 90 % en las esquinas) queda sustituido por la viñeta del diseño. */
-  --bbf-surface-vignette-mid: var(--bbf-shadow-ink-vignette-mid);
-  --bbf-surface-vignette-edge: var(--bbf-shadow-ink-vignette-edge);
-  --bbf-mask-stage-mid: var(--bbf-shadow-ink-stage-mask-mid);
 }

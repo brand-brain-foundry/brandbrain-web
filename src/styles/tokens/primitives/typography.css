@@ -231,5 +231,19 @@
      que partir de 1,5 lo cumple por construcción en vez de depender de que el texto aguante el ajuste. ── */
   --bbf-leading-none: 1;
   --bbf-leading-display: 1.02;
+  /* HEADING (P-BBW-64, D-BBW-64, Zavala 2026-11-01): interlineado del H1 de la home nueva (familia text, size-4).
+     Más cerrado que `--bbf-leading-text` (1,5) porque un título de una o dos líneas no necesita el ritmo de un párrafo;
+     más abierto que `--bbf-leading-display` (1,02) porque la familia texto (Space Grotesk) tiene ascendentes más altos.
+     Valor 1,12, el del diseño para este papel; no cae en los dos extremos existentes, justifica madre nueva. */
+  --bbf-leading-heading: 1.12;
   --bbf-leading-text: 1.5;
+
+  /* ── INTERLETRADO HEADING (P-BBW-64, D-BBW-64, Zavala 2026-11-01): primer valor negativo del sistema ──────────────────────────
+     VALOR: −0,02em, el del diseño para el H1 de la home (Space Grotesk a `size-4`, 37–48 px).
+     RAZÓN: Space Grotesk tiene sidebearings generosos en cuerpo grande; el diseño los compensa con −0,02em para que el
+     bloque de texto luzca tan cohesionado como el titular display. No es un múltiplo de la madre ×0,04em (ninguno negativo
+     existe); cae bajo la misma lógica que EXC-BBW-04: está atado a las métricas de esta familia y este cuerpo.
+     GUARDIA: `check-typography-tokens.ts` (CONTRATO-04) solo comprueba font-size y font-weight, NO letter-spacing → el valor
+     negativo pasa. `check-typography-system.ts` tampoco lo escanea (verificado en §GATE del despacho C1 2026-11-01). ── */
+  --bbf-tracking-heading: -0.02em;
 }

@@ -3,8 +3,8 @@
   "lang": "es",
   "start_url": "/es/",
   "display": "browser",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#f1fbf9",
+  "theme_color": "#f1fbf9",
   "icons": [
     {
       "src": "/icon-192.png",

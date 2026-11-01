@@ -1,0 +1,98 @@
+/* CriterioSection — sección de portada (C1, 2026-11-01).
+   Dos zonas: texto+CTAs a la izquierda / contenedor del campo (S8) a la derecha.
+   Por debajo de --bbf-bp-nav (790 px): apiladas, texto primero. */
+
+.criterio {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100svh;
+  padding-block: var(--bbf-space-8);
+  padding-inline: var(--bbf-space-safe);
+  gap: var(--bbf-space-8);
+  background: var(--bbf-surface-base);
+  color: var(--bbf-text-on-base);
+}
+
+@media (min-width: 790px) { /* mirrors --bbf-bp-nav */
+  .criterio {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--bbf-space-10);
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-4);
+}
+
+.heading {
+  font-family: var(--bbf-type-heading-family);
+  font-size: var(--bbf-type-heading-size);
+  font-weight: var(--bbf-type-heading-weight);
+  line-height: var(--bbf-type-heading-leading);
+  letter-spacing: var(--bbf-type-heading-tracking);
+  color: var(--bbf-text-on-base);
+  margin: 0;
+}
+
+.body {
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-body-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-body-tracking);
+  color: var(--bbf-text-on-base-secondary);
+  margin: 0;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bbf-space-3);
+  padding-block-start: var(--bbf-space-2);
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  padding-block: var(--bbf-space-2);
+  padding-inline: var(--bbf-space-4);
+  background: var(--bbf-surface-pill);
+  color: var(--bbf-text-on-pill);
+  font-family: var(--bbf-type-label-family);
+  font-size: var(--bbf-type-label-size);
+  font-weight: var(--bbf-type-label-weight);
+  letter-spacing: var(--bbf-type-label-tracking);
+  text-decoration: none;
+  border-radius: var(--bbf-space-1);
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  padding-block: var(--bbf-space-2);
+  padding-inline: var(--bbf-space-4);
+  color: var(--bbf-text-on-base-accent);
+  font-family: var(--bbf-type-label-family);
+  font-size: var(--bbf-type-label-size);
+  font-weight: var(--bbf-type-label-weight);
+  letter-spacing: var(--bbf-type-label-tracking);
+  text-decoration: none;
+  border: 1px solid var(--bbf-line-on-base);
+  border-radius: var(--bbf-space-1);
+}
+
+/* Placeholder del campo de puntos (S8). Altura mínima para que el contenedor no colapse antes de que S8 entre. */
+.field {
+  min-height: calc(var(--bbf-space-safe) * 5);
+  border-radius: var(--bbf-space-1);
+}
+
+@media (min-width: 790px) { /* mirrors --bbf-bp-nav */
+  .field {
+    min-height: 60svh;
+  }
+}

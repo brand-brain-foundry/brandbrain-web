@@ -30,6 +30,10 @@
   },
   "footer": {
     "legal": "© {{year}} {{brand}} · {{role}}",
+    "cert": {
+      "label": "Google Cloud Certified",
+      "tier": "Foundational"
+    },
     "social": [
       {
         "id": "linkedin",

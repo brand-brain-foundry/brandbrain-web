@@ -1,1 +1,0 @@
-export { HeroBackdrop } from "./HeroBackdrop";

@@ -121,6 +121,25 @@
   --bbf-color-sea-800: oklch(calc(var(--bbf-color-sea-l) - var(--bbf-color-sea-span-down) * 0.5) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
   --bbf-color-sea-900: oklch(calc(var(--bbf-color-sea-l) - var(--bbf-color-sea-span-down) * 1) var(--bbf-color-sea-c) var(--bbf-color-sea-h));
 
+  /* ── Familia `niebla` · madre oklch(0.98 0.01 186.4) · paso madre: 50 (= L_MAX) · origen: diseño home nueva (P-BBW-63, D-BBW-63, Zavala 2026-11-01) ──
+     Rampa para el fondo de la home sin sombreador. La madre ES el paso 50 = L_MAX, así que no hay span-up: todo el recorrido va hacia L_MIN.
+     H = 186.4 y C = 0.01 (niebla mínima; tono deliberadamente afín a `mint` para que el fondo neutro no disonante con los neutros del sistema).
+     span-down = L_madre − L_MIN = 0.98 − 0.20 = 0.78; los 9 pasos 100-900 son lineales (fracciones 1/9…9/9). ── */
+  --bbf-color-niebla-l: 0.98;
+  --bbf-color-niebla-c: 0.01;
+  --bbf-color-niebla-h: 186.4;
+  --bbf-color-niebla-span-down: calc(var(--bbf-color-niebla-l) - var(--bbf-color-l-min));
+  --bbf-color-niebla-50: oklch(var(--bbf-color-niebla-l) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-100: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.1111) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-200: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.2222) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-300: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.3333) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-400: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.4444) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-500: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.5556) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-600: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.6667) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-700: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.7778) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-800: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 0.8889) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+  --bbf-color-niebla-900: oklch(calc(var(--bbf-color-niebla-l) - var(--bbf-color-niebla-span-down) * 1) var(--bbf-color-niebla-c) var(--bbf-color-niebla-h));
+
   /* ── Familia `deep` · madre rgb(23,53,87) → oklch(0.324 0.070 252.9) · paso madre: 800 · origen: N0 §2.2 sombreador `blob-bg` (fase 6g, D-BBW-27) ── */
   --bbf-color-deep-l: 0.324;
   --bbf-color-deep-c: 0.070;

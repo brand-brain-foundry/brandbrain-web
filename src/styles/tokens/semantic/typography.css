@@ -76,6 +76,16 @@
   --bbf-type-body-tracking: var(--bbf-tracking-0);
   --bbf-type-body-shadow: var(--bbf-shadow-md);
 
+  /* EL H1 TIPOGRÁFICO DE LA HOME NUEVA (P-BBW-66, D-BBW-66, Zavala 2026-11-01): familia texto, cuerpo grande.
+     `size-4` (37–48 px): el paso más cercano al diseño (34–47 px del inventario N0b1); DERIVA CON Δ declarada en N0c §3.
+     Interlineado propio `--bbf-leading-heading` (1,12) y tracking propio `--bbf-tracking-heading` (−0,02em), ambas madres
+     nuevas en primitives/typography.css. Sin shadow: el H1 va sobre fondo claro y no sobre el héroe con vídeo. */
+  --bbf-type-heading-family: var(--bbf-font-text);
+  --bbf-type-heading-size: var(--bbf-size-4);
+  --bbf-type-heading-weight: var(--bbf-weight-text-regular);
+  --bbf-type-heading-leading: var(--bbf-leading-heading);
+  --bbf-type-heading-tracking: var(--bbf-tracking-heading);
+
   /* LA FIRMA (D-BBW-47 · D-BBW-49): «línea aparte y cuerpo pequeño». Un paso por debajo del cuerpo, que es literalmente eso, y
      el mismo peldaño que ocupaban las afirmaciones retiradas. En el PIE la misma cadena se sirve con el rol `legal`, porque
      allí es una línea de barra junto a la línea legal y no el cierre de un bloque de texto: la decisión obliga a una sola

@@ -5,7 +5,7 @@
       "master": "brandIcon",
       "path": "public/apple-touch-icon-180.png",
       "profile": "png 180×180 surface padding 0.1111",
-      "sha256": "0a72d6c2a8f621b412a4bb4f3f203f131feb91cbb73c1edb74a68c0d052b20aa",
+      "sha256": "2ba1334500b33d963ed7355c215d4d505db61f663a28bb48b3819851675d2fe7",
       "width": 180
     },
     "favicon": {
@@ -13,38 +13,6 @@
       "path": "public/favicon.ico",
       "profile": "ico 16/32/48",
       "sha256": "1e7f8b8a7a4dd0c6947ac79dfd0ed2325bf27efc53bf6a1c31037ad0ab4752b2"
-    },
-    "heroLoop360": {
-      "budgetBytes": 400000,
-      "bytes": 327718,
-      "height": 360,
-      "master": "heroLoop",
-      "path": "public/hero-loop-640x360.mp4",
-      "profile": "video h264 640×360 crf 23 sin audio ≤ 400000 B",
-      "sha256": "d7e12ca27b8744bc571ea3f365dfc7da7345ea3c9324e0c0f3b73529ad88e555",
-      "streams": "video:h264 640x360",
-      "width": 640
-    },
-    "heroLoop720": {
-      "budgetBytes": 1000000,
-      "bytes": 813553,
-      "height": 720,
-      "master": "heroLoop",
-      "path": "public/hero-loop-1280x720.mp4",
-      "profile": "video h264 1280×720 crf 23 sin audio ≤ 1000000 B",
-      "sha256": "ee0c30b4741cff6dbffe399b8ca5ab1ebafdf9f3868f830998d7ebc3529d63b8",
-      "streams": "video:h264 1280x720",
-      "width": 1280
-    },
-    "heroLoopPoster": {
-      "budgetBytes": 60000,
-      "bytes": 32922,
-      "height": 720,
-      "master": "heroLoop",
-      "path": "public/hero-loop-poster-1280x720.jpg",
-      "profile": "poster jpeg 1280×720 q 80 fotograma 0 ≤ 60000 B",
-      "sha256": "a86e0358a1c5e1218460b26491eb2a2122c7eb87b60537aea3fd5b0e8fdbac38",
-      "width": 1280
     },
     "icon": {
       "height": 272,
@@ -75,27 +43,27 @@
       "master": "brandIcon",
       "path": "public/icon-512-maskable.png",
       "profile": "png 512×512 surface padding 0 safe-zone",
-      "sha256": "b16262000206e5976cc2e5ef322d0a1a8ab98b0bddf8c570d3cb9525de89406d",
+      "sha256": "f1a17c1db4fc3d05315e677ebedf7e7716d9c5e3489f93daa9940a29d0a55b2f",
       "width": 512
     },
     "manifest": {
       "master": "brandIcon",
       "path": "public/manifest.webmanifest",
       "profile": "manifest icon192,icon512,icon512Maskable",
-      "sha256": "0b0b519b870f218cfda4d995cad0cec01b49667e91e23a4570c8022dfe6f5951"
+      "sha256": "46f3bcc0e266f7952e31e93131922b8997f268fe4f2fe3551e0ff16daaed68b1"
     },
     "share": {
       "height": 630,
       "master": "brandIcon",
       "path": "public/share-1200x630.png",
       "profile": "share 1200×630 icon 0.5",
-      "sha256": "765ef4870b39ec7c3c2d91c0579ad0cf2b6fba05868847ffc25dc96fa7f3dac5",
+      "sha256": "832714e787a19f2f42a73dab3d0683ce663fd840a6a30dfc93a955d98af7401f",
       "width": 1200
     }
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "39df9a4aef0ef03a11467543b322ccddf0606a0fd3f70a4d3d365004855bba77"
+    "sha256": "f7b0d8672d0a9f41dfa215b3f5c169cc975613bf9e01eae8c8aba5cd89a6bc5e"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -138,11 +106,10 @@
     }
   },
   "surface": {
-    "srgb": "#000000",
+    "srgb": "#f1fbf9",
     "token": "--bbf-surface-base"
   },
   "tool": {
-    "ffmpeg": "8.1.2",
     "sharp": "0.35.4",
     "vips": "8.18.6"
   }

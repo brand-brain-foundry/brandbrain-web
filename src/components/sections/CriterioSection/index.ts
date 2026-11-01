@@ -1,0 +1,1 @@
+export { CriterioSection } from "./CriterioSection";

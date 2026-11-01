@@ -1,1 +1,0 @@
-export { HeroParticles } from "./HeroParticles";
