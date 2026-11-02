@@ -26,13 +26,13 @@ export const SURFACE_TOKEN = "--bbf-surface-base";
  * generador lo resuelve AQUÍ, desde el rol, igual que ya hacía con la superficie de los derivados opacos. Así un cambio de acento se
  * propaga solo a favicon, iconos, recortable, Apple, imagen para compartir y el logo de la cabecera, sin tocar ningún archivo de dibujo.
  * Un maestro sin entrada aquí se queda con su `currentColor` sin resolver — que es lo correcto para los vectores que se pintan por CSS
- * (las ondas de subrayado, los brazos del conmutador, los iconos de perfil): esos heredan el color del texto donde se insertan.
+ * (los brazos del conmutador, los iconos de perfil): esos heredan el color del texto donde se insertan.
  */
 export const MASTER_PAINT_TOKENS: Partial<Record<MasterId, string>> = {
   brandIcon: "--bbf-accent",
 };
 
-export type MasterKind = "svg" | "video";
+export type MasterKind = "svg" | "video" | "raster";
 export type Master = { file: string; kind: MasterKind; origin: string };
 
 /** Maestros. `origin` documenta de dónde salió el archivo: un maestro no se dibuja, se trae del diseño (despacho 6c §5). */
@@ -43,9 +43,18 @@ export const masters = {
     origin: "diseño inventariado (OUTPUT-BBW-2026-09-16-N0 §2.1, assets/bb-icon.svg), copiado byte a byte 2026-09-17; conserva su manifiesto de procedencia C2PA",
   },
   iconLinkedin: { file: "icon-linkedin.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, iconos sociales, path inline), 2026-09-17" },
-  iconGithub: { file: "icon-github.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, iconos sociales, path inline), 2026-09-17" },
-  underlineWaveNav: { file: "underline-wave-nav.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, onda de subrayado 160×7), 2026-09-17" },
-  underlineWaveMenu: { file: "underline-wave-menu.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, onda de la hoja 340×9), 2026-09-17" },
+  /* 2026-11-02 (orden de Zavala): salen el icono de GitHub (el perfil sale del pie y de la hoja) y las dos ondas de subrayado de la nav.
+     Recuperables desde la etiqueta de respaldo de `main`. */
+  /* Las flechas de los dos botones del cuerpo nuevo (2026-11-02): trazos de la referencia aprobada (handoff-diseno/src/home.html). */
+  arrowRight: { file: "arrow-right.svg", kind: "svg", origin: "referencia aprobada de la home (handoff-diseno/src/home.html, flecha de «Hablemos», viewBox 16), 2026-11-02" },
+  arrowUpRight: { file: "arrow-up-right.svg", kind: "svg", origin: "referencia aprobada de la home (handoff-diseno/src/home.html, flecha de «Perfil en LinkedIn», viewBox 16), 2026-11-02" },
+  /** Sello Google Cloud Certified (2026-11-02). PNG raster RGBA copiado byte a byte de handoff-diseno/assets/gc-foundational.png (el mismo
+   *  maestro que entró en la rama de la home clara, 3a62247). Se sirve redimensionado por `png-resize`; el componente no conoce su ruta. */
+  gcFoundational: {
+    file: "gc-foundational.png",
+    kind: "raster",
+    origin: "handoff de la home nueva (handoff-diseno/assets/gc-foundational.png), copiado byte a byte el 2026-11-01; traído a esta rama desde 3a62247 el 2026-11-02",
+  },
   toggleArmTop: { file: "toggle-arm-top.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo superior del conmutador 34×6), 2026-09-17" },
   toggleArmBottom: { file: "toggle-arm-bottom.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo inferior del conmutador 34×6), 2026-09-17" },
   /**
@@ -101,7 +110,9 @@ export type Profile =
   | { kind: "png"; size: number; background: "transparent" | "surface"; padding: number; safeZone?: true }
   | { kind: "ico"; sizes: readonly number[] }
   | { kind: "share"; width: number; height: number; iconHeight: number }
-  | { kind: "manifest"; icons: readonly string[] };
+  | { kind: "manifest"; icons: readonly string[] }
+  /** Redimensiona un maestro raster (PNG/JPEG) a `size`×`size` con su transparencia. Herramienta: sharp. */
+  | { kind: "png-resize"; size: number };
 
 export type Derivative = { master: MasterId; path: string; profile: Profile; role: string };
 
@@ -110,7 +121,7 @@ export type Derivative = { master: MasterId; path: string; profile: Profile; rol
  * "maskable-icon", MDN "Define app icons") + la imagen para compartir (developers.facebook.com: ≥ 1200×630, 1,91:1).
  * Sin los tamaños obsoletos (16/32/48/96 sueltos, la docena de Apple, tiles de Windows): servir peticiones que ya nadie hace.
  */
-export const derivatives = {
+const _derivativesConst = {
   icon: { master: "brandIcon", path: "icon.svg", profile: { kind: "svg-copy" }, role: "icono escalable: pestaña del navegador y marca en la cabecera" },
   favicon: { master: "brandIcon", path: "favicon.ico", profile: { kind: "ico", sizes: [16, 32, 48] }, role: "respaldo .ico multi-tamaño (agrupa los tamaños pequeños)" },
   appleTouchIcon: {
@@ -139,33 +150,15 @@ export const derivatives = {
     profile: { kind: "manifest", icons: ["icon192", "icon512", "icon512Maskable"] },
     role: "manifiesto de la aplicación web: iconos + color de tema y de fondo desde la superficie",
   },
-  /**
-   * VÍDEO DEL HÉROE (fase 6d, D-BBW-24; MEDIA.md §6). Solo H.264: el formato moderno (AV1, SVT-AV1) se midió y NO se justificó (a igual
-   * peso, menos parecido al maestro: SSIM 0,990 a 604 KB frente a 0,995 del H.264 a 598 KB; su SSIM se estanca en 0,991 hasta 995 KB).
-   * Calidad = CRF 23 (el valor por defecto de x264, no una elección). Presupuestos: 720p ≤ 1 000 000 B (la mitad del maestro y un quinto del
-   * umbral de peso total de página de Lighthouse, 5 000 KiB, leído en vivo 2026-09-17) · 360p ≤ 400 000 B · póster ≤ 60 000 B.
-   * El perfil 360p es el ligero para pantallas pequeñas; SERVIRLO según la pantalla es entrega adaptativa y este turno no la cablea (despacho 6d §6).
-   */
-  heroLoop720: {
-    master: "heroLoop",
-    path: "hero-loop-1280x720.mp4",
-    profile: { kind: "video", codec: "h264", width: 1280, height: 720, quality: 23, budgetBytes: 1_000_000 },
-    role: "fondo del héroe, respaldo universal H.264 a la resolución del maestro; sin audio",
-  },
-  heroLoop360: {
-    master: "heroLoop",
-    path: "hero-loop-640x360.mp4",
-    profile: { kind: "video", codec: "h264", width: 640, height: 360, quality: 23, budgetBytes: 400_000 },
-    role: "fondo del héroe, perfil ligero para pantallas pequeñas (previsto por el puerto; no servido aún: la entrega adaptativa no se cablea en la 6d)",
-  },
-  heroLoopPoster: {
-    master: "heroLoop",
-    path: "hero-loop-poster-1280x720.jpg",
-    profile: { kind: "poster", width: 1280, height: 720, format: "jpeg", quality: 80, budgetBytes: 60_000 },
-    role: "póster del vídeo: primer fotograma exacto; lo que se ve mientras carga y lo que se sirve con movimiento reducido (JPEG: formato universal, un solo URL en `poster`)",
-  },
+  /* 2026-11-02 (orden de Zavala): el pez sale del héroe y el campo de puntos ocupa su escenario. Salen los tres derivados del vídeo
+     (720p, 360p y póster) con su único consumidor, `HeroMedia`. Los DOS MAESTROS se conservan declarados y sellados, sin derivados, como
+     ya se hacía con `heroLoopRegistro`: el pez puede volver con regenerar sus derivados, sin buscar el archivo en el historial. */
+  gcFoundational72: { master: "gcFoundational", path: "gc-foundational-72.png", profile: { kind: "png-resize", size: 72 }, role: "sello del pie, 72 px (1×)" },
+  gcFoundational144: { master: "gcFoundational", path: "gc-foundational-144.png", profile: { kind: "png-resize", size: 144 }, role: "sello del pie, 144 px (2×, pantalla de alta densidad)" },
 } as const satisfies Record<string, Derivative>;
-export type DerivativeId = keyof typeof derivatives;
+export type DerivativeId = keyof typeof _derivativesConst;
+/** Con el tipo `Derivative` completo (sin estrechar) para que el guion y la guardia comprueben todos los perfiles aunque hoy no haya vídeo. */
+export const derivatives: { readonly [K in DerivativeId]: Derivative } = _derivativesConst;
 
 /**
  * Vectores que van INLINE en los componentes (pintan con `currentColor` y se dimensionan por tokens): el derivado es el par
@@ -175,9 +168,8 @@ export type DerivativeId = keyof typeof derivatives;
 export type InlineIcon = { master: MasterId; paint: "fill" | "stroke"; use: "profile" | "ornament" };
 export const inlineIcons = {
   linkedin: { master: "iconLinkedin", paint: "fill", use: "profile" },
-  github: { master: "iconGithub", paint: "fill", use: "profile" },
-  underlineWaveNav: { master: "underlineWaveNav", paint: "stroke", use: "ornament" },
-  underlineWaveMenu: { master: "underlineWaveMenu", paint: "stroke", use: "ornament" },
+  arrowRight: { master: "arrowRight", paint: "stroke", use: "ornament" },
+  arrowUpRight: { master: "arrowUpRight", paint: "stroke", use: "ornament" },
   toggleArmTop: { master: "toggleArmTop", paint: "stroke", use: "ornament" },
   toggleArmBottom: { master: "toggleArmBottom", paint: "stroke", use: "ornament" },
 } as const satisfies Record<string, InlineIcon>;

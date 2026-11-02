@@ -231,5 +231,13 @@
      que partir de 1,5 lo cumple por construcción en vez de depender de que el texto aguante el ajuste. ── */
   --bbf-leading-none: 1;
   --bbf-leading-display: 1.02;
+  /* HEADING (P-BBW-64 · D-BBW-64, firmado 2026-11-01; traído a la home oscura el 2026-11-02): interlineado del titular de texto
+     (familia text, size-4). Más cerrado que el del párrafo (1,5) y más abierto que el del display (1,02): Space Grotesk tiene ascendentes
+     altos. 1,12 es el valor del diseño; no cae en las madres existentes. */
+  --bbf-leading-heading: 1.12;
   --bbf-leading-text: 1.5;
+
+  /* INTERLETRADO HEADING (P-BBW-64 · D-BBW-64): −0,02em, el del diseño para el titular en Space Grotesk a `size-4`. Primer valor negativo
+     del sistema; atado a las métricas de esta familia a este cuerpo, como EXC-BBW-04 lo está a las suyas. */
+  --bbf-tracking-heading: -0.02em;
 }

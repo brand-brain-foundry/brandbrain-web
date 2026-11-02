@@ -1,6 +1,8 @@
 import type { GlobalDocument } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
+import { identity } from "@/content/site";
+import { media } from "@/media";
 import styles from "./Footer.module.css";
 
 /**
@@ -19,8 +21,22 @@ export function Footer({ global }: { global: GlobalDocument }) {
       <p className={styles.legal} data-enter="">
         {global.footer.legal}
       </p>
-      <div className={styles.social} data-enter="">
-        <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />
+      <div className={styles.end}>
+        <div className={styles.social} data-enter="">
+          <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />
+        </div>
+        {/* EL SELLO (2026-11-02): enlace a la credencial verificable de Credly (`links.credly`, fuente única). Enlace simple, sin el guion
+            de inserción de Credly (JS de terceros + iframe: I-4, I-5). Nombre accesible = su texto; la imagen va con `alt=""`. */}
+        <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="">
+          <img
+            src={media.gcFoundational72.src}
+            srcSet={`${media.gcFoundational72.src} 1x, ${media.gcFoundational144.src} 2x`}
+            width={media.gcFoundational72.width}
+            height={media.gcFoundational72.height}
+            alt=""
+          />
+          <span className={styles.certText}>{global.footer.cert.label}</span>
+        </a>
       </div>
     </footer>
   );

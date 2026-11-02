@@ -40,8 +40,8 @@ tags: [puertos, actores-externos, adaptadores, brandbrain-web]
 `src/config/site.ts` declara `site.links` (fase 6a): destinos a los que la web **enlaza** (`<a href>`), nombrados por rol. Un enlace saliente
 no es un actor externo: la página no le hace ninguna petición en runtime, no depende de que responda y no hay adaptador que cambiar. Por eso
 no tienen fila arriba, pero se listan aquí para que la comprobación del criterio 5(b) (hosts que aparecen en `src/`) siga siendo un
-subconjunto de lo declarado: `sivarbrains.com` (agencia) · `branddesignerpro.com` (trabajos con IA) · `www.linkedin.com` · `github.com` ·
-`mailto:` al buzón oficial. El contenido (`content/`) nunca escribe una URL: referencia la llave y el puerto de contenido la valida.
+subconjunto de lo declarado: `sivarbrains.com` (agencia) · `branddesignerpro.com` (trabajos con IA) · `www.linkedin.com` · `github.com` (solo en `sameAs`) ·
+`www.credly.com` (el sello del pie, enlace simple sin el guion de inserción de Credly, 2026-11-02) · `mailto:` al buzón oficial. El contenido (`content/`) nunca escribe una URL: referencia la llave y el puerto de contenido la valida.
 Valores del inventario N0 §2.4, pendientes de confirmación por Zavala (P-BBW-19).
 
 **Fase 7 — `schema.org` NO es un actor ni un enlace saliente:** aparece en `src/seo/jsonld.ts` como `@context` de los datos

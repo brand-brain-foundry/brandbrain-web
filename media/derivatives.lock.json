@@ -14,37 +14,21 @@
       "profile": "ico 16/32/48",
       "sha256": "1e7f8b8a7a4dd0c6947ac79dfd0ed2325bf27efc53bf6a1c31037ad0ab4752b2"
     },
-    "heroLoop360": {
-      "budgetBytes": 400000,
-      "bytes": 327718,
-      "height": 360,
-      "master": "heroLoop",
-      "path": "public/hero-loop-640x360.mp4",
-      "profile": "video h264 640×360 crf 23 sin audio ≤ 400000 B",
-      "sha256": "d7e12ca27b8744bc571ea3f365dfc7da7345ea3c9324e0c0f3b73529ad88e555",
-      "streams": "video:h264 640x360",
-      "width": 640
+    "gcFoundational144": {
+      "height": 144,
+      "master": "gcFoundational",
+      "path": "public/gc-foundational-144.png",
+      "profile": "png-resize 144×144",
+      "sha256": "76814e4334df3efc3032c29fb3f7095738e2db722b12607b13e3a35f62e7b852",
+      "width": 144
     },
-    "heroLoop720": {
-      "budgetBytes": 1000000,
-      "bytes": 813553,
-      "height": 720,
-      "master": "heroLoop",
-      "path": "public/hero-loop-1280x720.mp4",
-      "profile": "video h264 1280×720 crf 23 sin audio ≤ 1000000 B",
-      "sha256": "ee0c30b4741cff6dbffe399b8ca5ab1ebafdf9f3868f830998d7ebc3529d63b8",
-      "streams": "video:h264 1280x720",
-      "width": 1280
-    },
-    "heroLoopPoster": {
-      "budgetBytes": 60000,
-      "bytes": 32922,
-      "height": 720,
-      "master": "heroLoop",
-      "path": "public/hero-loop-poster-1280x720.jpg",
-      "profile": "poster jpeg 1280×720 q 80 fotograma 0 ≤ 60000 B",
-      "sha256": "a86e0358a1c5e1218460b26491eb2a2122c7eb87b60537aea3fd5b0e8fdbac38",
-      "width": 1280
+    "gcFoundational72": {
+      "height": 72,
+      "master": "gcFoundational",
+      "path": "public/gc-foundational-72.png",
+      "profile": "png-resize 72×72",
+      "sha256": "fe98940a5799e2911f2facca72aa8e5df2a716270fa4722ec207234e4623540b",
+      "width": 72
     },
     "icon": {
       "height": 272,
@@ -95,14 +79,26 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "39df9a4aef0ef03a11467543b322ccddf0606a0fd3f70a4d3d365004855bba77"
+    "sha256": "cb31c25d197a7671cfadfc98a9902de8766230a567763725ea806446fbbd4cfa"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
+    "arrowRight": {
+      "file": "arrow-right.svg",
+      "sha256": "9be383c02955dfecd3d84e9ea795295e976e2423b3e81872c7de198c7ad27883"
+    },
+    "arrowUpRight": {
+      "file": "arrow-up-right.svg",
+      "sha256": "3c38f2dc4c3877666400f3e8166551c47aca3abe56b044abef98bd7b26667411"
+    },
     "brandIcon": {
       "file": "brand-icon.svg",
       "paint": "#9299c6",
       "sha256": "8cf6fb57414e3f43e09b32703f3a4b07ed60b063fbcf1638363d0d28a89a6b8b"
+    },
+    "gcFoundational": {
+      "file": "gc-foundational.png",
+      "sha256": "45179d3688d982570410387f6442cbd87467ec8e15070544e95983316ad1eb28"
     },
     "heroLoop": {
       "file": "hero-loop.mp4",
@@ -111,10 +107,6 @@
     "heroLoopRegistro": {
       "file": "hero-loop-registro.mp4",
       "sha256": "51cca5755257a668b59b4467a4ba1067239c44a7073de9da33b22d3ae04b36fd"
-    },
-    "iconGithub": {
-      "file": "icon-github.svg",
-      "sha256": "2779cce9614ad710d22e9a27fd00c1c385d9ab4df4f7d71468b8d4706d34bb35"
     },
     "iconLinkedin": {
       "file": "icon-linkedin.svg",
@@ -127,14 +119,6 @@
     "toggleArmTop": {
       "file": "toggle-arm-top.svg",
       "sha256": "7399dee05d20bda5470b44dfc1323a1fd7b20463a0020d317ef5817d409ea84e"
-    },
-    "underlineWaveMenu": {
-      "file": "underline-wave-menu.svg",
-      "sha256": "df618e94f2e1a27398682daf198194bc2b25f2b902da217ace67695ec323d8f0"
-    },
-    "underlineWaveNav": {
-      "file": "underline-wave-nav.svg",
-      "sha256": "383705cb1d3f39f811419cd6ddd11e436292a271fe89d7208f23d29c4ebc7e38"
     }
   },
   "surface": {
@@ -142,7 +126,6 @@
     "token": "--bbf-surface-base"
   },
   "tool": {
-    "ffmpeg": "8.1.2",
     "sharp": "0.35.4",
     "vips": "8.18.6"
   }

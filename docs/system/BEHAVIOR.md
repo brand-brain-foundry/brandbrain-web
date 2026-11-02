@@ -54,6 +54,7 @@ tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, 
 > nota es basura; con nota es una pieza guardada, y el coste de guardarla es cero en el artefacto (nadie lo importa, así que no entra en
 > ningún fragmento del build).
 >
+> **2026-11-02: `HeroClaim` ya no existe** (el claim salió del héroe por orden de Zavala); se recupera de la etiqueta de respaldo de `main`.
 > **Qué hay que devolver para encenderlo**, todo en `src/components/molecules/HeroClaim/HeroClaim.tsx`: el reparto de la línea en glifos
 > tras hidratar (con su `aria-label` y su restauración al desmontar), el bucle de `requestAnimationFrame` sobre `frame()`, el anclaje de
 > la caja vía `calibrate()` —que es lo que impide que la línea empuje a sus hermanas— y la quietud por pestaña oculta y por movimiento
@@ -160,7 +161,7 @@ el tamaño sigue al contenedor por `ResizeObserver` y a la ventana por `resize` 
 junto al modulador); el reloj continuo se detiene con la pestaña oculta y con movimiento reducido (el diseño seguía). Coste medido con todo
 animado en la máquina de referencia: output 6i §F5 (el diseño vivo: 52,7 fps).
 
-## §5 — S2 · Vídeo: seguimiento del sujeto (`src/behavior/subject-tracking.ts`)
+## §5 — S2 · Vídeo: seguimiento del sujeto — **RETIRADO el 2026-11-02** (sale con el pez; recuperable de la etiqueta de respaldo de `main`)
 
 **Qué hace:** cada `PERIOD_MS` (y en cada `timeupdate`) dibuja el fotograma en un lienzo de 96×54, calcula el **centroide de luminancia** con un
 exponente que pesa lo claro por encima de lo oscuro (sin él la neblina del fondo arrastra el centroide al centro y el seguimiento deja de
@@ -337,3 +338,36 @@ dependencia nueva. **Queda como paso del arnés**, y este es el paso:
 
 Valores de referencia de la 6m: margen mínimo de tinta 16,05 px (360) · 21,48 (780) · 32,00 (1000) · 40,00 (1728 y 1920), desborde 0 en todos;
 servido, 20,00 px a 360 con el titular a 37,963 px y 270 px de ancho sobre 328 disponibles.
+
+## §11 — S8 · Campo del criterio (`src/behavior/criterio-field.ts`, 2026-11-02)
+
+**Qué hace:** una rejilla de puntos donde corren carriles de «texto». Cada 4,1 s una consulta barre una banda de carriles con un cursor,
+enciende los aciertos, la cierra con dos corchetes, saca a la derecha una barra por carril y se disuelve punto a punto. Conducta escrita en
+`OUTPUT-BBW-2026-11-01-F0` §4 (hub); **implementación propia**: el archivo de la referencia (`criterio-field.js`) no se abrió (C14). PRNG
+mulberry32 y hash entero propios, deterministas por semilla. El componente `CriterioField` (molecule cliente) solo cablea.
+
+| Constante | Valor | Origen | Clase | Qué es |
+|---|---|---|---|---|
+| `SEED` | 0x5a7cc0b5 | propio | plantilla | semilla; cambiarla cambia la disposición, no la conducta |
+| `DOT` | 3 px | F0 §4.0 | dinámico | lado del punto; el paso es aparte |
+| `WIDE_MIN_W/H` · `LINE_DIVISIONS` | 480 × 160 · 7 | F0 §4.1 | plantilla | modo amplio: paso = interlineado del primer párrafo / 7, y un carril por línea del párrafo |
+| `LANE_STEP_WIDE/NARROW` · `NARROW_PITCH` · `NARROW_FIRST_ROW` | 7 · 4 · 4 px · 1 | F0 §4.0, §4.1 | plantilla | separación de carriles en filas; paso fijo del estrecho |
+| `DPR_CAP` | 2 | F0 §4.1 | estático | densidad máxima del lienzo |
+| `EDGE_WIDE/NARROW` | 28 · 14 columnas | F0 §4.1 | dinámico | borde suave por azar fijo; el amplio no suaviza la derecha (el campo sale de la página) |
+| `PATTERN_LENGTH` · `RUN_*` · `GAP_*` · `DEPTHS` · `SPARSE_SHARE` · `STRONG_SHARE` | 2048 · 2 + ⌊r₁r₂·34⌋ · 6 + ⌊r^1,5·110·g⌋ (g 0,35/0,75, corte 40 filas) · 0,94/0,86/0,74 · 25 % · 16 % | F0 §4.2 | dinámico | patrón cíclico de cada carril |
+| `LIVE_WINDOW_S` · `LIVE_SHARE` · `FRAME_MS` | 2,6 s · 34 % · 100 ms | F0 §4.2, §4.4 | dinámico / estático | carriles vivos avanzan una posición por fotograma; 10 fps con `setTimeout` |
+| `QUERY_*` · `SWEEP_END_S` · `RESULT_END_S` · `DISSOLVE_START_S` | 1,2 / 4,1 / 3,38 s · 0,76 · 1,18 · 2,48 s | F0 §4.3 | dinámico | línea de tiempo de la consulta |
+| `BAND_*` · `BAR_*` · `HIT_EXTRA_SHARE` · `TRAMA_EVERY` | ver módulo | F0 §4.3 | dinámico | banda, barras, aciertos y trama |
+| `STILL_AT_S` | 2,7 s | F0 §4.4 | estático | fotograma único con movimiento reducido |
+
+**En el héroe oscuro (2026-11-02):** ocupa el ESCENARIO que tenía el vídeo del pez (misma geometría, máscara radial y entrada). Como el escenario
+pasa por debajo del bloque de texto, el módulo lee el borde derecho del bloque y **los carriles nacen a su derecha** (`Geometry.start`), con el
+borde suave contado desde ahí. Medido antes de esta regla: con el campo bajo los párrafos el contraste caía a **1,67** a 1440 (el cursor claro
+pasando bajo el texto); con ella, el peor píxel de fondo bajo el texto da **≥ 5,65**, y **≥ 9,95** cuando además la zona de texto pasa por encima de la viñeta (cinco anchos, seis tomas por ancho, D-BBW-25).
+
+**Tokens que lee (nunca repite):** `--bbf-field-lane`, `--bbf-field-lane-live`, `--bbf-field-read`, `--bbf-field-hit` y `--bbf-text-on-base`,
+resueltos por el navegador en un elemento sonda; la quietud por `--bbf-motion-loop-play-state`.
+
+**Quietud (D-BBW-31, I-9):** con movimiento reducido se pinta UN fotograma (una consulta resuelta) y el bucle **no arranca**; se repinta si
+cambia el tamaño o cargan las fuentes. Con la pestaña oculta el reloj se detiene y, al volver, sigue donde estaba. **HTML servido:** la placa
+vacía, que es su reposo (decorativo, `aria-hidden`: no hay texto que perder, I-4).

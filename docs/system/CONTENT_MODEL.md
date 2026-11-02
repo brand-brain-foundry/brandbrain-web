@@ -104,6 +104,13 @@ El organismo (`Header.resolveLinks`) reparte la palabra a los elementos que la d
 **entra en el nombre accesible por construcción** —«Sivar Brains Caso», «Pura kaSaka Caso»— sin ningún `aria-label` que pudiera desincronizarse.
 Un `global.json` con la forma vieja **rompe la compilación nombrando las dos llaves**.
 
+## El cuerpo de la home nueva sobre el héroe oscuro (2026-11-02) — v3.3 del modelo, cambio NO aditivo
+
+| Antes | Ahora | Por qué |
+|---|---|---|
+| `hero.claimLine1..3` · `hero.heading` (el párrafo como `<h1>`) | `hero.heading` (el titular, `<h1>`) · `paragraph1` · `paragraph2` · `ctaPrimary` · `ctaSecondary` · `ctaSecondaryLink` | Orden de Zavala: el claim sale y entra el cuerpo de la home nueva. Cada texto su llave por rol; el destino secundario es una llave de `site.json`, el primario es el contacto derivado del buzón. |
+| `footer.social` con LinkedIn y GitHub | `footer.social` solo con LinkedIn · `footer.cert{label}` | GitHub sale del pie y de la hoja (su destino sigue en `site.json` porque lo usa `sameAs`). El sello enlaza a `links.credly` y no muestra el nivel. |
+
 ## §1 — Principio
 
 - **El contenido nace en su propia capa** (D-BBW-09, I-2): `content/<locale>/…`, fuera de `src/` y fuera de todo componente. Un componente
@@ -135,15 +142,15 @@ Es el mismo principio que gobierna los tokens, aplicado al contenido: **nombrar 
 ```
 content/
 ├── site.json                    ← SiteDocument (D-BBW-78): la identidad EDITABLE, fuera de los locales porque no se traduce
-│                                  brand · role · email · links{ agency, studio, works, linkedin, github }
+│                                  brand · role · email · links{ agency, studio, works, linkedin, github, credly }
 │                                  (`contact` NO se escribe: el código la deriva de `email`)
 └── es/                          ← un directorio por locale PUBLICADO (D-BBW-15); la guardia rechaza cualquier otro
     ├── global.json              ← GlobalDocument: lo que se repite en todas las páginas
     │     nav.skipLabel · nav.toggleLabel · nav.caseLabel · nav.items[]{id,label,link,case?} ·
-    │     footer.legal · footer.social[]{id,label,link}
+    │     footer.legal · footer.social[]{id,label,link} · footer.cert{label}
     └── pages/                   ← colección `pages`: un documento por página
           └── home.json          ← PageDocument: meta{title,description} · sections[] (hoy: una sección `hero`)
-                                    hero: id · claimLine1..3 · heading
+                                    hero: id · heading · paragraph1 · paragraph2 · ctaPrimary · ctaSecondary · ctaSecondaryLink
 ```
 
 **Origen del modelo:** el inventario de secciones y textos del N0 (`OUTPUT-BBW-2026-09-16-N0` §2.3–2.4): una página, una sección (hero a

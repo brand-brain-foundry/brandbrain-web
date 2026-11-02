@@ -47,9 +47,8 @@
   /* fase 6m · estados de la nav (N1 doc B §5): el enlace ABRE SU INTERLETRADO al pasar (0,28em → 0,32em = ×7 → ×8 de la retícula, los dos
      exactos) y la onda de tinta se revela con su propia duración, más larga que el cambio de color: 520 → ×2 y 640 → ×2,5 (tabla de la 6a). */
   --bbf-motion-link-tracking-duration: var(--bbf-duration-2);
-  --bbf-motion-link-reveal-duration: var(--bbf-duration-2-5);
-  --bbf-motion-ripple-duration: var(--bbf-duration-11);
-  --bbf-motion-ripple-shift: var(--bbf-space-6);
+  /* 2026-11-02 (orden de Zavala): salen con las ondas de la nav el revelado de la onda y su ripple (`-link-reveal-duration`,
+     `-ripple-duration`, `-ripple-shift`, I-6). El interletrado del enlace y su transición se quedan. */
   --bbf-motion-pulse-duration: var(--bbf-duration-15);
   --bbf-motion-pulse-ease: var(--bbf-ease-in-out);
   --bbf-motion-enter-ease: var(--bbf-ease-signature);

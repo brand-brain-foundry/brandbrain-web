@@ -50,9 +50,52 @@
   text-wrap: pretty;
 }
 
+/* Grupo derecho (2026-11-02): perfiles (hoy solo LinkedIn) y sello. En la vista colapsada los perfiles viven en la hoja y el sello queda
+   solo, centrado con la legal por el rol de justificación de la barra. */
+.end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bbf-bar-gap-view);
+}
+
 .social {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
   display: var(--bbf-nav-inline-display);
   pointer-events: auto;
+}
+
+/* EL SELLO (2026-11-02, orden de Zavala: sin la palabra del nivel). Imagen por el puerto de medios a `--bbf-cert-size` (72 en dos zonas,
+   64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento. Recibe el puntero aunque la
+   barra no (la barra deja pasar el puntero al héroe). */
+.cert {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
+
+  display: flex;
+  align-items: center;
+  gap: var(--bbf-space-3);
+  color: var(--bbf-text-on-base-secondary);
+  text-decoration: none;
+  pointer-events: auto;
+  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.cert:hover {
+  color: var(--bbf-accent);
+}
+
+.cert img {
+  display: block;
+  flex: none;
+  width: var(--bbf-cert-size);
+  height: var(--bbf-cert-size);
+}
+
+.certText {
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  text-shadow: var(--bbf-type-legal-shadow);
 }
