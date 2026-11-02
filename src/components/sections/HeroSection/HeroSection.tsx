@@ -36,13 +36,14 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
             {section.paragraph2}
           </p>
           <div className={styles.ctas} data-enter="">
-            <a href={identity.links.contact} className={`${styles.cta} ${styles.ctaPrimary}`}>
-              {section.ctaPrimary}
-              <Icon name="arrowRight" className={styles.arrow} />
-            </a>
+            {/* 2026-11-02 (orden de Zavala): primero el perfil de LinkedIn y después «Hablemos»; cada botón conserva su estilo. */}
             <a href={identity.links[section.ctaSecondaryLink]} className={`${styles.cta} ${styles.ctaSecondary}`} target="_blank" rel="noopener noreferrer">
               {section.ctaSecondary}
               <Icon name="arrowUpRight" className={styles.arrow} />
+            </a>
+            <a href={identity.links.contact} className={`${styles.cta} ${styles.ctaPrimary}`}>
+              {section.ctaPrimary}
+              <Icon name="arrowRight" className={styles.arrow} />
             </a>
           </div>
         </div>

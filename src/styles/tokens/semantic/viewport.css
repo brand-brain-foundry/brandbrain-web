@@ -114,7 +114,9 @@
 
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;
-    --bbf-bar-justify: center;
+    /* 2026-11-02 (orden de Zavala): en el teléfono la barra se alinea al MARGEN IZQUIERDO, como el texto del héroe; centrada, el sello
+       quedaba suelto con un hueco a su izquierda. */
+    --bbf-bar-justify: flex-start;
     --bbf-bar-gap-view: var(--bbf-bar-gap-narrow);
   }
 }
