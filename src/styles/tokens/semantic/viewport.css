@@ -75,6 +75,14 @@
   --bbf-hero-ctas-width: auto;
   /* El sello del pie: 72 (`space-18`) en dos zonas, 64 (`space-16`) en una. */
   --bbf-cert-size: var(--bbf-space-18);
+  /* 2026-11-02 (orden de Zavala): en dos zonas el texto del sello va primero y la imagen cierra la fila en el borde derecho; en una, la
+     imagen va primero y queda en el margen izquierdo. La legal va a la izquierda en dos zonas y en una pasa a la ÚLTIMA fila, bajo el sello.
+     Solo cambia el orden visual: la legal no es enfocable y el sello es un único enlace, así que el orden de tabulación no se altera. */
+  --bbf-cert-direction: row-reverse;
+  --bbf-bar-legal-order: 0;
+  /* separación entre filas del pie cuando parte: en dos zonas casi nunca parte; en una separa el sello de la legal (medido a 390: con `space-2`
+     la legal quedaba pegada al sello, orden de Zavala). */
+  --bbf-bar-row-gap: var(--bbf-space-2);
 
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
@@ -111,6 +119,9 @@
     --bbf-hero-ctas-direction: column;
     --bbf-hero-ctas-width: 100%;
     --bbf-cert-size: var(--bbf-space-16);
+    --bbf-cert-direction: row;
+    --bbf-bar-legal-order: 1;
+    --bbf-bar-row-gap: var(--bbf-space-6);
 
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;

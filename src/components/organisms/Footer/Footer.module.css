@@ -25,7 +25,7 @@
   align-items: center;
   justify-content: var(--bbf-bar-justify);
   column-gap: var(--bbf-bar-gap-view);
-  row-gap: var(--bbf-space-2);
+  row-gap: var(--bbf-bar-row-gap);
   padding: 0 var(--bbf-bar-side);
   pointer-events: none;
 }
@@ -33,6 +33,8 @@
 .legal {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-legal);
 
+  /* 2026-11-02: a la izquierda en dos zonas, última fila en una (rol de vista). */
+  order: var(--bbf-bar-legal-order);
   margin: 0;
   color: var(--bbf-text-on-base-accent);
   font-family: var(--bbf-type-legal-family);
@@ -73,6 +75,7 @@
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
   display: flex;
+  flex-direction: var(--bbf-cert-direction);
   align-items: center;
   gap: var(--bbf-space-3);
   color: var(--bbf-text-on-base-secondary);
