@@ -54,17 +54,6 @@ export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }:
               pantalla anuncia «Sivar BrainsCaso» de corrido. El margen de la hoja separa a la vista, no al oído. Medido sobre el HTML
               generado antes de añadirlo. */}
           {badge ? <> <span className={styles.badge}>{badge}</span></> : null}
-          {typeRole === "label" ? (
-            <span className={styles.underline} aria-hidden="true">
-              <Icon name="underlineWaveNav" className={`${styles.wave} ${styles.waveNav} ${styles.waveBase}`} />
-              <Icon name="underlineWaveNav" className={`${styles.wave} ${styles.waveNav} ${styles.waveInk}`} />
-            </span>
-          ) : null}
-          {typeRole === "menu" ? (
-            <span className={styles.underline} aria-hidden="true">
-              <Icon name="underlineWaveMenu" className={`${styles.wave} ${styles.waveMenu}`} />
-            </span>
-          ) : null}
         </span>
       )}
     </a>

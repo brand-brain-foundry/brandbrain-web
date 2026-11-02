@@ -69,6 +69,21 @@
        · `shadow`  → paso `md`, el MISMO que llevaban las dos afirmaciones que este párrafo sustituye: es texto de cuerpo
          sobre el mismo fondo y en el mismo sitio, así que hereda su sombra en lugar de estrenar una (mapeo del N1 doc B §11).
      Sin interletrado: el ×4 era de los claims y se va con ellos. */
+  /* EL TITULAR DE TEXTO (P-BBW-64/66 · D-BBW-64; home oscura, 2026-11-02). El `<h1>` de la portada en la familia de TEXTO, cuerpo `size-4`,
+     interlineado y tracking propios. Sombra `md`, la del párrafo: va sobre el mismo fondo animado. */
+  --bbf-type-heading-family: var(--bbf-font-text);
+  --bbf-type-heading-size: var(--bbf-size-4);
+  --bbf-type-heading-weight: var(--bbf-weight-text-regular);
+  --bbf-type-heading-leading: var(--bbf-leading-heading);
+  --bbf-type-heading-tracking: var(--bbf-tracking-heading);
+  --bbf-type-heading-shadow: var(--bbf-shadow-md);
+
+  /* EL BOTÓN (F0 §2.3; home oscura, 2026-11-02). Cuerpo `n−1`, peso medio, interletrado ×0. Sin sombra: va sobre su propio fondo. */
+  --bbf-type-button-family: var(--bbf-font-text);
+  --bbf-type-button-size: var(--bbf-size-n1);
+  --bbf-type-button-weight: var(--bbf-weight-text-medium);
+  --bbf-type-button-tracking: var(--bbf-tracking-0);
+
   --bbf-type-body-family: var(--bbf-font-text);
   --bbf-type-body-size: var(--bbf-size-0);
   --bbf-type-body-weight: var(--bbf-weight-text-regular);

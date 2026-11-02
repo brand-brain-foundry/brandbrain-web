@@ -7,10 +7,12 @@
     {
       "type": "hero",
       "id": "hero",
-      "claimLine1": "Tu marca ya tiene criterio.",
-      "claimLine2": "Lo difícil es",
-      "claimLine3": "delegarlo",
-      "heading": "Construyo sistemas de marca: lo que tu marca sabe y nunca escribió, presente en cada pieza, la haga quien la haga."
+      "heading": "La IA sabe de todo, menos de tu marca.",
+      "paragraph1": "Tu equipo ya la usa para escribir, diseñar y responder. Produce rápido y con buen acabado, pero lo que entrega podría ser de cualquiera.",
+      "paragraph2": "Ahí está mi trabajo. Pongo por escrito el criterio de una marca: cómo habla, qué reglas sigue y con qué recursos cuenta. Sobre esa base diseño sistemas de inteligencia artificial que trabajan con el equipo y con las herramientas que ya tiene, solo allí donde aportan. Vengo de más de veinte años en estrategia y dirección creativa.",
+      "ctaPrimary": "Hablemos",
+      "ctaSecondary": "Perfil en LinkedIn",
+      "ctaSecondaryLink": "linkedin"
     }
   ]
 }

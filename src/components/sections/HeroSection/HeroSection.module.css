@@ -80,10 +80,66 @@
 /* el ENCABEZADO: el único `<h1>` de la página, en cuerpo de texto (rol `body`, que estrena consumidor aquí). Se envuelve —es un
    párrafo, no una línea— y su ancho máximo es el MISMO objetivo que fija el claim (`--bbf-lockup-target`), así que el bloque tiene
    un solo ancho y la medida de legibilidad una sola caja. `text-wrap: pretty` evita la línea huérfana al final. */
-.heading {
-  --bbf-enter-delay: var(--bbf-motion-enter-delay-heading);
+/* ── EL ESCENARIO (2026-11-02): el campo de puntos ocupa el sitio del vídeo con su MISMA geometría, máscara y entrada ─────────────────
+   Es la regla que tenía `HeroMedia`, trasladada sin cambiar un solo rol: escenario 16:9 (`--bbf-stage-aspect`) de alto `--bbf-stage-height`,
+   anclado por `--bbf-stage-left` / `--bbf-stage-top` (roles de vista: la derecha en dos zonas, arriba y al centro en una), con la máscara
+   radial `--bbf-stage-mask`, que funde los carriles con el fondo igual que fundía al pez. Entra con el par de fotogramas del escenario. */
+.stage {
+  --bbf-enter-duration: var(--bbf-motion-enter-duration-stage);
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-stage);
 
-  margin: var(--bbf-hero-gap-heading) 0 0;
+  position: absolute;
+  top: var(--bbf-stage-top);
+  left: var(--bbf-stage-left);
+  z-index: var(--bbf-layer-media);
+  height: var(--bbf-stage-height);
+  aspect-ratio: var(--bbf-stage-aspect);
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  -webkit-mask-image: var(--bbf-stage-mask);
+  mask-image: var(--bbf-stage-mask);
+}
+
+.stage[data-enter] {
+  animation-name: stage;
+}
+
+@keyframes stage {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(var(--bbf-motion-enter-stage-scale));
+    filter: blur(var(--bbf-motion-enter-stage-blur));
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ── EL CUERPO (2026-11-02): titular, dos párrafos y dos llamadas a la acción, todo por rol ───────────────────────────────────────────
+   Las piezas entran escalonadas con los cuatro retardos que tenía el bloque (los del claim y el del encabezado, en el mismo orden).
+   La medida de las líneas es la del bloque: `--bbf-lockup-target`, el ancho objetivo que ya fijaba el encabezado. Separaciones de la escala:
+   titular → texto `space-7`, entre párrafos `space-4`, texto → botones `space-11` (F0 §2.2). */
+.heading {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-1);
+
+  margin: 0 0 var(--bbf-space-7);
+  max-width: var(--bbf-lockup-target);
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-heading-family);
+  font-size: var(--bbf-type-heading-size);
+  font-weight: var(--bbf-type-heading-weight);
+  line-height: var(--bbf-type-heading-leading);
+  letter-spacing: var(--bbf-type-heading-tracking);
+  text-shadow: var(--bbf-type-heading-shadow);
+  text-wrap: balance;
+}
+
+.body {
+  margin: 0 0 var(--bbf-space-4);
   max-width: var(--bbf-lockup-target);
   color: var(--bbf-text-on-base-secondary);
   font-family: var(--bbf-type-body-family);
@@ -95,7 +151,77 @@
   text-wrap: pretty;
 }
 
-/* La regla de la FIRMA sale aquí (D-BBW-64). Llevaba sin ningún consumidor en el DOM desde PR#26 y era el único lector del hueco
-   que ahora usa el antetítulo, así que al renombrarlo se habría quedado apuntando a una variable inexistente: código muerto con
-   una referencia rota es peor que código muerto. Los seis roles `--bbf-type-signature-*` siguen declarados y sin consumidor:
-   son el resto de P-BBW-50 y no se tocan aquí. */
+.bodyFirst {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-2);
+}
+
+.bodySecond {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-3);
+}
+
+/* La zona de texto no recibe el puntero (deja pasar al fondo); las llamadas a la acción sí. En la vista de una zona se apilan a todo el
+   ancho del bloque por el rol de vista, sin media query aquí. */
+.ctas {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-heading);
+
+  display: flex;
+  flex-direction: var(--bbf-hero-ctas-direction);
+  flex-wrap: wrap;
+  gap: var(--bbf-space-4);
+  width: var(--bbf-hero-ctas-width);
+  margin-block-start: var(--bbf-space-11);
+  pointer-events: auto;
+}
+
+/* Botón: 48 de alto (`space-12`), relleno lateral `space-7`, radio de píldora, contorno de 1 px en el texto del sistema.
+   Primario: relleno claro (`--bbf-text-on-base`) y texto en la superficie; al pasar, el acento madre (contraste del texto oscuro ~7,6).
+   Secundario: contorno y texto claros sobre transparente; al pasar, contorno y texto en el acento. */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bbf-space-2);
+  box-sizing: border-box;
+  height: var(--bbf-space-12);
+  padding-inline: var(--bbf-space-7);
+  border: var(--bbf-line-sm) solid var(--bbf-text-on-base);
+  border-radius: var(--bbf-radius-pill);
+  font-family: var(--bbf-type-button-family);
+  font-size: var(--bbf-type-button-size);
+  font-weight: var(--bbf-type-button-weight);
+  letter-spacing: var(--bbf-type-button-tracking);
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
+    border-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
+    color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.ctaPrimary {
+  background: var(--bbf-text-on-base);
+  color: var(--bbf-surface-base);
+}
+
+.ctaPrimary:hover {
+  background: var(--bbf-accent);
+  border-color: var(--bbf-accent);
+}
+
+.ctaSecondary {
+  background: transparent;
+  color: var(--bbf-text-on-base);
+}
+
+.ctaSecondary:hover {
+  border-color: var(--bbf-accent);
+  color: var(--bbf-accent);
+}
+
+/* Flecha: 16 (`space-4`), trazo por el rol de icono de la nav (`--bbf-line-toggle`, 1,5 px). */
+.arrow {
+  flex: none;
+  width: var(--bbf-space-4);
+  height: var(--bbf-space-4);
+  stroke-width: var(--bbf-line-toggle);
+}

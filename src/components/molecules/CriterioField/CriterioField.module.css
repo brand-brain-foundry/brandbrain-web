@@ -1,0 +1,13 @@
+/* CriterioField — Tier 3: sin valores. La placa NO se posiciona sola: la coloca quien la compone (en el héroe, el escenario por roles de
+   composición, que es un contexto de posicionamiento). El lienzo la llena. */
+.plate {
+  display: block;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}

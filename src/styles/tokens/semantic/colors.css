@@ -65,4 +65,13 @@
   --bbf-surface-vignette-mid: var(--bbf-shadow-ink-vignette-mid);
   --bbf-surface-vignette-edge: var(--bbf-shadow-ink-vignette-edge);
   --bbf-mask-stage-mid: var(--bbf-shadow-ink-stage-mask-mid);
+
+  /* EL CAMPO DE PUNTOS S8 sobre el fondo oscuro (2026-11-02). Los lee `src/behavior/criterio-field.ts` desde el navegador y nunca los
+     repite. Carril en reposo en el paso apagado de la rampa (`mint-700`, el de `text-on-base-faint`): se lee como trama, no como texto.
+     Carril vivo `mint-400` (el de `muted`). Aciertos y barras en el acento madre; el primer punto de cada barra en el acento claro
+     (`accent-200`, el de `text-on-base-accent`). El cursor usa `--bbf-text-on-base`. Todos son pasos que el sistema oscuro ya usa. */
+  --bbf-field-lane: var(--bbf-color-mint-700);
+  --bbf-field-lane-live: var(--bbf-color-mint-400);
+  --bbf-field-read: var(--bbf-accent);
+  --bbf-field-hit: var(--bbf-color-accent-200);
 }

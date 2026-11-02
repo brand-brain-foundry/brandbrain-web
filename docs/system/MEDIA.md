@@ -66,7 +66,8 @@ Cambiar lo que el icono dibuja o lo que el vídeo muestra no cambia ningún nomb
 | `ico` | Empaqueta rasterizaciones PNG en un contenedor `.ico` (cabecera + directorio + PNG por entrada; lo escribe el guion, sin herramienta). | `favicon.ico` (16/32/48) |
 | `share` | Lienzo `width×height` sobre la superficie con el dibujo centrado a `iconHeight` de la altura. **Sin texto.** | `share-1200x630.png` |
 | `manifest` | El manifiesto de la aplicación web con los derivados `icons`, `purpose: maskable` para el recortable, y `theme_color`/`background_color` = superficie por token. | `manifest.webmanifest` |
-| vectores inline | viewBox + trazado del maestro → `generated.ts`; pintan con `currentColor`, se dimensionan y trazan por tokens (`Icon` atom). | iconos de perfil (LinkedIn, GitHub), onda del subrayado (nav, hoja), brazos del conmutador |
+| vectores inline | viewBox + trazado del maestro → `generated.ts`; pintan con `currentColor`, se dimensionan y trazan por tokens (`Icon` atom). | icono de LinkedIn, brazos del conmutador y las flechas de los botones del cuerpo. **2026-11-02:** salen el icono de GitHub y las ondas del subrayado |
+| `png-resize` (2026-11-02) | Redimensiona un maestro **raster** (clase `raster`, PNG) a `size`² con lanczos3 y conserva la transparencia; sharp. | sello del pie, `gc-foundational-72.png` y `-144.png` |
 | `video` (fase 6d) | Transcodifica un maestro de vídeo **sin audio** a `width`×`height` (Lanczos) con `codec` `h264` (MP4, libx264, CRF `quality`, preset slow, High 4.0, `+faststart`) o `av1` (WebM, SVT-AV1, CRF `quality`, preset 4); **un solo hilo** y sin metadatos (`bitexact`) para que la salida sea idéntica entre máquinas; GOP 48 (2 s a 24 fps). El guion sondea el derivado (ffprobe): sin pista de audio y con las dimensiones del perfil, o falla. **`budgetBytes`** = presupuesto de peso; pasarse hace fallar el guion y la guardia (R6). | `hero-loop-1280x720.mp4` (CRF 23, ≤ 1 000 000 B) · `hero-loop-640x360.mp4` (CRF 23, ≤ 400 000 B; perfil ligero para pantallas pequeñas, previsto, no servido: la entrega adaptativa no se cablea) |
 | `poster` (fase 6d) | El **primer fotograma exacto** del maestro (fotograma 0, sin pérdida vía PNG) codificado por sharp a `format` (`jpeg` mozjpeg 4:2:0 o `webp`) a `quality`, con `budgetBytes`. Es lo que se ve mientras el vídeo carga y lo que se sirve con movimiento reducido; un solo URL (`poster`), por eso JPEG (universal). | `hero-loop-poster-1280x720.jpg` (q 80, ≤ 60 000 B) |
 
@@ -108,6 +109,10 @@ Apple es **opaco** sobre la superficie (iOS compone sobre un mosaico y la transp
 **Cambiar un maestro** = editar el archivo + `pnpm media:build`. Si se olvida el paso 2, el guardia rompe el commit (R1).
 
 ## §6 — Vídeo del héroe (D-BBW-24, fase 6d): fondo decorativo
+
+> **2026-11-02 (orden de Zavala): el pez sale del héroe.** Salen `HeroMedia` y los tres derivados (720p, 360p, póster). **Los dos maestros se
+> conservan declarados y sellados, sin derivados**, igual que el de registro: el pez vuelve con declarar de nuevo sus perfiles y `pnpm media:build`.
+> Lo que sigue describe el contrato tal como era.
 
 **Decisión (D-BBW-24, 2026-09-17):** el vídeo del héroe es **fondo decorativo**: silencio, bucle, sin controles, sin pantalla completa (las
 condiciones sin las cuales ningún navegador lo reproduce solo; MDN `<video>` y guía de autoplay, leídos en vivo 2026-09-17: el bloqueo de

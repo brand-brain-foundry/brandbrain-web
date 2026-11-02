@@ -1,4 +1,7 @@
-/* NavLink — Tier 3: solo consume Tier 1/2. Fase 6g: ESTADOS con transición por rol (reposo → cursor encima / foco / activo: color y revelado
+/* NavLink — Tier 3: solo consume Tier 1/2.
+   2026-11-02 (orden de Zavala): SALEN LAS ONDAS DE SUBRAYADO (markup, capas, ripple y revelado, con sus maestros y roles, I-6). Se quedan el
+   color, el interletrado que se abre al pasar el cursor, las cápsulas y los iconos de perfil. Lo que sigue en esta cabecera sobre las ondas
+   es historia de la 6c/6g. Fase 6g: ESTADOS con transición por rol (reposo → cursor encima / foco / activo: color y revelado
    de la onda de tinta en --bbf-motion-link-*) y RIPPLE de la onda (N0 `ef-ripple`: se desplaza un periodo del trazado, --bbf-motion-ripple-shift,
    en bucle lineal de --bbf-motion-ripple-duration) mientras el enlace está activo, enfocado o bajo el cursor (nav) y siempre en la hoja (menu).
    Movimiento reducido: la transición colapsa con la madre de duración; el bucle se pausa por rol (--bbf-motion-loop-play-state).
@@ -10,9 +13,6 @@
    Fase 6l · SOMBRAS DE TEXTO por rol (mapeo del N1 doc B §11): enlaces de la nav → `label-shadow` (paso md) · enlaces de la hoja →
    `menu-shadow` (paso lg) · perfiles → `legal-shadow` (paso sm). Por rol, nunca un valor. */
 .navLink {
-  --bbf-nav-link-underline-height: var(--bbf-space-2);
-  --bbf-nav-link-underline-width-nav: var(--bbf-space-40);
-  --bbf-nav-link-underline-width-menu: var(--bbf-space-85);
   --bbf-nav-link-icon-sm: var(--bbf-space-4);
   --bbf-nav-link-icon-md: var(--bbf-space-6);
   --bbf-nav-link-touch-md: var(--bbf-space-14);
@@ -87,64 +87,6 @@
 .text {
   position: relative;
   display: inline-block;
-}
-
-.underline {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  height: var(--bbf-nav-link-underline-height);
-  overflow: hidden;
-}
-
-.wave {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: auto;
-}
-
-.waveNav {
-  width: var(--bbf-nav-link-underline-width-nav);
-}
-
-.waveMenu {
-  width: var(--bbf-nav-link-underline-width-menu);
-  color: var(--bbf-accent-glow);
-  stroke-width: var(--bbf-line-underline);
-  animation: ripple var(--bbf-motion-ripple-duration) var(--bbf-ease-linear) infinite;
-  animation-play-state: var(--bbf-motion-loop-play-state);
-}
-
-.waveBase {
-  color: var(--bbf-line-on-base);
-  stroke-width: var(--bbf-line-underline-base);
-}
-
-.waveInk {
-  color: var(--bbf-accent);
-  stroke-width: var(--bbf-line-underline);
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path var(--bbf-motion-link-reveal-duration) var(--bbf-motion-link-ease);
-}
-
-.navLink:hover .waveInk,
-.navLink:focus-visible .waveInk,
-.navLink:active .waveInk {
-  clip-path: inset(0);
-  animation: ripple var(--bbf-motion-ripple-duration) var(--bbf-ease-linear) infinite;
-  animation-play-state: var(--bbf-motion-loop-play-state);
-}
-
-@keyframes ripple {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(calc(-1 * var(--bbf-motion-ripple-shift)));
-  }
 }
 
 .profileIcon {

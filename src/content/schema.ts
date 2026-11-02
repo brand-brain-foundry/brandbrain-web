@@ -92,30 +92,37 @@ export type GlobalDocument = {
      * y el pie es la superficie que quedaba. Una llave, un consumidor.
      */
     legal: string;
-    /** enlaces a perfiles externos, en orden */
+    /** enlaces a perfiles externos, en orden (2026-11-02: solo LinkedIn; GitHub sale del pie y de la hoja) */
     social: LinkItem[];
+    /**
+     * SELLO DE CERTIFICACIÓN (2026-11-02). `label` es el nombre de la credencial tal como se lee en el pie («Google Cloud Certified»).
+     * Sin nivel visible por orden de Zavala. El destino (la credencial verificable) es `links.credly` en content/site.json.
+     */
+    cert: { label: string };
   };
 };
 
 // ── Página ──────────────────────────────────────────────────────────────────────────────────────────────
 /**
- * Sección de portada (fase «héroe rediagramado», D-BBW-47): el CLAIM en tres líneas + el encabezado + la firma.
- * El claim son TRES llaves y no una lista porque las tres líneas NO son intercambiables: la última es la que respira
- * (el modulador de peso se aplica solo a ella, D-BBW-47) y las otras dos quedan quietas. La llave nombra la POSICIÓN,
- * que aquí es el rol; nunca lo que la línea dice hoy (regla 2 del modelo).
- * El claim NO es un encabezado: solo hay un encabezado principal por página y es `heading`, el párrafo (biblia v2 §10/§12).
+ * Sección de portada. 2026-11-02 (orden de Zavala), cambio NO aditivo, modelo v3.3: el CLAIM de tres líneas sale y entra el CUERPO de la
+ * home nueva sobre el héroe oscuro: el titular (`<h1>`), dos párrafos y dos llamadas a la acción. Cada texto su llave, nombrada por rol.
+ * El destino de la llamada primaria es el contacto (derivado del buzón); el de la secundaria, una llave de `content/site.json`.
  */
 export type HeroSection = {
   type: "hero";
   id: string;
-  /** primera línea del claim (quieta) */
-  claimLine1: string;
-  /** segunda línea del claim (quieta) */
-  claimLine2: string;
-  /** TERCERA y última línea del claim: es la que lleva la animación de peso (tokens en primitives/motion.css) */
-  claimLine3: string;
-  /** el encabezado de la página. Es el `<h1>`, y va en cuerpo de texto debajo del claim */
+  /** el encabezado de la página: el único `<h1>` */
   heading: string;
+  /** primer párrafo del cuerpo; sus líneas marcan los carriles del campo de puntos */
+  paragraph1: string;
+  /** segundo párrafo del cuerpo */
+  paragraph2: string;
+  /** etiqueta de la llamada primaria (→ contacto) */
+  ctaPrimary: string;
+  /** etiqueta de la llamada secundaria */
+  ctaSecondary: string;
+  /** llave del destino de la llamada secundaria; el destino vive en content/site.json, nunca aquí */
+  ctaSecondaryLink: LinkKey;
 };
 
 /** Unión de tipos de sección. Un tipo nuevo se añade aquí y en SECTION_KEYS (y su renderizador, fase 6b). */
@@ -140,7 +147,7 @@ const ID_RE = /^[a-z][a-z0-9-]*$/;
 const HTML_RE = /<\/?[a-zA-Z!]/;
 
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
-  hero: ["type", "id", "claimLine1", "claimLine2", "claimLine3", "heading"],
+  hero: ["type", "id", "heading", "paragraph1", "paragraph2", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -207,9 +214,13 @@ export function validateGlobal(v: unknown): Problem[] {
     checkLinkItems(v.nav.items, "$.nav.items", problems);
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });
   if (isRecord(v.footer)) {
-    checkKeys(v.footer, ["legal", "social"], "$.footer", problems);
+    checkKeys(v.footer, ["legal", "social", "cert"], "$.footer", problems);
     checkText(v.footer.legal, "$.footer.legal", problems);
     checkLinkItems(v.footer.social, "$.footer.social", problems);
+    if (isRecord(v.footer.cert)) {
+      checkKeys(v.footer.cert, ["label"], "$.footer.cert", problems);
+      checkText(v.footer.cert.label, "$.footer.cert.label", problems);
+    } else if ("cert" in v.footer) problems.push({ path: "$.footer.cert", message: "debe ser un objeto { label }" });
   } else if ("footer" in v) problems.push({ path: "$.footer", message: "debe ser un objeto" });
   return problems;
 }
@@ -225,6 +236,12 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
   checkId(v.id, `${path}.id`, seen, problems);
   for (const k of keys) {
     if (k === "type" || k === "id") continue;
+    if (k === "ctaSecondaryLink") {
+      if (typeof v[k] !== "string" || !isLinkKey(v[k] as string)) {
+        problems.push({ path: `${path}.${k}`, message: `"${String(v[k])}" no es una llave de enlace (los destinos viven solo en content/site.json)` });
+      }
+      continue;
+    }
     checkText(v[k], `${path}.${k}`, problems);
   }
 }

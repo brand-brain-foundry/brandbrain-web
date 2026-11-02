@@ -6,8 +6,7 @@
  * CLASE (D-DOC-13): estático (roles); paso asignado = dinámico.
  */
 :root {
-  --bbf-line-underline-base: var(--bbf-line-sm);
-  --bbf-line-underline: var(--bbf-line-md);
+  /* 2026-11-02 (orden de Zavala): salen las ondas de subrayado de la nav y con ellas `--bbf-line-underline` y `-base` (I-6). */
   --bbf-line-toggle: var(--bbf-line-md);
   /* fase 6l (D-BBW-39): el borde de la esfera de la burbuja mide medio píxel en el diseño; al paso ×1 el anillo del plano más brillante salía
      del doble de grueso (residual que la 6k dejó abierto). Único consumidor del cuanto `--bbf-line-half`. */

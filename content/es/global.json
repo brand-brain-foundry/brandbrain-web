@@ -35,12 +35,10 @@
         "id": "linkedin",
         "label": "Perfil de LinkedIn",
         "link": "linkedin"
-      },
-      {
-        "id": "github",
-        "label": "Perfil de GitHub",
-        "link": "github"
       }
-    ]
+    ],
+    "cert": {
+      "label": "Google Cloud Certified"
+    }
   }
 }

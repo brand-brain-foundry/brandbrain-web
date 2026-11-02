@@ -48,19 +48,33 @@
          `min-height` explícito (que sustituye al mínimo automático por contenido), el héroe podría encogerse por debajo de su propio
          contenido y el crecimiento no serviría de nada. La advertencia de la 6f —base `auto` + contención de tamaño resuelve `cqh` a 0
          en Chrome— no aplica aquí justamente porque la contención de tamaño es lo que se acaba de quitar.
-     La vista de dos zonas conserva los cinco valores que tenía. Lo que se toca es **solo** la vista donde estaba el defecto. */
+     La vista de dos zonas conservaba los cinco valores que tenía; desde el 2026-11-02 adopta el mismo mecanismo (ver abajo). */
   --bbf-stage-anchor-x: var(--bbf-stage-anchor-x-split);
   --bbf-stage-anchor-y: var(--bbf-stage-anchor-y-split);
   --bbf-stage-height-ratio: var(--bbf-stage-height-ratio-split);
   --bbf-stage-width-cap: var(--bbf-stage-width-cap-split);
   --bbf-hero-text-zone: var(--bbf-hero-text-zone-split);
   --bbf-hero-text-align-block: center;
-  --bbf-hero-text-inset-bottom: 0px;
-  --bbf-hero-size-containment: size;
-  --bbf-hero-text-flow: absolute;
-  --bbf-hero-text-min-block: 0px;
-  --bbf-hero-text-inset-top: 0px;
-  --bbf-hero-flex: 1 1 0;
+  /* 2026-11-02 · EL CUERPO NUEVO ES MÁS ALTO QUE EL CLAIM, y la vista de dos zonas pasa a usar el mismo mecanismo que D-BBW-62 dio a la de
+     una: el héroe CRECE con su contenido en vez de recortarlo. Con el claim cabía en cualquier ventana; con titular, dos párrafos y botones
+     (≈ 550 px de bloque) una pantalla de portátil baja lo solapaba con la cabecera y el pie, que van superpuestos. Por eso:
+       · contención de eje en línea (`cqw` no cambia; `cqh` pasa a resolverse contra la ventana pequeña, que es lo que el escenario quiere),
+       · zona de texto EN FLUJO, de al menos una ventana, con el bloque centrado entre dos reservas,
+       · reserva superior = la cabecera (su relleno arriba y abajo, que es el margen de página, más la marca, `space-12`),
+       · reserva inferior = el pie (su separación al borde, el sello a su tamaño de vista y un margen de página de aire).
+     Son fórmulas sobre roles que ya existen; ningún número nuevo. En una ventana alta el resultado es el mismo centrado de siempre. */
+  --bbf-hero-text-inset-bottom: calc(var(--bbf-bar-bottom) + var(--bbf-cert-size) + var(--bbf-space-page));
+  --bbf-hero-size-containment: inline-size;
+  --bbf-hero-text-flow: relative;
+  --bbf-hero-text-min-block: 100svh;
+  --bbf-hero-text-inset-top: calc(var(--bbf-space-page) * 2 + var(--bbf-space-12));
+  --bbf-hero-flex: 1 0 auto;
+
+  /* Las llamadas a la acción del cuerpo (2026-11-02): en fila en dos zonas; apiladas a todo el ancho del bloque en una. */
+  --bbf-hero-ctas-direction: row;
+  --bbf-hero-ctas-width: auto;
+  /* El sello del pie: 72 (`space-18`) en dos zonas, 64 (`space-16`) en una. */
+  --bbf-cert-size: var(--bbf-space-18);
 
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
@@ -80,15 +94,23 @@
     --bbf-stage-width-cap: var(--bbf-stage-width-cap-single);
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
-    --bbf-hero-text-inset-bottom: var(--bbf-lockup-offset);
+    /* 2026-11-02: la separación de siempre más el sello del pie, que va superpuesto y ahora es más alto (medido a 390 sin esto: 2 px de
+       solape con los botones). */
+    --bbf-hero-text-inset-bottom: calc(var(--bbf-lockup-offset) + var(--bbf-cert-size) + var(--bbf-space-2));
     --bbf-hero-size-containment: inline-size;
-    --bbf-hero-text-flow: static;
+    /* 2026-11-02 · `relative` y no `static`: una caja estática ignora el `z-index`, así que la VIÑETA (capa de velo, por encima del
+       fondo) se pintaba ENCIMA del texto y lo oscurecía —se ve en la captura del sitio publicado en el teléfono—. En flujo igual que antes. */
+    --bbf-hero-text-flow: relative;
     --bbf-hero-text-min-block: 100svh;
     /* la banda del escenario: de su ancla al borde inferior de su caja. Se reserva la caja ENTERA y no el dibujo, que la máscara radial
        desvanece mucho antes: es la cota conservadora, y es lo que convierte «cero tinta del sujeto bajo el texto» en algo cierto por
        construcción en vez de por medida. */
     --bbf-hero-text-inset-top: calc(var(--bbf-stage-top) + var(--bbf-stage-height) / 2);
     --bbf-hero-flex: 1 0 auto;
+
+    --bbf-hero-ctas-direction: column;
+    --bbf-hero-ctas-width: 100%;
+    --bbf-cert-size: var(--bbf-space-16);
 
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;
