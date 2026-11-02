@@ -45,7 +45,9 @@
 .touchMd {
   min-width: var(--bbf-nav-link-touch-md);
   min-height: var(--bbf-nav-link-touch-md);
-  justify-content: center;
+  /* 2026-11-02 (orden de Zavala): en la hoja el icono se alinea al margen izquierdo, como los enlaces de encima; centrado en su área táctil
+     de 56 quedaba metido 20 px. El área táctil no cambia: crece hacia la derecha. */
+  justify-content: flex-start;
 }
 
 .label {
