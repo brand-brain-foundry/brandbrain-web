@@ -32,6 +32,11 @@ export const substitutions = {
   year: String(new Date().getFullYear()),
   /** buzón de contacto publicado (identidad editable, `identity.email`; p. ej. para textos legales que lo mencionan) */
   email: identity.email,
+  /**
+   * FORMA JURÍDICA (P-BBW-80, L2 §0.3.5): «profesional autónomo» desde `content/site.json`.
+   * Vive UNA vez; los textos legales la piden por `{{legalForm}}`.
+   */
+  legalForm: identity.legalForm,
 } as const;
 export type SubstitutionKey = keyof typeof substitutions;
 

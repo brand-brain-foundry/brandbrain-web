@@ -39,13 +39,14 @@
     ],
     "cert": {
       "label": "Google Cloud Certified"
-    },
-    "legalLinks": {
-      "items": [
-        { "id": "aviso-legal", "label": "Aviso legal", "slug": "aviso-legal" },
-        { "id": "privacidad", "label": "Privacidad", "slug": "privacidad" },
-        { "id": "cookies", "label": "Cookies", "slug": "cookies" }
-      ]
+    }
+  },
+  "legal": {
+    "updatedLabel": "Última actualización",
+    "pages": {
+      "aviso-legal": { "label": "Aviso legal" },
+      "privacidad": { "label": "Privacidad" },
+      "cookies": { "label": "Cookies" }
     }
   }
 }

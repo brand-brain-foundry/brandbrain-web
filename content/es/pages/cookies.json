@@ -37,13 +37,14 @@
           "parts": [
             {
               "p": [
-                "Más información sobre los datos que trato en Privacidad."
+                "Más información sobre los datos que trato en ",
+                { "page": "privacidad" },
+                "."
               ]
             }
           ]
         }
       ],
-      "updatedLabel": "Última actualización: 2026-11-05",
       "updated": "2026-11-05"
     }
   ]

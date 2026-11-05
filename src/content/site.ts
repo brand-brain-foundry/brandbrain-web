@@ -37,6 +37,12 @@ export type SiteDocument = {
   role: string;
   /** el buzón publicado. El esquema `mailto:` NO se escribe aquí: es técnico y lo pone el código (abajo). */
   email: string;
+  /**
+   * FORMA JURÍDICA (P-BBW-80, L2 §0.3.5): «profesional autónomo». Vive UNA vez, en este documento. Los textos legales la piden
+   * por sustitución (`{{legalForm}}`): si mañana cambia la forma jurídica, se edita aquí y cambia en todos los textos.
+   * No es dato sensible (es un texto de categoría jurídica genérica, no una identificación personal).
+   */
+  legalForm: string;
   /** a dónde apunta la web fuera de sí misma, nombrado por ROL y nunca por lo que muestra. */
   links: Record<string, string>;
 };
@@ -64,13 +70,14 @@ function checkText(v: unknown, path: string, problems: Problem[]): void {
 export function validateSite(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  const allowed = ["brand", "role", "email", "links"];
+  const allowed = ["brand", "role", "email", "legalForm", "links"];
   for (const k of Object.keys(v)) {
     if (!allowed.includes(k)) problems.push({ path: `$.${k}`, message: `llave desconocida (el modelo no la admite)` });
   }
   checkText(v.brand, "$.brand", problems);
   checkText(v.role, "$.role", problems);
   checkText(v.email, "$.email", problems);
+  checkText(v.legalForm, "$.legalForm", problems);
   if (typeof v.email === "string" && v.email.length > 0 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) {
     problems.push({ path: "$.email", message: `no es una dirección de correo (el esquema "mailto:" lo pone el código, aquí va solo la dirección)` });
   }
@@ -100,6 +107,7 @@ export const identity = {
   brand: document.brand,
   role: document.role,
   email: document.email,
+  legalForm: document.legalForm,
   links: { ...document.links, contact: `mailto:${document.email}` },
 } as const;
 

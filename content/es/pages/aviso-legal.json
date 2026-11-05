@@ -17,7 +17,7 @@
           "parts": [
             {
               "list": [
-                "Titular: {{brand}}, profesional autónomo.",
+                "Titular: {{brand}}, {{legalForm}}.",
                 "Actividad: {{role}}.",
                 "NIF: {{nif}}",
                 "Domicilio: {{domicilio}}",
@@ -52,7 +52,11 @@
           "parts": [
             {
               "p": [
-                "El tratamiento de datos personales se explica en Privacidad, y el uso de cookies y tecnologías similares, en Cookies."
+                "El tratamiento de datos personales se explica en ",
+                { "page": "privacidad" },
+                ", y el uso de cookies y tecnologías similares, en ",
+                { "page": "cookies" },
+                "."
               ]
             }
           ]
@@ -68,7 +72,6 @@
           ]
         }
       ],
-      "updatedLabel": "Última actualización: 2026-11-05",
       "updated": "2026-11-05"
     }
   ]

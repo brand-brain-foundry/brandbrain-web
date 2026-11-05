@@ -17,12 +17,14 @@
           "parts": [
             {
               "p": [
-                "{{brand}}, profesional autónomo. Contacto: ",
+                "{{brand}}, {{legalForm}}. Contacto: ",
                 {
                   "text": "{{email}}",
                   "link": "contact"
                 },
-                ". El resto de datos de identificación están en el Aviso legal."
+                ". El resto de datos de identificación están en el ",
+                { "page": "aviso-legal" },
+                "."
               ]
             }
           ]
@@ -58,17 +60,12 @@
             },
             {
               "p": [
-                "Cloudflare puede tratar datos en Estados Unidos, al amparo del Marco de Privacidad de Datos UE-EE. UU., con cláusulas contractuales tipo de respaldo. [[PENDIENTE: ubicación de los datos de Hostinger y su contrato de encargado.]] Cualquier persona puede pedirme información sobre estas garantías y una copia en ",
-                {
-                  "text": "{{email}}",
-                  "link": "contact"
-                },
-                "."
+                "Cloudflare puede tratar datos en Estados Unidos, al amparo del Marco de Privacidad de Datos UE-EE. UU., con cláusulas contractuales tipo de respaldo. Hostinger guarda los buzones en centros de datos de la Unión Europea, en Francia y Alemania; algunos de sus proveedores pueden tratar datos fuera del Espacio Económico Europeo, con cláusulas contractuales tipo."
               ]
             },
             {
               "p": [
-                "Cuánto tiempo. [[PENDIENTE: tiempo de retención de los registros técnicos de Cloudflare.]] Los correos, el tiempo necesario para responder; si empieza una relación profesional, lo que exija la ley. [[PENDIENTE: plazos de retención de correos.]]"
+                "Cuánto tiempo. Los registros técnicos, el tiempo que Cloudflare necesite para proteger el servicio: no publica un plazo fijo y los borra cuando dejan de hacer falta. Los correos, el tiempo necesario para responder. Si empieza una relación profesional, lo que esa relación necesite y, después, los plazos que exige la normativa tributaria."
               ]
             },
             {
@@ -151,7 +148,7 @@
                   "text": "{{email}}",
                   "link": "contact"
                 },
-                "; en el caso del asistente, también se puede pedir en la propia llamada. Respondo en un mes como máximo. Quien considere que no he atendido bien su petición puede reclamar ante la Agencia Española de Protección de Datos (",
+                "; en el caso del asistente, también se puede pedir en la propia llamada. Respondo en un mes como máximo. También se me puede pedir información sobre las garantías de los datos que salen del Espacio Económico Europeo y cómo obtener una copia. Quien considere que no he atendido bien su petición puede reclamar ante la Agencia Española de Protección de Datos (",
                 {
                   "text": "www.aepd.es",
                   "link": "aepd"
@@ -162,7 +159,6 @@
           ]
         }
       ],
-      "updatedLabel": "Última actualización: 2026-11-05",
       "updated": "2026-11-05"
     }
   ]

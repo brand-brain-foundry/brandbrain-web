@@ -38,6 +38,74 @@ import { getLegalIdentity } from "./legal-identity";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
 
+/** Lee las etiquetas de páginas legales del global.json de un locale (sin pipeline completa, solo para resolver { page }). */
+function getLegalPageLabels(locale: Locale): Record<string, string> {
+  try {
+    const raw = readJson(`${locale}/${GLOBAL_DOCUMENT}.json`);
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      const legal = (raw as Record<string, unknown>).legal;
+      if (legal && typeof legal === 'object' && !Array.isArray(legal)) {
+        const pages = (legal as Record<string, unknown>).pages;
+        if (pages && typeof pages === 'object' && !Array.isArray(pages)) {
+          const result: Record<string, string> = {};
+          for (const [slug, page] of Object.entries(pages as Record<string, unknown>)) {
+            if (page && typeof page === 'object' && !Array.isArray(page)) {
+              const label = (page as Record<string, unknown>).label;
+              if (typeof label === 'string') result[slug] = label;
+            }
+          }
+          return result;
+        }
+      }
+    }
+  } catch { /* vacío: si falla, lanzará el error en resolvePageRefs */ }
+  return {};
+}
+
+/** Convierte `{ page: slug }` → `{ text: label, path: "/${locale}/${slug}/" }`. Lanza si el slug no existe. */
+function resolvePageRefs<T>(doc: T, locale: Locale, pageLabels: Record<string, string>, path = "$"): T {
+  if (doc && typeof doc === 'object' && !Array.isArray(doc)) {
+    const r = doc as Record<string, unknown>;
+    if ('page' in r && typeof r.page === 'string' && !('text' in r) && !('link' in r) && !('path' in r)) {
+      const slug = r.page as string;
+      const label = pageLabels[slug];
+      if (!label) throw new Error(`[content] ${path}: referencia a página desconocida "${slug}" (¿falta en global.legal.pages?)`);
+      return { text: label, path: `/${locale}/${slug}/` } as unknown as T;
+    }
+    const out: Record<string, unknown> = {};
+    const SKIP = new Set(["id", "type", "link", "case"]);
+    for (const [k, v] of Object.entries(r)) {
+      out[k] = SKIP.has(k) ? v : resolvePageRefs(v, locale, pageLabels, `${path}.${k}`);
+    }
+    return out as T;
+  }
+  if (Array.isArray(doc)) {
+    return doc.map((x, i) => resolvePageRefs(x, locale, pageLabels, `${path}[${i}]`)) as unknown as T;
+  }
+  return doc;
+}
+
+/** Genera `updatedLabel` en las secciones legales combinando la etiqueta del global con la fecha formateada. */
+function addUpdatedLabels<T>(doc: T, updatedLabel: string, locale: Locale): T {
+  if (doc && typeof doc === 'object' && !Array.isArray(doc)) {
+    const r = doc as Record<string, unknown>;
+    if (r.type === 'legal' && typeof r.updated === 'string') {
+      const date = new Date(r.updated);
+      const formatted = date.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+      return { ...r, updatedLabel: `${updatedLabel}: ${formatted}` } as unknown as T;
+    }
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(r)) {
+      out[k] = addUpdatedLabels(v, updatedLabel, locale);
+    }
+    return out as T;
+  }
+  if (Array.isArray(doc)) {
+    return doc.map((x) => addUpdatedLabels(x, updatedLabel, locale)) as unknown as T;
+  }
+  return doc;
+}
+
 function assertPublished(locale: Locale): void {
   if (!(publishedLocales as readonly string[]).includes(locale)) {
     throw new Error(`[content] locale "${locale}" no está publicado (D-BBW-15): no existe content/${locale}/`);
@@ -122,9 +190,27 @@ export function getPage(locale: Locale, slug: string): PageDocument {
   const rel = `${locale}/${collection}/${slug}.json`;
   const doc = readJson(rel);
   failOn(validatePage(doc), rel);
-  // aviso-legal.json usa sustituciones restringidas ({{nif}}/{{domicilio}}/{{telefono}}); el resto no las admite.
-  if (slug === 'aviso-legal') return substituteLegal(doc as PageDocument, rel);
-  return substitute(doc as PageDocument, rel);
+
+  // Paso 1: sustituir (con variante según el documento)
+  const substituted = slug === 'aviso-legal'
+    ? substituteLegal(doc as PageDocument, rel)
+    : substitute(doc as PageDocument, rel);
+
+  // Paso 2: resolver referencias { page: slug } → { text, path } usando las etiquetas del global
+  const pageLabels = getLegalPageLabels(locale);
+  const withPageRefs = resolvePageRefs(substituted, locale, pageLabels);
+
+  // Paso 3: generar updatedLabel en las secciones legales desde global.legal.updatedLabel + updated formateado
+  const globalRaw = readJson(`${locale}/${GLOBAL_DOCUMENT}.json`);
+  let updatedLabelTemplate = 'Última actualización';
+  if (globalRaw && typeof globalRaw === 'object' && !Array.isArray(globalRaw)) {
+    const legal = (globalRaw as Record<string, unknown>).legal;
+    if (legal && typeof legal === 'object' && !Array.isArray(legal)) {
+      const lbl = (legal as Record<string, unknown>).updatedLabel;
+      if (typeof lbl === 'string' && lbl.trim()) updatedLabelTemplate = lbl.trim();
+    }
+  }
+  return addUpdatedLabels(withPageRefs, updatedLabelTemplate, locale);
 }
 
 /** La primera sección de un tipo; si la página no la tiene, el build falla con mensaje (no se renderiza a medias). */
