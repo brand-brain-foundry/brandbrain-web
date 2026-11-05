@@ -167,6 +167,7 @@ export const derivatives: { readonly [K in DerivativeId]: Derivative } = _deriva
  */
 export type InlineIcon = { master: MasterId; paint: "fill" | "stroke"; use: "profile" | "ornament" };
 export const inlineIcons = {
+  brandIcon: { master: "brandIcon", paint: "fill", use: "ornament" },
   linkedin: { master: "iconLinkedin", paint: "fill", use: "profile" },
   arrowRight: { master: "arrowRight", paint: "stroke", use: "ornament" },
   arrowUpRight: { master: "arrowUpRight", paint: "stroke", use: "ornament" },

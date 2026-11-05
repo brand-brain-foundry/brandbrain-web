@@ -88,6 +88,8 @@
   --bbf-motion-enter-delay-social: var(--bbf-stagger-18);
   --bbf-motion-enter-stagger-nav: var(--bbf-stagger-1-5);
   --bbf-motion-loop-play-state: running;
+  /* S9 (M1): el pulso octópodo del imagotipo se pausa con movimiento reducido (D-BBW-31) */
+  --bbf-motion-octopus-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -97,5 +99,6 @@
     --bbf-motion-particles-play-state: paused;
     --bbf-motion-glow-play-state: paused;
     --bbf-motion-loop-play-state: paused;
+    --bbf-motion-octopus-play-state: paused;
   }
 }

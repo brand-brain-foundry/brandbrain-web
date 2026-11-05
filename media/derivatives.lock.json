@@ -79,7 +79,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "cb31c25d197a7671cfadfc98a9902de8766230a567763725ea806446fbbd4cfa"
+    "sha256": "96592c155575bac098fb677d50ca9b6b15a1a41e9af9b9f6864822a3c735dbef"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {

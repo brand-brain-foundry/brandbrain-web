@@ -1,0 +1,41 @@
+{
+  "_schema": "brand-icon-rig/v1",
+  "_origin": "derived from brand-icon.svg; arc lengths and tip fracs measured 2026-11-05 via check-brand-mark-rig.ts; verified by guard on every commit",
+  "source": "brand-icon.svg",
+  "viewBox": [0, 0, 263.2, 271.5],
+  "totalArcLen": 2466.6,
+  "center": [131.6, 135.8],
+  "minTipDist": 90.0,
+  "tentacles": [
+    {
+      "id": "TR", "label": "top-right",
+      "fromFrac": 0.072, "anchorFrac": 0.090, "tipFrac": 0.138, "toFrac": 0.195,
+      "phys": { "a1": 0.42, "w1": 1.37, "a2": 0.28, "w2": 2.11, "phase": 0.00, "releaseDelay": 0.00 }
+    },
+    {
+      "id": "TL", "label": "top-left",
+      "fromFrac": 0.218, "anchorFrac": 0.233, "tipFrac": 0.263, "toFrac": 0.308,
+      "phys": { "a1": 0.38, "w1": 1.19, "a2": 0.31, "w2": 1.83, "phase": 1.05, "releaseDelay": 0.05 }
+    },
+    {
+      "id": "ML", "label": "mid-left",
+      "fromFrac": 0.448, "anchorFrac": 0.466, "tipFrac": 0.507, "toFrac": 0.552,
+      "phys": { "a1": 0.45, "w1": 0.91, "a2": 0.25, "w2": 1.57, "phase": 2.09, "releaseDelay": 0.10 }
+    },
+    {
+      "id": "BL", "label": "bot-left",
+      "fromFrac": 0.580, "anchorFrac": 0.598, "tipFrac": 0.637, "toFrac": 0.678,
+      "phys": { "a1": 0.40, "w1": 1.51, "a2": 0.30, "w2": 2.33, "phase": 3.14, "releaseDelay": 0.08 }
+    },
+    {
+      "id": "BR", "label": "bot-right",
+      "fromFrac": 0.713, "anchorFrac": 0.728, "tipFrac": 0.770, "toFrac": 0.814,
+      "phys": { "a1": 0.44, "w1": 1.03, "a2": 0.27, "w2": 1.71, "phase": 4.19, "releaseDelay": 0.13 }
+    },
+    {
+      "id": "MR", "label": "mid-right",
+      "fromFrac": 0.853, "anchorFrac": 0.869, "tipFrac": 0.915, "toFrac": 0.962,
+      "phys": { "a1": 0.36, "w1": 1.73, "a2": 0.33, "w2": 2.57, "phase": 5.24, "releaseDelay": 0.16 }
+    }
+  ]
+}
