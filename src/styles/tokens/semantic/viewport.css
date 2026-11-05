@@ -109,6 +109,23 @@
   /* COLUMNA DE LECTURA LEGAL alineada al margen de página (C4-a, P-BBW-75): en la vista amplia el margen es 0 (el contenedor
      ya aplica el padding de página); en la estrecha es auto (centrado) porque la columna ocupa el 100%. */
   --bbf-legal-column-margin-inline: 0;
+
+  /* CONSENTIMIENTO (P-BBW-82): en la vista amplia la barra es una fila (texto a la izquierda, los tres botones a la derecha) y
+     los botones miden lo que su texto; en la estrecha todo se apila y cada botón ocupa el ancho entero, uno bajo otro, para que
+     los tres sigan al mismo nivel sin partir la fila. */
+  --bbf-consent-direction: row;
+  --bbf-consent-align: center;
+  --bbf-consent-actions-direction: row;
+  --bbf-consent-button-width: auto;
+
+  /* TABLA LEGAL (P-BBW-82): tabla de verdad en la vista amplia; en la estrecha la cabecera se oculta, cada fila es un bloque y
+     cada celda antepone el rótulo de su columna. */
+  --bbf-legal-table-head-display: table-header-group;
+  --bbf-legal-table-row-display: table-row;
+  --bbf-legal-table-row-padding: 0;
+  --bbf-legal-table-cell-display: table-cell;
+  --bbf-legal-table-cell-padding: var(--bbf-space-2) var(--bbf-space-3) var(--bbf-space-2) 0;
+  --bbf-legal-table-label-display: none;
 }
 
 @media (max-width: 790px) {
@@ -157,5 +174,17 @@
        quedaba suelto con un hueco a su izquierda. */
     --bbf-bar-justify: flex-start;
     --bbf-bar-gap-view: var(--bbf-bar-gap-narrow);
+
+    --bbf-consent-direction: column;
+    --bbf-consent-align: stretch;
+    --bbf-consent-actions-direction: column;
+    --bbf-consent-button-width: 100%;
+
+    --bbf-legal-table-head-display: none;
+    --bbf-legal-table-row-display: block;
+    --bbf-legal-table-row-padding: var(--bbf-space-3);
+    --bbf-legal-table-cell-display: block;
+    --bbf-legal-table-cell-padding: var(--bbf-space-1) 0;
+    --bbf-legal-table-label-display: block;
   }
 }

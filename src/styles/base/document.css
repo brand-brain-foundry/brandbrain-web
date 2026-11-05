@@ -32,6 +32,8 @@ body {
   flex-direction: column;
   min-height: 100vh;
   min-height: 100svh;
+  /* la reserva de la barra del consentimiento (semantic/spacing.css): 0 sin barra; su altura medida mientras está a la vista */
+  margin-block-end: var(--bbf-consent-reserve);
   background: var(--bbf-surface-base);
   color: var(--bbf-text-on-base);
   font-family: var(--bbf-type-body-family);

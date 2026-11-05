@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Cookies · {{brand}}",
-    "description": "Qué cookies y tecnologías similares usa {{domain}} y cómo gestionarlas."
+    "description": "Qué cookies y tecnologías similares usa {{domain}} y cómo aceptar, rechazar o cambiar la elección."
   },
   "sections": [
     {
@@ -9,7 +9,7 @@
       "id": "cookies",
       "heading": "Cookies",
       "intro": [
-        "Esta web usa lo mínimo. Hoy no instala cookies ni deja nada en el navegador. Cuando se active la medición de visitas, solo funcionará si quien visita la web la acepta."
+        "Esta web usa lo mínimo. Una tecnología es técnica y siempre está activa; la otra, la medición de visitas, solo funciona si quien visita la web la acepta."
       ],
       "blocks": [
         {
@@ -26,8 +26,52 @@
           "heading": "Lo que usa esta web",
           "parts": [
             {
+              "table": {
+                "columns": ["Nombre", "Tipo", "Para qué", "De quién", "Duración"],
+                "rows": [
+                  [
+                    "{{consentKey}}",
+                    "Almacenamiento local, técnica",
+                    "Conservar la elección sobre la medición de visitas",
+                    "Propia",
+                    "{{consentMonths}} meses"
+                  ],
+                  [
+                    "Cloudflare Web Analytics",
+                    "Código de medición, sin cookies",
+                    "Medir visitas en cifras agregadas",
+                    "Cloudflare (tercero)",
+                    "Solo con consentimiento; no deja nada en el navegador"
+                  ]
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "heading": "Cómo aceptar, rechazar o cambiar",
+          "parts": [
+            {
               "p": [
-                "Ninguna."
+                "La primera vez aparece un aviso con «",
+                { "global": "consent.banner.reject" },
+                "», «",
+                { "global": "consent.banner.accept" },
+                "» y «",
+                { "global": "consent.banner.configure" },
+                "». La elección se puede cambiar cuando se quiera en «",
+                { "global": "consent.footerLink" },
+                "», al pie de cada página. También se puede borrar desde los ajustes del navegador."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Cuánto dura la elección",
+          "parts": [
+            {
+              "p": [
+                "Se vuelve a preguntar a los {{consentMonths}} meses, o antes si cambian las finalidades descritas aquí."
               ]
             }
           ]
@@ -45,7 +89,7 @@
           ]
         }
       ],
-      "updated": "2026-11-05"
+      "updated": "2026-11-06"
     }
   ]
 }
