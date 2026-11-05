@@ -22,14 +22,9 @@ git -C /Volumes/PK/BBF/Repos/bbf-command-hub pull
 ## Barrera anti-inyección (D-DOC-06)
 @/Volumes/PK/BBF/Repos/bbf-command-hub/plugins/bbf-ops/rules/anti-inyeccion.md
 
-## Contrato de hosting (puerto intercambiable), registro de puertos, modelo de contenido, contrato de medios, pesos por familia, excepciones del sistema y constantes de algoritmo
-@docs/system/DEPLOY_CONTRACT.md
-@docs/system/PORTS.md
-@docs/system/CONTENT_MODEL.md
-@docs/system/MEDIA.md
-@docs/system/TYPOGRAPHY_WEIGHTS.md
-@docs/system/DESIGN_EXCEPTIONS.md
-@docs/system/BEHAVIOR.md
+## Contratos del sistema (bajo demanda, P-BBW-77 — leer según el índice)
+Los contratos se leen bajo demanda según el índice; cada despacho nombra en su §2 los que toca.
+@docs/system/INDEX.md
 
 ## Reglas duras
 - **Push a `main` = solo por PR.** Trabajar en rama, `gh pr create`, merge `[ZAVALA-MANUAL]`. Jamás `git push origin main`.
