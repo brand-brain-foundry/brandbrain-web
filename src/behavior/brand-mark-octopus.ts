@@ -18,7 +18,7 @@
  * resuelto por el navegador durante la transición CSS del enlace).
  *
  * CONSTANTES: origen «M1 §n»; clase por D-DOC-13 §2 (estático · plantilla · dinámico).
- * Tabla en docs/system/BEHAVIOR.md §13.
+ * Tabla en docs/system/BEHAVIOR.md §12.
  */
 
 export const OCTOPUS = Object.freeze({

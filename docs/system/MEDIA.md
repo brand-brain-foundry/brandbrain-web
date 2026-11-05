@@ -3,12 +3,12 @@ id: BBW-MEDIA-CONTRACT
 title: "Contrato del puerto de medios — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.2
+version: 1.3
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-17
-updated: 2026-09-29
-verified_against_code: 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
+updated: 2026-11-05
+verified_against_code: 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-21, D-BBW-24, D-BBW-02, D-BBW-03, D-BBW-09]
@@ -148,5 +148,13 @@ llevar `<script>`: el guion no lo evalúa y los derivados raster no lo conservan
 contextos en los que el navegador no ejecuta scripts). El manifiesto de procedencia C2PA del icono se conserva en maestro y derivado SVG
 como metadato inerte.
 
+## §9 — Rig del imagotipo vivo (`media/masters/brand-icon-rig.json`, M1 · 2026-11-05)
+
+`brand-icon-rig.json` es un **maestro de configuración**: no se rasteriza ni se deriva por el guion de medios (`pnpm media:build`), pero vive en `media/masters/` porque es la fuente única de los parámetros físicos del imagotipo y se edita a mano (igual que cualquier otro maestro). No tiene entrada en `derivatives` ni en `inlineIcons`; su verificación corre por la **guardia R10** (`scripts/lint/check-brand-mark-rig.ts`, en la cadena de `pnpm guard`), no por R1–R6.
+
+**Qué contiene:** schema `brand-icon-rig/v1`, `viewBox`, `totalArcLen` (tolerancia ±1 % contra el trazado oficial), `center`, `minTipDist` y un array de 6 tentáculos con `fromFrac`/`anchorFrac`/`tipFrac`/`toFrac` (fracciones de longitud de arco) y `phys` (`a1`, `w1`, `a2`, `w2`, `phase`, `releaseDelay`). El motor S9 lo embebe como constante congelada al arrancar (no hay fetch en runtime).
+
+**Cómo se modifica:** editar el JSON y ejecutar `pnpm lint:rig`; el guion recalcula la longitud de arco del SVG oficial y verifica que el rig sigue siendo coherente. No es necesario `pnpm media:build`.
+
 ---
-*BBW-MEDIA-CONTRACT v1.2 · `docs/system/MEDIA.md` · 2026-09-29 (v1.2: maestro nuevo del vídeo del héroe, `DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`; v1.1 fase 6d: vídeo del héroe, D-BBW-24, `DESPACHO-BBW-2026-09-17-fase6d-copy-video-y-fondo`) · nace en la fase 6c (`DESPACHO-BBW-2026-09-17-fase6c-sistema-de-medios-foco-y-piezas`, D-BBW-21)*
+*BBW-MEDIA-CONTRACT v1.3 · `docs/system/MEDIA.md` · 2026-11-05 (v1.3: §9 rig del imagotipo vivo como maestro de configuración; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.2: 2026-09-29 (`DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`) · v1.1 fase 6d: D-BBW-24 · nace en la fase 6c (D-BBW-21)*

@@ -3,16 +3,16 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.5
+version: 1.6
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
-updated: 2026-09-18
-verified_against_code: 2026-09-18@feat/fase6m-margenes-lockup-y-cierre (v1.5: §3 reescrita — el lock cierra resolviendo el TAMAÑO con la razón de interletrado como invariante, D-BBW-41; MAX_TRACK_PX retirado y PROBE_SIZE_PX nuevo; §10 nueva: el paso de arnés del recorte, que ninguna guardia puede ver, y la guardia R9 que cubre la causa) (src/behavior/weight-modulator.ts · src/behavior/optical-fit.ts · src/behavior/backdrop-shader.ts · src/behavior/subject-tracking.ts · src/behavior/particle-field.ts · src/components/molecules/HeroLock/ · src/components/molecules/HeroBackdrop/ · src/components/molecules/HeroMedia/ · src/components/molecules/HeroParticles/; origen de cada constante en `0_info/brandbrain-web/Eye Fish Landing.dc.html` y `blob-bg.js` por línea, inventariado en OUTPUT-BBW-2026-09-17-N1-A §1/§2/§3/§4/§5/§7 y clasificado en OUTPUT-BBW-2026-09-17-N1-D §1/§2/§3/§4)
+updated: 2026-11-05
+verified_against_code: 2026-11-05@feat/m1-imagotipo-vivo (v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
-summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). v1.3 (fase 6k, portado P4): S3/S4 partículas, el GENERADOR del campo (particle-field.ts, D-BBW-36: se porta el generador con los rangos, los planos y la distribución, no la tirada del export): 21 burbujas en tres planos con tres elementos anidados y dos animaciones con SUS tiempos (ascenso 13,7–28,3 s, oscilación 3,7–7,3 s: el error de la 6e corregido), 31 motas en tres planos con desenfoques distintos, posición horizontal por el promedio de tres muestras, semilla fija reproducible; con movimiento reducido las animaciones no arrancan y con la pestaña oculta se pausan por el mismo rol. P5 añade su módulo y su tabla aquí."
+summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). v1.3 (fase 6k, portado P4): S3/S4 partículas, el GENERADOR del campo (particle-field.ts, D-BBW-36: se porta el generador con los rangos, los planos y la distribución, no la tirada del export): 21 burbujas en tres planos con tres elementos anidados y dos animaciones con SUS tiempos (ascenso 13,7–28,3 s, oscilación 3,7–7,3 s: el error de la 6e corregido), 31 motas en tres planos con desenfoques distintos, posición horizontal por el promedio de tres muestras, semilla fija reproducible; con movimiento reducido las animaciones no arrancan y con la pestaña oculta se pausan por el mismo rol. v1.6 (M1): S9 imagotipo vivo, barra elástica de Kirchhoff simplificada con 6 tentáculos y rig externo."
 tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, video, particulas, procedencia, brandbrain-web]
 ---
 
@@ -299,3 +299,28 @@ resueltos por el navegador en un elemento sonda; la quietud por `--bbf-motion-lo
 **Quietud (D-BBW-31, I-9):** con movimiento reducido se pinta UN fotograma (una consulta resuelta) y el bucle **no arranca**; se repinta si
 cambia el tamaño o cargan las fuentes. Con la pestaña oculta el reloj se detiene y, al volver, sigue donde estaba. **HTML servido:** la placa
 vacía, que es su reposo (decorativo, `aria-hidden`: no hay texto que perder, I-4).
+
+## §12 — S9 · Imagotipo vivo (`src/behavior/brand-mark-octopus.ts`, M1 · 2026-11-05)
+
+**Qué hace:** en reposo el SVG oficial del imagotipo se muestra inline en color acento (`--bbf-accent`). Al pasar el puntero o tocar (`touchstart`), un lienzo canvas superpone la visualización animada de la misma forma: los 6 tentáculos oscilan independientemente con física de **barra elástica de Kirchhoff simplificada** (desplazamiento perpendicular al eje anchor→tip, envolvente `sNorm^1.5`, suma de dos sinusoides de fases y frecuencias distintas por tentáculo). Al soltar, cada tentáculo vuelve a su posición con un pequeño escalonado de retardo (`releaseDelay`). Con movimiento reducido: solo cambia el color del SVG; el motor no arranca.
+
+**Rig externo:** los límites de arco (`fromFrac`/`anchorFrac`/`tipFrac`/`toFrac`) y los parámetros físicos (`a1`, `w1`, `a2`, `w2`, `phase`, `releaseDelay`) de cada tentáculo viven en `media/masters/brand-icon-rig.json`, verificados en cada commit por la guardia R10 (`scripts/lint/check-brand-mark-rig.ts`; R10a–R10e: schema, longitud de arco ±1 %, orden de fracciones, no solapamiento, distancia tip–centro). El rig se embebe en el módulo como constante congelada.
+
+| Constante | Valor | Origen | Clase | Qué es |
+|---|---|---|---|---|
+| `SPRING_K_ON` | 12 | M1 §0.1 | plantilla | rigidez del muelle al hacer hover (subamortiguado, overshoot pequeño) |
+| `SPRING_ZETA_ON` | 0.7 | M1 §0.1 | plantilla | amortiguamiento al hacer hover |
+| `SPRING_K_OFF` | 6 | M1 §0.1 | plantilla | rigidez del muelle al soltar (sobrecontenido, retorno suave) |
+| `SPRING_ZETA_OFF` | 0.9 | M1 §0.1 | plantilla | amortiguamiento al soltar |
+| `AMPLITUDE_MAX` | 14 u | M1 §0.1 | dinámico | desplazamiento máximo en la punta del tentáculo (u del SVG, viewBox 263.2×271.5) |
+| `ENV_EXP` | 1.5 | M1 §0.1 | estático | exponente del taper de Kirchhoff: sNorm^1.5 (nulo en anclaje, máximo en punta) |
+| `SAMPLE_N` | 600 | M1 §0.1 | dinámico | puntos de muestreo del camino completo (error ≤ 0.25 u con κ ≤ 0.1) |
+| `DPR_CAP` | 2 | M1 §0.1 | estático | densidad de píxeles máxima del lienzo |
+| `AMP_MIN_VISIBLE` | 0.01 | M1 §0.1 | estático | amplitud mínima para mostrar el lienzo (evita repintado en reposo) |
+| `TOUCH_HOLD_MS` | 2 000 ms | M1 §4.11 | plantilla | duración de la animación de despertar táctil antes de volver al reposo |
+
+**Tokens que lee (nunca repite):** `--bbf-motion-octopus-play-state` (quietud; D-BBW-31); el color se lee de `getComputedStyle(svgEl).color` (el token `--bbf-accent` / `--bbf-text-on-base` resuelto por el navegador durante la transición CSS del enlace).
+
+**HTML servido (D-BBW-28):** el SVG inline (`<path fill="currentColor" d={...}/>`) sale en el HTML desde el primer byte. El lienzo no existe en el HTML servido; lo crea el componente cliente y solo aparece cuando la amplitud supera `AMP_MIN_VISIBLE`. Con movimiento reducido el motor no arranca y el SVG es el único elemento visible.
+
+**Quietud (D-BBW-31):** `--bbf-motion-octopus-play-state: paused` → `isStill()` devuelve `true` → el motor no arranca. Con la pestaña oculta (`visibilitychange`) el bucle rAF se cancela; al volver, si hay amplitud activa, se reanuda. CLS=0: el lienzo es `position:absolute; inset:0` sobre el flujo del SVG.
