@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "Privacidad del asistente de llamadas · Christian Zavala Cubas",
-    "description": "Política de privacidad del asistente de inteligencia artificial que atiende las llamadas de Christian Zavala Cubas cuando no puede contestar."
+    "title": "Privacidad del asistente de llamadas · {{brand}}",
+    "description": "Política de privacidad del asistente de inteligencia artificial que atiende las llamadas de {{brand}} cuando no puede contestar."
   },
   "sections": [
     {
@@ -17,7 +17,7 @@
           "parts": [
             {
               "p": [
-                "Christian Zavala Cubas, profesional autónomo con domicilio en Valencia (España). Contacto: ",
+                "{{brand}}, profesional autónomo con domicilio en Valencia (España). Contacto: ",
                 {
                   "text": "{{email}}",
                   "link": "contact"

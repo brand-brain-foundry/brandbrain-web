@@ -9,7 +9,7 @@ set -uo pipefail
 if ! command -v gitleaks &>/dev/null; then
   echo "[pre-commit] gitleaks no encontrado — skip (instalar: brew install gitleaks)" >&2
 else
-  gitleaks protect --staged --no-banner --exit-code 2 --redact --verbose
+  gitleaks protect --staged --no-banner --exit-code 2 --redact --verbose --config .gitleaks.toml
   GL_STATUS=$?
   if [ "$GL_STATUS" -eq 2 ]; then
     echo "" >&2
@@ -80,6 +80,20 @@ if [ "$CONTENT_STATUS" -eq 1 ]; then
 elif [ "$CONTENT_STATUS" -ne 0 ]; then
   echo "" >&2
   echo "[pre-commit] FAIL-CLOSED: error de la guardia de contenido (exit $CONTENT_STATUS) — commit cancelado" >&2
+  exit 1
+fi
+
+# Guardia propia del repo (P-BBW-78): ningún NIF/NIE/teléfono real en el árbol versionado.
+pnpm exec tsx scripts/lint/check-legal-data.ts
+LEGAL_STATUS=$?
+if [ "$LEGAL_STATUS" -eq 1 ]; then
+  echo "" >&2
+  echo "[pre-commit] guardia anti-fuga legal: NIF/NIE/teléfono detectado en staged files — commit cancelado" >&2
+  echo "  Los datos legales viven SOLO en variables de entorno de Cloudflare (cifradas)." >&2
+  exit 1
+elif [ "$LEGAL_STATUS" -ne 0 ]; then
+  echo "" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia anti-fuga legal (exit $LEGAL_STATUS) — commit cancelado" >&2
   exit 1
 fi
 

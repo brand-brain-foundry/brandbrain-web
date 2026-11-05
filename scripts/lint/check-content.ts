@@ -37,7 +37,7 @@ import {
   validatePage,
   type Problem,
 } from '../../src/content/schema';
-import { findUndeclaredSubstitutions, substitutions } from '../../src/content/substitutions';
+import { findUndeclaredSubstitutions, substitutions, RESTRICTED_SUBSTITUTION_KEYS, isRestrictedSubstitutionKey } from '../../src/content/substitutions';
 import { validateSite } from '../../src/content/site';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -78,7 +78,16 @@ function report(abs: string, problems: Problem[], doc: unknown): void {
   const all = collectTexts(doc);
   texts += all.length;
   pending += all.filter(isPlaceholder).length;
-  for (const u of findUndeclaredSubstitutions(doc)) fails.push({ rule: 'R5', where: rel(abs), detail: `${u.path}: sustitución no declarada "${u.token}" (declaradas: ${Object.keys(substitutions).join(', ')}; sin lógica, D-BBW-23)` });
+  // R5: sustituciones — aviso-legal.json acepta las restringidas; cualquier otro documento no.
+  const isAvisoLegal = abs.endsWith('aviso-legal.json');
+  const allowedExtras = isAvisoLegal ? (RESTRICTED_SUBSTITUTION_KEYS as unknown as ReadonlyArray<string>) : [];
+  for (const u of findUndeclaredSubstitutions(doc, "$", [], allowedExtras)) {
+    const tokenKey = u.token.replace(/\{\{\s*|\s*\}\}/g, '');
+    const detail = isRestrictedSubstitutionKey(tokenKey)
+      ? `${u.path}: sustitución restringida "${u.token}" (solo se admite en content/es/pages/aviso-legal.json)`
+      : `${u.path}: sustitución no declarada "${u.token}" (declaradas: ${Object.keys(substitutions).join(', ')}; sin lógica, D-BBW-23)`;
+    fails.push({ rule: 'R5', where: rel(abs), detail });
+  }
   for (const t of all) substituted += (t.match(DECLARED_RE) ?? []).length;
 }
 
