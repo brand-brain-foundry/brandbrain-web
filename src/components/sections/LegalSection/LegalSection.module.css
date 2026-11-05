@@ -5,7 +5,7 @@
  */
 
 .section {
-  padding-block-start: var(--bbf-hero-text-inset-top);
+  padding-block-start: var(--bbf-legal-inset-top);
   padding-block-end: var(--bbf-hero-text-inset-bottom);
   padding-inline: var(--bbf-space-safe);
 }
