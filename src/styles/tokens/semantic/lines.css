@@ -11,4 +11,6 @@
   /* fase 6l (D-BBW-39): el borde de la esfera de la burbuja mide medio píxel en el diseño; al paso ×1 el anillo del plano más brillante salía
      del doble de grueso (residual que la 6k dejó abierto). Único consumidor del cuanto `--bbf-line-half`. */
   --bbf-line-particle-border: var(--bbf-line-half);
+  /* UX1 (P-BBW-79): filete superior del pie, 1 px. */
+  --bbf-line-footer: var(--bbf-line-sm);
 }
