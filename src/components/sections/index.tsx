@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { Section, SectionType } from "@/content/schema";
 import { HeroSection } from "./HeroSection";
+import { LegalSection } from "./LegalSection";
 
 /**
  * D-BBW-60 — el reparto de lo GLOBAL a las secciones SE RETIRA. Existía para una sola llave, la firma (D-BBW-49), que el héroe y el pie
@@ -17,6 +18,7 @@ type RendererFor<T extends SectionType> = ComponentType<{ section: Extract<Secti
  */
 export const SECTION_RENDERERS: { [T in SectionType]: RendererFor<T> } = {
   hero: HeroSection,
+  legal: LegalSection,
 };
 
 /**

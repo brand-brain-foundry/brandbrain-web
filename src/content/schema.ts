@@ -49,6 +49,38 @@ export function isPlaceholder(text: string): boolean {
 }
 
 // ── Global ─────────────────────────────────────────────────────────────────────────────────────────────
+/**
+ * Un tramo de texto en la capa legal (D-BBW-DESPACHO-2026-11-05, §0.1 b, modelo v3.4).
+ * - Cadena simple: texto plano, sin URL ni correo literal.
+ * - Objeto `{ text, link }`: texto visible + llave de `content/site.json`. Los destinos nunca se escriben aquí.
+ */
+export type Span = string | { text: string; link: LinkKey };
+
+/** Un bloque de la página legal: rótulo `<h2>`, párrafos (cada uno = lista de tramos) y, opcionalmente, lista `<ul>`. */
+export type LegalBlock = {
+  heading: string;
+  /** párrafos: cada elemento de la lista exterior es un párrafo; cada elemento interior, un tramo */
+  body: Span[][];
+  /** elementos de lista `<ul>` bajo el último párrafo; sin enlace; texto plano */
+  items?: string[];
+};
+
+/** Sección de lectura legal (P-BBW-73/75, D-BBW-DESPACHO-2026-11-05). Un `<h1>`, párrafo de introducción, bloques `<h2>` y fecha. */
+export type LegalSection = {
+  type: "legal";
+  id: string;
+  /** único `<h1>` de la página */
+  heading: string;
+  /** párrafo introductorio: lista de tramos (puede llevar enlace al correo) */
+  intro: Span[];
+  /** bloques h2 en orden: encabezado + párrafos + lista opcional */
+  blocks: LegalBlock[];
+  /** etiqueta de la fecha de actualización, p. ej. «Última actualización: 2026-11-05» — sin literal en el componente */
+  updatedLabel: string;
+  /** fecha de última actualización en formato AAAA-MM-DD */
+  updated: string;
+};
+
 /** Un enlace con texto visible: la etiqueta es contenido; el destino es una llave del documento del sitio (identidad editable). */
 export type LinkItem = {
   /** identificador estable por rol (llave de React, ancla en pruebas); único dentro de su lista */
@@ -99,6 +131,8 @@ export type GlobalDocument = {
      * Sin nivel visible por orden de Zavala. El destino (la credencial verificable) es `links.credly` en content/site.json.
      */
     cert: { label: string };
+    /** ENLACE DE PRIVACIDAD en el pie (P-BBW-74). `label` es el texto visible («Privacidad»). Destino: `/es/privacidad/`. */
+    privacy: { label: string };
   };
 };
 
@@ -126,7 +160,7 @@ export type HeroSection = {
 };
 
 /** Unión de tipos de sección. Un tipo nuevo se añade aquí y en SECTION_KEYS (y su renderizador, fase 6b). */
-export type Section = HeroSection;
+export type Section = HeroSection | LegalSection;
 export type SectionType = Section["type"];
 
 export type PageDocument = {
@@ -145,9 +179,13 @@ export type Problem = { path: string; message: string };
 
 const ID_RE = /^[a-z][a-z0-9-]*$/;
 const HTML_RE = /<\/?[a-zA-Z!]/;
+const URL_IN_TEXT_RE = /https?:\/\//;
+const EMAIL_IN_TEXT_RE = /\S+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
   hero: ["type", "id", "heading", "paragraph1", "paragraph2", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
+  legal: ["type", "id", "heading", "intro", "blocks", "updatedLabel", "updated"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -184,6 +222,58 @@ function checkId(v: unknown, path: string, seen: Set<string>, problems: Problem[
   seen.add(v);
 }
 
+/** Texto de un tramo: como checkText, pero también rechaza URLs y correos literales (van por llave, nunca por valor). */
+function checkSpanString(v: string, path: string, problems: Problem[]): void {
+  if (v.trim().length === 0) return void problems.push({ path, message: `texto vacío (si no hay copy, usar ${PLACEHOLDER_PREFIX} …]])` });
+  if (HTML_RE.test(v)) problems.push({ path, message: `contiene HTML: el contenido es texto plano` });
+  if (URL_IN_TEXT_RE.test(v)) problems.push({ path, message: `contiene una URL: los destinos van por llave de content/site.json, nunca como dirección` });
+  if (EMAIL_IN_TEXT_RE.test(v)) problems.push({ path, message: `contiene un correo literal: usar la sustitución {{email}} o la llave "contact"` });
+}
+
+/** Valida un tramo: cadena o { text, link }. */
+function checkSpan(v: unknown, path: string, problems: Problem[]): void {
+  if (typeof v === "string") {
+    checkSpanString(v, path, problems);
+  } else if (isRecord(v)) {
+    checkKeys(v, ["text", "link"], path, problems);
+    if (typeof v.text === "string") checkSpanString(v.text, `${path}.text`, problems);
+    else if ("text" in v) problems.push({ path: `${path}.text`, message: `debe ser texto` });
+    if (typeof v.link !== "string" || !isLinkKey(v.link as string)) {
+      problems.push({ path: `${path}.link`, message: `"${String(v.link)}" no es una llave de enlace (los destinos viven solo en content/site.json)` });
+    }
+  } else {
+    problems.push({ path, message: `un tramo debe ser texto o { text, link }` });
+  }
+}
+
+/** Valida un párrafo (lista de tramos). */
+function checkSpans(v: unknown, path: string, problems: Problem[]): void {
+  if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista de tramos` });
+  v.forEach((span, i) => checkSpan(span, `${path}[${i}]`, problems));
+}
+
+/** Valida un bloque legal: { heading, body[], items? }. */
+function checkLegalBlock(v: unknown, path: string, problems: Problem[]): void {
+  if (!isRecord(v)) return void problems.push({ path, message: `debe ser un objeto { heading, body, items? }` });
+  checkKeys(v, ["heading", "body"], path, problems, ["items"]);
+  checkText(v.heading, `${path}.heading`, problems);
+  if (Array.isArray(v.body)) {
+    v.body.forEach((para: unknown, i: number) => checkSpans(para, `${path}.body[${i}]`, problems));
+  } else if ("body" in v) {
+    problems.push({ path: `${path}.body`, message: `debe ser una lista de párrafos (cada párrafo = lista de tramos)` });
+  }
+  if (v.items !== undefined) {
+    if (!Array.isArray(v.items)) {
+      problems.push({ path: `${path}.items`, message: `debe ser una lista de cadenas` });
+    } else {
+      (v.items as unknown[]).forEach((item: unknown, i: number) => {
+        if (typeof item === "string") checkSpanString(item, `${path}.items[${i}]`, problems);
+        else problems.push({ path: `${path}.items[${i}]`, message: `debe ser texto` });
+      });
+    }
+  }
+}
+
 function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista` });
   const seen = new Set<string>();
@@ -214,13 +304,17 @@ export function validateGlobal(v: unknown): Problem[] {
     checkLinkItems(v.nav.items, "$.nav.items", problems);
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });
   if (isRecord(v.footer)) {
-    checkKeys(v.footer, ["legal", "social", "cert"], "$.footer", problems);
+    checkKeys(v.footer, ["legal", "social", "cert", "privacy"], "$.footer", problems);
     checkText(v.footer.legal, "$.footer.legal", problems);
     checkLinkItems(v.footer.social, "$.footer.social", problems);
     if (isRecord(v.footer.cert)) {
       checkKeys(v.footer.cert, ["label"], "$.footer.cert", problems);
       checkText(v.footer.cert.label, "$.footer.cert.label", problems);
     } else if ("cert" in v.footer) problems.push({ path: "$.footer.cert", message: "debe ser un objeto { label }" });
+    if (isRecord(v.footer.privacy)) {
+      checkKeys(v.footer.privacy, ["label"], "$.footer.privacy", problems);
+      checkText(v.footer.privacy.label, "$.footer.privacy.label", problems);
+    } else if ("privacy" in v.footer) problems.push({ path: "$.footer.privacy", message: "debe ser un objeto { label }" });
   } else if ("footer" in v) problems.push({ path: "$.footer", message: "debe ser un objeto" });
   return problems;
 }
@@ -234,6 +328,25 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
   const keys = SECTION_KEYS[type as SectionType];
   checkKeys(v, keys, path, problems);
   checkId(v.id, `${path}.id`, seen, problems);
+  if (type === "legal") {
+    checkText(v.heading, `${path}.heading`, problems);
+    if (Array.isArray(v.intro)) {
+      checkSpans(v.intro, `${path}.intro`, problems);
+    } else if ("intro" in v) {
+      problems.push({ path: `${path}.intro`, message: `debe ser una lista de tramos` });
+    }
+    if (Array.isArray(v.blocks)) {
+      (v.blocks as unknown[]).forEach((block: unknown, i: number) => checkLegalBlock(block, `${path}.blocks[${i}]`, problems));
+    } else if ("blocks" in v) {
+      problems.push({ path: `${path}.blocks`, message: `debe ser una lista de bloques` });
+    }
+    checkText(v.updatedLabel, `${path}.updatedLabel`, problems);
+    checkText(v.updated, `${path}.updated`, problems);
+    if (typeof v.updated === "string" && v.updated.trim().length > 0 && !DATE_RE.test(v.updated.trim())) {
+      problems.push({ path: `${path}.updated`, message: `debe tener formato AAAA-MM-DD` });
+    }
+    return;
+  }
   for (const k of keys) {
     if (k === "type" || k === "id") continue;
     if (k === "ctaSecondaryLink") {

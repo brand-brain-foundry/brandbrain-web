@@ -84,6 +84,15 @@
   --bbf-type-button-weight: var(--bbf-weight-text-medium);
   --bbf-type-button-tracking: var(--bbf-tracking-0);
 
+  /* SUBTÍTULO DE SECCIÓN (páginas de lectura, como la política de privacidad). Un paso por encima del cuerpo (size-1,
+     21,6–25 px), peso medio para distinguirse del párrafo, interlineado de cabecera. Sin sombra: va sobre la superficie
+     base, no sobre el fondo animado del héroe. P-BBW-73 / D-BBW-DESPACHO-2026-11-05. */
+  --bbf-type-subheading-family: var(--bbf-font-text);
+  --bbf-type-subheading-size: var(--bbf-size-1);
+  --bbf-type-subheading-weight: var(--bbf-weight-text-medium);
+  --bbf-type-subheading-leading: var(--bbf-leading-heading);
+  --bbf-type-subheading-tracking: var(--bbf-tracking-0);
+
   --bbf-type-body-family: var(--bbf-font-text);
   --bbf-type-body-size: var(--bbf-size-0);
   --bbf-type-body-weight: var(--bbf-weight-text-regular);

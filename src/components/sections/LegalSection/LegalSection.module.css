@@ -1,0 +1,99 @@
+/**
+ * LegalSection — columna de lectura legal centrada (P-BBW-73).
+ * Solo consume tokens `var(--bbf-*)`: ningún color, tamaño ni espacio escritos a mano.
+ * El ancho máximo de columna (`--bbf-legal-max-width`) vive en semantic/viewport.css.
+ */
+
+.section {
+  padding-block-start: var(--bbf-hero-text-inset-top);
+  padding-block-end: var(--bbf-hero-text-inset-bottom);
+  padding-inline: var(--bbf-space-safe);
+}
+
+.column {
+  max-width: var(--bbf-legal-max-width);
+  margin-inline: auto;
+}
+
+/* ── TÍTULO DE PÁGINA (h1) ──────────────────────────────── */
+.heading {
+  font-family: var(--bbf-type-heading-family);
+  font-size: var(--bbf-type-heading-size);
+  font-weight: var(--bbf-type-heading-weight);
+  line-height: var(--bbf-type-heading-leading);
+  letter-spacing: var(--bbf-type-heading-tracking);
+  color: var(--bbf-text-on-base);
+  margin-block-end: var(--bbf-space-8);
+}
+
+/* ── PÁRRAFO DE INTRODUCCIÓN ────────────────────────────── */
+.intro {
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-body-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-body-tracking);
+  color: var(--bbf-text-on-base);
+  margin-block-end: var(--bbf-space-10);
+}
+
+/* ── BLOQUE (heading + cuerpo) ──────────────────────────── */
+.block {
+  margin-block-start: var(--bbf-space-10);
+}
+
+.blockHeading {
+  font-family: var(--bbf-type-subheading-family);
+  font-size: var(--bbf-type-subheading-size);
+  font-weight: var(--bbf-type-subheading-weight);
+  line-height: var(--bbf-type-subheading-leading);
+  letter-spacing: var(--bbf-type-subheading-tracking);
+  color: var(--bbf-text-on-base);
+  margin-block-end: var(--bbf-space-3);
+}
+
+.para {
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-body-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-body-tracking);
+  color: var(--bbf-text-on-base);
+  margin-block-end: var(--bbf-space-3);
+}
+
+/* ── LISTA DE SUBENCABEZADOS ────────────────────────────── */
+.list {
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-body-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-body-tracking);
+  color: var(--bbf-text-on-base);
+  padding-inline-start: var(--bbf-space-6);
+  margin-block-end: var(--bbf-space-3);
+}
+
+/* ── FECHA DE ACTUALIZACIÓN ─────────────────────────────── */
+.updated {
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  color: var(--bbf-text-on-base);
+  margin-block-start: var(--bbf-space-10);
+}
+
+/* ── ENLACES EN PROSA ───────────────────────────────────── */
+.link {
+  color: var(--bbf-accent);
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.15em;
+  pointer-events: auto;
+  transition: opacity var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.link:hover {
+  opacity: 0.75;
+}

@@ -20,5 +20,8 @@ import { homeUrl } from "@/seo/jsonld";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return site.publishedLocales.map((locale) => ({ url: homeUrl(locale) }));
+  return [
+    ...site.publishedLocales.map((locale) => ({ url: homeUrl(locale) })),
+    ...site.publishedLocales.map((locale) => ({ url: `${site.url}/${locale}/privacidad/` })),
+  ];
 }

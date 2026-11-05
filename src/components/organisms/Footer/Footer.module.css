@@ -71,6 +71,25 @@
 /* EL SELLO (2026-11-02, orden de Zavala: sin la palabra del nivel). Imagen por el puerto de medios a `--bbf-cert-size` (72 en dos zonas,
    64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento. Recibe el puntero aunque la
    barra no (la barra deja pasar el puntero al héroe). */
+/* ENLACE DE PRIVACIDAD (P-BBW-74): vive dentro del grupo derecho (.end), antes de los perfiles. */
+.privacy {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
+
+  color: var(--bbf-text-on-base-secondary);
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  text-shadow: var(--bbf-type-legal-shadow);
+  text-decoration: none;
+  pointer-events: auto;
+  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.privacy:hover {
+  color: var(--bbf-accent);
+}
+
 .cert {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 

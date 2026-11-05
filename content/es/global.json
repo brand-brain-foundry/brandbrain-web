@@ -39,6 +39,9 @@
     ],
     "cert": {
       "label": "Google Cloud Certified"
+    },
+    "privacy": {
+      "label": "Privacidad"
     }
   }
 }

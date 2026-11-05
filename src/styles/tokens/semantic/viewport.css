@@ -84,6 +84,11 @@
      la legal quedaba pegada al sello, orden de Zavala). */
   --bbf-bar-row-gap: var(--bbf-space-2);
 
+  /* ANCHO MÁXIMO DE LA COLUMNA DE LECTURA (P-BBW-73): 672 px = 8 × el paso-21 del espaciado. Mantiene la línea
+     a ~65 caracteres en body y hace que la prosa no fuerce el ojo a viajar de borde a borde en monitores anchos.
+     Los componentes lo consumen por este rol, nunca como un número escrito a mano. */
+  --bbf-legal-max-width: calc(var(--bbf-space-21) * 8);
+
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
   /* fase 6f (composición del pie leída del export): en la vista amplia legal + perfiles a la izquierda y aviso a la derecha; en la
