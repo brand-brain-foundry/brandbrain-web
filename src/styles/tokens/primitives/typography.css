@@ -4,8 +4,8 @@
  * y ÚNICO sitio donde se escribe un nombre de familia tipográfica (criterio de éxito 4 del despacho de fase 4).
  *
  * FAMILIAS (D-BBW-14): dos, ni una más.
- *   · display  = `modulator-vf` por Adobe Typekit (actor externo en runtime; puerto declarado en docs/system/PORTS.md;
- *                adaptador src/styles/fonts/display.ts). Respaldo real mientras llega: la familia de texto.
+ *   · display  = pendiente de nueva familia con licencia auto-hospedable (Adobe Fonts retirado 2026-11-05 por RGPD art. 5.1.c;
+ *                puerto retirado en docs/system/PORTS.md). Mientras no llega: la familia de texto (`var(--bbf-font-text)`).
  *   · text     = Space Grotesk variable (eje wght, rango declarado abajo), AUTO-HOSPEDADA (OFL 1.1, src/styles/fonts/LICENSE-OFL.txt),
  *                cargada por next/font/local (src/styles/fonts/text.ts) que expone `--bbf-font-text-src`.
  *   Instrument Sans e Instrument Serif: RETIRADAS (no se cargan, no se declaran).
@@ -40,10 +40,9 @@
 :root {
   /* ── Familias ───────────────────────────────────────────────────────────────────────────────── */
   --bbf-font-text: var(--bbf-font-text-src, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
-  /* `modulator-fallback` (D-BBW-45, src/styles/fonts/display-fallback.css): respaldo LOCAL con métricas ajustadas al 148 %, para que
-     mientras la display externa viaja el titular ocupe casi el mismo ancho y el bloque no salte. Va antes que la familia de texto
-     porque es la que se le parece; si ninguna de sus caras locales existe, la pila sigue igual que antes. */
-  --bbf-font-display: "modulator-vf", "modulator-text-vf", "modulator-fallback", var(--bbf-font-text);
+  /* Retirado 2026-11-05: `modulator-vf`/`modulator-text-vf` (Adobe Fonts) y el respaldo `modulator-fallback` salen
+     por RGPD art. 5.1.c (minimización; ningún componente los consumía en producción). Pendiente nueva familia. */
+  --bbf-font-display: var(--bbf-font-text);
 
   /* ── MÉTRICAS DE FAMILIA (fase 6m, D-BBW-40): hechos MEDIDOS de cada familia, no valores de marca. Son a la tipografía lo que
      `--bbf-weight-<familia>-range-min/-max` ya era: una propiedad del archivo de fuente que el sistema necesita para derivar.
