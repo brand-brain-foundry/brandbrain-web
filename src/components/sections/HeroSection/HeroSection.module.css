@@ -11,7 +11,8 @@
    DOS ZONAS (D-BBW-47). La rediagramación parte el héroe: el texto vive en una zona a la izquierda y el arte en la de la derecha. La zona de
    texto es una CAJA A TODA LA ALTURA (inset: 0) de ancho `--bbf-hero-text-zone` que alinea su bloque con dos roles de vista en vez de con una
    geometría por vista: `--bbf-hero-text-align-block` (center en la vista de dos zonas, flex-end en la de una) y
-   El padding inferior es el mismo `--bbf-hero-text-inset-top` (simétrico): el pie va en flujo y ya no necesita reserva.
+   `--bbf-hero-text-inset-bottom` (cero arriba, la separación de siempre abajo). Con `flex-end` + esa separación sale EXACTAMENTE el anclaje al
+   pie del héroe de la 6f, así que la vista estrecha conserva la composición que ya estaba medida y no se inventa ninguna.
    `text-align: start`: el claim, el encabezado y la firma se alinean a la izquierda, que es lo que la referencia muestra; el centrado de la
    6f se va con el lockup centrado.
    BLOQUE: ajusta al contenido (fit-content) y lleva su VELO LOCAL de legibilidad (D-BBW-25, ::before: tinta al rol surface-veil-text calibrada
@@ -53,7 +54,7 @@
   width: calc(100cqw * var(--bbf-hero-text-zone));
   min-height: var(--bbf-hero-text-min-block);
   padding-inline: var(--bbf-lockup-pad);
-  padding-block: var(--bbf-hero-text-inset-top);
+  padding-block: var(--bbf-hero-text-inset-top) var(--bbf-hero-text-inset-bottom);
   pointer-events: none;
 }
 

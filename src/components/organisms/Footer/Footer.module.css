@@ -1,36 +1,85 @@
 /* Footer — Tier 3: solo consume Tier 1/2.
-   UX1 (P-BBW-79) · TRES GRUPOS EN EL FLUJO:
-   · .nav (grupo legal): enlaces internos; hoy solo «Privacidad» (Aviso legal y Cookies entran en L2).
-   · .identity (grupo de identidad): sello + LinkedIn, siempre visible (antes solo en la vista amplia).
-   · .credit (crédito): © text en tono secundario.
-   Desktop: fila — crédito (order 1) · grupo legal (order 2) · identidad (order 3, empujada a la derecha).
-   Mobile: columna — grupo legal (order 1) · identidad (order 2) · crédito (order 3).
-   Los roles de vista (--bbf-footer-direction, --bbf-footer-gap, --bbf-footer-*-order, --bbf-footer-identity-margin)
-   viven en semantic/viewport.css; sin ningún @media en este componente.
-   RETIRADOS en este commit (I-6): --bbf-bar-justify, --bbf-bar-gap-view, --bbf-bar-row-gap, --bbf-bar-legal-order,
-   --bbf-bar-privacy-order, --bbf-bar-end-margin-start, --bbf-bar-row-basis. */
-
+   D-BBW-51 · DOS PIEZAS: la línea LEGAL a la izquierda y los PERFILES a la derecha, repartidas por el rol de justificación de vista
+   (`--bbf-bar-justify`: entre extremos en la vista amplia, centrada en la colapsada). La fila deja de ir INVERTIDA: con tres piezas el
+   export ponía el aviso primero en el HTML para llevarlo a la derecha, y con dos el orden del DOM ya es el visual — una indirección menos.
+   Los perfiles solo en la vista amplia (rol `--bbf-nav-inline-display`): en la colapsada viven en la hoja del panel.
+   LO QUE SALIÓ, en el mismo commit que entra su sustituto (I-6): el AVISO de estado («En construcción») con su PUNTO y su PULSO de la 6g
+   (Q-BBW-010, confirmada por Zavala: el punto era el indicador de ese aviso y sin él no tiene sujeto), y la FIRMA (D-BBW-50), que pasa a
+   tener UNA SOLA aparición en toda la página, bajo el encabezado del héroe. Con ellos se van los roles `--bbf-type-notice-*`, las madres
+   locales del punto y el consumo de `--bbf-motion-pulse-*`.
+   CAPA (corregida en la 6g): la barra va en la capa de CONTENIDO, no en la de cromo (N0 §2.2), para quedar bajo la cabecera y su hoja.
+   D-BBW-63 · LA LÍNEA LEGAL SÍ PARTE. Hasta la enmienda de identidad decía `© All rights reserved` y `nowrap` era gratis: cabía a
+   cualquier ancho. Con el cargo (D-BBW-61) la cadena mide **511 px en mayúsculas** y **no cabe en ninguna ventana de teléfono**: medido a
+   360, con `nowrap` no se recortaba —se salía, y arrastraba al documento entero a tener barra horizontal—. Envolver es la salida correcta
+   y no una concesión: es la misma que el propio Zavala aceptó para esta misma cadena cuando era la firma del héroe («envuelve en dos
+   líneas en vez de recortarse»). `text-wrap: pretty` evita que la última línea quede con una palabra suelta, igual que en el encabezado.
+   Lo que `nowrap` protegía —que la barra no se desarmara— lo sigue haciendo `flex-wrap` sobre las dos piezas. */
 .footer {
+  position: absolute;
+  right: 0;
+  bottom: var(--bbf-bar-bottom);
+  left: 0;
+  z-index: var(--bbf-layer-content);
   display: flex;
-  flex-direction: var(--bbf-footer-direction);
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--bbf-footer-gap);
-  padding: var(--bbf-space-page);
-  border-block-start: var(--bbf-line-footer) solid var(--bbf-line-on-base);
+  justify-content: var(--bbf-bar-justify);
+  column-gap: var(--bbf-bar-gap-view);
+  row-gap: var(--bbf-bar-row-gap);
+  padding: 0 var(--bbf-bar-side);
+  pointer-events: none;
 }
 
-/* ── GRUPO LEGAL (enlaces) ──────────────────────────────── */
-.nav {
+.legal {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-legal);
 
-  order: var(--bbf-footer-nav-order);
+  /* 2026-11-02: a la izquierda en dos zonas, última fila en una (rol de vista). */
+  order: var(--bbf-bar-legal-order);
+  flex-basis: var(--bbf-bar-row-basis);
+  margin: 0;
+  color: var(--bbf-text-on-base-accent);
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  text-shadow: var(--bbf-type-legal-shadow);
+  /* D-BBW-68 CERRADA · la línea legal se queda en CAJA MIXTA, mostrando la ortografía real de la cadena de contenido
+     (`© 2026 Christian Zavala Cubas · Director creativo de sistemas de marca`). **Aquí no hay ninguna `text-transform`**, y esto
+     importa decirlo: no se ha quitado en este turno porque ya no estaba — salió en D-BBW-68 y lo que se ve es el contenido tal cual.
+     Lo que SÍ cambia ahora es la consecuencia que aquella decisión dejó pendiente (P-BBW-59): el interletrado del rol baja de ×6 a ×1,
+     porque el ×6 era para caja alta. D-BBW-71.
+     EL COLOR pasa al rol de acento (`--bbf-text-on-base-accent`), nunca un hex. Medido sobre el fondo real: es texto pequeño y su
+     mínimo es 4,5. */
+  text-wrap: pretty;
 }
 
-.privacy {
-  /* Touch target ≥ 24 × 24 px CSS (WCAG 2.5.8): min-height garantiza el eje de bloque. */
-  display: inline-flex;
+/* Grupo derecho (C2/C3): perfiles (hoy solo LinkedIn) y sello. En la vista amplia, margin-inline-start: auto lo empuja al extremo
+   derecho. En la colapsada flex-basis: 100% lo lleva a la primera fila (order 0 por defecto). */
+.end {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  min-height: var(--bbf-space-6);
+  gap: var(--bbf-bar-gap-view);
+  margin-inline-start: var(--bbf-bar-end-margin-start);
+  flex-basis: var(--bbf-bar-row-basis);
+}
+
+.social {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
+
+  display: var(--bbf-nav-inline-display);
+  pointer-events: auto;
+}
+
+/* EL SELLO (2026-11-02, orden de Zavala: sin la palabra del nivel). Imagen por el puerto de medios a `--bbf-cert-size` (72 en dos zonas,
+   64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento. Recibe el puntero aunque la
+   barra no (la barra deja pasar el puntero al héroe). */
+/* ENLACE DE PRIVACIDAD (C2/C3): hijo directo de la barra, entre la legal y .end; `order` y `flex-basis` por rol de vista. */
+.privacy {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
+
+  order: var(--bbf-bar-privacy-order);
+  flex-basis: var(--bbf-bar-row-basis);
   color: var(--bbf-text-on-base-secondary);
   font-family: var(--bbf-type-legal-family);
   font-size: var(--bbf-type-legal-size);
@@ -38,36 +87,24 @@
   letter-spacing: var(--bbf-type-legal-tracking-mixed);
   text-shadow: var(--bbf-type-legal-shadow);
   text-decoration: none;
+  pointer-events: auto;
   transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
-.privacy:hover,
-.privacy[aria-current="page"] {
+.privacy:hover {
   color: var(--bbf-accent);
 }
 
-/* ── GRUPO DE IDENTIDAD (sello + LinkedIn) ──────────────── */
-.identity {
+.cert {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
-  order: var(--bbf-footer-identity-order);
-  margin-inline-start: var(--bbf-footer-identity-margin);
-  display: flex;
-  align-items: center;
-  gap: var(--bbf-space-4);
-}
-
-.social {
-  /* Siempre visible (desktop y mobile); sale de --bbf-nav-inline-display que lo ocultaba en la colapsada. */
-}
-
-.cert {
   display: flex;
   flex-direction: var(--bbf-cert-direction);
   align-items: center;
   gap: var(--bbf-space-3);
   color: var(--bbf-text-on-base-secondary);
   text-decoration: none;
+  pointer-events: auto;
   transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
@@ -88,19 +125,4 @@
   font-weight: var(--bbf-type-legal-weight);
   letter-spacing: var(--bbf-type-legal-tracking-mixed);
   text-shadow: var(--bbf-type-legal-shadow);
-}
-
-/* ── CRÉDITO (© text) ───────────────────────────────────── */
-.credit {
-  --bbf-enter-delay: var(--bbf-motion-enter-delay-legal);
-
-  order: var(--bbf-footer-credit-order);
-  margin: 0;
-  color: var(--bbf-text-on-base-accent);
-  font-family: var(--bbf-type-legal-family);
-  font-size: var(--bbf-type-legal-size);
-  font-weight: var(--bbf-type-legal-weight);
-  letter-spacing: var(--bbf-type-legal-tracking-mixed);
-  text-shadow: var(--bbf-type-legal-shadow);
-  text-wrap: pretty;
 }
