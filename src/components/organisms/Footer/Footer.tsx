@@ -17,13 +17,19 @@ import styles from "./Footer.module.css";
  * LO QUE SALE, en el mismo commit (I-6): el aviso de estado con su punto y su pulso (Q-BBW-010, confirmada por Zavala) y la FIRMA
  * (D-BBW-50), que pasa a tener una sola aparición en toda la página, bajo el encabezado del héroe.
  */
-export function Footer({ global, locale }: { global: GlobalDocument; locale: Locale }) {
+export function Footer({ global, locale, currentHref }: { global: GlobalDocument; locale: Locale; currentHref?: string }) {
+  const privacyHref = `/${locale}/privacidad/`;
   return (
     <footer className={styles.footer} data-component="bbf-footer">
       <p className={styles.legal} data-enter="">
         {global.footer.legal}
       </p>
-      <Link className={styles.privacy} href={`/${locale}/privacidad/`} data-enter="">
+      <Link
+        className={styles.privacy}
+        href={privacyHref}
+        aria-current={currentHref === privacyHref ? "page" : undefined}
+        data-enter=""
+      >
         {global.footer.privacy.label}
       </Link>
       <div className={styles.end}>

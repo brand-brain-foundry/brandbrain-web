@@ -15,19 +15,13 @@
    líneas en vez de recortarse»). `text-wrap: pretty` evita que la última línea quede con una palabra suelta, igual que en el encabezado.
    Lo que `nowrap` protegía —que la barra no se desarmara— lo sigue haciendo `flex-wrap` sobre las dos piezas. */
 .footer {
-  position: absolute;
-  right: 0;
-  bottom: var(--bbf-bar-bottom);
-  left: 0;
-  z-index: var(--bbf-layer-content);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: var(--bbf-bar-justify);
   column-gap: var(--bbf-bar-gap-view);
   row-gap: var(--bbf-bar-row-gap);
-  padding: 0 var(--bbf-bar-side);
-  pointer-events: none;
+  padding: var(--bbf-space-page) var(--bbf-bar-side);
 }
 
 .legal {
@@ -91,7 +85,8 @@
   transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
-.privacy:hover {
+.privacy:hover,
+.privacy[aria-current="page"] {
   color: var(--bbf-accent);
 }
 

@@ -63,7 +63,6 @@
        · reserva superior = la cabecera (su relleno arriba y abajo, que es el margen de página, más la marca, `space-12`),
        · reserva inferior = el pie (su separación al borde, el sello a su tamaño de vista y un margen de página de aire).
      Son fórmulas sobre roles que ya existen; ningún número nuevo. En una ventana alta el resultado es el mismo centrado de siempre. */
-  --bbf-hero-text-inset-bottom: calc(var(--bbf-bar-bottom) + var(--bbf-cert-size) + var(--bbf-space-page));
   --bbf-hero-size-containment: inline-size;
   --bbf-hero-text-flow: relative;
   --bbf-hero-text-min-block: 100svh;
@@ -118,9 +117,6 @@
     --bbf-stage-width-cap: var(--bbf-stage-width-cap-single);
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
-    /* 2026-11-02: la separación de siempre más el sello del pie, que va superpuesto y ahora es más alto (medido a 390 sin esto: 2 px de
-       solape con los botones). */
-    --bbf-hero-text-inset-bottom: calc(var(--bbf-lockup-offset) + var(--bbf-cert-size) + var(--bbf-space-2));
     --bbf-hero-size-containment: inline-size;
     /* 2026-11-02 · `relative` y no `static`: una caja estática ignora el `z-index`, así que la VIÑETA (capa de velo, por encima del
        fondo) se pintaba ENCIMA del texto y lo oscurecía —se ve en la captura del sitio publicado en el teléfono—. En flujo igual que antes. */

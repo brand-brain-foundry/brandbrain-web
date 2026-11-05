@@ -7,7 +7,6 @@ import { media, surfaceColor } from "@/media";
 import { textFont } from "@/styles/fonts/text";
 import { SkipLink } from "@/components/atoms/SkipLink";
 import { Header } from "@/components/organisms/Header";
-import { Footer } from "@/components/organisms/Footer";
 import { MAIN_ID } from "@/components/main-id";
 import "../globals.css";
 
@@ -71,7 +70,6 @@ export default async function LocaleLayout({
         <SkipLink href={`#${MAIN_ID}`} label={global.nav.skipLabel} />
         <Header locale={locale} global={global} />
         {children}
-        <Footer global={global} locale={locale} />
       </body>
     </html>
   );
