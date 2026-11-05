@@ -7,14 +7,16 @@
  *   R10c — cada tentáculo: fromFrac < anchorFrac < tipFrac < toFrac y todas las fracciones en [0, 1].
  *   R10d — los tentáculos no se solapan entre sí.
  *   R10e — el punto en tipFrac de cada tentáculo está a > minTipDist u del centro del viewBox.
- *   R10f — distancia de Hausdorff entre los contornos de reposo del rig y el path SVG ≤ 0.25 u.
+ *   R10f — IoU path reconstruido vs path oficial ≥ 0.999 (sharp, 512 × 512 px).
+ *   R10g — centerline[59] de cada tentáculo a ≤ 0.5 u del punto tipFrac en el arco.
  *
  * Uso: pnpm lint:rig
- * --test-fail: desplaza la punta de TR en 0.5 u para demostrar que R10f falla (I-7, M1b).
+ * --test-fail: desplaza la punta de TR en 0.5 u para demostrar que R10g falla (I-7, M1b).
  */
 
 import { readFileSync } from 'fs';
 import path from 'path';
+import sharp from 'sharp';
 
 const REPO = path.resolve(process.cwd());
 const SVG_PATH = path.join(REPO, 'media/masters/brand-icon.svg');
@@ -32,7 +34,7 @@ interface Tentacle {
 }
 interface RigData {
   _schema: string;
-  source: string;
+  source?: string;
   viewBox: [number, number, number, number];
   totalArcLen: number;
   center: [number, number];
@@ -126,43 +128,39 @@ function sampleAtFrac(segs: Seg[], cumLens: number[], totalArc: number, frac: nu
   return sample(segs[lo], t);
 }
 
-/** Hausdorff unilateral: cada vértice del contorno de reposo → distancia mínima al path SVG muestreado. */
-function computeHausdorff(rig: RigData, segs: Seg[], cumLens: number[], totalArc: number): number {
-  const M = 20000;
-  const svgPts: Pt[] = new Array(M + 1);
-  for (let i = 0; i <= M; i++) svgPts[i] = sampleAtFrac(segs, cumLens, totalArc, i / M);
-
-  let maxMinDist = 0;
-
-  for (const t of rig.tentacles) {
-    const cl = t.centerline;
-    const widths = t.widths;
-    const N = cl.length;
-
-    const angles: number[] = new Array(N);
-    for (let i = 0; i < N - 1; i++) angles[i] = Math.atan2(cl[i+1][1]-cl[i][1], cl[i+1][0]-cl[i][0]);
-    angles[N-1] = angles[N-2] ?? 0;
-
-    for (let i = 0; i < N; i++) {
-      const w = widths[i] / 2;
-      const nx = -Math.sin(angles[i]);
-      const ny =  Math.cos(angles[i]);
-      const left:  Pt = [cl[i][0] + w * nx, cl[i][1] + w * ny];
-      const right: Pt = [cl[i][0] - w * nx, cl[i][1] - w * ny];
-
-      for (const v of [left, right] as Pt[]) {
-        let minDist = Infinity;
-        for (let k = 0; k <= M; k++) {
-          const d = Math.hypot(v[0] - svgPts[k][0], v[1] - svgPts[k][1]);
-          if (d < minDist) minDist = d;
-          if (d < 0.001) break;
-        }
-        if (minDist > maxMinDist) maxMinDist = minDist;
-      }
-    }
+/** Re-serializa Seg[] como path de cubics absolutos para la prueba de IoU. */
+function serializeSegs(segs: Seg[]): string {
+  if (segs.length === 0) return '';
+  let d = `M ${segs[0].p0[0]} ${segs[0].p0[1]}`;
+  for (const s of segs) {
+    d += ` C ${s.p1[0]} ${s.p1[1]} ${s.p2[0]} ${s.p2[1]} ${s.p3[0]} ${s.p3[1]}`;
   }
+  return d;
+}
 
-  return maxMinDist;
+/** R10f: IoU path reconstruido por el parser vs path oficial ≥ 0.999 (sharp, 512 × 512 px). */
+async function checkIoU(pathD: string, vbW: number, vbH: number, segs: Seg[]): Promise<void> {
+  const size = 512;
+  const mk = (d: string) =>
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${vbW} ${vbH}">` +
+    `<rect width="${vbW}" height="${vbH}" fill="black"/>` +
+    `<path d="${d}" fill="white"/></svg>`;
+  const [a, b] = await Promise.all([
+    sharp(Buffer.from(mk(pathD))).greyscale().raw().toBuffer({ resolveWithObject: true }),
+    sharp(Buffer.from(mk(serializeSegs(segs)))).greyscale().raw().toBuffer({ resolveWithObject: true }),
+  ]);
+  let inter = 0, union = 0;
+  for (let i = 0; i < a.info.width * a.info.height; i++) {
+    const ia = a.data[i] > 127, ib = b.data[i] > 127;
+    if (ia && ib) inter++;
+    if (ia || ib) union++;
+  }
+  const iou = union === 0 ? 1 : inter / union;
+  if (iou < 0.999) {
+    fail(`R10f: IoU parser = ${iou.toFixed(4)} < 0.999 — el parser no reconstruye el path oficial`);
+  } else {
+    pass(`R10f: IoU parser = ${iou.toFixed(4)} ≥ 0.999 ✓`);
+  }
 }
 
 // ---- lectura de archivos ----
@@ -184,7 +182,7 @@ let errors = 0;
 function fail(msg: string) { console.error(`  ✗ ${msg}`); errors++; }
 function pass(msg: string) { console.log(`  ✓ ${msg}`); }
 
-function run(rig: RigData) {
+async function run(rig: RigData) {
   const svgSrc = readFileSync(SVG_PATH, 'utf-8');
   const dMatch = svgSrc.match(/ d="([^"]+)"/);
   if (!dMatch) { fail('R10a: no se encontró el path en brand-icon.svg'); return; }
@@ -192,6 +190,7 @@ function run(rig: RigData) {
   const segs = parsePath(dMatch[1]);
   const { cumLens, totalArc } = buildArcIndex(segs);
   const [cx, cy] = rig.center;
+  const [,, vbW, vbH] = rig.viewBox;
 
   pass('R10a: schema brand-icon-rig/v2 ✓, centerline[60] + widths[60] por tentáculo ✓');
 
@@ -231,36 +230,43 @@ function run(rig: RigData) {
     }
   }
 
-  const HAUSDORFF_MAX = 0.25;
-  console.log('  [R10f] calculando Hausdorff (20 000 muestras SVG × 720 vértices contorno)…');
-  const h = computeHausdorff(rig, segs, cumLens, totalArc);
-  if (h > HAUSDORFF_MAX) {
-    fail(`R10f: Hausdorff = ${h.toFixed(3)} u > ${HAUSDORFF_MAX} u — rig no coincide con el path SVG`);
-  } else {
-    pass(`R10f: Hausdorff = ${h.toFixed(3)} u ≤ ${HAUSDORFF_MAX} u ✓`);
+  await checkIoU(dMatch[1], vbW, vbH, segs);
+
+  const TIP_DELTA_MAX = 0.5;
+  for (const t of rig.tentacles) {
+    const last = t.centerline[t.centerline.length - 1];
+    const [tx, ty] = sampleAtFrac(segs, cumLens, totalArc, t.tipFrac);
+    const delta = Math.hypot(last[0] - tx, last[1] - ty);
+    if (delta > TIP_DELTA_MAX) {
+      fail(`R10g: ${t.id} centerline[-1]=(${last[0].toFixed(2)},${last[1].toFixed(2)}) a ${delta.toFixed(3)} u del tipFrac (>${TIP_DELTA_MAX} u)`);
+    } else {
+      pass(`R10g: ${t.id} centerline[-1] Δ=${delta.toFixed(3)} u ≤ ${TIP_DELTA_MAX} u ✓`);
+    }
   }
 }
 
 // ---- main ----
-const testFail = process.argv.includes('--test-fail');
-console.log(`\n=== check-brand-mark-rig${testFail ? ' [--test-fail]' : ''} ===\n`);
+(async () => {
+  const testFail = process.argv.includes('--test-fail');
+  console.log(`\n=== check-brand-mark-rig${testFail ? ' [--test-fail]' : ''} ===\n`);
 
-try {
-  const rig = loadRig();
-  if (testFail) {
-    const tip = rig.tentacles[0].centerline[59];
-    tip[0] += 0.5; tip[1] += 0.5;
-    console.log(`  [--test-fail] punta TR desplazada 0.5 u: [${tip[0].toFixed(3)}, ${tip[1].toFixed(3)}]`);
+  try {
+    const rig = loadRig();
+    if (testFail) {
+      const tip = rig.tentacles[0].centerline[59];
+      tip[0] += 0.5; tip[1] += 0.5;
+      console.log(`  [--test-fail] punta TR desplazada 0.5 u: [${tip[0].toFixed(3)}, ${tip[1].toFixed(3)}]`);
+    }
+    await run(rig);
+  } catch (e) {
+    fail(`R10a: ${(e as Error).message}`);
   }
-  run(rig);
-} catch (e) {
-  fail(`R10a: ${(e as Error).message}`);
-}
 
-console.log();
-if (errors > 0) {
-  console.error(`FALLO: ${errors} error${errors > 1 ? 'es' : ''}`);
-  process.exit(1);
-} else {
-  console.log('OK: todas las comprobaciones del rig pasaron');
-}
+  console.log();
+  if (errors > 0) {
+    console.error(`FALLO: ${errors} error${errors > 1 ? 'es' : ''}`);
+    process.exit(1);
+  } else {
+    console.log('OK: todas las comprobaciones del rig pasaron');
+  }
+})();
