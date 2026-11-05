@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { site, isLocale } from "@/config/site";
+import { legalPageRoute } from "@/config/pages";
 import { identity } from "@/content/site";
 import { getPage } from "@/content";
 import { media } from "@/media";
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const { meta } = getPage(locale, "cookies");
-  const canonical = `${site.url}/${locale}/cookies/`;
+  const canonical = `${site.url}${legalPageRoute(locale, "cookies")}`;
   return {
     title: meta.title,
     description: meta.description,

@@ -33,3 +33,8 @@ export const SITEMAP_LEGAL_SLUGS: readonly string[] = LEGAL_PAGES
   .filter((p) => p.inSitemap)
   .sort((a, b) => a.legalNavOrder - b.legalNavOrder)
   .map((p) => p.slug);
+
+/** Ruta canónica de una página para un locale: `/${locale}/${slug}/` */
+export function legalPageRoute(locale: string, slug: string): `/${string}/${string}/` {
+  return `/${locale}/${slug}/`;
+}
