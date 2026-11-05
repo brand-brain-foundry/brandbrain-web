@@ -63,7 +63,6 @@
        · reserva superior = la cabecera (su relleno arriba y abajo, que es el margen de página, más la marca, `space-12`),
        · reserva inferior = el pie (su separación al borde, el sello a su tamaño de vista y un margen de página de aire).
      Son fórmulas sobre roles que ya existen; ningún número nuevo. En una ventana alta el resultado es el mismo centrado de siempre. */
-  --bbf-hero-text-inset-bottom: calc(var(--bbf-bar-bottom) + var(--bbf-cert-size) + var(--bbf-space-page));
   --bbf-hero-size-containment: inline-size;
   --bbf-hero-text-flow: relative;
   --bbf-hero-text-min-block: 100svh;
@@ -79,29 +78,29 @@
      imagen va primero y queda en el margen izquierdo. La legal va a la izquierda en dos zonas y en una pasa a la ÚLTIMA fila, bajo el sello.
      Solo cambia el orden visual: la legal no es enfocable y el sello es un único enlace, así que el orden de tabulación no se altera. */
   --bbf-cert-direction: row-reverse;
-  --bbf-bar-legal-order: 0;
-  /* separación entre filas del pie cuando parte: en dos zonas casi nunca parte; en una separa el sello de la legal (medido a 390: con `space-2`
-     la legal quedaba pegada al sello, orden de Zavala). */
-  --bbf-bar-row-gap: var(--bbf-space-2);
 
   /* ANCHO MÁXIMO DE LA COLUMNA DE LECTURA (P-BBW-73): 672 px = 8 × el paso-21 del espaciado. Mantiene la línea
      a ~65 caracteres en body y hace que la prosa no fuerce el ojo a viajar de borde a borde en monitores anchos.
      Los componentes lo consumen por este rol, nunca como un número escrito a mano. */
   --bbf-legal-max-width: calc(var(--bbf-space-21) * 8);
 
+  /* MARGEN SUPERIOR DE LAS PÁGINAS DE LECTURA (UX1, P-BBW-79): altura de la cabecera (marca + sus dos márgenes de página)
+     más un paso de ritmo de separación. No usa la banda del escenario: las páginas de lectura no tienen escenario.
+     Fórmula: `space-page * 2 + space-12` (cabecera) + `space-page` (un paso de ritmo) = `space-page * 3 + space-12`. */
+  --bbf-legal-inset-top: calc(var(--bbf-space-page) * 3 + var(--bbf-space-12));
+
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
-  /* fase 6f (composición del pie leída del export): en la vista amplia legal + perfiles a la izquierda y aviso a la derecha; en la
-     colapsada una fila centrada (legal + aviso) y los perfiles viven en la hoja del panel (rol inline-display), no en la barra */
-  --bbf-bar-justify: space-between;
-  --bbf-bar-gap-view: var(--bbf-bar-gap);
 
-  /* PRIVACIDAD EN EL PIE (C2/C3, P-BBW-74): «Privacidad» es un hijo directo de la barra (no de .end), en la misma posición que
-     la legal. En la vista amplia queda justo tras la legal (mismo order 0, DOM posterior) y .end se empuja al extremo derecho con
-     margin-inline-start: auto. En la colapsada cada item ocupa fila propia (flex-basis: 100%): sello → Privacidad → legal. */
-  --bbf-bar-privacy-order: 0;
-  --bbf-bar-end-margin-start: auto;
-  --bbf-bar-row-basis: auto;
+  /* JERARQUÍA DEL PIE (UX1, P-BBW-79): tres grupos en el flujo del documento.
+     Desktop: una fila — crédito (order 1) · grupo legal (order 2) · identidad (order 3, empujada a la derecha).
+     Mobile: columna — grupo legal (1) · identidad (2) · crédito (3). */
+  --bbf-footer-direction: row;
+  --bbf-footer-gap: var(--bbf-bar-gap);
+  --bbf-footer-credit-order: 1;
+  --bbf-footer-nav-order: 2;
+  --bbf-footer-identity-order: 3;
+  --bbf-footer-identity-margin: auto;
 
   /* COLUMNA DE LECTURA LEGAL alineada al margen de página (C4-a, P-BBW-75): en la vista amplia el margen es 0 (el contenedor
      ya aplica el padding de página); en la estrecha es auto (centrado) porque la columna ocupa el 100%. */
@@ -118,9 +117,6 @@
     --bbf-stage-width-cap: var(--bbf-stage-width-cap-single);
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
-    /* 2026-11-02: la separación de siempre más el sello del pie, que va superpuesto y ahora es más alto (medido a 390 sin esto: 2 px de
-       solape con los botones). */
-    --bbf-hero-text-inset-bottom: calc(var(--bbf-lockup-offset) + var(--bbf-cert-size) + var(--bbf-space-2));
     --bbf-hero-size-containment: inline-size;
     /* 2026-11-02 · `relative` y no `static`: una caja estática ignora el `z-index`, así que la VIÑETA (capa de velo, por encima del
        fondo) se pintaba ENCIMA del texto y lo oscurecía —se ve en la captura del sitio publicado en el teléfono—. En flujo igual que antes. */
@@ -136,25 +132,19 @@
     --bbf-hero-ctas-width: 100%;
     --bbf-cert-size: var(--bbf-space-16);
     --bbf-cert-direction: row;
-    /* En la vista colapsada la legal pasa a la ÚLTIMA fila (2 → fila 3): sello(0) → Privacidad(1) → legal(2). */
-    --bbf-bar-legal-order: 2;
-    --bbf-bar-row-gap: var(--bbf-space-6);
 
-    /* Privacidad en fila propia, entre el sello y la legal. */
-    --bbf-bar-privacy-order: 1;
-    /* Sin margen automático: cada item ya ocupa su fila por flex-basis: 100%. */
-    --bbf-bar-end-margin-start: 0;
-    /* Cada hijo directo de la barra ocupa toda la fila → tres filas distintas. */
-    --bbf-bar-row-basis: 100%;
+    /* Pie en columna: grupo legal (1) · identidad (2) · crédito (3). */
+    --bbf-footer-direction: column;
+    --bbf-footer-gap: var(--bbf-space-8);
+    --bbf-footer-credit-order: 3;
+    --bbf-footer-nav-order: 1;
+    --bbf-footer-identity-order: 2;
+    --bbf-footer-identity-margin: 0;
 
     /* En pantallas estrechas la columna legal es 100%; margin-inline: auto no hace nada pero no perjudica. */
     --bbf-legal-column-margin-inline: auto;
 
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;
-    /* 2026-11-02 (orden de Zavala): en el teléfono la barra se alinea al MARGEN IZQUIERDO, como el texto del héroe; centrada, el sello
-       quedaba suelto con un hueco a su izquierda. */
-    --bbf-bar-justify: flex-start;
-    --bbf-bar-gap-view: var(--bbf-bar-gap-narrow);
   }
 }

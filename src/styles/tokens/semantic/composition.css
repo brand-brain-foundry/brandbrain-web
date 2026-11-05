@@ -89,7 +89,6 @@
 
   --bbf-chrome-nav-top: clamp(var(--bbf-space-4), var(--bbf-chrome-nav-top-slope), var(--bbf-space-10));
   --bbf-chrome-nav-gap: clamp(var(--bbf-space-5), var(--bbf-chrome-nav-gap-slope), var(--bbf-space-10));
-  --bbf-bar-bottom: clamp(var(--bbf-space-4), var(--bbf-bar-bottom-slope), var(--bbf-space-9));
   --bbf-bar-side: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-bar-side-slope), var(--bbf-space-10)));
   --bbf-bar-gap: var(--bbf-space-6);
   --bbf-bar-gap-narrow: clamp(var(--bbf-space-3), var(--bbf-bar-gap-narrow-slope), var(--bbf-space-6));
