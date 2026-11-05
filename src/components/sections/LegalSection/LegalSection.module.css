@@ -1,13 +1,14 @@
 /**
  * LegalSection — columna de lectura legal alineada al margen (C4-a, P-BBW-75: «alineada al margen de página de la cabecera»).
  * Solo consume tokens `var(--bbf-*)`: ningún color, tamaño ni espacio escritos a mano.
+ * Margen inline = `--bbf-lockup-pad`, el mismo del texto del inicio: la columna arranca donde arranca el texto de la home en todas las vistas.
  * El ancho máximo de columna (`--bbf-legal-max-width`) y el margen inline (`--bbf-legal-column-margin-inline`) viven en semantic/viewport.css.
  */
 
 .section {
   padding-block-start: var(--bbf-legal-inset-top);
   padding-block-end: var(--bbf-hero-text-inset-bottom);
-  padding-inline: var(--bbf-space-safe);
+  padding-inline: var(--bbf-lockup-pad);
 }
 
 .column {
