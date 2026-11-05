@@ -21,6 +21,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Git worktrees viven bajo .worktrees/ — no son fuente de este árbol.
+    ".worktrees/**",
   ]),
 ]);
 
