@@ -30,6 +30,8 @@ export const substitutions = {
   role: identity.role,
   /** año de la compilación (el sitio se regenera en cada build; p. ej. para la línea legal) */
   year: String(new Date().getFullYear()),
+  /** buzón de contacto publicado (identidad editable, `identity.email`; p. ej. para textos legales que lo mencionan) */
+  email: identity.email,
 } as const;
 export type SubstitutionKey = keyof typeof substitutions;
 

@@ -1,3 +1,5 @@
+import Link from "next/link";
+import type { Locale } from "@/config/site";
 import type { GlobalDocument } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
@@ -15,12 +17,15 @@ import styles from "./Footer.module.css";
  * LO QUE SALE, en el mismo commit (I-6): el aviso de estado con su punto y su pulso (Q-BBW-010, confirmada por Zavala) y la FIRMA
  * (D-BBW-50), que pasa a tener una sola aparición en toda la página, bajo el encabezado del héroe.
  */
-export function Footer({ global }: { global: GlobalDocument }) {
+export function Footer({ global, locale }: { global: GlobalDocument; locale: Locale }) {
   return (
     <footer className={styles.footer} data-component="bbf-footer">
       <p className={styles.legal} data-enter="">
         {global.footer.legal}
       </p>
+      <Link className={styles.privacy} href={`/${locale}/privacidad/`} data-enter="">
+        {global.footer.privacy.label}
+      </Link>
       <div className={styles.end}>
         <div className={styles.social} data-enter="">
           <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />

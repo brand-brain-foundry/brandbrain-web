@@ -21,4 +21,5 @@
 #
 # ORDEN. La primera regla que casa gana, así que las específicas van antes que las generales.
 
+/privacidad    /es/privacidad/    301
 /    /es/    301

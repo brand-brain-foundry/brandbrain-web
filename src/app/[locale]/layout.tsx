@@ -79,7 +79,7 @@ export default async function LocaleLayout({
         <SkipLink href={`#${MAIN_ID}`} label={global.nav.skipLabel} />
         <Header locale={locale} global={global} />
         {children}
-        <Footer global={global} />
+        <Footer global={global} locale={locale} />
       </body>
     </html>
   );

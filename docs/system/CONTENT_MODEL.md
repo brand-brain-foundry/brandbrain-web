@@ -3,16 +3,16 @@ id: BBW-CONTENT-MODEL
 title: "Modelo de contenido — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 3.2
+version: 3.5
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
-updated: 2026-09-22
-verified_against_code: 2026-09-22@feat/contenido-editable-y-navegacion (content/site.json · content/es/global.json · content/es/pages/home.json · src/content/{site,schema,index,substitutions}.ts · src/config/site.ts · scripts/lint/check-content.ts · scripts/media/build.ts · src/seo/jsonld.ts · src/components/organisms/Header/Header.tsx)
+updated: 2026-11-05
+verified_against_code: 2026-11-05@feat/privacidad-asistente (content/site.json · content/es/global.json · content/es/pages/home.json · content/es/pages/privacidad.json · src/content/{site,schema,index,substitutions}.ts · src/config/site.ts · scripts/lint/check-content.ts · src/components/sections/index.tsx · src/components/sections/LegalSection/ · src/components/organisms/Footer/Footer.tsx)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-02, D-BBW-07, D-BBW-09, D-BBW-15, D-BBW-23, D-BBW-74, D-BBW-77, D-BBW-78, D-DOC-06]
-summary: "El contenido vive en archivos versionados bajo content/<locale>/, fuera de src/ y de los componentes. v2.0 (fase 6a): modelo granular de toda la landing — cada texto con su propia llave nombrada por rol, sin presentación dentro (esquema estricto: llave desconocida o HTML = error), lo global (navegación, pie) separado de la página, secciones como lista ordenada con tipo, enlaces por llave de site.ts, marcadores [[PENDIENTE: …]] evidentes. Puerto src/content (getGlobal, getPage) fail-closed en build + guardia check-content.ts sobre el árbol completo. v2.1 (fase 6b): +1 llave nav.skipLabel (enlace de salto al contenido); renderizado por tipo de sección (SECTION_RENDERERS) con comportamiento definido ante un tipo sin renderizador (§4). v2.2 (fase 6c, D-BBW-23): sustituciones {{brand}} / {{domain}} / {{year}} resueltas al compilar desde la fuente única; conjunto cerrado y declarado (src/content/substitutions.ts); una no declarada o cualquier lógica entre llaves rompe el build y la guardia (R5). Colecciones de la dimensión (cases, articles): cómo entrarían sin rediseño, no creadas (P-BBW-18). v3.2 (D-BBW-78): LO EDITABLE VIVE EN DATOS — nombre, cargo, buzón y destinos de los enlaces bajan de src/config/site.ts a content/site.json (raíz, fuera de los locales); en código se queda solo lo técnico (dominio, locales, rutas). Nace nav.caseLabel (la palabra del caso, una sola vez) y LinkItem.badge pasa a LinkItem.case booleano."
+summary: "El contenido vive en archivos versionados bajo content/<locale>/, fuera de src/ y de los componentes. v2.0 (fase 6a): modelo granular de toda la landing — cada texto con su propia llave nombrada por rol, sin presentación dentro (esquema estricto: llave desconocida o HTML = error), lo global (navegación, pie) separado de la página, secciones como lista ordenada con tipo, enlaces por llave de site.ts, marcadores [[PENDIENTE: …]] evidentes. Puerto src/content (getGlobal, getPage) fail-closed en build + guardia check-content.ts sobre el árbol completo. v2.1 (fase 6b): +1 llave nav.skipLabel (enlace de salto al contenido); renderizado por tipo de sección (SECTION_RENDERERS) con comportamiento definido ante un tipo sin renderizador (§4). v2.2 (fase 6c, D-BBW-23): sustituciones {{brand}} / {{domain}} / {{year}} resueltas al compilar desde la fuente única; conjunto cerrado y declarado (src/content/substitutions.ts); una no declarada o cualquier lógica entre llaves rompe el build y la guardia (R5). Colecciones de la dimensión (cases, articles): cómo entrarían sin rediseño, no creadas (P-BBW-18). v3.2 (D-BBW-78): LO EDITABLE VIVE EN DATOS — nombre, cargo, buzón y destinos de los enlaces bajan de src/config/site.ts a content/site.json (raíz, fuera de los locales); en código se queda solo lo técnico (dominio, locales, rutas). Nace nav.caseLabel (la palabra del caso, una sola vez) y LinkItem.badge pasa a LinkItem.case booleano. v3.3 (2026-11-02): hero nuevo sobre fondo oscuro (heading + paragraph1/2 + ctaPrimary/Secondary). v3.4 (P-BBW-73/74/75, 2026-11-05): primera página secundaria — `content/es/pages/privacidad.json` con `sections[{type:\"legal\"}]`; tipo `Span = string | {text,link}` para prosa con enlaces inline; `LegalSection` completo en schema.ts; sustitución `{{email}}` añadida al registro; `footer.privacy{label}` en GlobalDocument; enlace `aepd` añadido a content/site.json. v3.5 (correcciones, 2026-11-05): CAMBIO NO ADITIVO en LegalBlock — `body: Span[][] + items?: string[]` reemplazado por `parts: Array<{p: Span[]} | {list: string[]}>` para preservar el orden declarado; `updated` vive DENTRO de la sección (SECTION_KEYS.legal) no en la raíz del PageDocument; enlace Privacidad como hijo directo del footer flex, con roles de viewport para orden en móvil."
 tags: [contenido, modelo, puerto, i18n, esquema, brandbrain-web]
 ---
 
@@ -104,6 +104,43 @@ El organismo (`Header.resolveLinks`) reparte la palabra a los elementos que la d
 **entra en el nombre accesible por construcción** —«Sivar Brains Caso», «Pura kaSaka Caso»— sin ningún `aria-label` que pudiera desincronizarse.
 Un `global.json` con la forma vieja **rompe la compilación nombrando las dos llaves**.
 
+## Página de privacidad del asistente (P-BBW-73/74/75, 2026-11-05) — v3.4 del modelo
+
+Primera **página secundaria** del sitio (`/es/privacidad/`): política de privacidad del asistente de llamadas de IA.
+
+### Tipo `Span` — prosa con enlaces inline
+
+Los textos legales necesitan referencias dentro del párrafo (un buzón, un enlace externo). La regla 3 del modelo prohíbe HTML en el contenido; la regla 6 exige que los enlaces vayan por llave. La solución: **`Span = string | { text: string; link: LinkKey }`**. Un párrafo es `Span[]` (antes era `string`). El texto de un span objeto SE resuelven las sustituciones; la llave `link` es estructural y el puerto la deja intacta (igual que `id`/`type`/`case`).
+
+### Sustitución `{{email}}`
+
+Añadida a `src/content/substitutions.ts`: `email → identity.email` (= `christian@zavalacubas.com`). Se declara aquí y en ningún otro sitio (criterio 1). Usada tres veces en `privacidad.json`; la guardia la cuenta y la valida.
+
+### `LegalSection` en el esquema
+
+`schema.ts` añade `LegalSection` (tipo `"legal"`): `id · heading · intro: Span[] · blocks: LegalBlock[] · updatedLabel: string · updated: string`. `LegalBlock = { heading: string; parts: Array<{ p: Span[] } | { list: string[] }> }` — las partes se renderizan en orden de declaración, sin imponer primero los párrafos ni las listas. `Section = HeroSection | LegalSection`; `SectionType` se deriva de la unión (sin literal suelto). `SECTION_RENDERERS` añade `legal: LegalSection` — un tipo sin renderizador sigue rompiendo el typecheck.
+
+> **v3.5 (correcciones, 2026-11-05) — CAMBIO NO ADITIVO.** `LegalBlock.parts` reemplaza `body: Span[][] + items?: string[]`. El esquema viejo imponía párrafos-antes-de-listas; el nuevo respeta el orden de declaración (C1). Un `LegalBlock` con la forma anterior — `body`/`items` en vez de `parts` — rompe la compilación nombrando las llaves. `updated: string` vive **dentro de la sección** (`SECTION_KEYS.legal`), no en la raíz del `PageDocument`; `PageDocument` solo admite `meta` y `sections`.
+
+```
+"parts": [
+  { "list": ["Telnyx, que gestiona la línea.", "ElevenLabs, que presta el asistente."] },
+  { "p": ["Puedes pedir garantías a ", { "text": "{{email}}", "link": "contact" }, "."] }
+]
+```
+
+### `footer.privacy` en lo global
+
+`GlobalDocument.footer` añade `privacy: { label: string }`. Cambio aditivo: `global.json` con la forma anterior habría fallado por llave faltante (el esquema es estricto en los dos sentidos). El enlace de privacidad del pie llega así al pie, sin URL escrita en el componente: `Footer` recibe `locale: Locale` y construye `/${locale}/privacidad/`.
+
+### Enlace `aepd` en `content/site.json`
+
+`"aepd": "https://www.aepd.es"` añadido al objeto `links`. Usado en `privacidad.json` como `{ "text": "Agencia Española de Protección de Datos", "link": "aepd" }`. La URL vive una sola vez (criterio 1). Cambio aditivo a `SiteDocument`.
+
+### `content/es/pages/privacidad.json`
+
+Documento con 10 bloques, copy verbatim (Q-BBW-021 abierta: CC no reescribe el texto legal). Sustituciones: `{{email}}` ×3, `{{brand}}` ×0 (el nombre del responsable va escrito porque es un dato de otra entidad). `updatedLabel: "Última actualización: 2026-11-05"`. `updated: "2026-11-05"` como campo de la sección (dentro de `sections[0]`, no en la raíz del PageDocument: la raíz solo admite `meta` y `sections`).
+
 ## El cuerpo de la home nueva sobre el héroe oscuro (2026-11-02) — v3.3 del modelo, cambio NO aditivo
 
 | Antes | Ahora | Por qué |
@@ -147,10 +184,12 @@ content/
 └── es/                          ← un directorio por locale PUBLICADO (D-BBW-15); la guardia rechaza cualquier otro
     ├── global.json              ← GlobalDocument: lo que se repite en todas las páginas
     │     nav.skipLabel · nav.toggleLabel · nav.caseLabel · nav.items[]{id,label,link,case?} ·
-    │     footer.legal · footer.social[]{id,label,link} · footer.cert{label}
+    │     footer.legal · footer.privacy{label} · footer.social[]{id,label,link} · footer.cert{label}
     └── pages/                   ← colección `pages`: un documento por página
-          └── home.json          ← PageDocument: meta{title,description} · sections[] (hoy: una sección `hero`)
-                                    hero: id · heading · paragraph1 · paragraph2 · ctaPrimary · ctaSecondary · ctaSecondaryLink
+          ├── home.json          ← PageDocument: meta{title,description} · sections[] (una sección `hero`)
+          │                         hero: id · heading · paragraph1 · paragraph2 · ctaPrimary · ctaSecondary · ctaSecondaryLink
+          └── privacidad.json    ← PageDocument: meta{title,description} · sections[] (una sección `legal`)
+                                    legal: id · heading · intro: Span[] · blocks: LegalBlock[] · updatedLabel · updated
 ```
 
 **Origen del modelo:** el inventario de secciones y textos del N0 (`OUTPUT-BBW-2026-09-16-N0` §2.3–2.4): una página, una sección (hero a
@@ -170,7 +209,7 @@ inexistente sería un marcador que el build no puede verificar).
 | `src/content/site.ts` | El **documento del sitio** (D-BBW-78): lo importa como módulo (de ahí sale `LinkKey`, con la fuerza de los tipos), lo valida (`validateSite`, estricto en los dos sentidos) y expone `identity` con `contact` **derivada** del buzón. No rompe al cargarse a propósito: lo importa también la guardia, y un `throw` en su carga la dejaría sin informe. |
 | `src/content/schema.ts` | Tipos (`GlobalDocument`, `PageDocument`, `HeroSection`, unión `Section`) y **validador estricto** (`validateGlobal`, `validatePage`): devuelve problemas con ruta exacta (`$.footer.social[1].link`). Sin texto. |
 | `src/content/index.ts` | `getGlobal(locale)` · `getPage(locale, slug)` · `requireSection(page, type)`: leen en **tiempo de build** (`fs`), validan, **resuelven las sustituciones** (v2.2) y **fallan el build con mensaje** si el locale no está publicado, falta el archivo, el JSON es inválido, no cumple el modelo o usa una sustitución no declarada. |
-| `src/content/substitutions.ts` | Registro cerrado de sustituciones (`brand`, `domain`, `year`) con sus valores desde la fuente única; `findUndeclaredSubstitutions` (lista cada `{{…}}` inválido con su ruta) y `resolveDocument` (copia del documento con los textos resueltos; las llaves estructurales `id`/`type`/`link`, intactas). Búsqueda en tabla: nada se evalúa (D-DOC-06). |
+| `src/content/substitutions.ts` | Registro cerrado de sustituciones (`brand`, `domain`, `year`, **`email`**) con sus valores desde la fuente única; `findUndeclaredSubstitutions` (lista cada `{{…}}` inválido con su ruta) y `resolveDocument` (copia del documento con los textos resueltos; las llaves estructurales `id`/`type`/`link`/`case`, intactas). Búsqueda en tabla: nada se evalúa (D-DOC-06). La v3.4 añade `email` (P-BBW-75) para que el contenido legal pueda nombrar el buzón sin repetirlo. |
 | `scripts/lint/check-content.ts` | Valida el **árbol completo** (todo `content/`, tenga o no consumidor): solo locales publicados, solo `global.json` + colecciones del esquema, todos los documentos válidos, `pages/home.json` presente, **solo sustituciones declaradas (R5)**. En `pnpm guard` y en el pre-commit (fail-closed). Cuenta textos, marcadores y sustituciones en uso. |
 
 - Adaptador actual: **archivos** (`fs` en build; compatible con `output: 'export'`, D-BBW-03: no hay lectura en runtime).
@@ -226,4 +265,4 @@ parezca una directiva es contenido a revisar en el PR, no un comando. El contado
 - Guardia: `pnpm lint:content` → `[content-gate] OK — … N texto(s), M marcador(es)`; demostrada fallando en `OUTPUT-BBW-2026-09-16-fase6a` §4.
 
 ---
-*BBW-CONTENT-MODEL v3.2 · `docs/system/CONTENT_MODEL.md` · 2026-09-22 (v3.2: D-BBW-78, lo editable en datos y la palabra del caso una sola vez) · 2026-09-17 (v1.0 y v2.0/v2.1 el 2026-09-16: fase 5; fase 6a `DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`; fase 6b `skipLabel` y renderizado por tipo) · v2.2 fase 6c (sustituciones, D-BBW-23)*
+*BBW-CONTENT-MODEL v3.5 · `docs/system/CONTENT_MODEL.md` · 2026-11-05 (v3.5: correcciones P-BBW-73/74/75 — LegalBlock.parts NO aditivo, updated dentro de la sección, Privacidad como hijo directo del footer; v3.4: P-BBW-73/74/75 — tipo Span, LegalSection, sustitución email, footer.privacy, aepd, privacidad.json) · 2026-11-02 (v3.3: hero nuevo sobre fondo oscuro) · 2026-09-22 (v3.2: D-BBW-78, lo editable en datos y la palabra del caso una sola vez) · 2026-09-17 (v1.0 y v2.0/v2.1 el 2026-09-16: fase 5; fase 6a `DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-contenido`; fase 6b `skipLabel` y renderizado por tipo) · v2.2 fase 6c (sustituciones, D-BBW-23)*
