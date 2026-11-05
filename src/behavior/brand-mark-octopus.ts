@@ -1,25 +1,30 @@
 /**
- * behavior/brand-mark-octopus.ts — S9 · IMAGOTIPO VIVO (M1, 2026-11-05; conducta en DESPACHO §0.1)
+ * behavior/brand-mark-octopus.ts — S9 · IMAGOTIPO VIVO (M1b, 2026-11-05; conducta en DESPACHO §0.1)
  *
  * QUÉ HACE: en reposo, el SVG oficial (trazado inline) se muestra en color de acento. Al pasar el
- * puntero o tocar, un lienzo canvas superpone la visualización con la misma forma pero con los 6
- * tentáculos animados independientemente (física de varilla elástica de Kirchhoff simplificada:
- * campo de desplazamiento perpendicular al eje anchor→tip, envolvente de potencia y sinusoides con
- * parámetros distintos por tentáculo). Al soltar, cada tentáculo vuelve a su posición con un pequeño
- * escalonado de retardo. Con movimiento reducido: solo cambia el color del SVG; sin movimiento.
+ * puntero, enfocar o tocar, un lienzo canvas superpone la visualización con la misma forma pero con
+ * los 6 tentáculos animados independientemente (física de varilla elástica de Kirchhoff: campo de
+ * desplazamiento perpendicular al tangente LOCAL de cada punto, envolvente de potencia y sinusoides
+ * con parámetros distintos por tentáculo). Al soltar, cada tentáculo vuelve a su posición con un
+ * pequeño escalonado de retardo. Con movimiento reducido: solo cambia el color del SVG; sin movimiento.
  *
  * TRES PARTES:
  *   1. ALGORITMO (puro): parseo del path SVG, muestreo por longitud de arco, campo de desplazamiento.
  *   2. LECTURA DEL DOM (marcada): color del SVG, estado del play-state, dimensiones del lienzo.
- *   3. MOTOR (`startOctopus`): lienzo, bucle rAF, eventos de puntero y touch. Lo cablea el componente.
+ *   3. MOTOR (`startOctopus`): lienzo, bucle rAF, eventos de puntero, foco y touch. Lo cablea el componente.
  *
  * TOKENS QUE LEE (nunca repite): `--bbf-motion-octopus-play-state` (quietud; D-BBW-31).
  * El color se lee de `getComputedStyle(svgEl).color` (el token --bbf-accent / --bbf-text-on-base
  * resuelto por el navegador durante la transición CSS del enlace).
  *
+ * FUENTE ÚNICA: los datos del rig vienen de media/masters/brand-icon-rig.json importado; cero valores
+ * duplicados en este módulo (M1b F2).
+ *
  * CONSTANTES: origen «M1 §n»; clase por D-DOC-13 §2 (estático · plantilla · dinámico).
  * Tabla en docs/system/BEHAVIOR.md §12.
  */
+
+import rigData from '../../media/masters/brand-icon-rig.json';
 
 export const OCTOPUS = Object.freeze({
   /** resorte de entrada (hover): rigidez y amortiguamiento (subamortiguado, overshoot pequeño) · plantilla · M1 §0.1 */
@@ -42,54 +47,82 @@ export const OCTOPUS = Object.freeze({
   TOUCH_HOLD_MS: 2000,
 });
 
-// Rig embebido (maestro: media/masters/brand-icon-rig.json; verificado por scripts/lint/check-brand-mark-rig.ts en cada commit)
-const RIG = Object.freeze({
-  VB_W: 263.2,
-  VB_H: 271.5,
-  TOTAL_ARC: 2466.6,
-  tentacles: Object.freeze([
-    Object.freeze({ id: "TR", from: 0.072, anchor: 0.090, tip: 0.138, to: 0.195, a1: 0.42, w1: 1.37, a2: 0.28, w2: 2.11, ph: 0.00, rd: 0.00 }),
-    Object.freeze({ id: "TL", from: 0.218, anchor: 0.233, tip: 0.263, to: 0.308, a1: 0.38, w1: 1.19, a2: 0.31, w2: 1.83, ph: 1.05, rd: 0.05 }),
-    Object.freeze({ id: "ML", from: 0.448, anchor: 0.466, tip: 0.507, to: 0.552, a1: 0.45, w1: 0.91, a2: 0.25, w2: 1.57, ph: 2.09, rd: 0.10 }),
-    Object.freeze({ id: "BL", from: 0.580, anchor: 0.598, tip: 0.637, to: 0.678, a1: 0.40, w1: 1.51, a2: 0.30, w2: 2.33, ph: 3.14, rd: 0.08 }),
-    Object.freeze({ id: "BR", from: 0.713, anchor: 0.728, tip: 0.770, to: 0.814, a1: 0.44, w1: 1.03, a2: 0.27, w2: 1.71, ph: 4.19, rd: 0.13 }),
-    Object.freeze({ id: "MR", from: 0.853, anchor: 0.869, tip: 0.915, to: 0.962, a1: 0.36, w1: 1.73, a2: 0.33, w2: 2.57, ph: 5.24, rd: 0.16 }),
-  ] as const),
-});
-
 type Pt = [number, number];
 type Seg = { p0: Pt; p1: Pt; p2: Pt; p3: Pt };
 
 // ── 1 · ALGORITMO (puro) ───────────────────────────────────────────────────────────────────────
 
+/** Parser SVG completo: todos los comandos relativos y absolutos, subtrazados, regla de relleno (M1b F1). */
 function parseSVGPath(d: string): Seg[] {
   const segs: Seg[] = [];
-  const toks = d.match(/[MmCcZz]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) ?? [];
-  let cx = 0, cy = 0, cmd = "", args: number[] = [];
+  const tokens = d.match(/[MmCcSsLlHhVvZzQqTtAa]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) ?? [];
 
-  function flush() {
-    if (cmd === "M" || cmd === "m") { cx = args[0]; cy = args[1]; return; }
-    if (cmd === "c") {
-      for (let i = 0; i + 5 < args.length; i += 6) {
-        const x0 = cx, y0 = cy;
-        segs.push({ p0: [x0, y0], p1: [cx + args[i], cy + args[i + 1]], p2: [cx + args[i + 2], cy + args[i + 3]], p3: [cx + args[i + 4], cy + args[i + 5]] });
-        cx += args[i + 4]; cy += args[i + 5];
-      }
-    }
+  type Cmd = { cmd: string; args: number[] };
+  const cmds: Cmd[] = [];
+  let cur: Cmd | null = null;
+  for (const tok of tokens) {
+    if (/[MmCcSsLlHhVvZzQqTtAa]/.test(tok)) { cur = { cmd: tok, args: [] }; cmds.push(cur); }
+    else if (cur) cur.args.push(parseFloat(tok));
   }
 
-  let i = 0;
-  while (i < toks.length) {
-    const tok = toks[i];
-    if (/[MmCcZz]/i.test(tok)) { flush(); cmd = tok; args = []; i++; }
-    else {
-      args.push(parseFloat(tok)); i++;
-      if (cmd === "c" && args.length >= 6 && args.length % 6 === 0) {
-        flush(); args = []; cx = segs[segs.length - 1].p3[0]; cy = segs[segs.length - 1].p3[1];
-      }
+  let cx = 0, cy = 0, startX = 0, startY = 0;
+  let lastCmd = '';
+  let lastCP2x = 0, lastCP2y = 0;
+
+  const lineSeg = (x0: number, y0: number, x1: number, y1: number): Seg => ({
+    p0: [x0, y0],
+    p1: [x0 + (x1 - x0) / 3, y0 + (y1 - y0) / 3],
+    p2: [x0 + 2 * (x1 - x0) / 3, y0 + 2 * (y1 - y0) / 3],
+    p3: [x1, y1],
+  });
+
+  for (const { cmd, args } of cmds) {
+    switch (cmd) {
+      case 'M': cx = args[0]; cy = args[1]; startX = cx; startY = cy;
+        for (let i = 2; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, args[i], args[i + 1])); cx = args[i]; cy = args[i + 1]; }
+        lastCmd = 'M'; break;
+      case 'm': cx += args[0]; cy += args[1]; startX = cx; startY = cy;
+        for (let i = 2; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, cx + args[i], cy + args[i + 1])); cx += args[i]; cy += args[i + 1]; }
+        lastCmd = 'm'; break;
+      case 'Z': case 'z':
+        if (cx !== startX || cy !== startY) segs.push(lineSeg(cx, cy, startX, startY));
+        cx = startX; cy = startY; lastCmd = 'Z'; break;
+      case 'L':
+        for (let i = 0; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, args[i], args[i + 1])); cx = args[i]; cy = args[i + 1]; }
+        lastCmd = 'L'; break;
+      case 'l':
+        for (let i = 0; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, cx + args[i], cy + args[i + 1])); cx += args[i]; cy += args[i + 1]; }
+        lastCmd = 'l'; break;
+      case 'H': for (const x of args) { segs.push(lineSeg(cx, cy, x, cy)); cx = x; } lastCmd = 'H'; break;
+      case 'h': for (const dx of args) { segs.push(lineSeg(cx, cy, cx + dx, cy)); cx += dx; } lastCmd = 'h'; break;
+      case 'V': for (const y of args) { segs.push(lineSeg(cx, cy, cx, y)); cy = y; } lastCmd = 'V'; break;
+      case 'v': for (const dy of args) { segs.push(lineSeg(cx, cy, cx, cy + dy)); cy += dy; } lastCmd = 'v'; break;
+      case 'C':
+        for (let i = 0; i + 5 < args.length; i += 6) {
+          segs.push({ p0: [cx, cy], p1: [args[i], args[i + 1]], p2: [args[i + 2], args[i + 3]], p3: [args[i + 4], args[i + 5]] });
+          lastCP2x = args[i + 2]; lastCP2y = args[i + 3]; cx = args[i + 4]; cy = args[i + 5];
+        } lastCmd = 'C'; break;
+      case 'c':
+        for (let i = 0; i + 5 < args.length; i += 6) {
+          segs.push({ p0: [cx, cy], p1: [cx + args[i], cy + args[i + 1]], p2: [cx + args[i + 2], cy + args[i + 3]], p3: [cx + args[i + 4], cy + args[i + 5]] });
+          lastCP2x = cx + args[i + 2]; lastCP2y = cy + args[i + 3]; cx += args[i + 4]; cy += args[i + 5];
+        } lastCmd = 'c'; break;
+      case 'S':
+        for (let i = 0; i + 3 < args.length; i += 4) {
+          const cp1x = /[CcSs]/.test(lastCmd) ? 2 * cx - lastCP2x : cx;
+          const cp1y = /[CcSs]/.test(lastCmd) ? 2 * cy - lastCP2y : cy;
+          segs.push({ p0: [cx, cy], p1: [cp1x, cp1y], p2: [args[i], args[i + 1]], p3: [args[i + 2], args[i + 3]] });
+          lastCP2x = args[i]; lastCP2y = args[i + 1]; cx = args[i + 2]; cy = args[i + 3];
+        } lastCmd = 'S'; break;
+      case 's':
+        for (let i = 0; i + 3 < args.length; i += 4) {
+          const cp1x = /[CcSs]/.test(lastCmd) ? 2 * cx - lastCP2x : cx;
+          const cp1y = /[CcSs]/.test(lastCmd) ? 2 * cy - lastCP2y : cy;
+          segs.push({ p0: [cx, cy], p1: [cp1x, cp1y], p2: [cx + args[i], cy + args[i + 1]], p3: [cx + args[i + 2], cy + args[i + 3]] });
+          lastCP2x = cx + args[i]; lastCP2y = cy + args[i + 1]; cx += args[i + 2]; cy += args[i + 3];
+        } lastCmd = 's'; break;
     }
   }
-  flush();
   return segs;
 }
 
@@ -98,6 +131,14 @@ function bzAt(s: Seg, t: number): Pt {
   return [
     mt * mt * mt * s.p0[0] + 3 * mt * mt * t * s.p1[0] + 3 * mt * t * t * s.p2[0] + t * t * t * s.p3[0],
     mt * mt * mt * s.p0[1] + 3 * mt * mt * t * s.p1[1] + 3 * mt * t * t * s.p2[1] + t * t * t * s.p3[1],
+  ];
+}
+
+function bzTan(s: Seg, t: number): Pt {
+  const mt = 1 - t;
+  return [
+    3 * mt * mt * (s.p1[0] - s.p0[0]) + 6 * mt * t * (s.p2[0] - s.p1[0]) + 3 * t * t * (s.p3[0] - s.p2[0]),
+    3 * mt * mt * (s.p1[1] - s.p0[1]) + 6 * mt * t * (s.p2[1] - s.p1[1]) + 3 * t * t * (s.p3[1] - s.p2[1]),
   ];
 }
 
@@ -111,7 +152,8 @@ function bzLen(s: Seg, n = 20): number {
   return l;
 }
 
-type SampledPt = { x: number; y: number; frac: number };
+/** Punto muestreado sobre el arco con tangente unitaria (M1b F3: normales locales para Kirchhoff). */
+type SampledPt = { x: number; y: number; frac: number; tx: number; ty: number };
 
 function sampleUniform(segs: Seg[]): SampledPt[] {
   const lens = segs.map(s => bzLen(s, 20));
@@ -128,7 +170,9 @@ function sampleUniform(segs: Seg[]): SampledPt[] {
     const len = lens[segIdx] || 1e-9;
     const tInSeg = Math.max(0, Math.min(1, (target - prevAcc) / len));
     const [x, y] = bzAt(segs[segIdx], tInSeg);
-    pts.push({ x, y, frac: target / totalArc });
+    const [tx, ty] = bzTan(segs[segIdx], tInSeg);
+    const tlen = Math.hypot(tx, ty) || 1;
+    pts.push({ x, y, frac: target / totalArc, tx: tx / tlen, ty: ty / tlen });
   }
   return pts;
 }
@@ -136,24 +180,14 @@ function sampleUniform(segs: Seg[]): SampledPt[] {
 type TentacleData = {
   from: number; anchor: number; tip: number; to: number;
   a1: number; w1: number; a2: number; w2: number; ph: number; rd: number;
-  perpX: number; perpY: number;
 };
 
-function buildTentacleData(pts: SampledPt[]): TentacleData[] {
-  return RIG.tentacles.map(t => {
-    let bestAnchor = pts[0], bestTip = pts[0];
-    let dA = Infinity, dT = Infinity;
-    for (const p of pts) {
-      const da = Math.abs(p.frac - t.anchor);
-      const dt = Math.abs(p.frac - t.tip);
-      if (da < dA) { dA = da; bestAnchor = p; }
-      if (dt < dT) { dT = dt; bestTip = p; }
-    }
-    const ax = bestTip.x - bestAnchor.x;
-    const ay = bestTip.y - bestAnchor.y;
-    const len = Math.hypot(ax, ay) || 1;
-    return { ...t, perpX: -ay / len, perpY: ax / len };
-  });
+function buildTentacleData(): TentacleData[] {
+  return rigData.tentacles.map(t => ({
+    from: t.fromFrac, anchor: t.anchorFrac, tip: t.tipFrac, to: t.toFrac,
+    a1: t.phys.a1, w1: t.phys.w1, a2: t.phys.a2, w2: t.phys.w2,
+    ph: t.phys.phase, rd: t.phys.releaseDelay,
+  }));
 }
 
 function waveDisp(sNorm: number, t: number, tent: TentacleData): number {
@@ -164,6 +198,7 @@ function waveDisp(sNorm: number, t: number, tent: TentacleData): number {
   );
 }
 
+/** Desplaza cada punto usando el normal LOCAL al arco (Kirchhoff: δ⊥ al tangente, M1b F3). */
 function displacePts(pts: SampledPt[], tents: TentacleData[], amps: Float32Array, t: number, xs: Float32Array, ys: Float32Array): void {
   for (let i = 0; i < pts.length; i++) {
     const p = pts[i];
@@ -187,8 +222,9 @@ function displacePts(pts: SampledPt[], tents: TentacleData[], amps: Float32Array
       }
 
       const disp = A * waveDisp(sNorm, t, tent) * OCTOPUS.AMPLITUDE_MAX;
-      dx += disp * tent.perpX;
-      dy += disp * tent.perpY;
+      // Normal al tangente local: (-ty, tx) — desplazamiento de Kirchhoff perpendicular al arco
+      dx += disp * (-p.ty);
+      dy += disp * p.tx;
     }
 
     xs[i] = p.x + dx;
@@ -218,6 +254,9 @@ function springStep(s: SpringState, target: number, k: number, zeta: number, dt:
   s.x = Math.max(-0.5, Math.min(1.5, s.x));
 }
 
+const VB_W = rigData.viewBox[2];
+const VB_H = rigData.viewBox[3];
+
 /**
  * Arranca el imagotipo vivo sobre `svgEl` + `canvasEl` dentro del enlace `wrapEl`.
  * Devuelve la función que detiene y limpia todo.
@@ -232,8 +271,8 @@ export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl
 
   const segs = parseSVGPath(d);
   const pts = sampleUniform(segs);
-  const tents = buildTentacleData(pts);
-  const springs: SpringState[] = RIG.tentacles.map(() => ({ x: 0, v: 0, releaseAt: 0 }));
+  const tents = buildTentacleData();
+  const springs: SpringState[] = rigData.tentacles.map(() => ({ x: 0, v: 0, releaseAt: 0 }));
   const amps = new Float32Array(springs.length);
   const xs = new Float32Array(pts.length);
   const ys = new Float32Array(pts.length);
@@ -253,7 +292,7 @@ export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl
     const dpr = Math.min(OCTOPUS.DPR_CAP, window.devicePixelRatio || 1);
     canvasEl.width = Math.round(cssW * dpr);
     canvasEl.height = Math.round(cssH * dpr);
-    ctx.setTransform(cssW / RIG.VB_W * dpr, 0, 0, cssH / RIG.VB_H * dpr, 0, 0);
+    ctx.setTransform(cssW / VB_W * dpr, 0, 0, cssH / VB_H * dpr, 0, 0);
   };
 
   const engage = () => {
@@ -267,7 +306,7 @@ export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl
 
   const release = (now: number) => {
     hovered = false;
-    RIG.tentacles.forEach((t, i) => { springs[i].releaseAt = now + t.rd * 1000; });
+    rigData.tentacles.forEach((t, i) => { springs[i].releaseAt = now + t.phys.releaseDelay * 1000; });
   };
 
   const tick = (now: number) => {
@@ -301,7 +340,7 @@ export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl
     const color = getComputedStyle(svgEl).color;
     displacePts(pts, tents, amps, t, xs, ys);
 
-    ctx.clearRect(0, 0, RIG.VB_W, RIG.VB_H);
+    ctx.clearRect(0, 0, VB_W, VB_H);
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.moveTo(xs[0], ys[0]);
@@ -317,6 +356,8 @@ export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl
 
   const onEnter = () => engage();
   const onLeave = () => release(performance.now());
+  const onFocus = () => engage();
+  const onBlur = () => release(performance.now());
   const onTouch = () => {
     engage();
     if (touchTimer !== undefined) clearTimeout(touchTimer);
@@ -336,6 +377,8 @@ export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl
 
   wrapEl.addEventListener("mouseenter", onEnter);
   wrapEl.addEventListener("mouseleave", onLeave);
+  wrapEl.addEventListener("focus", onFocus);
+  wrapEl.addEventListener("blur", onBlur);
   wrapEl.addEventListener("touchstart", onTouch, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);
 
@@ -346,6 +389,8 @@ export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl
     if (touchTimer !== undefined) clearTimeout(touchTimer);
     wrapEl.removeEventListener("mouseenter", onEnter);
     wrapEl.removeEventListener("mouseleave", onLeave);
+    wrapEl.removeEventListener("focus", onFocus);
+    wrapEl.removeEventListener("blur", onBlur);
     wrapEl.removeEventListener("touchstart", onTouch);
     document.removeEventListener("visibilitychange", onVisibility);
     ro.disconnect();
