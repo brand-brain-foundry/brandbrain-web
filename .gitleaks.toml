@@ -1,0 +1,40 @@
+# .gitleaks.toml — reglas de secretos para brandbrain-web (P-BBW-78).
+# Extiende el conjunto predeterminado de gitleaks con patrones de datos legales sensibles.
+# Uso: pre-commit (gitleaks protect --staged --config .gitleaks.toml).
+
+[extend]
+useDefault = true
+
+# ── NIF/DNI español ─────────────────────────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "bbw-nif"
+description = "NIF/DNI español en archivos versionados (P-BBW-78)"
+regex       = '''\b\d{8}[A-TRWAGMYFPDXBNJZSQVHLCKE]\b'''
+
+[rules.allowlist]
+description = "Valores ficticios de prueba declarados en check-legal-data.ts"
+regexes     = ['''\b00000000T\b''']
+paths       = ['''scripts/lint/check-legal-data\.ts''']
+
+# ── NIE español ─────────────────────────────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "bbw-nie"
+description = "NIE español en archivos versionados (P-BBW-78)"
+regex       = '''\b[XYZ]\d{7}[A-TRWAGMYFPDXBNJZSQVHLCKE]\b'''
+
+[rules.allowlist]
+description = "Valores ficticios de prueba declarados en check-legal-data.ts"
+regexes     = ['''\bX0000000T\b''']
+paths       = ['''scripts/lint/check-legal-data\.ts''']
+
+# ── Teléfono español ────────────────────────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "bbw-telefono"
+description = "Teléfono español (móvil o fijo) en archivos versionados (P-BBW-78)"
+regex       = '''(?:\+34[\s\-.]?)?[679]\d{2}[\s\-.]?\d{3}[\s\-.]?\d{3}\b'''
+keywords    = ["telefono", "phone", "tel", "móvil", "movil", "contacto"]
+
+[rules.allowlist]
+description = "Valores ficticios de prueba y el script de guardia"
+regexes     = ['''[679]00[\s\-.]?000[\s\-.]?000''']
+paths       = ['''scripts/lint/check-legal-data\.ts''']

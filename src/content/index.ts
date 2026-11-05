@@ -33,7 +33,8 @@ import {
   type SectionType,
 } from "./schema";
 import { siteDocument, validateSite } from "./site";
-import { findUndeclaredSubstitutions, resolveDocument } from "./substitutions";
+import { findUndeclaredSubstitutions, resolveDocument, RESTRICTED_SUBSTITUTION_KEYS } from "./substitutions";
+import { getLegalIdentity } from "./legal-identity";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
 
@@ -76,6 +77,35 @@ function substitute<T>(doc: T, relPath: string): T {
   return resolveDocument(doc);
 }
 
+/** Resuelve `{{nif}}`, `{{domicilio}}` y `{{telefono}}` en el documento del aviso legal. Segunda pasada tras la global. */
+function resolveLegalDoc<T>(doc: T, extras: Record<string, string>, path = "$"): T {
+  if (typeof doc === "string") {
+    return doc.replace(/\{\{\s*(nif|domicilio|telefono)\s*\}\}/g, (_, k: string) => extras[k] ?? '') as T;
+  }
+  if (Array.isArray(doc)) return doc.map((x, i) => resolveLegalDoc(x, extras, `${path}[${i}]`)) as T;
+  if (doc && typeof doc === "object") {
+    const SKIP = new Set(["id", "type", "link", "case"]);
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(doc as Record<string, unknown>)) {
+      out[k] = SKIP.has(k) ? v : resolveLegalDoc(v, extras, `${path}.${k}`);
+    }
+    return out as T;
+  }
+  return doc;
+}
+
+/** Variante de `substitute` para aviso-legal.json: acepta {{nif}}/{{domicilio}}/{{telefono}} y los resuelve. */
+function substituteLegal<T>(doc: T, relPath: string): T {
+  const undeclared = findUndeclaredSubstitutions(doc, "$", [], RESTRICTED_SUBSTITUTION_KEYS);
+  if (undeclared.length > 0) {
+    const lines = undeclared.map((u) => `  ${u.path}: sustitución no declarada "${u.token}"`).join("\n");
+    throw new Error(`[content] content/${relPath}: ${undeclared.length} sustitución(es) no declarada(s) (D-BBW-23: conjunto cerrado, sin lógica):\n${lines}`);
+  }
+  const withGlobal = resolveDocument(doc);
+  const legal = getLegalIdentity();
+  return resolveLegalDoc(withGlobal, legal);
+}
+
 /** Documento global (navegación, pie) de un locale publicado. */
 export function getGlobal(locale: Locale): GlobalDocument {
   assertPublished(locale);
@@ -92,6 +122,8 @@ export function getPage(locale: Locale, slug: string): PageDocument {
   const rel = `${locale}/${collection}/${slug}.json`;
   const doc = readJson(rel);
   failOn(validatePage(doc), rel);
+  // aviso-legal.json usa sustituciones restringidas ({{nif}}/{{domicilio}}/{{telefono}}); el resto no las admite.
+  if (slug === 'aviso-legal') return substituteLegal(doc as PageDocument, rel);
   return substitute(doc as PageDocument, rel);
 }
 

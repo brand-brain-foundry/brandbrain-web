@@ -35,6 +35,18 @@ export const substitutions = {
 } as const;
 export type SubstitutionKey = keyof typeof substitutions;
 
+/**
+ * Sustituciones RESTRINGIDAS: válidas ÚNICAMENTE en `content/es/pages/aviso-legal.json`.
+ * Para cualquier otro documento son un error (la guardia y el puerto las rechazan).
+ * Sus valores vienen de `src/content/legal-identity.ts` al compilar (P-BBW-78).
+ */
+export const RESTRICTED_SUBSTITUTION_KEYS = ['nif', 'domicilio', 'telefono'] as const;
+export type RestrictedSubstitutionKey = (typeof RESTRICTED_SUBSTITUTION_KEYS)[number];
+
+export function isRestrictedSubstitutionKey(v: string): v is RestrictedSubstitutionKey {
+  return (RESTRICTED_SUBSTITUTION_KEYS as readonly string[]).includes(v);
+}
+
 /** Cualquier cosa entre dobles llaves: lo que se examina. */
 const ANY_BRACES_RE = /\{\{([\s\S]*?)\}\}/g;
 /** La única forma válida: un identificador declarado, con espacios opcionales alrededor. */
@@ -49,18 +61,29 @@ export type UndeclaredSubstitution = { path: string; token: string };
 /** Llaves estructurales: identifican o enlazan, no son texto; no se sustituye dentro de ellas. */
 const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case"]);
 
-/** Recorre los textos de un documento y lista cada `{{…}}` que no sea una sustitución declarada (con su ruta). */
-export function findUndeclaredSubstitutions(doc: unknown, path = "$", acc: UndeclaredSubstitution[] = []): UndeclaredSubstitution[] {
+/**
+ * Recorre los textos de un documento y lista cada `{{…}}` que no sea una sustitución declarada (con su ruta).
+ * `allowedExtraKeys`: claves adicionales que se aceptan en este documento (p.ej. las restringidas en aviso-legal.json).
+ */
+export function findUndeclaredSubstitutions(
+  doc: unknown,
+  path = "$",
+  acc: UndeclaredSubstitution[] = [],
+  allowedExtraKeys: ReadonlyArray<string> = [],
+): UndeclaredSubstitution[] {
   if (typeof doc === "string") {
     for (const m of doc.matchAll(ANY_BRACES_RE)) {
       const ident = IDENT_RE.exec(m[1]);
-      if (!ident || !isSubstitutionKey(ident[1])) acc.push({ path, token: m[0] });
+      if (!ident) { acc.push({ path, token: m[0] }); continue; }
+      const key = ident[1];
+      if (isSubstitutionKey(key) || allowedExtraKeys.includes(key)) continue;
+      acc.push({ path, token: m[0] });
     }
   } else if (Array.isArray(doc)) {
-    doc.forEach((x, i) => findUndeclaredSubstitutions(x, `${path}[${i}]`, acc));
+    doc.forEach((x, i) => findUndeclaredSubstitutions(x, `${path}[${i}]`, acc, allowedExtraKeys));
   } else if (doc && typeof doc === "object") {
     for (const [k, v] of Object.entries(doc as Record<string, unknown>)) {
-      if (!STRUCTURAL_KEYS.has(k)) findUndeclaredSubstitutions(v, `${path}.${k}`, acc);
+      if (!STRUCTURAL_KEYS.has(k)) findUndeclaredSubstitutions(v, `${path}.${k}`, acc, allowedExtraKeys);
     }
   }
   return acc;
