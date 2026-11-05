@@ -100,6 +100,16 @@ export type LinkItem = {
   case?: boolean;
 };
 
+/** Entrada de la fila de páginas legales del pie (P-BBW-80, L2). `slug` es el segmento de ruta sin barra ni locale. */
+export type LegalLinkItem = {
+  /** identificador estable por rol; único dentro de su lista */
+  id: string;
+  /** texto visible del enlace */
+  label: string;
+  /** segmento de ruta interna, p. ej. «privacidad» → el organismo construye `/${locale}/${slug}/` */
+  slug: string;
+};
+
 export type GlobalDocument = {
   nav: {
     /** texto del enlace para saltar al contenido principal (primer elemento enfocable de la página; fase 6b) */
@@ -129,8 +139,8 @@ export type GlobalDocument = {
      * Sin nivel visible por orden de Zavala. El destino (la credencial verificable) es `links.credly` en content/site.json.
      */
     cert: { label: string };
-    /** ENLACE DE PRIVACIDAD en el pie (P-BBW-74). `label` es el texto visible («Privacidad»). Destino: `/es/privacidad/`. */
-    privacy: { label: string };
+    /** FILA DE PÁGINAS LEGALES en el pie (P-BBW-80, L2). Sustituye a `privacy` (cambio NO aditivo). Items en orden de aparición. */
+    legalLinks: { items: LegalLinkItem[] };
   };
 };
 
@@ -282,6 +292,23 @@ function checkLegalBlock(v: unknown, path: string, problems: Problem[]): void {
   }
 }
 
+function checkLegalLinkItems(v: unknown, path: string, problems: Problem[]): void {
+  if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista` });
+  const seen = new Set<string>();
+  v.forEach((item, i) => {
+    const p = `${path}[${i}]`;
+    if (!isRecord(item)) return void problems.push({ path: p, message: `debe ser un objeto { id, label, slug }` });
+    checkKeys(item, ["id", "label", "slug"], p, problems);
+    checkId(item.id, `${p}.id`, seen, problems);
+    checkText(item.label, `${p}.label`, problems);
+    if (typeof item.slug !== "string" || item.slug.trim().length === 0) {
+      problems.push({ path: `${p}.slug`, message: `el slug no puede estar vacío` });
+    } else if (!/^[a-z][a-z0-9-]*$/.test(item.slug.trim())) {
+      problems.push({ path: `${p}.slug`, message: `slug inválido (minúsculas, dígitos y guiones; empieza por letra)` });
+    }
+  });
+}
+
 function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista` });
   const seen = new Set<string>();
@@ -312,17 +339,17 @@ export function validateGlobal(v: unknown): Problem[] {
     checkLinkItems(v.nav.items, "$.nav.items", problems);
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });
   if (isRecord(v.footer)) {
-    checkKeys(v.footer, ["legal", "social", "cert", "privacy"], "$.footer", problems);
+    checkKeys(v.footer, ["legal", "social", "cert", "legalLinks"], "$.footer", problems);
     checkText(v.footer.legal, "$.footer.legal", problems);
     checkLinkItems(v.footer.social, "$.footer.social", problems);
     if (isRecord(v.footer.cert)) {
       checkKeys(v.footer.cert, ["label"], "$.footer.cert", problems);
       checkText(v.footer.cert.label, "$.footer.cert.label", problems);
     } else if ("cert" in v.footer) problems.push({ path: "$.footer.cert", message: "debe ser un objeto { label }" });
-    if (isRecord(v.footer.privacy)) {
-      checkKeys(v.footer.privacy, ["label"], "$.footer.privacy", problems);
-      checkText(v.footer.privacy.label, "$.footer.privacy.label", problems);
-    } else if ("privacy" in v.footer) problems.push({ path: "$.footer.privacy", message: "debe ser un objeto { label }" });
+    if (isRecord(v.footer.legalLinks)) {
+      checkKeys(v.footer.legalLinks, ["items"], "$.footer.legalLinks", problems);
+      checkLegalLinkItems(v.footer.legalLinks.items, "$.footer.legalLinks.items", problems);
+    } else if ("legalLinks" in v.footer) problems.push({ path: "$.footer.legalLinks", message: "debe ser un objeto { items }" });
   } else if ("footer" in v) problems.push({ path: "$.footer", message: "debe ser un objeto" });
   return problems;
 }

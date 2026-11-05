@@ -101,7 +101,7 @@ function substituteLegal<T>(doc: T, relPath: string): T {
     const lines = undeclared.map((u) => `  ${u.path}: sustitución no declarada "${u.token}"`).join("\n");
     throw new Error(`[content] content/${relPath}: ${undeclared.length} sustitución(es) no declarada(s) (D-BBW-23: conjunto cerrado, sin lógica):\n${lines}`);
   }
-  const withGlobal = resolveDocument(doc);
+  const withGlobal = resolveDocument(doc, "$", new Set<string>(RESTRICTED_SUBSTITUTION_KEYS));
   const legal = getLegalIdentity();
   return resolveLegalDoc(withGlobal, legal);
 }

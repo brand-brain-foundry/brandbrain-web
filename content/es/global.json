@@ -40,8 +40,12 @@
     "cert": {
       "label": "Google Cloud Certified"
     },
-    "privacy": {
-      "label": "Privacidad"
+    "legalLinks": {
+      "items": [
+        { "id": "aviso-legal", "label": "Aviso legal", "slug": "aviso-legal" },
+        { "id": "privacidad", "label": "Privacidad", "slug": "privacidad" },
+        { "id": "cookies", "label": "Cookies", "slug": "cookies" }
+      ]
     }
   }
 }

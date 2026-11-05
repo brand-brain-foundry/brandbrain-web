@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import type { Locale } from "@/config/site";
 import type { GlobalDocument } from "@/content/schema";
@@ -23,9 +24,14 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
       <p className={styles.legal} data-enter="">
         {global.footer.legal}
       </p>
-      <Link className={styles.privacy} href={`/${locale}/privacidad/`} data-enter="">
-        {global.footer.privacy.label}
-      </Link>
+      <nav className={styles.legalLinks} data-enter="" aria-label="Páginas legales">
+        {global.footer.legalLinks.items.map((item, i) => (
+          <Fragment key={item.id}>
+            {i > 0 && <span className={styles.legalLinksSep} aria-hidden="true" />}
+            <Link className={styles.legalLinksItem} href={`/${locale}/${item.slug}/`}>{item.label}</Link>
+          </Fragment>
+        ))}
+      </nav>
       <div className={styles.end}>
         <div className={styles.social} data-enter="">
           <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />

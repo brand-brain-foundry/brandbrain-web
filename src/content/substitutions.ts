@@ -89,11 +89,15 @@ export function findUndeclaredSubstitutions(
   return acc;
 }
 
-/** Resuelve las sustituciones de un texto ya validado. Lanza si encuentra una no declarada (defensa en profundidad: el puerto valida antes). */
-export function resolveText(text: string, path: string): string {
+/**
+ * Resuelve las sustituciones de un texto ya validado. Lanza si encuentra una no declarada.
+ * `skipKeys`: claves que se dejan sin resolver (para una segunda pasada posterior, p. ej. las restringidas).
+ */
+export function resolveText(text: string, path: string, skipKeys?: ReadonlySet<string>): string {
   return text.replace(ANY_BRACES_RE, (whole, inner: string) => {
     const ident = IDENT_RE.exec(inner);
     if (!ident || !isSubstitutionKey(ident[1])) {
+      if (skipKeys?.has(ident?.[1] ?? "")) return whole; // deja el token para la segunda pasada
       throw new Error(`${path}: sustitución no declarada "${whole}" (declaradas: ${Object.keys(substitutions).join(", ")}; sin lógica, D-BBW-23)`);
     }
     return substitutions[ident[1]];
@@ -101,12 +105,12 @@ export function resolveText(text: string, path: string): string {
 }
 
 /** Devuelve una copia del documento con las sustituciones resueltas en todos sus textos (las llaves estructurales, intactas). */
-export function resolveDocument<T>(doc: T, path = "$"): T {
-  if (typeof doc === "string") return resolveText(doc, path) as T;
-  if (Array.isArray(doc)) return doc.map((x, i) => resolveDocument(x, `${path}[${i}]`)) as T;
+export function resolveDocument<T>(doc: T, path = "$", skipKeys?: ReadonlySet<string>): T {
+  if (typeof doc === "string") return resolveText(doc, path, skipKeys) as T;
+  if (Array.isArray(doc)) return doc.map((x, i) => resolveDocument(x, `${path}[${i}]`, skipKeys)) as T;
   if (doc && typeof doc === "object") {
     const out: Record<string, unknown> = {};
-    for (const [k, v] of Object.entries(doc as Record<string, unknown>)) out[k] = STRUCTURAL_KEYS.has(k) ? v : resolveDocument(v, `${path}.${k}`);
+    for (const [k, v] of Object.entries(doc as Record<string, unknown>)) out[k] = STRUCTURAL_KEYS.has(k) ? v : resolveDocument(v, `${path}.${k}`, skipKeys);
     return out as T;
   }
   return doc;

@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "title": "Aviso legal · {{brand}}",
+    "description": "Datos de identificación y condiciones legales de {{domain}}, publicado por {{brand}}."
+  },
+  "sections": [
+    {
+      "type": "legal",
+      "id": "aviso-legal",
+      "heading": "Aviso legal",
+      "intro": [
+        "Este sitio web, {{domain}}, es de {{brand}}, que lo publica en el ejercicio de su actividad profesional. Estos son los datos que exige el artículo 10 de la Ley 34/2002, de servicios de la sociedad de la información y de comercio electrónico."
+      ],
+      "blocks": [
+        {
+          "heading": "Datos del titular",
+          "parts": [
+            {
+              "list": [
+                "Titular: {{brand}}, profesional autónomo.",
+                "Actividad: {{role}}.",
+                "NIF: {{nif}}",
+                "Domicilio: {{domicilio}}",
+                "Correo electrónico: {{email}}",
+                "Teléfono: {{telefono}}"
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Contenido",
+          "parts": [
+            {
+              "p": [
+                "Los textos, imágenes, diseños y el código de este sitio son obra de su titular o se usan con permiso. Se pueden citar con mención de la fuente. Cualquier otro uso requiere autorización por escrito."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Enlaces",
+          "parts": [
+            {
+              "p": [
+                "Este sitio enlaza a webs de terceros. Su contenido es responsabilidad de quienes las publican."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Privacidad y cookies",
+          "parts": [
+            {
+              "p": [
+                "El tratamiento de datos personales se explica en Privacidad, y el uso de cookies y tecnologías similares, en Cookies."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Legislación aplicable",
+          "parts": [
+            {
+              "p": [
+                "Este sitio se rige por la legislación española."
+              ]
+            }
+          ]
+        }
+      ],
+      "updatedLabel": "Última actualización: 2026-11-05",
+      "updated": "2026-11-05"
+    }
+  ]
+}

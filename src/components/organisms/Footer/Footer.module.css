@@ -74,12 +74,31 @@
 /* EL SELLO (2026-11-02, orden de Zavala: sin la palabra del nivel). Imagen por el puerto de medios a `--bbf-cert-size` (72 en dos zonas,
    64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento. Recibe el puntero aunque la
    barra no (la barra deja pasar el puntero al héroe). */
-/* ENLACE DE PRIVACIDAD (C2/C3): hijo directo de la barra, entre la legal y .end; `order` y `flex-basis` por rol de vista. */
-.privacy {
+/* FILA DE PÁGINAS LEGALES (P-BBW-80, L2): sustituye al enlace único de privacidad. Mismo orden y base; los ítems comparten el estilo
+   del enlace de privacidad anterior. El separador «·» es ornamental (aria-hidden). */
+.legalLinks {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--bbf-space-2);
   order: var(--bbf-bar-privacy-order);
   flex-basis: var(--bbf-bar-row-basis);
+  pointer-events: auto;
+}
+
+.legalLinksSep::after {
+  content: "·";
+  color: var(--bbf-text-on-base-secondary);
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  text-shadow: var(--bbf-type-legal-shadow);
+}
+
+.legalLinksItem {
   color: var(--bbf-text-on-base-secondary);
   font-family: var(--bbf-type-legal-family);
   font-size: var(--bbf-type-legal-size);
@@ -87,11 +106,10 @@
   letter-spacing: var(--bbf-type-legal-tracking-mixed);
   text-shadow: var(--bbf-type-legal-shadow);
   text-decoration: none;
-  pointer-events: auto;
   transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
-.privacy:hover {
+.legalLinksItem:hover {
   color: var(--bbf-accent);
 }
 

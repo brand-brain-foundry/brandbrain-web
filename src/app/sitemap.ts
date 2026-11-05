@@ -23,5 +23,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...site.publishedLocales.map((locale) => ({ url: homeUrl(locale) })),
     ...site.publishedLocales.map((locale) => ({ url: `${site.url}/${locale}/privacidad/` })),
+    ...site.publishedLocales.map((locale) => ({ url: `${site.url}/${locale}/cookies/` })),
   ];
 }

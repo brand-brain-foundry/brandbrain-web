@@ -22,7 +22,15 @@ export const dynamic = "force-static";
 
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
+    rules: [
+      { userAgent: "*", allow: "/" },
+      // Excepción por ruta a D-BBW-12: el aviso legal no se usa para entrenamiento de IA.
+      // Solo afecta a rastreadores de entrenamiento; los de búsqueda leen el `noindex` de la página.
+      { userAgent: "GPTBot", disallow: ["/es/aviso-legal/"] },
+      { userAgent: "Google-Extended", disallow: ["/es/aviso-legal/"] },
+      { userAgent: "anthropic-ai", disallow: ["/es/aviso-legal/"] },
+      { userAgent: "CCBot", disallow: ["/es/aviso-legal/"] },
+    ],
     sitemap: `${site.url}/sitemap.xml`,
   };
 }
