@@ -36,17 +36,18 @@ export function LegalSection({ section }: { section: LegalSectionType }) {
         {section.blocks.map((block, bi) => (
           <div key={bi} className={styles.block}>
             <h2 className={styles.blockHeading}>{block.heading}</h2>
-            {block.body.map((para, pi) => (
-              <p key={pi} className={styles.para}>
-                {para.map((span, si) => renderSpan(span, si))}
-              </p>
-            ))}
-            {block.items && (
-              <ul className={styles.list}>
-                {block.items.map((item, ii) => (
-                  <li key={ii}>{item}</li>
-                ))}
-              </ul>
+            {block.parts.map((part, pi) =>
+              "p" in part ? (
+                <p key={pi} className={styles.para}>
+                  {part.p.map((span, si) => renderSpan(span, si))}
+                </p>
+              ) : (
+                <ul key={pi} className={styles.list}>
+                  {part.list.map((item, ii) => (
+                    <li key={ii}>{item}</li>
+                  ))}
+                </ul>
+              )
             )}
           </div>
         ))}

@@ -14,96 +14,130 @@
       "blocks": [
         {
           "heading": "Quién es el responsable",
-          "body": [
-            [
-              "Christian Zavala Cubas, profesional autónomo con domicilio en Valencia (España). Contacto: ",
-              { "text": "{{email}}", "link": "contact" },
-              "."
-            ]
+          "parts": [
+            {
+              "p": [
+                "Christian Zavala Cubas, profesional autónomo con domicilio en Valencia (España). Contacto: ",
+                {
+                  "text": "{{email}}",
+                  "link": "contact"
+                },
+                "."
+              ]
+            }
           ]
         },
         {
           "heading": "Qué datos se tratan",
-          "body": [
-            [
-              "El número desde el que llamas y lo que cuentas en la llamada: tu nombre, tu empresa, el motivo y la hora a la que prefieres que te llame. Si tu número llega oculto, el asistente puede pedirte uno para devolverte la llamada. La llamada se transcribe. El audio no se guarda."
-            ]
+          "parts": [
+            {
+              "p": [
+                "El número desde el que llamas y lo que cuentas en la llamada: tu nombre, tu empresa, el motivo y la hora a la que prefieres que te llame. Si tu número llega oculto, el asistente puede pedirte uno para devolverte la llamada. La llamada se transcribe. El audio no se guarda."
+              ]
+            }
           ]
         },
         {
           "heading": "Para qué",
-          "body": [
-            [
-              "Para tomar tu recado, ordenarlo según el asunto y devolverte la llamada. No se usa para otra cosa ni para elaborar perfiles."
-            ]
+          "parts": [
+            {
+              "p": [
+                "Para tomar tu recado, ordenarlo según el asunto y devolverte la llamada. No se usa para otra cosa ni para elaborar perfiles."
+              ]
+            }
           ]
         },
         {
           "heading": "Base legal",
-          "body": [
-            [
-              "Mi interés legítimo en atender y devolver las llamadas que recibo cuando no puedo contestar. Si me pides una propuesta o una cita, también la aplicación de medidas precontractuales a petición tuya."
-            ]
+          "parts": [
+            {
+              "p": [
+                "Mi interés legítimo en atender y devolver las llamadas que recibo cuando no puedo contestar. Si me pides una propuesta o una cita, también la aplicación de medidas precontractuales a petición tuya."
+              ]
+            }
           ]
         },
         {
           "heading": "Es voluntario",
-          "body": [
-            [
-              "Puedes no dar ningún dato. Si no me dejas un nombre o un número, puede que no pueda devolverte la llamada."
-            ]
+          "parts": [
+            {
+              "p": [
+                "Puedes no dar ningún dato. Si no me dejas un nombre o un número, puede que no pueda devolverte la llamada."
+              ]
+            }
           ]
         },
         {
           "heading": "Quién interviene",
-          "body": [
-            [
-              "Telnyx y ElevenLabs pueden tratar datos en Estados Unidos. Lo hacen al amparo del Marco de Privacidad de Datos UE-EE. UU. o de cláusulas contractuales tipo aprobadas por la Comisión Europea. Telegram guarda los datos de usuarios del Espacio Económico Europeo en Países Bajos y aplica cláusulas contractuales tipo cuando los comparte con empresas de su grupo fuera del EEE. Puedes pedirme información sobre estas garantías y cómo obtener una copia en ",
-              { "text": "{{email}}", "link": "contact" },
-              "."
-            ]
-          ],
-          "items": [
-            "Telnyx, que gestiona la línea telefónica.",
-            "ElevenLabs, que presta el asistente de voz.",
-            "Google Cloud, que envía el aviso del recado, desde servidores en Madrid.",
-            "Telegram, por donde recibo ese aviso."
+          "parts": [
+            {
+              "list": [
+                "Telnyx, que gestiona la línea telefónica.",
+                "ElevenLabs, que presta el asistente de voz.",
+                "Google Cloud, que envía el aviso del recado, desde servidores en Madrid.",
+                "Telegram, por donde recibo ese aviso."
+              ]
+            },
+            {
+              "p": [
+                "Telnyx y ElevenLabs pueden tratar datos en Estados Unidos. Lo hacen al amparo del Marco de Privacidad de Datos UE-EE. UU. o de cláusulas contractuales tipo aprobadas por la Comisión Europea. Telegram guarda los datos de usuarios del Espacio Económico Europeo en Países Bajos y aplica cláusulas contractuales tipo cuando los comparte con empresas de su grupo fuera del EEE. Puedes pedirme información sobre estas garantías y cómo obtener una copia en ",
+                {
+                  "text": "{{email}}",
+                  "link": "contact"
+                },
+                "."
+              ]
+            }
           ]
         },
         {
           "heading": "Cuánto tiempo",
-          "body": [
-            [
-              "La transcripción, la ficha de la llamada y el aviso que recibo se borran a los 30 días. Si empezamos a trabajar juntos, conservo lo necesario para esa relación. Si me pides que no te contacte, guardo solo tu número en una lista de exclusión para respetar tu petición."
-            ]
+          "parts": [
+            {
+              "p": [
+                "La transcripción, la ficha de la llamada y el aviso que recibo se borran a los 30 días. Si empezamos a trabajar juntos, conservo lo necesario para esa relación. Si me pides que no te contacte, guardo solo tu número en una lista de exclusión para respetar tu petición."
+              ]
+            }
           ]
         },
         {
           "heading": "Decisiones automáticas",
-          "body": [
-            [
-              "El asistente clasifica el motivo de la llamada y cuelga las llamadas comerciales con prefijo 400. No toma decisiones con efectos jurídicos sobre ti ni que te afecten de forma significativa."
-            ]
+          "parts": [
+            {
+              "p": [
+                "El asistente clasifica el motivo de la llamada y cuelga las llamadas comerciales con prefijo 400. No toma decisiones con efectos jurídicos sobre ti ni que te afecten de forma significativa."
+              ]
+            }
           ]
         },
         {
           "heading": "Menores",
-          "body": [
-            [
-              "Si quien llama parece menor de edad, el asistente no le pide datos."
-            ]
+          "parts": [
+            {
+              "p": [
+                "Si quien llama parece menor de edad, el asistente no le pide datos."
+              ]
+            }
           ]
         },
         {
           "heading": "Tus derechos",
-          "body": [
-            [
-              "Puedes pedir acceso, rectificación, supresión, oposición, limitación del tratamiento y, cuando proceda, portabilidad. Escríbeme a ",
-              { "text": "{{email}}", "link": "contact" },
-              " o dilo en la propia llamada. Te respondo en un mes como máximo. Si crees que no he atendido bien tu petición, puedes reclamar ante la ",
-              { "text": "Agencia Española de Protección de Datos", "link": "aepd" },
-              "."
-            ]
+          "parts": [
+            {
+              "p": [
+                "Puedes pedir acceso, rectificación, supresión, oposición, limitación del tratamiento y, cuando proceda, portabilidad. Escríbeme a ",
+                {
+                  "text": "{{email}}",
+                  "link": "contact"
+                },
+                " o dilo en la propia llamada. Te respondo en un mes como máximo. Si crees que no he atendido bien tu petición, puedes reclamar ante la Agencia Española de Protección de Datos (",
+                {
+                  "text": "www.aepd.es",
+                  "link": "aepd"
+                },
+                ")."
+              ]
+            }
           ]
         }
       ],

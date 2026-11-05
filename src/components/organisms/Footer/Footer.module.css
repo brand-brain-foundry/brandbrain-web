@@ -35,6 +35,7 @@
 
   /* 2026-11-02: a la izquierda en dos zonas, última fila en una (rol de vista). */
   order: var(--bbf-bar-legal-order);
+  flex-basis: var(--bbf-bar-row-basis);
   margin: 0;
   color: var(--bbf-text-on-base-accent);
   font-family: var(--bbf-type-legal-family);
@@ -52,13 +53,15 @@
   text-wrap: pretty;
 }
 
-/* Grupo derecho (2026-11-02): perfiles (hoy solo LinkedIn) y sello. En la vista colapsada los perfiles viven en la hoja y el sello queda
-   solo, centrado con la legal por el rol de justificación de la barra. */
+/* Grupo derecho (C2/C3): perfiles (hoy solo LinkedIn) y sello. En la vista amplia, margin-inline-start: auto lo empuja al extremo
+   derecho. En la colapsada flex-basis: 100% lo lleva a la primera fila (order 0 por defecto). */
 .end {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--bbf-bar-gap-view);
+  margin-inline-start: var(--bbf-bar-end-margin-start);
+  flex-basis: var(--bbf-bar-row-basis);
 }
 
 .social {
@@ -71,10 +74,12 @@
 /* EL SELLO (2026-11-02, orden de Zavala: sin la palabra del nivel). Imagen por el puerto de medios a `--bbf-cert-size` (72 en dos zonas,
    64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento. Recibe el puntero aunque la
    barra no (la barra deja pasar el puntero al héroe). */
-/* ENLACE DE PRIVACIDAD (P-BBW-74): vive dentro del grupo derecho (.end), antes de los perfiles. */
+/* ENLACE DE PRIVACIDAD (C2/C3): hijo directo de la barra, entre la legal y .end; `order` y `flex-basis` por rol de vista. */
 .privacy {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
+  order: var(--bbf-bar-privacy-order);
+  flex-basis: var(--bbf-bar-row-basis);
   color: var(--bbf-text-on-base-secondary);
   font-family: var(--bbf-type-legal-family);
   font-size: var(--bbf-type-legal-size);

@@ -23,10 +23,10 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
       <p className={styles.legal} data-enter="">
         {global.footer.legal}
       </p>
+      <Link className={styles.privacy} href={`/${locale}/privacidad/`} data-enter="">
+        {global.footer.privacy.label}
+      </Link>
       <div className={styles.end}>
-        <Link className={styles.privacy} href={`/${locale}/privacidad/`} data-enter="">
-          {global.footer.privacy.label}
-        </Link>
         <div className={styles.social} data-enter="">
           <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />
         </div>

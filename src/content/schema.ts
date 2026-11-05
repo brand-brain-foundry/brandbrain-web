@@ -56,13 +56,11 @@ export function isPlaceholder(text: string): boolean {
  */
 export type Span = string | { text: string; link: LinkKey };
 
-/** Un bloque de la página legal: rótulo `<h2>`, párrafos (cada uno = lista de tramos) y, opcionalmente, lista `<ul>`. */
+/** Un bloque de la página legal: rótulo `<h2>` y partes ordenadas. Cada parte es un párrafo `{ p }` o una lista `{ list }`. El orden del array es el orden de la página. */
 export type LegalBlock = {
   heading: string;
-  /** párrafos: cada elemento de la lista exterior es un párrafo; cada elemento interior, un tramo */
-  body: Span[][];
-  /** elementos de lista `<ul>` bajo el último párrafo; sin enlace; texto plano */
-  items?: string[];
+  /** partes en orden: cada elemento es `{ p: Span[] }` (párrafo) o `{ list: string[] }` (lista `<ul>`). El renderizador respeta el orden. */
+  parts: Array<{ p: Span[] } | { list: string[] }>;
 };
 
 /** Sección de lectura legal (P-BBW-73/75, D-BBW-DESPACHO-2026-11-05). Un `<h1>`, párrafo de introducción, bloques `<h2>` y fecha. */
@@ -252,25 +250,35 @@ function checkSpans(v: unknown, path: string, problems: Problem[]): void {
   v.forEach((span, i) => checkSpan(span, `${path}[${i}]`, problems));
 }
 
-/** Valida un bloque legal: { heading, body[], items? }. */
+/** Valida un bloque legal: { heading, parts[] } donde cada parte es { p: Span[] } o { list: string[] }. El orden del array es el orden de la página. */
 function checkLegalBlock(v: unknown, path: string, problems: Problem[]): void {
-  if (!isRecord(v)) return void problems.push({ path, message: `debe ser un objeto { heading, body, items? }` });
-  checkKeys(v, ["heading", "body"], path, problems, ["items"]);
+  if (!isRecord(v)) return void problems.push({ path, message: `debe ser un objeto { heading, parts }` });
+  checkKeys(v, ["heading", "parts"], path, problems);
   checkText(v.heading, `${path}.heading`, problems);
-  if (Array.isArray(v.body)) {
-    v.body.forEach((para: unknown, i: number) => checkSpans(para, `${path}.body[${i}]`, problems));
-  } else if ("body" in v) {
-    problems.push({ path: `${path}.body`, message: `debe ser una lista de párrafos (cada párrafo = lista de tramos)` });
-  }
-  if (v.items !== undefined) {
-    if (!Array.isArray(v.items)) {
-      problems.push({ path: `${path}.items`, message: `debe ser una lista de cadenas` });
-    } else {
-      (v.items as unknown[]).forEach((item: unknown, i: number) => {
-        if (typeof item === "string") checkSpanString(item, `${path}.items[${i}]`, problems);
-        else problems.push({ path: `${path}.items[${i}]`, message: `debe ser texto` });
-      });
-    }
+  if (!Array.isArray(v.parts)) {
+    if ("parts" in v) problems.push({ path: `${path}.parts`, message: `debe ser una lista de partes ({ p } o { list })` });
+  } else {
+    (v.parts as unknown[]).forEach((part: unknown, i: number) => {
+      const pp = `${path}.parts[${i}]`;
+      if (!isRecord(part)) {
+        problems.push({ path: pp, message: `una parte debe ser { p: Span[] } o { list: string[] }` });
+      } else if ("p" in part && !("list" in part)) {
+        checkKeys(part, ["p"], pp, problems);
+        checkSpans(part.p, `${pp}.p`, problems);
+      } else if ("list" in part && !("p" in part)) {
+        checkKeys(part, ["list"], pp, problems);
+        if (!Array.isArray(part.list)) {
+          problems.push({ path: `${pp}.list`, message: `debe ser una lista de cadenas` });
+        } else {
+          (part.list as unknown[]).forEach((item: unknown, j: number) => {
+            if (typeof item === "string") checkSpanString(item, `${pp}.list[${j}]`, problems);
+            else problems.push({ path: `${pp}.list[${j}]`, message: `debe ser texto` });
+          });
+        }
+      } else {
+        problems.push({ path: pp, message: `una parte debe ser exactamente { p: Span[] } o { list: string[] }, no los dos ni ninguno` });
+      }
+    });
   }
 }
 

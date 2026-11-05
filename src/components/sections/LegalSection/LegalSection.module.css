@@ -1,7 +1,7 @@
 /**
- * LegalSection — columna de lectura legal centrada (P-BBW-73).
+ * LegalSection — columna de lectura legal alineada al margen (C4-a, P-BBW-75: «alineada al margen de página de la cabecera»).
  * Solo consume tokens `var(--bbf-*)`: ningún color, tamaño ni espacio escritos a mano.
- * El ancho máximo de columna (`--bbf-legal-max-width`) vive en semantic/viewport.css.
+ * El ancho máximo de columna (`--bbf-legal-max-width`) y el margen inline (`--bbf-legal-column-margin-inline`) viven en semantic/viewport.css.
  */
 
 .section {
@@ -12,7 +12,7 @@
 
 .column {
   max-width: var(--bbf-legal-max-width);
-  margin-inline: auto;
+  margin-inline: var(--bbf-legal-column-margin-inline);
 }
 
 /* ── TÍTULO DE PÁGINA (h1) ──────────────────────────────── */

@@ -95,6 +95,17 @@
      colapsada una fila centrada (legal + aviso) y los perfiles viven en la hoja del panel (rol inline-display), no en la barra */
   --bbf-bar-justify: space-between;
   --bbf-bar-gap-view: var(--bbf-bar-gap);
+
+  /* PRIVACIDAD EN EL PIE (C2/C3, P-BBW-74): «Privacidad» es un hijo directo de la barra (no de .end), en la misma posición que
+     la legal. En la vista amplia queda justo tras la legal (mismo order 0, DOM posterior) y .end se empuja al extremo derecho con
+     margin-inline-start: auto. En la colapsada cada item ocupa fila propia (flex-basis: 100%): sello → Privacidad → legal. */
+  --bbf-bar-privacy-order: 0;
+  --bbf-bar-end-margin-start: auto;
+  --bbf-bar-row-basis: auto;
+
+  /* COLUMNA DE LECTURA LEGAL alineada al margen de página (C4-a, P-BBW-75): en la vista amplia el margen es 0 (el contenedor
+     ya aplica el padding de página); en la estrecha es auto (centrado) porque la columna ocupa el 100%. */
+  --bbf-legal-column-margin-inline: 0;
 }
 
 @media (max-width: 790px) {
@@ -125,8 +136,19 @@
     --bbf-hero-ctas-width: 100%;
     --bbf-cert-size: var(--bbf-space-16);
     --bbf-cert-direction: row;
-    --bbf-bar-legal-order: 1;
+    /* En la vista colapsada la legal pasa a la ÚLTIMA fila (2 → fila 3): sello(0) → Privacidad(1) → legal(2). */
+    --bbf-bar-legal-order: 2;
     --bbf-bar-row-gap: var(--bbf-space-6);
+
+    /* Privacidad en fila propia, entre el sello y la legal. */
+    --bbf-bar-privacy-order: 1;
+    /* Sin margen automático: cada item ya ocupa su fila por flex-basis: 100%. */
+    --bbf-bar-end-margin-start: 0;
+    /* Cada hijo directo de la barra ocupa toda la fila → tres filas distintas. */
+    --bbf-bar-row-basis: 100%;
+
+    /* En pantallas estrechas la columna legal es 100%; margin-inline: auto no hace nada pero no perjudica. */
+    --bbf-legal-column-margin-inline: auto;
 
     --bbf-nav-inline-display: none;
     --bbf-nav-panel-display: block;
