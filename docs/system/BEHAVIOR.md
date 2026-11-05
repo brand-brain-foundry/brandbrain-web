@@ -3,16 +3,16 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.6
+version: 1.7
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
-updated: 2026-11-05
-verified_against_code: 2026-11-05@feat/m1-imagotipo-vivo (v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
+updated: 2026-11-06
+verified_against_code: 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
-summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). v1.3 (fase 6k, portado P4): S3/S4 partículas, el GENERADOR del campo (particle-field.ts, D-BBW-36: se porta el generador con los rangos, los planos y la distribución, no la tirada del export): 21 burbujas en tres planos con tres elementos anidados y dos animaciones con SUS tiempos (ascenso 13,7–28,3 s, oscilación 3,7–7,3 s: el error de la 6e corregido), 31 motas en tres planos con desenfoques distintos, posición horizontal por el promedio de tres muestras, semilla fija reproducible; con movimiento reducido las animaciones no arrancan y con la pestaña oculta se pausan por el mismo rol. v1.6 (M1): S9 imagotipo vivo, barra elástica de Kirchhoff simplificada con 6 tentáculos y rig externo."
+summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). v1.3 (fase 6k, portado P4): S3/S4 partículas, el GENERADOR del campo (particle-field.ts, D-BBW-36: se porta el generador con los rangos, los planos y la distribución, no la tirada del export): 21 burbujas en tres planos con tres elementos anidados y dos animaciones con SUS tiempos (ascenso 13,7–28,3 s, oscilación 3,7–7,3 s: el error de la 6e corregido), 31 motas en tres planos con desenfoques distintos, posición horizontal por el promedio de tres muestras, semilla fija reproducible; con movimiento reducido las animaciones no arrancan y con la pestaña oculta se pausan por el mismo rol. v1.6 (M1): S9 imagotipo vivo. v1.7 (M1c): S9 es el porte del motor de referencia aprobado (varilla con marco local, rig v3 derivado del maestro al compilar, guardia que ejecuta el motor)."
 tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, video, particulas, procedencia, brandbrain-web]
 ---
 
@@ -300,27 +300,61 @@ resueltos por el navegador en un elemento sonda; la quietud por `--bbf-motion-lo
 cambia el tamaño o cargan las fuentes. Con la pestaña oculta el reloj se detiene y, al volver, sigue donde estaba. **HTML servido:** la placa
 vacía, que es su reposo (decorativo, `aria-hidden`: no hay texto que perder, I-4).
 
-## §12 — S9 · Imagotipo vivo (`src/behavior/brand-mark-octopus.ts`, M1 · 2026-11-05)
+## §12 — S9 · Imagotipo vivo (`src/behavior/brand-mark-octopus.ts`, M1c · 2026-11-06)
 
-**Qué hace:** en reposo el SVG oficial del imagotipo se muestra inline en color acento (`--bbf-accent`). Al pasar el puntero o tocar (`touchstart`), un lienzo canvas superpone la visualización animada de la misma forma: los 6 tentáculos oscilan independientemente con física de **barra elástica de Kirchhoff simplificada** (desplazamiento perpendicular al eje anchor→tip, envolvente `sNorm^1.5`, suma de dos sinusoides de fases y frecuencias distintas por tentáculo). Al soltar, cada tentáculo vuelve a su posición con un pequeño escalonado de retardo (`releaseDelay`). Con movimiento reducido: solo cambia el color del SVG; el motor no arranca.
-
-**Rig externo:** los límites de arco (`fromFrac`/`anchorFrac`/`tipFrac`/`toFrac`) y los parámetros físicos (`a1`, `w1`, `a2`, `w2`, `phase`, `releaseDelay`) de cada tentáculo viven en `media/masters/brand-icon-rig.json`, verificados en cada commit por la guardia R10 (`scripts/lint/check-brand-mark-rig.ts`; R10a–R10e: schema, longitud de arco ±1 %, orden de fracciones, no solapamiento, distancia tip–centro). El rig se embebe en el módulo como constante congelada.
+**Qué hace:** en reposo el `<path>` del imagotipo es el trazado oficial, inline, en color acento (`--bbf-accent`). Con puntero fino
+(`(hover: hover) and (pointer: fine)` y `pointerType === 'mouse'`) o foco de teclado vira a menta (`--bbf-text-on-base`, CSS) y el motor
+cambia el `d` del MISMO `<path>`: los seis tentáculos se mueven cada uno por su cuenta y, al soltar, vuelven; cuando la energía de los
+muelles baja de `ENERGY_REST` se restaura el `d` oficial **literal** y el bucle se para (D-BBW-28). En táctil (`hover: none`) tocar el logo
+navega (no se secuestra el toque): despierta UNA vez al quedar visible tras la carga y responde al desplazamiento con un impulso acotado
+por velocidad. **Modelo (motor de referencia aprobado por Zavala el 2026-11-05, `despachos/2026-11/insumos/M1c-motor-referencia-aprobado-2026-11-05.js`):**
+varilla con marco local. La anatomía (puntas, regiones, líneas centrales, sección) se deriva del maestro **al compilar** (rig v3,
+`src/media/generated.ts`, perfil `rig` del registro, `MEDIA.md` §9); al arrancar, cada punto del contorno de un tentáculo se expresa en el
+marco (tangente, normal) de su línea central; la deformación es θ(s) = θ₀(s) + A·s^1,6·g(s,t) con g = onda base→punta + tres armónicos de
+ruido + vaivén, todos con frecuencia, fase y velocidad sorteadas por tentáculo en cada carga; la columna se integra con las longitudes
+reales × un estiramiento elástico que crece hacia la punta (nunca bajo 1, pulso propio); grosor y casquete viajan rígidos en el marco.
+Cuerpo, cabeza y hueco: puntos oficiales fijos. Función pura `deformFrame(prep, motions, amps, times)` → `d`; el motor solo cablea.
 
 | Constante | Valor | Origen | Clase | Qué es |
 |---|---|---|---|---|
-| `SPRING_K_ON` | 12 | M1 §0.1 | plantilla | rigidez del muelle al hacer hover (subamortiguado, overshoot pequeño) |
-| `SPRING_ZETA_ON` | 0.7 | M1 §0.1 | plantilla | amortiguamiento al hacer hover |
-| `SPRING_K_OFF` | 6 | M1 §0.1 | plantilla | rigidez del muelle al soltar (sobrecontenido, retorno suave) |
-| `SPRING_ZETA_OFF` | 0.9 | M1 §0.1 | plantilla | amortiguamiento al soltar |
-| `AMPLITUDE_MAX` | 14 u | M1 §0.1 | dinámico | desplazamiento máximo en la punta del tentáculo (u del SVG, viewBox 263.2×271.5) |
-| `ENV_EXP` | 1.5 | M1 §0.1 | estático | exponente del taper de Kirchhoff: sNorm^1.5 (nulo en anclaje, máximo en punta) |
-| `SAMPLE_N` | 600 | M1 §0.1 | dinámico | puntos de muestreo del camino completo (error ≤ 0.25 u con κ ≤ 0.1) |
-| `DPR_CAP` | 2 | M1 §0.1 | estático | densidad de píxeles máxima del lienzo |
-| `AMP_MIN_VISIBLE` | 0.01 | M1 §0.1 | estático | amplitud mínima para mostrar el lienzo (evita repintado en reposo) |
-| `TOUCH_HOLD_MS` | 2 000 ms | M1 §4.11 | plantilla | duración de la animación de despertar táctil antes de volver al reposo |
+| `STEP` · `K` | 0,5 u · 72 | ref:L7–L8 | estático | paso de muestreo del contorno · muestras de la línea central (el rig los lleva: `step`, `k`) |
+| `CAP_SPAN_U` · `CAP_MIN_SEP` | 12 u · 5 % | ref:L28, L35 | estático | ventana de giro para hallar un casquete · separación mínima entre puntas |
+| `MARCH_MAX_FRAC` · `MARCH_WINDOW` | 20 % · 60 | ref:L55, L57 | estático | alcance y ventana de la marcha pareada desde la punta |
+| `W_SAMPLE` · `W_SKIP` · `W_STOP` · `W_START` | [60, 200) · 40 · 1,12 · 0,8 | ref:L61–L66 | estático | mediana de sección W, salto inicial, anclaje (sección > 1,12·W) y punta (sección > 0,8·W) |
+| `SMOOTH_HALF` | 4 | ref:L70 | estático | semiventana del suavizado de la línea central |
+| `ENV_EXP` | 1,6 | ref:L123 | dinámico | envolvente s^1,6: ≈ 0 en la base, máxima en la punta |
+| `WAVE_K` · `WAVE_W` · `WAVE_A` | [0,8; 1,3] · [2,2; 3,4] · [0,40; 0,55] | ref:L108 | dinámico | onda base→punta: número de onda, velocidad, amplitud |
+| `NOISE_HARMONICS` · `NOISE_K` · `NOISE_K_GAIN` · `NOISE_W` · `NOISE_A` | 3 · [0,4; 2,2]·(m+1)·0,6 · [0,6; 2,4] (signo alterno) · [0,10; 0,22]/(m+1) | ref:L109 | dinámico | tres armónicos de ruido |
+| `SWAY_W` · `SWAY_A` | [0,5; 1,1] · ±[0,24; 0,38] | ref:L110 | dinámico | vaivén de todo el tentáculo |
+| `STRETCH_A` · `STRETCH_W` · `STRETCH_PULSE_BASE/AMP` · `STRETCH_EXP` · `STRETCH_GAIN` | [0,10; 0,15] · [1,4; 2,4] · 0,65 / 0,35 · 1,2 · 1,8 | ref:L112, L128 | dinámico | estiramiento elástico hacia la punta con pulso propio |
+| `TIME0` · `PHASE` | [0, 100] s · [0; 6,28] rad | ref:L113, L108 | dinámico / estático | reloj inicial y fases |
+| `SPRING_K_ON` · `SPRING_Z_ON` · `SPRING_K_OFF` · `SPRING_Z_OFF` | [26, 40] · [0,42; 0,55] · [9, 14] · [0,62; 0,78] | ref:L111 | plantilla | muelles de entrada (subamortiguada) y salida (más amortiguada), sorteados por tentáculo |
+| `ENERGY_REST` · `DT_MAX` · `DT_DEFAULT` | 0,004 · 33 ms · 16 ms | ref:L153, L167 | estático | umbral de reposo (Σ\|x\|+\|v\|) y paso de tiempo |
+| `SCROLL_GAIN` · `SCROLL_IMP_MAX` · `SCROLL_JITTER` | 0,9 · 2,2 · [0,6; 1,2] | ref:L188–L189 | dinámico | impulso de scroll (solo táctil): ganancia sobre px/ms, tope, dispersión por tentáculo |
+| `WAKE_HOLD_MS` | 1 100 ms | ref:L182 | plantilla | despertar táctil: cuánto se sostiene el muelle en 1 antes de soltar |
+| `FMT_DECIMALS` | 2 | ref:L136 | estático | decimales de cada coordenada escrita en el `d` |
 
-**Tokens que lee (nunca repite):** `--bbf-motion-octopus-play-state` (quietud; D-BBW-31); el color se lee de `getComputedStyle(svgEl).color` (el token `--bbf-accent` / `--bbf-text-on-base` resuelto por el navegador durante la transición CSS del enlace).
+`ref:Lnn` = línea del motor de referencia aprobado. Restos muertos del prototipo que **no** se portan: `CENTER`, `TIP_WIN`, `NOTCH_WIN`, `spring.delay`
+(sorteado y nunca leído) y la variable `on`. El signo de convexidad al hallar las puntas se toma del **área orientada** del contorno y no de la suma
+de giros: el maestro tiene una horquilla degenerada (`s.5,0,.8,0`) cuyas dos cúspides anulan esa suma (≈ 1e-13) y dejaban el signo al azar de la
+coma flotante (mismo resultado que obtuvo el prototipo en el navegador; camino determinista).
 
-**HTML servido (D-BBW-28):** el SVG inline (`<path fill="currentColor" d={...}/>`) sale en el HTML desde el primer byte. El lienzo no existe en el HTML servido; lo crea el componente cliente y solo aparece cuando la amplitud supera `AMP_MIN_VISIBLE`. Con movimiento reducido el motor no arranca y el SVG es el único elemento visible.
+**Tokens que lee (nunca repite):** `--bbf-motion-octopus-play-state` (quietud; D-BBW-31). El color no lo lee: es CSS del átomo
+(`--bbf-accent` → `--bbf-text-on-base` con `--bbf-motion-link-duration` / `--bbf-motion-link-ease`).
 
-**Quietud (D-BBW-31):** `--bbf-motion-octopus-play-state: paused` → `isStill()` devuelve `true` → el motor no arranca. Con la pestaña oculta (`visibilitychange`) el bucle rAF se cancela; al volver, si hay amplitud activa, se reanuda. CLS=0: el lienzo es `position:absolute; inset:0` sobre el flujo del SVG.
+**HTML servido (D-BBW-28, I-4):** `<a href><svg aria-label><path fill="currentColor" d={oficial}/></svg></a>` desde el primer byte; sin JS es el
+imagotipo oficial con su nombre accesible. El motor no crea ningún elemento: solo escribe `d` y lo restaura literal al asentarse.
+
+**Quietud (D-BBW-31, I-9):** con `--bbf-motion-octopus-play-state: paused` el motor devuelve antes de registrar un solo oyente o `rAF`: solo
+cambia el color. Pestaña oculta (`visibilitychange`) o logo fuera de pantalla (`IntersectionObserver`): el bucle se cancela y se reanuda al
+volver si queda energía; en reposo no hay ningún `rAF` pendiente. La anatomía se prepara en `requestIdleCallback` tras el primer pintado, no en
+el primer fotograma del hover. Oyentes pasivos; ninguna lectura de layout por fotograma. CLS 0: el `svg` lleva `overflow: visible` y las puntas
+salen de su caja sin moverla.
+
+**Guardia R10 (`scripts/lint/check-brand-mark-rig.ts`, M1c F4):** ejecuta el motor. R10c: el rig generado = el que se deriva del maestro.
+R10a: con amplitud 0, Hausdorff bidireccional contra el maestro ≤ 0,25 u en los seis y, en raster a 32/48/512 px, ningún píxel distinto fuera
+del borde. R10b: 20 semillas × 200 fotogramas: sección ± 1 % y separación ≥ 1 u entre tentáculos y con el cuerpo. Se ve fallar con
+`BBW_RIG_DEFECT=section-as-tangent` (el defecto real de `a4500d0`) y con `BBW_RIG_SVG=<maestro alterado>`. **Medidas y estado en el output de M1c.**
+
+---
+*BBW-BEHAVIOR v1.7 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*

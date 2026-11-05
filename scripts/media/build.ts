@@ -42,6 +42,7 @@ import {
   derivatives,
   inlineIcons,
   masters,
+  rigs,
   type Derivative,
   type DerivativeId,
   type MasterId,
@@ -49,6 +50,7 @@ import {
 } from '../../src/media/registry';
 import { REPO_ROOT, sha256, stableJson, type LockFile } from './lock';
 import { resolveColorToken } from './tokens';
+import { deriveRig } from './brand-icon-rig';
 
 type SvgMaster = { id: MasterId; file: string; bytes: Buffer; painted: Buffer; paintColor?: string; viewBox: { x: number; y: number; w: number; h: number }; inner: string; paint: 'fill' | 'stroke'; d: string };
 
@@ -426,6 +428,20 @@ async function main(): Promise<void> {
     const vb = `${m.viewBox.x} ${m.viewBox.y} ${m.viewBox.w} ${m.viewBox.h}`;
     return `  ${name}: { viewBox: "${vb}", paint: "${spec.paint}", use: "${spec.use}", d: "${m.d}" },`;
   });
+  // rigs (M1c): anatomía derivada del maestro vectorial con el perfil declarado; un derivado como cualquier otro, sellado en el lock
+  const rigEntries: string[] = [];
+  lock.rigs = {};
+  for (const name of Object.keys(rigs) as (keyof typeof rigs)[]) {
+    const spec = rigs[name];
+    const m = master(spec.master);
+    if (!m.d) throw new Error(`[media] rig "${name}": el maestro ${m.file} no tiene <path d>`);
+    const rig = deriveRig(m.d, spec.profile.step, spec.profile.samples);
+    // una línea por tentáculo: legible en el diff y sin inflar el módulo
+    const json = `{ "schema": ${JSON.stringify(rig.schema)}, "step": ${rig.step}, "k": ${rig.k}, "n": ${rig.n}, "l": ${rig.l}, "tentacles": [\n${rig.tentacles.map((t) => `    ${JSON.stringify(t)}`).join(',\n')}\n  ] }`;
+    rigEntries.push(`  ${name}: ${json},`);
+    lock.rigs[name] = { master: spec.master, profile: `rig step ${spec.profile.step} samples ${spec.profile.samples}`, sha256: sha256(json) };
+    notes.push(`rig ${name}: ${rig.tentacles.length} tentáculos (${rig.tentacles.map((t) => `${t.id} ${t.start}–${t.end} w ${t.w.toFixed(2)} l ${t.l.toFixed(1)}`).join(' · ')}), contorno ${rig.n} muestras / ${rig.l.toFixed(1)} u`);
+  }
   const generated = [
     '/**',
     ' * GENERADO por scripts/media/build.ts (pnpm media:build) desde media/masters/ + src/media/registry.ts. NO EDITAR: la guardia',
@@ -446,12 +462,17 @@ async function main(): Promise<void> {
     ...iconEntries,
     '} as const;',
     '',
+    '/** Rigs (M1c): anatomía derivada de un maestro vectorial (perfil `rig` del registro); la consume el motor S9 al arrancar. */',
+    'export const rigs = {',
+    ...rigEntries,
+    '} as const;',
+    '',
   ].join('\n');
   fs.writeFileSync(path.join(REPO_ROOT, GENERATED_FILE), generated);
   lock.generated = { path: GENERATED_FILE, sha256: sha256(generated) };
   fs.writeFileSync(path.join(REPO_ROOT, LOCK_FILE), stableJson(lock));
 
-  console.log(`[media-build] OK — ${Object.keys(lock.masters).length} maestro(s) → ${ordered.length} derivado(s) en ${PUBLIC_DIR}/ + ${GENERATED_FILE} (${iconEntries.length} vectores inline); superficie ${SURFACE_TOKEN} = ${surface.srgb} (oklch ${surface.oklch.L} ${surface.oklch.C} ${surface.oklch.H}); sharp ${lock.tool.sharp} / vips ${lock.tool.vips}${lock.tool.ffmpeg ? ` / ffmpeg ${lock.tool.ffmpeg}` : ''}; lock → ${LOCK_FILE}`);
+  console.log(`[media-build] OK — ${Object.keys(lock.masters).length} maestro(s) → ${ordered.length} derivado(s) en ${PUBLIC_DIR}/ + ${GENERATED_FILE} (${iconEntries.length} vectores inline, ${rigEntries.length} rig(s)); superficie ${SURFACE_TOKEN} = ${surface.srgb} (oklch ${surface.oklch.L} ${surface.oklch.C} ${surface.oklch.H}); sharp ${lock.tool.sharp} / vips ${lock.tool.vips}${lock.tool.ffmpeg ? ` / ffmpeg ${lock.tool.ffmpeg}` : ''}; lock → ${LOCK_FILE}`);
   for (const n of notes) console.log(`  · ${n}`);
 }
 
