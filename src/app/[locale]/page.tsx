@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
 import { identity } from "@/content/site";
-import { getGlobal, getPage } from "@/content";
+import { getPage } from "@/content";
 import { media } from "@/media";
 import { homeGraph, homeUrl } from "@/seo/jsonld";
 import { renderSection } from "@/components/sections";
-import { Footer } from "@/components/organisms/Footer";
 import { MAIN_ID } from "@/components/main-id";
 import styles from "./page.module.css";
 
@@ -65,7 +64,6 @@ export default async function LocalePage({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const global = getGlobal(locale);
   const page = getPage(locale, "home");
   const where = `pages/home (${locale})`;
   return (
@@ -79,7 +77,6 @@ export default async function LocalePage({
       <main id={MAIN_ID} className={styles.main} data-component="bbf-main">
         {page.sections.map((section) => renderSection(section, where))}
       </main>
-      <Footer global={global} locale={locale} currentHref={`/${locale}/`} />
     </>
   );
 }

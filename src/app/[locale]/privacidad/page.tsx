@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { site, isLocale } from "@/config/site";
 import { identity } from "@/content/site";
-import { getGlobal, getPage } from "@/content";
+import { getPage } from "@/content";
 import { media } from "@/media";
 import { renderSection } from "@/components/sections";
-import { Footer } from "@/components/organisms/Footer";
 import { MAIN_ID } from "@/components/main-id";
 
 /**
@@ -45,15 +44,11 @@ export default async function PrivacidadPage({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const global = getGlobal(locale);
   const page = getPage(locale, "privacidad");
   const where = `pages/privacidad (${locale})`;
   return (
-    <>
-      <main id={MAIN_ID} data-component="bbf-main">
-        {page.sections.map((section) => renderSection(section, where))}
-      </main>
-      <Footer global={global} locale={locale} currentHref={`/${locale}/privacidad/`} />
-    </>
+    <main id={MAIN_ID} data-component="bbf-main">
+      {page.sections.map((section) => renderSection(section, where))}
+    </main>
   );
 }
