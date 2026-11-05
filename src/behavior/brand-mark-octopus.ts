@@ -2,24 +2,21 @@
  * behavior/brand-mark-octopus.ts — S9 · IMAGOTIPO VIVO (M1b, 2026-11-05; conducta en DESPACHO §0.1)
  *
  * QUÉ HACE: en reposo, el SVG oficial (trazado inline) se muestra en color de acento. Al pasar el
- * puntero, enfocar o tocar, un lienzo canvas superpone la visualización con la misma forma pero con
- * los 6 tentáculos animados independientemente (física de varilla elástica de Kirchhoff: campo de
- * desplazamiento perpendicular al tangente LOCAL de cada punto, envolvente de potencia y sinusoides
- * con parámetros distintos por tentáculo). Al soltar, cada tentáculo vuelve a su posición con un
- * pequeño escalonado de retardo. Con movimiento reducido: solo cambia el color del SVG; sin movimiento.
+ * puntero, enfocar o entrar en viewport, un lienzo canvas superpone SOLO LOS TENTÁCULOS con el
+ * modelo de varilla elástica de Kirchhoff: perturba κ(s) con sinusoide × envolvente × amplitud de
+ * resorte; integra ángulos para obtener la columna deformada; traza ±w/2 en la normal LOCAL. El SVG
+ * permanece siempre visible (el cuerpo nunca desaparece). El canvas borra la posición de reposo con
+ * --bbf-base antes de dibujar la deformada. Con movimiento reducido: solo cambia el color; sin motor.
  *
  * TRES PARTES:
- *   1. ALGORITMO (puro): parseo del path SVG, muestreo por longitud de arco, campo de desplazamiento.
- *   2. LECTURA DEL DOM (marcada): color del SVG, estado del play-state, dimensiones del lienzo.
- *   3. MOTOR (`startOctopus`): lienzo, bucle rAF, eventos de puntero, foco y touch. Lo cablea el componente.
+ *   1. PARSER SVG (exportado para guardia y verificación).
+ *   2. MODELO DE KIRCHHOFF (puro): precalcula normales / Δs / κ-escala por tentáculo; integra por cuadro.
+ *   3. MOTOR (`startOctopus`): lienzo, bucle rAF, eventos puntero, foco, IntersectionObserver y scroll.
  *
- * TOKENS QUE LEE (nunca repite): `--bbf-motion-octopus-play-state` (quietud; D-BBW-31).
- * El color se lee de `getComputedStyle(svgEl).color` (el token --bbf-accent / --bbf-text-on-base
- * resuelto por el navegador durante la transición CSS del enlace).
+ * TOKENS QUE LEE (nunca repite): `--bbf-motion-octopus-play-state` (quietud; D-BBW-31), `--bbf-base`
+ * (borrado de reposo). El color del icono se lee de `getComputedStyle(svgEl).color`.
  *
- * FUENTE ÚNICA: los datos del rig vienen de media/masters/brand-icon-rig.json importado; cero valores
- * duplicados en este módulo (M1b F2).
- *
+ * FUENTE ÚNICA: geometría en media/masters/brand-icon-rig.json (schema v2, M1b F2).
  * CONSTANTES: origen «M1 §n»; clase por D-DOC-13 §2 (estático · plantilla · dinámico).
  * Tabla en docs/system/BEHAVIOR.md §12.
  */
@@ -35,25 +32,25 @@ export const OCTOPUS = Object.freeze({
   SPRING_ZETA_OFF: 0.9,
   /** desplazamiento máximo en la punta del tentáculo (u del SVG, viewBox 263.2 × 271.5) · dinámico · M1 §0.1 */
   AMPLITUDE_MAX: 14,
-  /** exponente del taper elástico de Kirchhoff: el desplazamiento crece como sNorm^EXP desde el anclaje · estático · M1 §0.1 */
+  /** exponente del taper elástico de Kirchhoff: κ crece como sNorm^EXP desde el anclaje · estático · M1 §0.1 */
   ENV_EXP: 1.5,
-  /** puntos de muestreo del camino completo (error ≤ 0.25 u con κ ≤ 0.1; §4.3) · dinámico · M1 §0.1 */
-  SAMPLE_N: 600,
   /** densidad de píxeles máxima del lienzo · estático · M1 §0.1 */
   DPR_CAP: 2,
   /** por debajo de esta amplitud total el lienzo se oculta (evita repintado en reposo) · estático · M1 §0.1 */
   AMP_MIN_VISIBLE: 0.01,
-  /** duración de la animación de despertar táctil (ms) · plantilla · M1 §4.11 */
+  /** duración de la animación de despertar táctil / por viewport (ms) · plantilla · M1 §4.11 */
   TOUCH_HOLD_MS: 2000,
+  /** velocidad de scroll a la que la amplitud scroll = 1 (px/s) · dinámico · M1b §F5 */
+  SCROLL_VEL_MAX: 300,
 });
 
 type Pt = [number, number];
 type Seg = { p0: Pt; p1: Pt; p2: Pt; p3: Pt };
 
-// ── 1 · ALGORITMO (puro) ───────────────────────────────────────────────────────────────────────
+// ── 1 · PARSER SVG COMPLETO (exportado para uso en scripts de guardia y verificación) ──────────
 
-/** Parser SVG completo: todos los comandos relativos y absolutos, subtrazados, regla de relleno (M1b F1). */
-function parseSVGPath(d: string): Seg[] {
+/** Parser SVG completo: todos los comandos relativos y absolutos, subtrazados, curvas suaves (M1b F1). */
+export function parseSVGPath(d: string): Seg[] {
   const segs: Seg[] = [];
   const tokens = d.match(/[MmCcSsLlHhVvZzQqTtAa]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) ?? [];
 
@@ -65,336 +62,334 @@ function parseSVGPath(d: string): Seg[] {
     else if (cur) cur.args.push(parseFloat(tok));
   }
 
-  let cx = 0, cy = 0, startX = 0, startY = 0;
-  let lastCmd = '';
-  let lastCP2x = 0, lastCP2y = 0;
-
+  let cx = 0, cy = 0, startX = 0, startY = 0, lastCmd = '', lastCpx = 0, lastCpy = 0;
   const lineSeg = (x0: number, y0: number, x1: number, y1: number): Seg => ({
-    p0: [x0, y0],
-    p1: [x0 + (x1 - x0) / 3, y0 + (y1 - y0) / 3],
-    p2: [x0 + 2 * (x1 - x0) / 3, y0 + 2 * (y1 - y0) / 3],
-    p3: [x1, y1],
+    p0: [x0, y0], p1: [x0 + (x1 - x0) / 3, y0 + (y1 - y0) / 3],
+    p2: [x0 + 2 * (x1 - x0) / 3, y0 + 2 * (y1 - y0) / 3], p3: [x1, y1],
+  });
+  const cubicSeg = (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number): Seg => ({
+    p0: [cx, cy], p1: [x1, y1], p2: [x2, y2], p3: [x3, y3],
   });
 
   for (const { cmd, args } of cmds) {
     switch (cmd) {
       case 'M': cx = args[0]; cy = args[1]; startX = cx; startY = cy;
-        for (let i = 2; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, args[i], args[i + 1])); cx = args[i]; cy = args[i + 1]; }
-        lastCmd = 'M'; break;
+        for (let i = 2; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, args[i], args[i + 1])); cx = args[i]; cy = args[i + 1]; } lastCmd = 'M'; break;
       case 'm': cx += args[0]; cy += args[1]; startX = cx; startY = cy;
-        for (let i = 2; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, cx + args[i], cy + args[i + 1])); cx += args[i]; cy += args[i + 1]; }
-        lastCmd = 'm'; break;
+        for (let i = 2; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, cx + args[i], cy + args[i + 1])); cx += args[i]; cy += args[i + 1]; } lastCmd = 'm'; break;
       case 'Z': case 'z':
         if (cx !== startX || cy !== startY) segs.push(lineSeg(cx, cy, startX, startY));
         cx = startX; cy = startY; lastCmd = 'Z'; break;
       case 'L':
-        for (let i = 0; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, args[i], args[i + 1])); cx = args[i]; cy = args[i + 1]; }
-        lastCmd = 'L'; break;
+        for (let i = 0; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, args[i], args[i + 1])); cx = args[i]; cy = args[i + 1]; } lastCmd = 'L'; break;
       case 'l':
-        for (let i = 0; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, cx + args[i], cy + args[i + 1])); cx += args[i]; cy += args[i + 1]; }
-        lastCmd = 'l'; break;
+        for (let i = 0; i + 1 < args.length; i += 2) { segs.push(lineSeg(cx, cy, cx + args[i], cy + args[i + 1])); cx += args[i]; cy += args[i + 1]; } lastCmd = 'l'; break;
       case 'H': for (const x of args) { segs.push(lineSeg(cx, cy, x, cy)); cx = x; } lastCmd = 'H'; break;
       case 'h': for (const dx of args) { segs.push(lineSeg(cx, cy, cx + dx, cy)); cx += dx; } lastCmd = 'h'; break;
       case 'V': for (const y of args) { segs.push(lineSeg(cx, cy, cx, y)); cy = y; } lastCmd = 'V'; break;
       case 'v': for (const dy of args) { segs.push(lineSeg(cx, cy, cx, cy + dy)); cy += dy; } lastCmd = 'v'; break;
       case 'C':
         for (let i = 0; i + 5 < args.length; i += 6) {
-          segs.push({ p0: [cx, cy], p1: [args[i], args[i + 1]], p2: [args[i + 2], args[i + 3]], p3: [args[i + 4], args[i + 5]] });
-          lastCP2x = args[i + 2]; lastCP2y = args[i + 3]; cx = args[i + 4]; cy = args[i + 5];
+          segs.push(cubicSeg(args[i], args[i + 1], args[i + 2], args[i + 3], args[i + 4], args[i + 5]));
+          lastCpx = args[i + 2]; lastCpy = args[i + 3]; cx = args[i + 4]; cy = args[i + 5];
         } lastCmd = 'C'; break;
       case 'c':
         for (let i = 0; i + 5 < args.length; i += 6) {
-          segs.push({ p0: [cx, cy], p1: [cx + args[i], cy + args[i + 1]], p2: [cx + args[i + 2], cy + args[i + 3]], p3: [cx + args[i + 4], cy + args[i + 5]] });
-          lastCP2x = cx + args[i + 2]; lastCP2y = cy + args[i + 3]; cx += args[i + 4]; cy += args[i + 5];
+          segs.push(cubicSeg(cx + args[i], cy + args[i + 1], cx + args[i + 2], cy + args[i + 3], cx + args[i + 4], cy + args[i + 5]));
+          lastCpx = cx + args[i + 2]; lastCpy = cy + args[i + 3]; cx += args[i + 4]; cy += args[i + 5];
         } lastCmd = 'c'; break;
       case 'S':
         for (let i = 0; i + 3 < args.length; i += 4) {
-          const cp1x = /[CcSs]/.test(lastCmd) ? 2 * cx - lastCP2x : cx;
-          const cp1y = /[CcSs]/.test(lastCmd) ? 2 * cy - lastCP2y : cy;
-          segs.push({ p0: [cx, cy], p1: [cp1x, cp1y], p2: [args[i], args[i + 1]], p3: [args[i + 2], args[i + 3]] });
-          lastCP2x = args[i]; lastCP2y = args[i + 1]; cx = args[i + 2]; cy = args[i + 3];
+          const cp1x = /[CcSs]/.test(lastCmd) ? 2 * cx - lastCpx : cx;
+          const cp1y = /[CcSs]/.test(lastCmd) ? 2 * cy - lastCpy : cy;
+          segs.push(cubicSeg(cp1x, cp1y, args[i], args[i + 1], args[i + 2], args[i + 3]));
+          lastCpx = args[i]; lastCpy = args[i + 1]; cx = args[i + 2]; cy = args[i + 3];
         } lastCmd = 'S'; break;
       case 's':
         for (let i = 0; i + 3 < args.length; i += 4) {
-          const cp1x = /[CcSs]/.test(lastCmd) ? 2 * cx - lastCP2x : cx;
-          const cp1y = /[CcSs]/.test(lastCmd) ? 2 * cy - lastCP2y : cy;
-          segs.push({ p0: [cx, cy], p1: [cp1x, cp1y], p2: [cx + args[i], cy + args[i + 1]], p3: [cx + args[i + 2], cy + args[i + 3]] });
-          lastCP2x = cx + args[i]; lastCP2y = cy + args[i + 1]; cx += args[i + 2]; cy += args[i + 3];
+          const cp1x = /[CcSs]/.test(lastCmd) ? 2 * cx - lastCpx : cx;
+          const cp1y = /[CcSs]/.test(lastCmd) ? 2 * cy - lastCpy : cy;
+          segs.push(cubicSeg(cp1x, cp1y, cx + args[i], cy + args[i + 1], cx + args[i + 2], cy + args[i + 3]));
+          lastCpx = cx + args[i]; lastCpy = cy + args[i + 1]; cx += args[i + 2]; cy += args[i + 3];
         } lastCmd = 's'; break;
     }
   }
   return segs;
 }
 
-function bzAt(s: Seg, t: number): Pt {
-  const mt = 1 - t;
-  return [
-    mt * mt * mt * s.p0[0] + 3 * mt * mt * t * s.p1[0] + 3 * mt * t * t * s.p2[0] + t * t * t * s.p3[0],
-    mt * mt * mt * s.p0[1] + 3 * mt * mt * t * s.p1[1] + 3 * mt * t * t * s.p2[1] + t * t * t * s.p3[1],
-  ];
-}
+// ── 2 · MODELO DE KIRCHHOFF ──────────────────────────────────────────────────────────────────
 
-function bzTan(s: Seg, t: number): Pt {
-  const mt = 1 - t;
-  return [
-    3 * mt * mt * (s.p1[0] - s.p0[0]) + 6 * mt * t * (s.p2[0] - s.p1[0]) + 3 * t * t * (s.p3[0] - s.p2[0]),
-    3 * mt * mt * (s.p1[1] - s.p0[1]) + 6 * mt * t * (s.p2[1] - s.p1[1]) + 3 * t * t * (s.p3[1] - s.p2[1]),
-  ];
-}
-
-function bzLen(s: Seg, n = 20): number {
-  let l = 0, [px, py] = bzAt(s, 0);
-  for (let k = 1; k <= n; k++) {
-    const [qx, qy] = bzAt(s, k / n);
-    l += Math.hypot(qx - px, qy - py);
-    [px, py] = [qx, qy];
-  }
-  return l;
-}
-
-/** Punto muestreado sobre el arco con tangente unitaria (M1b F3: normales locales para Kirchhoff). */
-type SampledPt = { x: number; y: number; frac: number; tx: number; ty: number };
-
-function sampleUniform(segs: Seg[]): SampledPt[] {
-  const lens = segs.map(s => bzLen(s, 20));
-  const totalArc = lens.reduce((a, l) => a + l, 0);
-  const N = OCTOPUS.SAMPLE_N;
-  const pts: SampledPt[] = [];
-  let segIdx = 0, prevAcc = 0;
-
-  for (let i = 0; i <= N; i++) {
-    const target = (i / N) * totalArc;
-    while (segIdx < segs.length - 1 && prevAcc + lens[segIdx] < target) {
-      prevAcc += lens[segIdx++];
-    }
-    const len = lens[segIdx] || 1e-9;
-    const tInSeg = Math.max(0, Math.min(1, (target - prevAcc) / len));
-    const [x, y] = bzAt(segs[segIdx], tInSeg);
-    const [tx, ty] = bzTan(segs[segIdx], tInSeg);
-    const tlen = Math.hypot(tx, ty) || 1;
-    pts.push({ x, y, frac: target / totalArc, tx: tx / tlen, ty: ty / tlen });
-  }
-  return pts;
-}
-
-type TentacleData = {
-  from: number; anchor: number; tip: number; to: number;
-  a1: number; w1: number; a2: number; w2: number; ph: number; rd: number;
+type RigPhys = { a1: number; w1: number; a2: number; w2: number; phase: number; releaseDelay: number };
+type RigTemplate = {
+  id: string; cl: [number, number][]; widths: number[]; arcLength: number;
+  kappaScale: number; natAngles: Float32Array; deltaS: Float32Array;
+  restingContour: Pt[]; phys: RigPhys;
 };
+type TentacleState = RigTemplate & { _angles: Float32Array; _spine: Pt[] };
+type SpringState = { x: number; v: number; releaseAt: number };
 
-function buildTentacleData(): TentacleData[] {
-  return rigData.tentacles.map(t => ({
-    from: t.fromFrac, anchor: t.anchorFrac, tip: t.tipFrac, to: t.toFrac,
-    a1: t.phys.a1, w1: t.phys.w1, a2: t.phys.a2, w2: t.phys.w2,
-    ph: t.phys.phase, rd: t.phys.releaseDelay,
-  }));
+function buildContour(spine: [number, number][] | Pt[], widths: number[], angles: Float32Array | number[]): Pt[] {
+  const N = spine.length;
+  const left: Pt[] = new Array(N);
+  const right: Pt[] = new Array(N);
+  for (let i = 0; i < N; i++) {
+    const w = widths[i] / 2;
+    const nx = -Math.sin(angles[i]);
+    const ny =  Math.cos(angles[i]);
+    left[i]  = [spine[i][0] + w * nx, spine[i][1] + w * ny];
+    right[i] = [spine[i][0] - w * nx, spine[i][1] - w * ny];
+  }
+  return [...left, ...right.reverse()];
 }
 
-function waveDisp(sNorm: number, t: number, tent: TentacleData): number {
-  const env = Math.pow(sNorm, OCTOPUS.ENV_EXP);
-  return env * (
-    tent.a1 * Math.sin(tent.w1 * sNorm * Math.PI + tent.w1 * t + tent.ph) +
-    tent.a2 * Math.sin(tent.w2 * sNorm * Math.PI + tent.w2 * t + tent.ph)
-  );
-}
+/** Construye las plantillas inmutables (una vez en el módulo; sin scratch). */
+function buildRigTemplates(): RigTemplate[] {
+  return rigData.tentacles.map(t => {
+    const cl = (t as unknown as { centerline: [number, number][] }).centerline;
+    const widths = (t as unknown as { widths: number[] }).widths;
+    const arcLength = (t as unknown as { arcLength: number }).arcLength;
+    const rigNatAngles = (t as unknown as { natAngles: number[] }).natAngles;
+    const N = cl.length;
 
-/** Desplaza cada punto usando el normal LOCAL al arco (Kirchhoff: δ⊥ al tangente, M1b F3). */
-function displacePts(pts: SampledPt[], tents: TentacleData[], amps: Float32Array, t: number, xs: Float32Array, ys: Float32Array): void {
-  for (let i = 0; i < pts.length; i++) {
-    const p = pts[i];
-    let dx = 0, dy = 0;
-
-    for (let j = 0; j < tents.length; j++) {
-      const A = amps[j];
-      if (A < 0.001) continue;
-      const tent = tents[j];
-      const { from, anchor, tip, to } = tent;
-      let sNorm: number;
-
-      if (p.frac >= anchor && p.frac <= tip) {
-        sNorm = (p.frac - anchor) / Math.max(tip - anchor, 1e-9);
-      } else if (p.frac > tip && p.frac <= to) {
-        sNorm = 1 - (p.frac - tip) / Math.max(to - tip, 1e-9);
-      } else if (p.frac >= from && p.frac < anchor) {
-        sNorm = 0;
-      } else {
-        continue;
-      }
-
-      const disp = A * waveDisp(sNorm, t, tent) * OCTOPUS.AMPLITUDE_MAX;
-      // Normal al tangente local: (-ty, tx) — desplazamiento de Kirchhoff perpendicular al arco
-      dx += disp * (-p.ty);
-      dy += disp * p.tx;
+    const natAngles = new Float32Array(rigNatAngles);
+    const deltaS = new Float32Array(N);
+    for (let i = 0; i < N - 1; i++) {
+      const dx = cl[i + 1][0] - cl[i][0];
+      const dy = cl[i + 1][1] - cl[i][1];
+      deltaS[i] = Math.hypot(dx, dy) || 1e-9;
     }
+    deltaS[N - 1] = deltaS[N - 2] ?? 0;
 
-    xs[i] = p.x + dx;
-    ys[i] = p.y + dy;
+    const kappaScale = (2 * OCTOPUS.AMPLITUDE_MAX) / (arcLength * arcLength);
+    const restingContour = buildContour(cl, widths, natAngles);
+
+    return { id: t.id, cl, widths, arcLength, kappaScale, natAngles, deltaS, restingContour, phys: t.phys as RigPhys };
+  });
+}
+
+const rigTemplates = buildRigTemplates();
+
+/**
+ * Integración de Kirchhoff: perturba κ(s) = κ_nat(s) + springAmp × kappaScale × env × sinusoide;
+ * integra ángulos tangentes → columna deformada con acotación al viewBox (M1b F4).
+ */
+function kirchhoffDeform(state: TentacleState, springAmp: number, time: number): void {
+  const { cl, natAngles, deltaS, kappaScale, phys, _angles, _spine } = state;
+  const N = cl.length;
+  const VW = rigData.viewBox[2] as number;
+  const VH = rigData.viewBox[3] as number;
+  _angles[0] = natAngles[0];
+
+  for (let i = 1; i < N; i++) {
+    const sNorm = i / (N - 1);
+    const env = sNorm ** OCTOPUS.ENV_EXP;
+    const dkappa = springAmp * kappaScale * env * (
+      phys.a1 * Math.sin(phys.w1 * sNorm * Math.PI + phys.w1 * time + phys.phase) +
+      phys.a2 * Math.sin(phys.w2 * sNorm * Math.PI + phys.w2 * time + phys.phase)
+    );
+    _angles[i] = _angles[i - 1] + (natAngles[i] - natAngles[i - 1]) + dkappa * deltaS[i - 1];
+  }
+
+  _spine[0][0] = cl[0][0];
+  _spine[0][1] = cl[0][1];
+  for (let i = 1; i < N; i++) {
+    _spine[i][0] = Math.max(0, Math.min(VW, _spine[i - 1][0] + deltaS[i - 1] * Math.cos(_angles[i - 1])));
+    _spine[i][1] = Math.max(0, Math.min(VH, _spine[i - 1][1] + deltaS[i - 1] * Math.sin(_angles[i - 1])));
   }
 }
 
-// ── 2 · LECTURA DEL DOM (mide) ────────────────────────────────────────────────────────────────
+function drawPolygon(ctx: CanvasRenderingContext2D, pts: Pt[]): void {
+  if (pts.length < 2) return;
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.closePath();
+  ctx.fill();
+}
 
-/** Con movimiento reducido vale `paused` (semantic/motion.css; D-BBW-31). */
+// ── 3 · LECTURA DEL DOM ─────────────────────────────────────────────────────────────────────
+
 function isStill(): boolean {
   return getComputedStyle(document.documentElement)
-    .getPropertyValue("--bbf-motion-octopus-play-state")
-    .trim() === "paused";
+    .getPropertyValue('--bbf-motion-octopus-play-state').trim() === 'paused';
 }
 
-// ── 3 · MOTOR ─────────────────────────────────────────────────────────────────────────────────
-
-type SpringState = { x: number; v: number; releaseAt: number };
+function getBaseColor(el: HTMLElement): string {
+  return getComputedStyle(el).getPropertyValue('--bbf-base').trim() || '#000'; // COLOR-ALLOW: fallback opaco cuando el token no resuelve en script (canvas en SSR)
+}
 
 function springStep(s: SpringState, target: number, k: number, zeta: number, dt: number): void {
   const omega = Math.sqrt(k);
-  const damp = 2 * zeta * omega;
-  const a = -omega * omega * (s.x - target) - damp * s.v;
-  s.v += a * dt;
+  const f = -k * (s.x - target) - 2 * zeta * omega * s.v;
+  s.v += f * dt;
   s.x += s.v * dt;
-  s.x = Math.max(-0.5, Math.min(1.5, s.x));
 }
 
-const VB_W = rigData.viewBox[2];
-const VB_H = rigData.viewBox[3];
+// ── 4 · MOTOR ──────────────────────────────────────────────────────────────────────────────
 
-/**
- * Arranca el imagotipo vivo sobre `svgEl` + `canvasEl` dentro del enlace `wrapEl`.
- * Devuelve la función que detiene y limpia todo.
- */
 export function startOctopus(wrapEl: HTMLElement, svgEl: SVGSVGElement, canvasEl: HTMLCanvasElement): () => void {
-  const ctx = canvasEl.getContext("2d");
-  if (!ctx) return () => {};
+  if (isStill()) return () => {};
 
-  const pathEl = svgEl.querySelector("path");
-  const d = pathEl?.getAttribute("d");
-  if (!d) return () => {};
+  const N = rigTemplates[0].cl.length;
 
-  const segs = parseSVGPath(d);
-  const pts = sampleUniform(segs);
-  const tents = buildTentacleData();
+  const states: TentacleState[] = rigTemplates.map(tmpl => ({
+    ...tmpl,
+    _angles: new Float32Array(N),
+    _spine: Array.from({ length: N }, () => [0, 0] as Pt),
+  }));
+
   const springs: SpringState[] = rigData.tentacles.map(() => ({ x: 0, v: 0, releaseAt: 0 }));
-  const amps = new Float32Array(springs.length);
-  const xs = new Float32Array(pts.length);
-  const ys = new Float32Array(pts.length);
 
-  let hovered = false;
   let rafId = 0;
-  let lastNow = 0;
-  let t0 = 0;
+  let active = false;
+  let activeTime = 0;
+  let lastTime = 0;
+  let scale = 1;
+  let touching = false;
   let touchTimer: ReturnType<typeof setTimeout> | undefined;
-  let cssW = 0, cssH = 0;
+  let lastScrollY = window.scrollY;
+  let lastScrollTime = Date.now();
 
-  const layout = () => {
-    const rect = canvasEl.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    if (rect.width === cssW && rect.height === cssH) return;
-    cssW = rect.width; cssH = rect.height;
-    const dpr = Math.min(OCTOPUS.DPR_CAP, window.devicePixelRatio || 1);
-    canvasEl.width = Math.round(cssW * dpr);
-    canvasEl.height = Math.round(cssH * dpr);
-    ctx.setTransform(cssW / VB_W * dpr, 0, 0, cssH / VB_H * dpr, 0, 0);
-  };
+  function layout() {
+    const rect = svgEl.getBoundingClientRect();
+    const vbW = rigData.viewBox[2] as number;
+    const dpr = Math.min(devicePixelRatio || 1, OCTOPUS.DPR_CAP);
+    canvasEl.width  = Math.round(rect.width  * dpr);
+    canvasEl.height = Math.round(rect.height * dpr);
+    canvasEl.style.width  = rect.width  + 'px';
+    canvasEl.style.height = rect.height + 'px';
+    scale = (rect.width / vbW) * dpr;
+  }
 
-  const engage = () => {
-    hovered = true;
-    springs.forEach(s => { s.releaseAt = 0; });
-    if (rafId === 0 && !isStill()) {
-      t0 = performance.now(); lastNow = t0;
-      rafId = requestAnimationFrame(tick);
-    }
-  };
+  function getTotalAmp(): number {
+    return springs.reduce((s, sp) => s + Math.abs(sp.x), 0);
+  }
 
-  const release = (now: number) => {
-    hovered = false;
-    rigData.tentacles.forEach((t, i) => { springs[i].releaseAt = now + t.phys.releaseDelay * 1000; });
-  };
+  function loop(ts: number) {
+    const dt = Math.min((ts - lastTime) / 1000, 0.05);
+    lastTime = ts;
+    if (active) activeTime += dt;
 
-  const tick = (now: number) => {
-    rafId = 0;
-    if (document.hidden) return;
-    const dt = Math.min(0.05, (now - lastNow) / 1000);
-    lastNow = now;
-    const t = (now - t0) / 1000;
-
-    for (let i = 0; i < springs.length; i++) {
-      const s = springs[i];
-      const releasing = !hovered && now >= s.releaseAt;
-      const target = releasing ? 0 : 1;
+    for (let j = 0; j < springs.length; j++) {
+      const releasing = !active || (springs[j].releaseAt > 0 && ts > springs[j].releaseAt);
+      const target = active && !releasing ? 1 : 0;
       const k = releasing ? OCTOPUS.SPRING_K_OFF : OCTOPUS.SPRING_K_ON;
       const zeta = releasing ? OCTOPUS.SPRING_ZETA_OFF : OCTOPUS.SPRING_ZETA_ON;
-      springStep(s, target, k, zeta, dt);
-      amps[i] = Math.max(0, s.x);
+      springStep(springs[j], target, k, zeta, dt);
     }
 
-    let maxAmp = 0;
-    for (let i = 0; i < amps.length; i++) if (amps[i] > maxAmp) maxAmp = amps[i];
+    const totalAmp = getTotalAmp();
+    const ctx = canvasEl.getContext('2d');
+    if (ctx && totalAmp > OCTOPUS.AMP_MIN_VISIBLE) {
+      canvasEl.style.visibility = 'visible';
+      ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+      ctx.save();
+      ctx.scale(scale, scale);
 
-    if (maxAmp < OCTOPUS.AMP_MIN_VISIBLE) {
-      canvasEl.style.visibility = "hidden";
-      svgEl.style.visibility = "visible";
-      if (hovered) rafId = requestAnimationFrame(tick);
-      return;
+      const baseColor = getBaseColor(wrapEl);
+      const fgColor = getComputedStyle(svgEl).color;
+
+      for (let j = 0; j < states.length; j++) {
+        const state = states[j];
+        const springAmp = springs[j].x;
+
+        // Erase resting contour with --bbf-base (M1b D3/D6)
+        ctx.fillStyle = baseColor;
+        drawPolygon(ctx, state.restingContour);
+
+        // Draw deformed contour with currentColor
+        kirchhoffDeform(state, springAmp, activeTime);
+        const deformed = buildContour(state._spine, state.widths, state._angles);
+        ctx.fillStyle = fgColor;
+        drawPolygon(ctx, deformed);
+      }
+
+      ctx.restore();
+    } else {
+      canvasEl.style.visibility = 'hidden';
     }
 
-    layout();
-    const color = getComputedStyle(svgEl).color;
-    displacePts(pts, tents, amps, t, xs, ys);
+    rafId = requestAnimationFrame(loop);
+  }
 
-    ctx.clearRect(0, 0, VB_W, VB_H);
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(xs[0], ys[0]);
-    for (let i = 1; i < xs.length; i++) ctx.lineTo(xs[i], ys[i]);
-    ctx.closePath();
-    ctx.fill();
+  function enter() {
+    if (isStill()) return;
+    active = true;
+    springs.forEach((s, i) => { s.releaseAt = 0; if (rigTemplates[i]) s.releaseAt = 0; });
+    if (!rafId) { lastTime = performance.now(); rafId = requestAnimationFrame(loop); }
+  }
 
-    canvasEl.style.visibility = "visible";
-    svgEl.style.visibility = "hidden";
+  function leave() {
+    active = false;
+    const now = performance.now();
+    springs.forEach((s, i) => { s.releaseAt = now + (rigTemplates[i]?.phys.releaseDelay ?? 0) * 1000; });
+  }
 
-    rafId = requestAnimationFrame(tick);
-  };
+  function onFocusIn() { enter(); }
+  function onFocusOut() { leave(); }
 
-  const onEnter = () => engage();
-  const onLeave = () => release(performance.now());
-  const onFocus = () => engage();
-  const onBlur = () => release(performance.now());
-  const onTouch = () => {
-    engage();
-    if (touchTimer !== undefined) clearTimeout(touchTimer);
-    touchTimer = setTimeout(() => release(performance.now()), OCTOPUS.TOUCH_HOLD_MS);
-  };
-  const onVisibility = () => {
+  function onScroll() {
+    if (isStill()) return;
+    const now = Date.now();
+    const dy = Math.abs(window.scrollY - lastScrollY);
+    const dt = (now - lastScrollTime) || 1;
+    const vel = dy / dt * 1000;
+    lastScrollY = window.scrollY;
+    lastScrollTime = now;
+    if (vel > 20) {
+      const amp = Math.min(vel / OCTOPUS.SCROLL_VEL_MAX, 1);
+      springs.forEach(s => { if (Math.abs(s.x) < amp) { s.x = amp; } });
+      if (!active) {
+        active = true;
+        setTimeout(leave, OCTOPUS.TOUCH_HOLD_MS / 2);
+      }
+      if (!rafId) { lastTime = performance.now(); rafId = requestAnimationFrame(loop); }
+    }
+  }
+
+  function onVisibility() {
     if (document.hidden) {
       if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
-    } else if (hovered || amps.some(a => a > OCTOPUS.AMP_MIN_VISIBLE)) {
-      lastNow = performance.now();
-      rafId = requestAnimationFrame(tick);
+    } else if (active || getTotalAmp() > OCTOPUS.AMP_MIN_VISIBLE) {
+      if (!rafId) { lastTime = performance.now(); rafId = requestAnimationFrame(loop); }
     }
-  };
+  }
+
+  // IntersectionObserver: despertar táctil al entrar en viewport, con ciclo único (M1b D8/F5)
+  const io = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting && !touching) {
+      touching = true;
+      enter();
+      touchTimer = setTimeout(() => { leave(); touching = false; }, OCTOPUS.TOUCH_HOLD_MS);
+    }
+  }, { threshold: 0.5 });
+  io.observe(wrapEl);
+
+  // Eventos: mouseenter/leave, focusin/out (burbujea al link; M1b D7), scroll, visibilidad
+  wrapEl.addEventListener('mouseenter', enter);
+  wrapEl.addEventListener('mouseleave', leave);
+  wrapEl.addEventListener('focusin', onFocusIn);
+  wrapEl.addEventListener('focusout', onFocusOut);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  document.addEventListener('visibilitychange', onVisibility);
 
   const ro = new ResizeObserver(layout);
-  ro.observe(canvasEl);
-
-  wrapEl.addEventListener("mouseenter", onEnter);
-  wrapEl.addEventListener("mouseleave", onLeave);
-  wrapEl.addEventListener("focus", onFocus);
-  wrapEl.addEventListener("blur", onBlur);
-  wrapEl.addEventListener("touchstart", onTouch, { passive: true });
-  document.addEventListener("visibilitychange", onVisibility);
-
+  ro.observe(svgEl);
   layout();
+  lastTime = performance.now();
+  rafId = requestAnimationFrame(loop);
 
   return () => {
-    if (rafId) cancelAnimationFrame(rafId);
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
     if (touchTimer !== undefined) clearTimeout(touchTimer);
-    wrapEl.removeEventListener("mouseenter", onEnter);
-    wrapEl.removeEventListener("mouseleave", onLeave);
-    wrapEl.removeEventListener("focus", onFocus);
-    wrapEl.removeEventListener("blur", onBlur);
-    wrapEl.removeEventListener("touchstart", onTouch);
-    document.removeEventListener("visibilitychange", onVisibility);
+    io.disconnect();
     ro.disconnect();
-    canvasEl.style.visibility = "hidden";
-    svgEl.style.visibility = "visible";
+    wrapEl.removeEventListener('mouseenter', enter);
+    wrapEl.removeEventListener('mouseleave', leave);
+    wrapEl.removeEventListener('focusin', onFocusIn);
+    wrapEl.removeEventListener('focusout', onFocusOut);
+    window.removeEventListener('scroll', onScroll);
+    document.removeEventListener('visibilitychange', onVisibility);
+    canvasEl.style.visibility = 'hidden';
   };
 }
