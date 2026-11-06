@@ -66,14 +66,32 @@
   --bbf-surface-vignette-edge: var(--bbf-shadow-ink-vignette-edge);
   --bbf-mask-stage-mid: var(--bbf-shadow-ink-stage-mask-mid);
 
-  /* EL CAMPO DE PUNTOS S8 sobre el fondo oscuro (2026-11-02). Los lee `src/behavior/criterio-field.ts` desde el navegador y nunca los
-     repite. Carril en reposo en el paso apagado de la rampa (`mint-700`, el de `text-on-base-faint`): se lee como trama, no como texto.
-     Carril vivo `mint-400` (el de `muted`). Aciertos y barras en el acento madre; el primer punto de cada barra en el acento claro
-     (`accent-200`, el de `text-on-base-accent`). El cursor usa `--bbf-text-on-base`. Todos son pasos que el sistema oscuro ya usa. */
-  --bbf-field-lane: var(--bbf-color-mint-700);
-  --bbf-field-lane-live: var(--bbf-color-mint-400);
-  --bbf-field-read: var(--bbf-accent);
-  --bbf-field-hit: var(--bbf-color-accent-200);
+  /* EL CAMPO DE PUNTOS S8 (2026-11-02). Los roles que consume `src/behavior/criterio-field.ts` (`--bbf-field-lane`, `-lane-live`, `-read`,
+     `-hit`; los lee desde el navegador y nunca los repite) son ROLES DE VISTA (semantic/viewport.css) desde el 2026-11-06, porque el escenario
+     no cae sobre el mismo fondo en las dos composiciones del héroe, y aquí viven los DOS juegos de peldaños, uno por composición:
+     · `-split` (dos zonas, escritorio): el escenario se ancla a la derecha, sobre el NÚCLEO NEGRO del sombreador (mediana del fondo bajo la
+       zona dibujada, L 0,0007 a 1440 y 0,0005 a 1100). Carril en reposo en el paso apagado de la rampa (`mint-700`, el de `text-on-base-faint`):
+       se lee como trama, no como texto. Carril vivo `mint-400` (el de `muted`). Aciertos y barras en el acento madre; el primer punto de cada
+       barra en el acento claro (`accent-200`, el de `text-on-base-accent`). El cursor usa `--bbf-text-on-base`.
+     · `-single` (una zona, teléfono; decisión de Zavala 2026-11-06, héroe móvil): el escenario se recoloca bajo la cabecera y cae sobre la ZONA
+       CLARA del sombreador (mediana L 0,033–0,037 a 360/390/412; 0,013 a 790), donde `mint-700` ya no se distingue (1,29 contra la mediana y
+       por debajo del fondo en el 1 % de píxeles más claros). El fondo no se toca: se ajusta el campo. Criterio: EL MISMO CONTRASTE QUE EN
+       ESCRITORIO, replicado: para cada color, el peldaño de SU rampa cuya relación con la mediana del fondo del teléfono (la menor de las
+       cuatro vistas) queda más cerca de la de escritorio SIN QUEDAR POR DEBAJO y con la misma polaridad (más claro que el fondo). Medido con
+       `fondo-campo.cjs` (90 s por vista, un periodo del término más lento del sombreador; OUTPUT-BBW-2026-11-06-heroe-movil-aire-y-color-del-campo):
+         carril        2,22 → `mint-500`   (2,92 · p99 2,02)
+         carril vivo   7,25 → `mint-200`   (8,22 · p99 5,68)
+         barras        7,52 → `accent-100` (8,99 · p99 6,21)
+         aciertos     12,46 → NINGÚN peldaño llega: `accent-50`, el extremo claro de la rampa, da 11,0 (p99 7,6). RESIDUAL dicho, no forzado.
+       El orden de claridad se conserva (carril < vivo < barras < aciertos < cursor). */
+  --bbf-field-lane-split: var(--bbf-color-mint-700);
+  --bbf-field-lane-live-split: var(--bbf-color-mint-400);
+  --bbf-field-read-split: var(--bbf-accent);
+  --bbf-field-hit-split: var(--bbf-color-accent-200);
+  --bbf-field-lane-single: var(--bbf-color-mint-500);
+  --bbf-field-lane-live-single: var(--bbf-color-mint-200);
+  --bbf-field-read-single: var(--bbf-color-accent-100);
+  --bbf-field-hit-single: var(--bbf-color-accent-50);
 
   /* M3 (P-BBW-84, 2026-11-06) · HOVER DE COLOR, DOS ROLES ELEGIDOS POR MEDIDA, y SELECCIÓN. Lo que en reposo es MENTA pasa a acento; lo que en
      reposo es ACENTO baja un paso. El peldaño de cada uno lo fija el contraste contra la BANDA del fondo real (el sombreador se mueve: criterio de

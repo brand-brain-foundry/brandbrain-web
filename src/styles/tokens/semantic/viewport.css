@@ -55,6 +55,14 @@
   --bbf-stage-width-cap: var(--bbf-stage-width-cap-split);
   --bbf-hero-text-zone: var(--bbf-hero-text-zone-split);
   --bbf-hero-text-align-block: center;
+  /* LOS COLORES DEL CAMPO DE PUNTOS S8 POR VISTA (2026-11-06, héroe móvil; decisión de Zavala): el escenario cae sobre el núcleo negro del
+     sombreador en dos zonas y sobre su zona clara en una, y los peldaños de cada composición viven en semantic/colors.css con su medida. El
+     módulo lee los cuatro roles por una sonda al arrancar y en cada cambio de tamaño de la placa (`layout()`), así que al cruzar el corte repinta
+     con los de la vista nueva sin repetir ningún token. */
+  --bbf-field-lane: var(--bbf-field-lane-split);
+  --bbf-field-lane-live: var(--bbf-field-lane-live-split);
+  --bbf-field-read: var(--bbf-field-read-split);
+  --bbf-field-hit: var(--bbf-field-hit-split);
   /* 2026-11-02 · EL CUERPO NUEVO ES MÁS ALTO QUE EL CLAIM, y la vista de dos zonas pasa a usar el mismo mecanismo que D-BBW-62 dio a la de
      una: el héroe CRECE con su contenido en vez de recortarlo. Con el claim cabía en cualquier ventana; con titular, dos párrafos y botones
      (≈ 550 px de bloque) una pantalla de portátil baja lo solapaba con la cabecera y el pie, que van superpuestos. Por eso:
@@ -172,6 +180,10 @@
     --bbf-stage-width-cap: var(--bbf-stage-width-cap-single);
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
+    --bbf-field-lane: var(--bbf-field-lane-single);
+    --bbf-field-lane-live: var(--bbf-field-lane-live-single);
+    --bbf-field-read: var(--bbf-field-read-single);
+    --bbf-field-hit: var(--bbf-field-hit-single);
     /* 2026-11-05: la reserva cuenta el pie ENTERO que va superpuesto en el teléfono, fila a fila: su separación del borde, el sello, las dos
        separaciones entre filas y tres líneas de texto (Privacidad + crédito en dos líneas; cuatro cuerpos del rol legal ≈ tres líneas de
        interlineado normal), más dos márgenes de página de aire. Medido antes: 4–16 px entre «Hablemos» y el sello, y solape en un teléfono real.
@@ -184,10 +196,14 @@
        fondo) se pintaba ENCIMA del texto y lo oscurecía —se ve en la captura del sitio publicado en el teléfono—. En flujo igual que antes. */
     --bbf-hero-text-flow: relative;
     --bbf-hero-text-min-block: 100svh;
-    /* el texto empieza bajo la parte DIBUJADA del escenario más un margen de página (ver el ancla, arriba). Hasta hoy se reservaba la caja
-       ENTERA («cero tinta del sujeto bajo el texto por construcción»): era la cota para el pez, y con el campo de puntos dejaba una banda
-       de 304–473 px con poca animación y el titular bajo la barra del consentimiento. */
-    --bbf-hero-text-inset-top: calc(var(--bbf-stage-anchor-y) + var(--bbf-stage-reach) + var(--bbf-space-page));
+    /* el texto empieza bajo la parte DIBUJADA del escenario más un aire de `space-3` (ver el ancla, arriba). Hasta el 2026-11-06 se reservaba
+       la caja ENTERA («cero tinta del sujeto bajo el texto por construcción»): era la cota para el pez, y con el campo de puntos dejaba una
+       banda de 304–473 px con poca animación y el titular bajo la barra del consentimiento.
+       2026-11-06 (héroe móvil, aire; decisión de Zavala): el aire entre el alcance y el titular baja de un margen de página (20 en el teléfono)
+       a `space-3` (12), y SOLO en esta vista. Medido antes: con la barra abierta a 360×640 el titular quedaba a 8,6 px de la barra (393 px entre
+       cabecera y barra: 199 de escenario dibujado + 167 de titular + 20 de margen); con `space-3`, 16,6 (≥ `space-4`). Lo que el escenario
+       sigue fundiendo bajo el titular lo juzga la medida de contraste (I-8), que no baja de lo medido en PR#58. */
+    --bbf-hero-text-inset-top: calc(var(--bbf-stage-anchor-y) + var(--bbf-stage-reach) + var(--bbf-space-3));
     --bbf-hero-flex: 1 0 auto;
 
     --bbf-hero-ctas-direction: column;
