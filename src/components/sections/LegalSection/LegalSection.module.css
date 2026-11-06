@@ -75,6 +75,55 @@
   margin-block-end: var(--bbf-space-3);
 }
 
+/* ── TABLA (P-BBW-82) ───────────────────────────────────────
+   Cuerpo en el rol legal (es una tabla de datos, no prosa). En la vista estrecha (roles `--bbf-legal-table-*`, semantic/viewport.css)
+   la cabecera se oculta, cada fila es un bloque y cada celda antepone el rótulo de su columna (`attr(data-label)`, que viene del
+   contenido): cinco columnas no caben en un teléfono y una tabla que desborda no se lee. Filetes en la línea del sistema. */
+.table {
+  width: 100%;
+  margin-block-end: var(--bbf-space-3);
+  border-collapse: collapse;
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  line-height: var(--bbf-type-body-leading);
+  color: var(--bbf-text-on-base);
+}
+
+.tableHead {
+  display: var(--bbf-legal-table-head-display);
+}
+
+.tableHeading {
+  padding: var(--bbf-space-2) var(--bbf-space-3) var(--bbf-space-2) 0;
+  border-block-end: var(--bbf-line-sm) solid var(--bbf-line-on-base);
+  color: var(--bbf-text-on-base-secondary);
+  font-weight: var(--bbf-type-button-weight);
+  text-align: start;
+  vertical-align: bottom;
+}
+
+.tableRow {
+  display: var(--bbf-legal-table-row-display);
+  padding-block: var(--bbf-legal-table-row-padding);
+  border-block-end: var(--bbf-line-sm) solid var(--bbf-line-on-base);
+}
+
+.tableCell {
+  display: var(--bbf-legal-table-cell-display);
+  padding: var(--bbf-legal-table-cell-padding);
+  vertical-align: top;
+}
+
+.tableCell::before {
+  content: attr(data-label);
+  display: var(--bbf-legal-table-label-display);
+  margin-block-end: var(--bbf-space-half);
+  color: var(--bbf-text-on-base-secondary);
+  font-weight: var(--bbf-type-button-weight);
+}
+
 /* ── FECHA DE ACTUALIZACIÓN ─────────────────────────────── */
 .updated {
   font-family: var(--bbf-type-legal-family);

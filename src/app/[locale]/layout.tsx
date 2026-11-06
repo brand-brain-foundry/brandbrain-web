@@ -8,6 +8,7 @@ import { textFont } from "@/styles/fonts/text";
 import { SkipLink } from "@/components/atoms/SkipLink";
 import { Header } from "@/components/organisms/Header";
 import { Footer } from "@/components/organisms/Footer";
+import { ConsentBar } from "@/components/organisms/ConsentBar";
 import { MAIN_ID } from "@/components/main-id";
 import "../globals.css";
 
@@ -72,6 +73,9 @@ export default async function LocaleLayout({
         <Header locale={locale} global={global} />
         {children}
         <Footer global={global} locale={locale} />
+        {/* CONSENTIMIENTO (P-BBW-82): la barra y el panel van en el HTML de todas las páginas, la barra oculta; el cliente solo
+            la muestra si no hay elección válida. Después del pie en el DOM: es lo último que se lee y lo primero que se decide. */}
+        <ConsentBar consent={global.consent} />
       </body>
     </html>
   );

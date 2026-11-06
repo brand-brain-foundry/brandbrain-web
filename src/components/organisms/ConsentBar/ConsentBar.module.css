@@ -1,0 +1,192 @@
+/* ConsentBar — Tier 3: solo consume Tier 1/2. Ningún color, tamaño, espacio, duración ni media query escritos a mano; la vista
+   responsiva llega por los roles de `semantic/viewport.css` (`--bbf-consent-*`, `--bbf-legal-table-*`).
+   BARRA (primera capa): fija al pie de la ventana, en la CAPA DE CONTENIDO —por encima del pie, que va antes en el documento, y por
+   DEBAJO de la cabecera y de su hoja (capas cromo y hoja): con el panel de navegación abierto en el teléfono, la hoja cubre la barra y
+   sus enlaces quedan alcanzables; al cerrarlo, la barra sigue ahí (medido en F5.8 del despacho L3: en la capa del cromo tapaba
+   «Contacto» y «Perfil de LinkedIn» de la hoja a 360 y 390)—, con el velo y el desenfoque de la hoja y un filete superior en la línea
+   del sistema. No bloquea: es una región, no un diálogo. `hidden` manda sobre el
+   `display` de la clase (sin esta regla el atributo no haría nada): así el HTML servido la trae oculta y sin JavaScript no se ve.
+   SIN animación de entrada (I-9): ni `data-enter` ni transición de aparición.
+   PANEL (segunda capa): `<dialog>` nativo sobre la superficie base, con el velo como telón; ancho de la columna de lectura. */
+.bar {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: var(--bbf-layer-content);
+  display: flex;
+  flex-direction: var(--bbf-consent-direction);
+  align-items: var(--bbf-consent-align);
+  gap: var(--bbf-space-6);
+  padding: var(--bbf-space-5) var(--bbf-bar-side);
+  border-block-start: var(--bbf-line-sm) solid var(--bbf-line-on-base);
+  background: var(--bbf-surface-veil);
+  -webkit-backdrop-filter: blur(var(--bbf-blur-sheet));
+  backdrop-filter: blur(var(--bbf-blur-sheet));
+  color: var(--bbf-text-on-base);
+}
+
+.bar[hidden] {
+  display: none;
+}
+
+.text {
+  flex: 1 1 auto;
+  margin: 0;
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  line-height: var(--bbf-type-body-leading);
+  text-wrap: pretty;
+}
+
+/* El rótulo de la barra, en el rol de etiqueta y en el color secundario, en su propia línea. */
+.label {
+  display: block;
+  margin-block-end: var(--bbf-space-1);
+  color: var(--bbf-text-on-base-secondary);
+  font-family: var(--bbf-type-label-family);
+  font-size: var(--bbf-type-label-size);
+  font-weight: var(--bbf-type-label-weight);
+  letter-spacing: var(--bbf-type-label-tracking);
+}
+
+.link {
+  color: var(--bbf-accent);
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.15em;
+}
+
+/* Los tres botones: mismo átomo, misma variante, misma fila (o misma columna a todo el ancho en la vista estrecha). */
+.actions {
+  display: flex;
+  flex: none;
+  flex-direction: var(--bbf-consent-actions-direction);
+  flex-wrap: wrap;
+  gap: var(--bbf-space-3);
+}
+
+.actions > * {
+  width: var(--bbf-consent-button-width);
+}
+
+/* ── PANEL ───────────────────────────────────────────────────────────────── */
+.panel {
+  box-sizing: border-box;
+  width: min(100% - var(--bbf-space-page) * 2, var(--bbf-legal-max-width));
+  max-height: calc(100svh - var(--bbf-space-page) * 2);
+  padding: 0;
+  border: var(--bbf-line-sm) solid var(--bbf-line-on-base);
+  background: var(--bbf-surface-base);
+  color: var(--bbf-text-on-base);
+  overflow: auto;
+}
+
+.panel::backdrop {
+  background: var(--bbf-surface-veil);
+}
+
+.panelBody {
+  padding: var(--bbf-space-8);
+}
+
+.title {
+  margin: 0 0 var(--bbf-space-6);
+  font-family: var(--bbf-type-subheading-family);
+  font-size: var(--bbf-type-subheading-size);
+  font-weight: var(--bbf-type-subheading-weight);
+  line-height: var(--bbf-type-subheading-leading);
+  letter-spacing: var(--bbf-type-subheading-tracking);
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bbf-space-6);
+  padding-block: var(--bbf-space-5);
+  border-block-start: var(--bbf-line-sm) solid var(--bbf-line-on-base);
+}
+
+.optionText {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--bbf-space-1);
+  cursor: pointer;
+}
+
+.optionLabel {
+  font-family: var(--bbf-type-button-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-button-weight);
+  letter-spacing: var(--bbf-type-body-tracking);
+  line-height: var(--bbf-type-body-leading);
+}
+
+.optionStatus,
+.optionDetail {
+  font-family: var(--bbf-type-legal-family);
+  font-size: var(--bbf-type-legal-size);
+  font-weight: var(--bbf-type-legal-weight);
+  letter-spacing: var(--bbf-type-legal-tracking-mixed);
+  line-height: var(--bbf-type-body-leading);
+}
+
+.optionStatus {
+  color: var(--bbf-text-on-base-secondary);
+}
+
+/* El interruptor: carril de 40×24 (`space-10` × `space-6`), botón de 20 (`space-5`) con medio paso de aire; apagado en el paso
+   apagado de la rampa, encendido en el acento; el fijo (necesarias) en el paso atenuado, sin puntero. Es un `<input>` nativo con
+   `role="switch"`: teclado y lector de pantalla gratis. */
+.switch {
+  position: relative;
+  flex: none;
+  appearance: none;
+  width: var(--bbf-space-10);
+  height: var(--bbf-space-6);
+  margin: 0;
+  border: 0;
+  border-radius: var(--bbf-radius-pill);
+  background: var(--bbf-text-on-base-faint);
+  cursor: pointer;
+  transition: background-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.switch::before {
+  content: "";
+  position: absolute;
+  inset-block-start: var(--bbf-space-half);
+  inset-inline-start: var(--bbf-space-half);
+  width: var(--bbf-space-5);
+  height: var(--bbf-space-5);
+  border-radius: var(--bbf-radius-full);
+  background: var(--bbf-text-on-base);
+  transition: transform var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.switch:checked {
+  background: var(--bbf-accent);
+}
+
+.switch:checked::before {
+  transform: translateX(var(--bbf-space-4));
+}
+
+.switch:disabled {
+  background: var(--bbf-text-on-base-muted);
+  cursor: default;
+}
+
+.panelActions {
+  display: flex;
+  flex-direction: var(--bbf-consent-actions-direction);
+  flex-wrap: wrap;
+  gap: var(--bbf-space-3);
+  margin-block-start: var(--bbf-space-6);
+}
+
+.panelActions > * {
+  width: var(--bbf-consent-button-width);
+}

@@ -50,21 +50,37 @@ export function isPlaceholder(text: string): boolean {
 
 // ── Global ─────────────────────────────────────────────────────────────────────────────────────────────
 /**
- * Un tramo de texto en la capa legal (D-BBW-DESPACHO-2026-11-05, §0.1 b, modelo v3.4; extendido v3.6 con `{ page }`).
+ * Un tramo de texto en la capa legal (D-BBW-DESPACHO-2026-11-05, §0.1 b, modelo v3.4; extendido v3.6 con `{ page }` y v3.7 con `{ global }`).
  * - Cadena simple: texto plano, sin URL ni correo literal.
  * - Objeto `{ text, link }`: texto visible + llave de `content/site.json`. Los destinos nunca se escriben aquí.
  * - Objeto `{ page: slug }`: referencia a otra página del sitio por su slug (P-BBW-80, L2 §0.3.3). El texto visible
  *   es la etiqueta del registro (`global.legal.pages.<slug>.label`); no lleva `text`. El puerto resuelve esto antes
  *   de devolver el documento: el componente nunca recibe `{ page }`, recibe `{ text, path }`.
  * - Objeto `{ text, path }`: enlace interno resuelto (lo que el componente ve después de que el puerto resolvió `{ page }`).
+ * - Objeto `{ global: "ruta.de.llaves" }` (P-BBW-82, v3.7): cita un TEXTO del documento global del mismo locale por su ruta de
+ *   llaves (p. ej. `consent.banner.reject`, el nombre del botón «Rechazar»). El puerto lo resuelve a la cadena ANTES de entregar el
+ *   documento, así que el componente nunca lo ve. Es lo que permite que la página de Cookies nombre los botones del banner y el
+ *   enlace del pie SIN repetir el texto (I-1): una sola fuente, la llave del global. Una ruta que no lleve a un texto rompe el build.
  */
-export type Span = string | { text: string; link: LinkKey } | { page: string } | { text: string; path: string };
+export type Span =
+  | string
+  | { text: string; link: LinkKey }
+  | { page: string }
+  | { text: string; path: string }
+  | { global: string };
 
-/** Un bloque de la página legal: rótulo `<h2>` y partes ordenadas. Cada parte es un párrafo `{ p }` o una lista `{ list }`. El orden del array es el orden de la página. */
+/**
+ * Una tabla dentro de un bloque legal (P-BBW-82, v3.7): columnas con rótulo y filas de celdas de texto plano. Cada fila tiene
+ * EXACTAMENTE tantas celdas como columnas (el validador lo exige). Las celdas admiten sustituciones (`{{consentKey}}`). Sin
+ * presentación: cómo se lee en una pantalla estrecha lo decide el sistema (roles de vista), no el contenido.
+ */
+export type LegalTable = { columns: string[]; rows: string[][] };
+
+/** Un bloque de la página legal: rótulo `<h2>` y partes ordenadas. Cada parte es un párrafo `{ p }`, una lista `{ list }` o una tabla `{ table }`. El orden del array es el orden de la página. */
 export type LegalBlock = {
   heading: string;
-  /** partes en orden: cada elemento es `{ p: Span[] }` (párrafo) o `{ list: string[] }` (lista `<ul>`). El renderizador respeta el orden. */
-  parts: Array<{ p: Span[] } | { list: string[] }>;
+  /** partes en orden: `{ p: Span[] }` (párrafo), `{ list: string[] }` (lista `<ul>`) o `{ table: LegalTable }` (tabla). El renderizador respeta el orden. */
+  parts: Array<{ p: Span[] } | { list: string[] } | { table: LegalTable }>;
 };
 
 /**
@@ -168,6 +184,41 @@ export type GlobalDocument = {
     /** nombre de cada página legal por slug; el slug y el orden de aparición vienen de `src/config/pages.ts` */
     pages: LegalPagesMap;
   };
+  /**
+   * CONSENTIMIENTO (P-BBW-82, L3; v3.7 del modelo, cambio NO ADITIVO: un `global.json` sin `consent` rompe la compilación).
+   * Todos los textos del banner (primera capa), del panel (segunda capa) y del enlace permanente del pie, cada uno con su llave
+   * por rol. Es global porque el banner y el enlace salen en TODAS las páginas. Los nombres de los botones se citan desde la
+   * página de Cookies con `{ global: "consent.banner.reject" }`, nunca copiados (I-1).
+   */
+  consent: ConsentDocument;
+};
+
+/** Los textos del consentimiento (insumo TEXTOS-CONSENTIMIENTO-L3 §1–§3). */
+export type ConsentDocument = {
+  /** primera capa: la barra inferior que no bloquea */
+  banner: {
+    /** rótulo de la barra (también su nombre accesible como región) */
+    label: string;
+    /** el texto, con la referencia a la página de Cookies por `{ page }` */
+    text: Span[];
+    /** los tres botones, al mismo nivel */
+    reject: string;
+    accept: string;
+    configure: string;
+  };
+  /** segunda capa: el panel (`<dialog>` nativo) */
+  panel: {
+    title: string;
+    /** la categoría técnica, siempre activa: nombre, estado y explicación */
+    necessary: { label: string; status: string; text: string };
+    /** la medición de visitas: nombre y explicación (el interruptor arranca apagado) */
+    measurement: { label: string; text: string };
+    rejectAll: string;
+    acceptAll: string;
+    save: string;
+  };
+  /** el enlace permanente del pie («Configurar cookies»): en el HTML lleva a la página de Cookies; con JavaScript abre el panel */
+  footerLink: string;
 };
 
 // ── Página ──────────────────────────────────────────────────────────────────────────────────────────────
@@ -264,16 +315,25 @@ function checkSpanString(v: string, path: string, problems: Problem[]): void {
   if (EMAIL_IN_TEXT_RE.test(v)) problems.push({ path, message: `contiene un correo literal: usar la sustitución {{email}} o la llave "contact"` });
 }
 
+const GLOBAL_PATH_RE = /^[a-z][a-zA-Z0-9]*(\.[a-z][a-zA-Z0-9]*)*$/;
+
 /**
- * Valida un tramo: cadena, { text, link } o { page: slug } (P-BBW-80, L2 §0.3.3, v3.6).
+ * Valida un tramo: cadena, { text, link }, { page: slug } (P-BBW-80, L2 §0.3.3, v3.6) o { global: ruta } (P-BBW-82, v3.7).
  * - { text, link }: enlace externo (llave de content/site.json).
  * - { page: slug }: referencia interna a otra página; el slug se verifica en el puerto. No lleva `text`.
+ * - { global: ruta }: cita de un texto del documento global por su ruta de llaves; la ruta se verifica en el puerto.
  */
 function checkSpan(v: unknown, path: string, problems: Problem[]): void {
   if (typeof v === "string") {
     checkSpanString(v, path, problems);
   } else if (isRecord(v)) {
-    if ("page" in v && !("text" in v) && !("link" in v)) {
+    if ("global" in v) {
+      // { global: "a.b.c" } — cita de un texto del global
+      checkKeys(v, ["global"], path, problems);
+      if (typeof v.global !== "string" || !GLOBAL_PATH_RE.test(v.global)) {
+        problems.push({ path: `${path}.global`, message: `ruta de llaves inválida (p. ej. "consent.banner.reject")` });
+      }
+    } else if ("page" in v && !("text" in v) && !("link" in v)) {
       // { page: slug } — referencia interna
       checkKeys(v, ["page"], path, problems);
       if (typeof v.page !== "string" || v.page.trim().length === 0) {
@@ -290,7 +350,7 @@ function checkSpan(v: unknown, path: string, problems: Problem[]): void {
       }
     }
   } else {
-    problems.push({ path, message: `un tramo debe ser texto, { text, link } o { page: slug }` });
+    problems.push({ path, message: `un tramo debe ser texto, { text, link }, { page: slug } o { global: ruta }` });
   }
 }
 
@@ -315,6 +375,9 @@ function checkLegalBlock(v: unknown, path: string, problems: Problem[]): void {
       } else if ("p" in part && !("list" in part)) {
         checkKeys(part, ["p"], pp, problems);
         checkSpans(part.p, `${pp}.p`, problems);
+      } else if ("table" in part && !("p" in part) && !("list" in part)) {
+        checkKeys(part, ["table"], pp, problems);
+        checkLegalTable(part.table, `${pp}.table`, problems);
       } else if ("list" in part && !("p" in part)) {
         checkKeys(part, ["list"], pp, problems);
         if (!Array.isArray(part.list)) {
@@ -326,12 +389,40 @@ function checkLegalBlock(v: unknown, path: string, problems: Problem[]): void {
           });
         }
       } else {
-        problems.push({ path: pp, message: `una parte debe ser exactamente { p: Span[] } o { list: string[] }, no los dos ni ninguno` });
+        problems.push({ path: pp, message: `una parte debe ser exactamente { p: Span[] }, { list: string[] } o { table }, no varias ni ninguna` });
       }
     });
   }
 }
 
+
+/** Valida una tabla legal: columnas con texto, filas con EXACTAMENTE tantas celdas de texto como columnas. */
+function checkLegalTable(v: unknown, path: string, problems: Problem[]): void {
+  if (!isRecord(v)) return void problems.push({ path, message: `debe ser un objeto { columns, rows }` });
+  checkKeys(v, ["columns", "rows"], path, problems);
+  if (!Array.isArray(v.columns) || v.columns.length === 0) {
+    if ("columns" in v) problems.push({ path: `${path}.columns`, message: `debe ser una lista de rótulos de columna, no vacía` });
+    return;
+  }
+  (v.columns as unknown[]).forEach((c, i) => {
+    if (typeof c === "string") checkSpanString(c, `${path}.columns[${i}]`, problems);
+    else problems.push({ path: `${path}.columns[${i}]`, message: `debe ser texto` });
+  });
+  if (!Array.isArray(v.rows) || v.rows.length === 0) {
+    if ("rows" in v) problems.push({ path: `${path}.rows`, message: `debe ser una lista de filas, no vacía` });
+    return;
+  }
+  const n = v.columns.length;
+  (v.rows as unknown[]).forEach((row, r) => {
+    const rp = `${path}.rows[${r}]`;
+    if (!Array.isArray(row)) return void problems.push({ path: rp, message: `una fila debe ser una lista de celdas` });
+    if (row.length !== n) problems.push({ path: rp, message: `tiene ${row.length} celda(s) y la tabla ${n} columna(s)` });
+    (row as unknown[]).forEach((cell, c) => {
+      if (typeof cell === "string") checkSpanString(cell, `${rp}[${c}]`, problems);
+      else problems.push({ path: `${rp}[${c}]`, message: `debe ser texto` });
+    });
+  });
+}
 
 function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista` });
@@ -364,7 +455,7 @@ function checkLegalPages(v: unknown, path: string, problems: Problem[]): void {
 export function validateGlobal(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  checkKeys(v, ["nav", "footer", "legal"], "$", problems);
+  checkKeys(v, ["nav", "footer", "legal", "consent"], "$", problems);
   if (isRecord(v.nav)) {
     checkKeys(v.nav, ["skipLabel", "toggleLabel", "caseLabel", "items"], "$.nav", problems);
     checkText(v.nav.skipLabel, "$.nav.skipLabel", problems);
@@ -386,7 +477,47 @@ export function validateGlobal(v: unknown): Problem[] {
     checkText(v.legal.updatedLabel, "$.legal.updatedLabel", problems);
     checkLegalPages(v.legal.pages, "$.legal.pages", problems);
   } else if ("legal" in v) problems.push({ path: "$.legal", message: "debe ser un objeto { updatedLabel, pages }" });
+  if (isRecord(v.consent)) {
+    checkConsent(v.consent, "$.consent", problems);
+  } else if ("consent" in v) problems.push({ path: "$.consent", message: "debe ser un objeto { banner, panel, footerLink }" });
   return problems;
+}
+
+/** Valida los textos del consentimiento (P-BBW-82): cada texto su llave, estrictas en los dos sentidos. */
+function checkConsent(v: Record<string, unknown>, path: string, problems: Problem[]): void {
+  checkKeys(v, ["banner", "panel", "footerLink"], path, problems);
+  checkText(v.footerLink, `${path}.footerLink`, problems);
+  if (isRecord(v.banner)) {
+    const b = v.banner;
+    const bp = `${path}.banner`;
+    checkKeys(b, ["label", "text", "reject", "accept", "configure"], bp, problems);
+    checkText(b.label, `${bp}.label`, problems);
+    if (Array.isArray(b.text)) checkSpans(b.text, `${bp}.text`, problems);
+    else if ("text" in b) problems.push({ path: `${bp}.text`, message: `debe ser una lista de tramos` });
+    checkText(b.reject, `${bp}.reject`, problems);
+    checkText(b.accept, `${bp}.accept`, problems);
+    checkText(b.configure, `${bp}.configure`, problems);
+  } else if ("banner" in v) problems.push({ path: `${path}.banner`, message: "debe ser un objeto" });
+  if (isRecord(v.panel)) {
+    const p = v.panel;
+    const pp = `${path}.panel`;
+    checkKeys(p, ["title", "necessary", "measurement", "rejectAll", "acceptAll", "save"], pp, problems);
+    checkText(p.title, `${pp}.title`, problems);
+    if (isRecord(p.necessary)) {
+      checkKeys(p.necessary, ["label", "status", "text"], `${pp}.necessary`, problems);
+      checkText(p.necessary.label, `${pp}.necessary.label`, problems);
+      checkText(p.necessary.status, `${pp}.necessary.status`, problems);
+      checkText(p.necessary.text, `${pp}.necessary.text`, problems);
+    } else if ("necessary" in p) problems.push({ path: `${pp}.necessary`, message: "debe ser un objeto { label, status, text }" });
+    if (isRecord(p.measurement)) {
+      checkKeys(p.measurement, ["label", "text"], `${pp}.measurement`, problems);
+      checkText(p.measurement.label, `${pp}.measurement.label`, problems);
+      checkText(p.measurement.text, `${pp}.measurement.text`, problems);
+    } else if ("measurement" in p) problems.push({ path: `${pp}.measurement`, message: "debe ser un objeto { label, text }" });
+    checkText(p.rejectAll, `${pp}.rejectAll`, problems);
+    checkText(p.acceptAll, `${pp}.acceptAll`, problems);
+    checkText(p.save, `${pp}.save`, problems);
+  } else if ("panel" in v) problems.push({ path: `${path}.panel`, message: "debe ser un objeto" });
 }
 
 function checkSection(v: unknown, path: string, seen: Set<string>, problems: Problem[]): void {
@@ -454,8 +585,8 @@ export function isPageDocument(v: unknown): v is PageDocument {
   return validatePage(v).length === 0;
 }
 
-/** Llaves estructurales: identifican, enlazan o declaran una condición; no son texto editable. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case"]);
+/** Llaves estructurales: identifican, enlazan, referencian (`page`, `global`) o declaran una condición; no son texto editable. */
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global"]);
 
 /** Recorre los TEXTOS EDITABLES de un documento (para contar textos y marcadores; nunca para interpretarlos, D-DOC-06). */
 export function collectTexts(v: unknown, acc: string[] = []): string[] {
