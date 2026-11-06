@@ -16,7 +16,7 @@
   display: flex;
   flex-direction: var(--bbf-consent-direction);
   align-items: var(--bbf-consent-align);
-  gap: var(--bbf-space-6);
+  gap: var(--bbf-consent-gap);
   padding: var(--bbf-space-5) var(--bbf-bar-side);
   border-block-start: var(--bbf-line-sm) solid var(--bbf-line-on-base);
   background: var(--bbf-surface-veil);
@@ -58,7 +58,7 @@
   text-underline-offset: 0.15em;
 }
 
-/* Los tres botones: mismo átomo, misma variante, misma fila (o misma columna a todo el ancho en la vista estrecha). */
+/* Los tres botones: mismo átomo, misma variante, misma fila, también en el teléfono (a partes iguales). */
 .actions {
   display: flex;
   flex: none;
@@ -68,7 +68,9 @@
 }
 
 .actions > * {
-  width: var(--bbf-consent-button-width);
+  flex: var(--bbf-consent-button-flex);
+  min-width: 0;
+  padding-inline: var(--bbf-consent-button-inline);
 }
 
 /* ── PANEL ───────────────────────────────────────────────────────────────── */
@@ -181,12 +183,12 @@
 
 .panelActions {
   display: flex;
-  flex-direction: var(--bbf-consent-actions-direction);
+  flex-direction: var(--bbf-consent-panel-actions-direction);
   flex-wrap: wrap;
   gap: var(--bbf-space-3);
   margin-block-start: var(--bbf-space-6);
 }
 
 .panelActions > * {
-  width: var(--bbf-consent-button-width);
+  width: var(--bbf-consent-panel-button-width);
 }
