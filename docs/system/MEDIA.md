@@ -8,7 +8,7 @@ owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-17
 updated: 2026-11-06
-verified_against_code: 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
+verified_against_code: 2026-11-06@fix/m1d-imagotipo-identico (v1.4: rig derivado con línea central exacta, M1d) · 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-21, D-BBW-24, D-BBW-02, D-BBW-03, D-BBW-09]

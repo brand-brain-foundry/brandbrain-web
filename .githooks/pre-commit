@@ -1,6 +1,6 @@
 #!/bin/bash
 # pre-commit — brandbrain-web (D-SEC-04 + D-BBW-06)
-# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia tipográfica propia (fase 5, extendida 6a-bis y 6b). 5) guardia de contenido (fase 6a, +sustituciones 6c). 6) guardia de medios (fase 6c).
+# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia tipográfica propia (fase 5, extendida 6a-bis y 6b). 5) guardia de contenido (fase 6a, +sustituciones 6c). 6) guardia anti-fuga legal (P-BBW-78). 7) guardia del imagotipo vivo R10 (M1c; en el hook desde M1d). 8) guardia de medios (fase 6c).
 # Semántica FAIL-CLOSED: error del tool = commit cancelado. Único skip: gitleaks ausente (aviso).
 # gitleaks 8.30.x: --exit-code 2 = leaks; 0 = limpio; otro = error del tool. Sin -q (bug gitleaks).
 
@@ -94,6 +94,21 @@ if [ "$LEGAL_STATUS" -eq 1 ]; then
 elif [ "$LEGAL_STATUS" -ne 0 ]; then
   echo "" >&2
   echo "[pre-commit] FAIL-CLOSED: error de la guardia anti-fuga legal (exit $LEGAL_STATUS) — commit cancelado" >&2
+  exit 1
+fi
+
+# Guardia propia del repo (M1c F4 · M1d F3/F6, P-BBW-81): la guardia R10 ejecuta el motor del imagotipo vivo (R10a reposo = maestro,
+# R10b sección, R10c rig = derivado del maestro, R10d fotogramas = prototipo aprobado con las mismas semillas). docs/system/BEHAVIOR.md §12.
+pnpm exec tsx scripts/lint/check-brand-mark-rig.ts
+RIG_STATUS=$?
+if [ "$RIG_STATUS" -eq 1 ]; then
+  echo "" >&2
+  echo "[pre-commit] guardia del imagotipo vivo (R10): el motor se separa del maestro en reposo, del rig derivado o del prototipo aprobado — commit cancelado" >&2
+  echo "  El mensaje nombra la regla (R10a/b/c/d) y la medida; un umbral que falla se escala (I-8), no se cambia." >&2
+  exit 1
+elif [ "$RIG_STATUS" -ne 0 ]; then
+  echo "" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia del imagotipo vivo (exit $RIG_STATUS) — commit cancelado" >&2
   exit 1
 fi
 

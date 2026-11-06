@@ -1,22 +1,29 @@
 /**
- * check-brand-mark-rig.ts — R10 · GUARDIA DEL IMAGOTIPO VIVO QUE EJECUTA EL MOTOR (M1c F4, 2026-11-05; sustituye R10a–R10g)
+ * check-brand-mark-rig.ts — R10 · GUARDIA DEL IMAGOTIPO VIVO QUE EJECUTA EL MOTOR (M1c F4, 2026-11-05; M1d F3/F4, 2026-11-06)
  *
  * Por qué existe: la guardia anterior medía datos que eran puntos del SVG por construcción y nunca ejecutaba el motor: no podía fallar
  * (M1c §0). Esta llama a las mismas funciones que corren en el navegador (`prepare`, `deformFrame`, `deformPoints`) sobre el rig
- * generado y compara la SALIDA con el maestro. Sin `sharp` (la herramienta de desarrollo queda en `media:build`): el raster es un
- * rasterizador propio de polígonos (par-impar, 4×4 submuestras), suficiente para contar píxeles distintos y situarlos.
+ * generado y compara la SALIDA con el maestro y con el prototipo aprobado. Sin `sharp` (la herramienta de desarrollo queda en
+ * `media:build`): el raster es un rasterizador propio de polígonos (par-impar, 4×4 submuestras), suficiente para contar píxeles distintos.
  *
  * Reglas (exit 1 si falla, exit 2 si el tool rompe):
  *   R10c · el rig de `src/media/generated.ts` es exactamente el que se deriva del maestro con el perfil del registro (fuente única).
  *   R10a · con amplitud 0, el contorno que produce el motor coincide con el del maestro: Hausdorff BIDIRECCIONAL ≤ 0,25 u en los seis
  *          tentáculos, y en raster a 32 / 48 / 512 px todo píxel distinto está a ≤ 1 px del borde del maestro (solo el suavizado).
- *   R10b · 20 semillas × 200 fotogramas (muelle de entrada desde 0, dt = 1/60 s): la sección de cada tentáculo = la de reposo ± 1 %, y
- *          ningún tentáculo (su parte distal, s ≥ 0,25) a < 1 u de otro tentáculo ni del cuerpo fijo.
- * Umbrales y métricas: M1 §4.2 y M1c §3 F4. Prohibido cambiarlos aquí (I-8): un umbral que falla se escala.
+ *   R10b · 20 semillas × 200 fotogramas (muelle de entrada desde 0, dt = 1/60 s): la sección de cada tentáculo = la de reposo ± 1 % (falla)
+ *          y ningún tentáculo (parte distal, s ≥ 0,25) a < 1 u del cuerpo fijo (falla). La separación ENTRE tentáculos es INFORMATIVA
+ *          (M1d F4, instrucción de Zavala «igualito»: el prototipo aprobado no tiene término de colisión y sus vecinos se tocan): se
+ *          reporta el mínimo y el % de fotogramas con algún contacto < 1 u, no falla.
+ *   R10d · IDENTIDAD CON EL PROTOTIPO (M1d F3): `scripts/lint/fixtures/brand-mark-golden.{json,bin}` guarda los vértices que escribió el
+ *          prototipo aprobado en Chrome (3 semillas × 200 fotogramas, `Math.random` sembrado con mulberry32, muelle de entrada, dt = 1/60);
+ *          el motor del repo corre con las mismas semillas y falla si cualquier vértice guardado difiere > 0,05 u. La cabecera del dorado
+ *          lleva el sha256 del prototipo de origen y las sustituciones con que se generó.
+ * Umbrales y métricas: M1 §4.2, M1c §3 F4, M1d §3–§4. Prohibido cambiarlos aquí (I-8): un umbral que falla se escala.
  *
  * VERLA FALLAR (sin bandera que toque el rig): BBW_RIG_SVG=<ruta a un maestro alterado> sustituye el maestro que se compara;
  * BBW_RIG_DEFECT=section-as-tangent reintroduce el defecto real de a4500d0 (integrar la dirección de la sección como si fuera la
- * tangente) en la columna con amplitud 0. Ambos deben dar rojo; el repo tal cual, verde.
+ * tangente) en la columna con amplitud 0; R10d se ve fallar cambiando una sola constante de movimiento (p. ej. `WAVE_A`).
+ * BBW_RIG_GOLDEN=<ruta a otro dorado .json> compara R10d contra ese fichero (medidas; el de `fixtures/` es el que manda).
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -42,10 +49,13 @@ const DT = 1 / 60;
 const SECTION_TOL = 0.01;
 const CLEARANCE_MIN_U = 1;
 const DISTAL_FROM = 0.25;
+const VERTEX_TOL_U = 0.05; // R10d (M1d §4.1)
+const GOLDEN_JSON = process.env.BBW_RIG_GOLDEN ? path.resolve(process.env.BBW_RIG_GOLDEN) : path.join(ROOT, 'scripts/lint/fixtures/brand-mark-golden.json');
 
 let errors = 0;
 const fail = (id: string, msg: string) => { console.error(`  FALLO ${id}: ${msg}`); errors++; };
 const ok = (id: string, msg: string) => console.log(`  OK    ${id}: ${msg}`);
+const info = (id: string, msg: string) => console.log(`  INFO  ${id}: ${msg}`);
 
 // ── entrada ────────────────────────────────────────────────────────────────────────────────────────────────────
 const svgSrc = fs.readFileSync(SVG_PATH, 'utf8');
@@ -231,7 +241,16 @@ console.timeEnd('R10a');
   for (const t of rig.tentacles) for (let i = t.start; i <= t.end; i++) inRegion[wrapIndex(i, prep.n)] = 1;
   const body: Pt[] = []; for (let i = 0; i < prep.n; i++) if (!inRegion[i]) body.push(prep.P[i]);
   const bodyIdx = new LoopIndex(body.concat([body[0]]).slice(0, -1), 2);
-  let worstSection = 0, worstSectionWhere = '', worstClear = Infinity, worstClearWhere = '';
+  // campo de distancia al cuerpo (rejilla 1 u, una vez): un punto solo se mide exacto si la rejilla dice que puede acercarse al mínimo
+  // vigente (la celda tiene medio diagonal 0,71 u); fuera de BODY_FIELD_MAX_U la distancia es «lejos» y no cuenta
+  const BODY_FIELD_MAX_U = 12, FIELD_CELL = 1, FIELD_SLACK = 0.71;
+  let fminx = Infinity, fminy = Infinity, fmaxx = -Infinity, fmaxy = -Infinity;
+  for (const p of prep.P) { fminx = Math.min(fminx, p[0]); fminy = Math.min(fminy, p[1]); fmaxx = Math.max(fmaxx, p[0]); fmaxy = Math.max(fmaxy, p[1]); }
+  const fx0 = Math.floor(fminx) - 40, fy0 = Math.floor(fminy) - 40, fw = Math.ceil(fmaxx) + 40 - fx0, fh = Math.ceil(fmaxy) + 40 - fy0;
+  const field = new Float32Array(fw * fh);
+  for (let gy = 0; gy < fh; gy++) for (let gx = 0; gx < fw; gx++) field[gy * fw + gx] = bodyIdx.dist([fx0 + (gx + 0.5) * FIELD_CELL, fy0 + (gy + 0.5) * FIELD_CELL], BODY_FIELD_MAX_U);
+  const bodyNear = (p: Pt): number => { const gx = Math.floor((p[0] - fx0) / FIELD_CELL), gy = Math.floor((p[1] - fy0) / FIELD_CELL); return gx < 0 || gy < 0 || gx >= fw || gy >= fh ? Infinity : field[gy * fw + gx]; };
+  let worstSection = 0, worstSectionWhere = '', worstClear = Infinity, worstClearWhere = '', worstBody = Infinity, worstBodyWhere = '', contactFrames = 0;
   for (let seed = 1; seed <= SEEDS; seed++) {
     const rnd = mulberry32(seed * 7919);
     const motions = prep.tentacles.map(() => makeMotion(rnd));
@@ -246,6 +265,7 @@ console.timeEnd('R10a');
       }
       // separación: rejilla por fotograma (celda 1 u): cada punto distal busca en 3×3 celdas puntos de OTRO tentáculo; el cuerpo, por su índice
       const cell = CLEARANCE_MIN_U;
+      let frameMin = Infinity;
       const grid = new Map<number, number[]>(); // clave → [j, q, j, q, …]
       const keyOf = (p: Pt) => Math.floor(p[0] / cell) * 100003 + Math.floor(p[1] / cell);
       for (let j = 0; j < ptsAll.length; j++) for (let q = 0; q < ptsAll[j].length; q++) { const k = keyOf(ptsAll[j][q]); const arr = grid.get(k); if (arr) arr.push(j, q); else grid.set(k, [j, q]); }
@@ -254,25 +274,71 @@ console.timeEnd('R10a');
         for (let q = 0; q < T.pts.length; q++) {
           if (T.pts[q].k / (K - 1) < DISTAL_FROM) continue;
           const p = ptsAll[j][q];
-          const db = bodyIdx.dist(p, worstClear);
-          if (db < worstClear) { worstClear = db; worstClearWhere = `${T.id}↔cuerpo semilla ${seed} fotograma ${f}`; }
+          if (bodyNear(p) - FIELD_SLACK < worstBody) { const db = bodyIdx.dist(p, worstBody); if (db < worstBody) { worstBody = db; worstBodyWhere = `${T.id}↔cuerpo semilla ${seed} fotograma ${f}`; } }
           const gx = Math.floor(p[0] / cell), gy = Math.floor(p[1] / cell);
           for (let x = gx - 1; x <= gx + 1; x++) for (let y = gy - 1; y <= gy + 1; y++) {
             const arr = grid.get(x * 100003 + y); if (!arr) continue;
-            for (let r = 0; r < arr.length; r += 2) { const m = arr[r]; if (m === j) continue; const o = ptsAll[m][arr[r + 1]]; const d = Math.hypot(o[0] - p[0], o[1] - p[1]); if (d < worstClear) { worstClear = d; worstClearWhere = `${T.id}↔${prep.tentacles[m].id} semilla ${seed} fotograma ${f}`; } }
+            for (let r = 0; r < arr.length; r += 2) { const m = arr[r]; if (m === j) continue; const o = ptsAll[m][arr[r + 1]]; const d = Math.hypot(o[0] - p[0], o[1] - p[1]); if (d < frameMin) frameMin = d; if (d < worstClear) { worstClear = d; worstClearWhere = `${T.id}↔${prep.tentacles[m].id} semilla ${seed} fotograma ${f}`; } }
           }
         }
       }
+      if (frameMin < CLEARANCE_MIN_U) contactFrames++;
     }
   }
   console.timeEnd('R10b');
   if (worstSection > SECTION_TOL) fail('R10b', `sección: desviación máxima ${(worstSection * 100).toFixed(3)} % > ${SECTION_TOL * 100} % en ${worstSectionWhere}`);
   else ok('R10b', `sección: desviación máxima ${(worstSection * 100).toFixed(3)} % ≤ ${SECTION_TOL * 100} % (${worstSectionWhere})`);
-  if (worstClear < CLEARANCE_MIN_U) fail('R10b', `separación mínima ${worstClear.toFixed(3)} u < ${CLEARANCE_MIN_U} u en ${worstClearWhere}`);
-  else ok('R10b', `separación mínima ${worstClear.toFixed(3)} u ≥ ${CLEARANCE_MIN_U} u (${worstClearWhere})`);
+  if (worstBody < CLEARANCE_MIN_U) fail('R10b', `separación con el cuerpo ${worstBody.toFixed(3)} u < ${CLEARANCE_MIN_U} u en ${worstBodyWhere}`);
+  else ok('R10b', `separación con el cuerpo ${worstBody.toFixed(3)} u ≥ ${CLEARANCE_MIN_U} u (${worstBodyWhere})`);
+  // informativa (M1d F4): el movimiento aprobado no tiene término de colisión; se reporta, no falla
+  info('R10b', `separación entre tentáculos: mínimo ${worstClear.toFixed(3)} u (${worstClearWhere}); ${contactFrames} de ${SEEDS * FRAMES} fotogramas (${(100 * contactFrames / (SEEDS * FRAMES)).toFixed(1)} %) con algún contacto < ${CLEARANCE_MIN_U} u — informativa, no falla`);
+}
+
+// ── R10d · fotogramas = prototipo aprobado con las mismas semillas (M1d F3) ────────────────────────────────────
+{
+  console.time('R10d');
+  type Golden = { schema: string; source: string; sourceSha256: string; seeds: number[]; frames: number; dt: number; nVerts: number; indices: number[]; quantum: number; bin: string; binBytes: number; patches?: unknown[] };
+  if (!fs.existsSync(GOLDEN_JSON)) { console.error(`[rig-gate] FAIL-CLOSED: sin dorado en ${GOLDEN_JSON}`); process.exit(2); }
+  const G: Golden = JSON.parse(fs.readFileSync(GOLDEN_JSON, 'utf8'));
+  const bin = fs.readFileSync(path.join(path.dirname(GOLDEN_JSON), G.bin));
+  if (G.schema !== 'brand-mark-golden/v1' || bin.length !== G.binBytes || bin.length !== G.seeds.length * G.frames * G.indices.length * 4) { console.error(`[rig-gate] FAIL-CLOSED: dorado inconsistente (${G.schema}, ${bin.length} B)`); process.exit(2); }
+  console.log(`\n[R10d] prototipo ${G.source} (sha256 ${G.sourceSha256.slice(0, 12)}…) · ${G.seeds.length} semillas × ${G.frames} fotogramas · ${G.indices.length} de ${G.nVerts} vértices por fotograma${G.patches?.length ? ` · ${G.patches.length} sustituciones declaradas en la cabecera` : ''}`);
+  // dueño de cada vértice del `d` (región de un tentáculo o tramo fijo), en el orden en que `deformFrame` los escribe
+  const owner: string[] = [];
+  for (const T of prep.tentacles) { for (let q = 0; q < T.pk.length; q++) owner.push(T.id); const m = T.staticAfter.match(/L/g)?.length ?? 0; for (let q = 0; q < m; q++) owner.push('cuerpo'); }
+  const worst = new Map<string, { d: number; where: string }>();
+  let over = 0, countMismatch = '';
+  let off = 0;
+  outer: for (const seed of G.seeds) {
+    const rnd = mulberry32(seed);
+    const motions = prep.tentacles.map(() => makeMotion(rnd));
+    const amps = prep.tentacles.map(() => 0), times = motions.map(M => M.time);
+    for (let f = 0; f < G.frames; f++) {
+      for (let j = 0; j < motions.length; j++) { const M = motions[j]; M.time += G.dt; springStep(M.spring, 1, M.spring.kOn, M.spring.zOn, G.dt); amps[j] = M.spring.x; times[j] = M.time; }
+      const d = deformFrame(prep, motions, amps, times);
+      const nums = d.slice(0, d.indexOf('Z')).match(/-?\d+(?:\.\d+)?/g)?.map(Number) ?? [];
+      if (nums.length !== 2 * G.nVerts) { countMismatch = `semilla ${seed} fotograma ${f}: ${nums.length / 2} vértices, el prototipo escribió ${G.nVerts}`; break outer; }
+      for (const i of G.indices) {
+        const gx = bin.readInt16LE(off) * G.quantum, gy = bin.readInt16LE(off + 2) * G.quantum; off += 4;
+        const dd = Math.hypot(nums[2 * i] - gx, nums[2 * i + 1] - gy);
+        if (dd > VERTEX_TOL_U) over++;
+        const who = owner[i] ?? '?';
+        const w = worst.get(who);
+        if (!w || dd > w.d) worst.set(who, { d: dd, where: `semilla ${seed} fotograma ${f} vértice ${i}` });
+      }
+    }
+  }
+  console.timeEnd('R10d');
+  if (countMismatch) fail('R10d', `el motor y el prototipo no escriben el mismo número de vértices (${countMismatch})`);
+  else {
+    const byT = [...worst.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([id, w]) => `${id} ${w.d.toFixed(4)} u`).join(' · ');
+    const worstAll = [...worst.entries()].sort((a, b) => b[1].d - a[1].d)[0];
+    if (over > 0) fail('R10d', `${over} vértices difieren > ${VERTEX_TOL_U} u del prototipo (máximo por tentáculo: ${byT}; peor ${worstAll[0]} ${worstAll[1].d.toFixed(4)} u en ${worstAll[1].where})`);
+    else ok('R10d', `0 vértices > ${VERTEX_TOL_U} u frente al prototipo en ${G.seeds.length} semillas × ${G.frames} fotogramas (máximo por tentáculo: ${byT})`);
+  }
 }
 
 console.log('');
-if (errors === 0) { console.log(`✓ check-brand-mark-rig: R10a · R10b · R10c OK (motor ejecutado: ${OCTOPUS.K} muestras/línea central, ${rig.n} muestras de contorno)`); process.exit(0); }
+if (errors === 0) { console.log(`✓ check-brand-mark-rig: R10a · R10b · R10c · R10d OK (motor ejecutado: ${OCTOPUS.K} muestras/línea central, ${rig.n} muestras de contorno)`); process.exit(0); }
 console.error(`✗ check-brand-mark-rig: ${errors} error(es)`);
 process.exit(1);

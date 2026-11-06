@@ -1,6 +1,7 @@
 /**
- * behavior/brand-mark-octopus.ts — S9 · IMAGOTIPO VIVO (M1c, 2026-11-05; motor de referencia aprobado por Zavala el 2026-11-05,
- * `despachos/2026-11/insumos/M1c-motor-referencia-aprobado-2026-11-05.js`; conducta en M1 §0.1/§0.2 y M1c §3 F3).
+ * behavior/brand-mark-octopus.ts — S9 · IMAGOTIPO VIVO (M1c, 2026-11-05; M1d, 2026-11-06: conducta y sorteo idénticos al prototipo).
+ * El motor de referencia aprobado por Zavala el 2026-11-05 (`despachos/2026-11/insumos/M1c-motor-referencia-aprobado-2026-11-05.js`)
+ * es la ESPECIFICACIÓN LITERAL: conducta, movimiento y anatomía (M1d §0, «igualito»). Este código es su porte; donde difiera, gana el prototipo.
  *
  * MODELO (es la especificación; este código es su porte): varilla inextensible con marco local.
  *   1. ANATOMÍA (al compilar, `scripts/media/brand-icon-rig.ts`; aquí viven las funciones puras que usa): contorno exterior
@@ -19,8 +20,12 @@
  *   5. CUERPO, CABEZA Y HUECO: puntos oficiales fijos; el hueco es el subtrazado original sin tocar.
  *
  * RENDER: el motor cambia el `d` del `<path>` del mismo `<svg>` servido (sin lienzo). Sin JS, el HTML trae el oficial (I-4).
+ * CONDUCTA (= prototipo, ref:L173–L185): hover con `pointerType === 'mouse'` (sin condición de media query); foco/blur como hover;
+ * `pointerdown` no-ratón despierta y suelta a `WAKE_HOLD_MS` sin `preventDefault` (el enlace navega); el scroll da un impulso acotado
+ * por velocidad en TODOS los dispositivos si no hay hover/foco activo. No hay despertar al cargar (M1c lo añadió; M1d lo retira).
  * QUIETUD (D-BBW-31, I-9): con `--bbf-motion-octopus-play-state: paused` no se registra ningún rAF ni oyente; solo cambia el
- * color (CSS). Pestaña oculta o fuera de pantalla: el bucle se detiene y se reanuda al volver si queda energía.
+ * color (CSS). Pestaña oculta o fuera de pantalla: el bucle se detiene y se reanuda al volver si queda energía (ciclo de vida del
+ * repo, sin equivalente en el prototipo: no cambia lo que se ve, solo evita trabajo invisible).
  * TOKENS QUE LEE (nunca repite): `--bbf-motion-octopus-play-state`. El color lo pone el CSS (`--bbf-accent` → `--bbf-text-on-base`).
  * CONSTANTES: origen «ref:Lnn» = línea del motor de referencia; clase por D-DOC-13 §2 (estático · plantilla · dinámico).
  * Tabla en docs/system/BEHAVIOR.md §12. Lo que un diseñador tocaría para cambiar el carácter está marcado dinámico.
@@ -92,18 +97,21 @@ export const OCTOPUS = Object.freeze({
   /** salida: rigidez y amortiguamiento (más amortiguado) · ref:L111 · plantilla */
   SPRING_K_OFF: [9, 14] as Range,
   SPRING_Z_OFF: [0.62, 0.78] as Range,
+  /** retardo sorteado por el prototipo y nunca leído (ref:L103). Se sortea igual para que la SECUENCIA de `random` sea la del prototipo:
+   *  con la misma semilla, ambos motores dan los mismos parámetros (M1d §0 dif. 6). · plantilla */
+  SPRING_DELAY: [0, 0.12] as Range,
   /** energía (Σ|x|+|v|) bajo la cual se restaura el oficial y se para el bucle · ref:L167 · estático */
   ENERGY_REST: 0.004,
   /** paso de tiempo máximo y por defecto (s) · ref:L153 · estático */
   DT_MAX: 0.033,
   DT_DEFAULT: 0.016,
 
-  // ── Conducta (M1c F3) ──
-  /** impulso de scroll: ganancia sobre px/ms, tope, y dispersión por tentáculo · ref:L188–L189 · dinámico */
+  // ── Conducta (= prototipo, M1d F1) ──
+  /** impulso de scroll (todos los dispositivos, si no hay hover/foco activo): ganancia sobre px/ms, tope, dispersión por tentáculo · ref:L182–L183 · dinámico */
   SCROLL_GAIN: 0.9,
   SCROLL_IMP_MAX: 2.2,
   SCROLL_JITTER: [0.6, 1.2] as Range,
-  /** despertar táctil: tiempo que el muelle se mantiene en 1 antes de soltar (ms) · ref:L182 · plantilla */
+  /** toque (`pointerdown` no-ratón): tiempo que el muelle se mantiene en 1 antes de soltar (ms) · ref:L177 · plantilla */
   WAKE_HOLD_MS: 1100,
   /** decimales con los que se escribe cada coordenada en el `d` · ref:L136 · estático */
   FMT_DECIMALS: 2,
@@ -293,11 +301,12 @@ export type Motion = {
   noise: { k: number; w: number; ph: number; a: number }[];
   sway: { w: number; ph: number; a: number };
   stretch: { a: number; w: number; ph: number };
-  spring: { x: number; v: number; kOn: number; zOn: number; kOff: number; zOff: number };
+  spring: { x: number; v: number; kOn: number; zOn: number; kOff: number; zOff: number; delay: number };
   time: number;
 };
 
-/** Sorteo por tentáculo (una vez por carga): no hay dos hovers iguales. `random` ∈ [0,1): el navegador usa Math.random; la guardia, una semilla. */
+/** Sorteo por tentáculo (una vez por carga): no hay dos hovers iguales. `random` ∈ [0,1): el navegador usa Math.random; la guardia, una semilla.
+ *  El ORDEN de las llamadas a `random` es el del prototipo (ref:L100–L105), `spring.delay` incluido: misma semilla ⇒ mismos parámetros (R10d). */
 export function makeMotion(random: () => number): Motion {
   const rnd = (r: Range) => r[0] + random() * (r[1] - r[0]);
   const O = OCTOPUS;
@@ -305,7 +314,7 @@ export function makeMotion(random: () => number): Motion {
     wave: { k: rnd(O.WAVE_K), w: rnd(O.WAVE_W), ph: rnd(O.PHASE), a: rnd(O.WAVE_A) },
     noise: Array.from({ length: O.NOISE_HARMONICS }, (_, m) => ({ k: rnd(O.NOISE_K) * (m + 1) * O.NOISE_K_GAIN, w: rnd(O.NOISE_W) * (m % 2 ? -1 : 1), ph: rnd(O.PHASE), a: rnd(O.NOISE_A) / (m + 1) })),
     sway: { w: rnd(O.SWAY_W), ph: rnd(O.PHASE), a: rnd(O.SWAY_A) * (random() < 0.5 ? -1 : 1) },
-    spring: { x: 0, v: 0, kOn: rnd(O.SPRING_K_ON), zOn: rnd(O.SPRING_Z_ON), kOff: rnd(O.SPRING_K_OFF), zOff: rnd(O.SPRING_Z_OFF) },
+    spring: { x: 0, v: 0, kOn: rnd(O.SPRING_K_ON), zOn: rnd(O.SPRING_Z_ON), kOff: rnd(O.SPRING_K_OFF), zOff: rnd(O.SPRING_Z_OFF), delay: rnd(O.SPRING_DELAY) },
     stretch: { a: rnd(O.STRETCH_A), w: rnd(O.STRETCH_W), ph: rnd(O.PHASE) },
     time: rnd(O.TIME0),
   };
@@ -350,6 +359,8 @@ export function deformPoints(T: TentacleRuntime, M: Motion, amp: number, t: numb
 /**
  * Un fotograma completo como `d`: por cada tentáculo (en orden de contorno) su región deformada y el tramo fijo que le sigue; cierra
  * y añade el hueco literal. Pura: misma entrada ⇒ mismo texto, en Node y en el navegador.
+ * M1d F5 (medido en el artefacto, Chrome 120 Hz, 3 ciclos de hover): esta concatenación da mediana 0,6 ms · p95 0,7 ms por fotograma;
+ * un búfer de cadenas reutilizado + `join` dio mediana 0,6 · p95 0,8. Sin mejora ⇒ se conserva la forma simple.
  */
 export function deformFrame(prep: Prepared, motions: Motion[], amps: number[], times: number[]): string {
   let d = '';
@@ -389,13 +400,12 @@ function isStill(): boolean {
 export function startOctopus(host: HTMLElement, path: SVGPathElement, rig: Rig): () => void {
   if (isStill()) return () => {};
   const dRest = path.getAttribute('d') ?? '';
-  const fine = matchMedia('(hover: hover) and (pointer: fine)');
   const O = OCTOPUS;
   let prep: Prepared | null = null;
   const motions: Motion[] = rig.tentacles.map(() => makeMotion(Math.random));
   const amps = new Array<number>(motions.length).fill(0);
   const times = new Array<number>(motions.length).fill(0);
-  let active = false, raf = 0, last = 0, onScreen = true, woke = false;
+  let active = false, raf = 0, last = 0, onScreen = true;
   let wakeTimer: ReturnType<typeof setTimeout> | undefined;
 
   const ensure = () => (prep ??= prepare(dRest, rig));
@@ -424,36 +434,40 @@ export function startOctopus(host: HTMLElement, path: SVGPathElement, rig: Rig):
   function halt() { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
   function enter() { active = true; kick(); }
   function leave() { active = false; kick(); }
-  function wake() { enter(); clearTimeout(wakeTimer); wakeTimer = setTimeout(leave, O.WAKE_HOLD_MS); }
+  const hasEnergy = () => motions.some(M => Math.abs(M.spring.x) + Math.abs(M.spring.v) >= O.ENERGY_REST);
 
-  const onPointerEnter = (e: PointerEvent) => { if (e.pointerType === 'mouse' && fine.matches) enter(); };
-  const onPointerLeave = (e: PointerEvent) => { if (e.pointerType === 'mouse' && fine.matches) leave(); };
+  // = prototipo ref:L174–L177: hover solo con ratón; foco/blur; el toque (cualquier puntero que no sea ratón) despierta y suelta a
+  // WAKE_HOLD_MS. Sin `preventDefault`: el enlace navega igual que en el prototipo.
+  const onPointerEnter = (e: PointerEvent) => { if (e.pointerType === 'mouse') enter(); };
+  const onPointerLeave = (e: PointerEvent) => { if (e.pointerType === 'mouse') leave(); };
+  const onPointerDown = (e: PointerEvent) => { if (e.pointerType !== 'mouse') { enter(); clearTimeout(wakeTimer); wakeTimer = setTimeout(leave, O.WAKE_HOLD_MS); } };
   const onFocus = () => enter();
   const onBlur = () => leave();
+  // = prototipo ref:L178–L185: impulso de scroll en todos los dispositivos si no hay hover/foco activo (y, del ciclo de vida del repo,
+  // solo con el logo en pantalla: fuera de ella nada se ve y el bucle no debe arrancar).
   let lastY = window.scrollY, lastT = performance.now();
   const onScroll = () => {
     const now = performance.now(), v = Math.abs(window.scrollY - lastY) / Math.max(1, now - lastT); lastY = window.scrollY; lastT = now;
-    if (fine.matches || active || !onScreen) return;
+    if (active || !onScreen) return;
     const imp = Math.min(v * O.SCROLL_GAIN, O.SCROLL_IMP_MAX);
     for (const M of motions) M.spring.v += imp * (O.SCROLL_JITTER[0] + Math.random() * (O.SCROLL_JITTER[1] - O.SCROLL_JITTER[0]));
     kick();
   };
-  const onVisibility = () => { if (document.hidden) halt(); else if (active || motions.some(M => Math.abs(M.spring.x) + Math.abs(M.spring.v) >= O.ENERGY_REST)) kick(); };
+  const onVisibility = () => { if (document.hidden) halt(); else if (active || hasEnergy()) kick(); };
   const io = new IntersectionObserver(entries => {
     onScreen = entries[0]?.isIntersecting ?? true;
-    if (!onScreen) { halt(); return; }
-    if (!fine.matches && !woke) { woke = true; wake(); }
-    else if (active || motions.some(M => Math.abs(M.spring.x) + Math.abs(M.spring.v) >= O.ENERGY_REST)) kick();
+    if (!onScreen) halt(); else if (active || hasEnergy()) kick();
   });
 
   host.addEventListener('pointerenter', onPointerEnter, { passive: true });
   host.addEventListener('pointerleave', onPointerLeave, { passive: true });
+  host.addEventListener('pointerdown', onPointerDown, { passive: true });
   host.addEventListener('focus', onFocus, { passive: true });
   host.addEventListener('blur', onBlur, { passive: true });
   window.addEventListener('scroll', onScroll, { passive: true });
   document.addEventListener('visibilitychange', onVisibility);
-  // La anatomía se prepara en un hueco ocioso tras el primer pintado (no en el primer fotograma del hover); en táctil, el observador
-  // despierta el logo UNA vez al quedar visible (M1c F3: tocarlo navega, no se secuestra el toque).
+  // La anatomía se prepara en un hueco ocioso tras el primer pintado (no en el primer fotograma del hover). El observador solo gobierna
+  // el ciclo de vida (parar fuera de pantalla): no despierta nada por sí mismo.
   const hasIdle = 'requestIdleCallback' in window;
   const idle: number | ReturnType<typeof setTimeout> = hasIdle ? window.requestIdleCallback(() => { ensure(); io.observe(host); }) : setTimeout(() => { ensure(); io.observe(host); }, 0);
 
@@ -464,6 +478,7 @@ export function startOctopus(host: HTMLElement, path: SVGPathElement, rig: Rig):
     io.disconnect();
     host.removeEventListener('pointerenter', onPointerEnter);
     host.removeEventListener('pointerleave', onPointerLeave);
+    host.removeEventListener('pointerdown', onPointerDown);
     host.removeEventListener('focus', onFocus);
     host.removeEventListener('blur', onBlur);
     window.removeEventListener('scroll', onScroll);

@@ -8,7 +8,7 @@ owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-11-06
-verified_against_code: 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
+verified_against_code: 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
@@ -300,20 +300,25 @@ resueltos por el navegador en un elemento sonda; la quietud por `--bbf-motion-lo
 cambia el tamaño o cargan las fuentes. Con la pestaña oculta el reloj se detiene y, al volver, sigue donde estaba. **HTML servido:** la placa
 vacía, que es su reposo (decorativo, `aria-hidden`: no hay texto que perder, I-4).
 
-## §12 — S9 · Imagotipo vivo (`src/behavior/brand-mark-octopus.ts`, M1c · 2026-11-06)
+## §12 — S9 · Imagotipo vivo (`src/behavior/brand-mark-octopus.ts`, M1c · 2026-11-06 · M1d: idéntico al prototipo)
 
-**Qué hace:** en reposo el `<path>` del imagotipo es el trazado oficial, inline, en color acento (`--bbf-accent`). Con puntero fino
-(`(hover: hover) and (pointer: fine)` y `pointerType === 'mouse'`) o foco de teclado vira a menta (`--bbf-text-on-base`, CSS) y el motor
-cambia el `d` del MISMO `<path>`: los seis tentáculos se mueven cada uno por su cuenta y, al soltar, vuelven; cuando la energía de los
-muelles baja de `ENERGY_REST` se restaura el `d` oficial **literal** y el bucle se para (D-BBW-28). En táctil (`hover: none`) tocar el logo
-navega (no se secuestra el toque): despierta UNA vez al quedar visible tras la carga y responde al desplazamiento con un impulso acotado
-por velocidad. **Modelo (motor de referencia aprobado por Zavala el 2026-11-05, `despachos/2026-11/insumos/M1c-motor-referencia-aprobado-2026-11-05.js`):**
-varilla con marco local. La anatomía (puntas, regiones, líneas centrales, sección) se deriva del maestro **al compilar** (rig v3,
-`src/media/generated.ts`, perfil `rig` del registro, `MEDIA.md` §9); al arrancar, cada punto del contorno de un tentáculo se expresa en el
-marco (tangente, normal) de su línea central; la deformación es θ(s) = θ₀(s) + A·s^1,6·g(s,t) con g = onda base→punta + tres armónicos de
-ruido + vaivén, todos con frecuencia, fase y velocidad sorteadas por tentáculo en cada carga; la columna se integra con las longitudes
-reales × un estiramiento elástico que crece hacia la punta (nunca bajo 1, pulso propio); grosor y casquete viajan rígidos en el marco.
-Cuerpo, cabeza y hueco: puntos oficiales fijos. Función pura `deformFrame(prep, motions, amps, times)` → `d`; el motor solo cablea.
+**Qué hace:** en reposo el `<path>` del imagotipo es el trazado oficial, inline, en color acento (`--bbf-accent`). **El motor de referencia
+aprobado por Zavala el 2026-11-05 (`despachos/2026-11/insumos/M1c-motor-referencia-aprobado-2026-11-05.js`) es la especificación literal:
+conducta, movimiento y anatomía** (M1d, instrucción de Zavala: «igualito»). Conducta (= prototipo ref:L173–L185): con el puntero del ratón
+(`pointerType === 'mouse'`, sin condición de media query) o con foco de teclado vira a menta (`--bbf-text-on-base`, CSS) y el motor cambia el `d`
+del MISMO `<path>`: los seis tentáculos se mueven cada uno por su cuenta y, al soltar, vuelven; cuando la energía de los muelles baja de
+`ENERGY_REST` se restaura el `d` oficial **literal** y el bucle se para (D-BBW-28). Un **toque** (`pointerdown` que no sea ratón) despierta el
+motor y lo suelta a `WAKE_HOLD_MS`; no se llama a `preventDefault`: el enlace navega. El **scroll** da un impulso acotado por velocidad **en
+todos los dispositivos** si no hay hover/foco activo. **No hay despertar al cargar** (M1c lo había añadido por decisión de Strategic; M1d lo
+retira). **Modelo:** varilla con marco local. La anatomía (puntas, regiones, líneas centrales, sección) se deriva del maestro **al compilar**
+(rig v3, `src/media/generated.ts`, perfil `rig` del registro, `MEDIA.md` §9) con la línea central **exacta** (sin redondeo: M1d F2, abajo); al
+arrancar, cada punto del contorno de un tentáculo se expresa en el marco (tangente, normal) de su línea central; la deformación es
+θ(s) = θ₀(s) + A·s^1,6·g(s,t) con g = onda base→punta + tres armónicos de ruido + vaivén, todos con frecuencia, fase y velocidad sorteadas por
+tentáculo en cada carga **en el mismo orden de sorteo que el prototipo** (`spring.delay` incluido, sorteado y no leído: misma semilla ⇒ mismos
+parámetros); la columna se integra con las longitudes reales × un estiramiento elástico que crece hacia la punta (nunca bajo 1, pulso propio);
+grosor y casquete viajan rígidos en el marco. Cuerpo, cabeza y hueco: puntos oficiales fijos. Función pura `deformFrame(prep, motions, amps,
+times)` → `d`; el motor solo cablea. Coste por fotograma en el artefacto (M1d F5, Chrome 120 Hz, hover): mediana 0,6 ms · p95 0,7 ms; un búfer
+de cadenas + `join` no mejoró la cifra (0,6 · 0,8) y no se conserva.
 
 | Constante | Valor | Origen | Clase | Qué es |
 |---|---|---|---|---|
@@ -330,14 +335,26 @@ Cuerpo, cabeza y hueco: puntos oficiales fijos. Función pura `deformFrame(prep,
 | `TIME0` · `PHASE` | [0, 100] s · [0; 6,28] rad | ref:L113, L108 | dinámico / estático | reloj inicial y fases |
 | `SPRING_K_ON` · `SPRING_Z_ON` · `SPRING_K_OFF` · `SPRING_Z_OFF` | [26, 40] · [0,42; 0,55] · [9, 14] · [0,62; 0,78] | ref:L111 | plantilla | muelles de entrada (subamortiguada) y salida (más amortiguada), sorteados por tentáculo |
 | `ENERGY_REST` · `DT_MAX` · `DT_DEFAULT` | 0,004 · 33 ms · 16 ms | ref:L153, L167 | estático | umbral de reposo (Σ\|x\|+\|v\|) y paso de tiempo |
-| `SCROLL_GAIN` · `SCROLL_IMP_MAX` · `SCROLL_JITTER` | 0,9 · 2,2 · [0,6; 1,2] | ref:L188–L189 | dinámico | impulso de scroll (solo táctil): ganancia sobre px/ms, tope, dispersión por tentáculo |
-| `WAKE_HOLD_MS` | 1 100 ms | ref:L182 | plantilla | despertar táctil: cuánto se sostiene el muelle en 1 antes de soltar |
+| `SPRING_DELAY` | [0; 0,12] | ref:L103 | plantilla | retardo sorteado por el prototipo y nunca leído; se sortea igual para conservar la secuencia de `random` (M1d) |
+| `SCROLL_GAIN` · `SCROLL_IMP_MAX` · `SCROLL_JITTER` | 0,9 · 2,2 · [0,6; 1,2] | ref:L182–L183 | dinámico | impulso de scroll (todos los dispositivos, sin hover/foco activo): ganancia sobre px/ms, tope, dispersión por tentáculo |
+| `WAKE_HOLD_MS` | 1 100 ms | ref:L177 | plantilla | toque (`pointerdown` no-ratón): cuánto se sostiene el muelle en 1 antes de soltar |
 | `FMT_DECIMALS` | 2 | ref:L136 | estático | decimales de cada coordenada escrita en el `d` |
 
-`ref:Lnn` = línea del motor de referencia aprobado. Restos muertos del prototipo que **no** se portan: `CENTER`, `TIP_WIN`, `NOTCH_WIN`, `spring.delay`
-(sorteado y nunca leído) y la variable `on`. El signo de convexidad al hallar las puntas se toma del **área orientada** del contorno y no de la suma
-de giros: el maestro tiene una horquilla degenerada (`s.5,0,.8,0`) cuyas dos cúspides anulan esa suma (≈ 1e-13) y dejaban el signo al azar de la
-coma flotante (mismo resultado que obtuvo el prototipo en el navegador; camino determinista).
+`ref:Lnn` = línea del motor de referencia aprobado. Restos muertos del prototipo que **no** se portan: `CENTER`, `TIP_WIN`, `NOTCH_WIN` y la
+variable `on`. **Anatomía (M1d F2):** el signo de convexidad al hallar las puntas se toma del **área orientada** del contorno y no de la suma de
+giros del prototipo (ref:L30), porque esa suma es degenerada en el maestro (horquilla `s.5,0,.8,0`): **medido** Chrome −8,5e-13 → −1 y Node
++1,3e-12 → +1 (sobre los puntos exactos el criterio literal elegiría las muescas). El área orientada da el signo de Chrome y las seis puntas
+del prototipo; la punta TR cae en 558 frente a 559 del prototipo (meseta de giro de 4e-5 rad bajo el ruido float32 de `getPointAtLength`,
+ΔP ≈ 5e-4 u): **escalado** en el output de M1d. La línea central del rig se guarda **exacta**: redondearla a 0,001 u cambiaba de segmento a un
+punto de BL y otro de TR y los separaba 0,17 u del prototipo en movimiento (R10d).
+
+**Criterios del modelo aprobado (M1d F4, ejecución de la instrucción «igualito»; no es una decisión nueva):** los rojos de M1c que vienen del
+propio prototipo dejan de ser defectos. (1) **Separación entre tentáculos** (antes R10b, ≥ 1 u): el prototipo no tiene término de colisión y
+sus vecinos se tocan; la guardia la **reporta** (mínimo y % de fotogramas con contacto < 1 u) y **no falla**. La separación con el cuerpo (≥ 1 u)
+sigue siendo regla: el prototipo la cumple con 7,8 u de margen. (2) **Longitud** (antes M1 §4.3 «constante ± 0,5 %»): se reescribe como
+**«estiramiento ≤ +12 % y reposo = longitud oficial»** (el aprobado estira hacia la punta por diseño: `STRETCH_*`). (3) **Independencia**
+(antes M1 §4.4 «|r| < 0,3 y sin pico de autocorrelación > 0,5»): se reescribe como **«parámetros sorteados por tentáculo y por carga»** (el ritmo
+es del aprobado: ondas de frecuencia fija por carga).
 
 **Tokens que lee (nunca repite):** `--bbf-motion-octopus-play-state` (quietud; D-BBW-31). El color no lo lee: es CSS del átomo
 (`--bbf-accent` → `--bbf-text-on-base` con `--bbf-motion-link-duration` / `--bbf-motion-link-ease`).
@@ -351,10 +368,16 @@ volver si queda energía; en reposo no hay ningún `rAF` pendiente. La anatomía
 el primer fotograma del hover. Oyentes pasivos; ninguna lectura de layout por fotograma. CLS 0: el `svg` lleva `overflow: visible` y las puntas
 salen de su caja sin moverla.
 
-**Guardia R10 (`scripts/lint/check-brand-mark-rig.ts`, M1c F4):** ejecuta el motor. R10c: el rig generado = el que se deriva del maestro.
-R10a: con amplitud 0, Hausdorff bidireccional contra el maestro ≤ 0,25 u en los seis y, en raster a 32/48/512 px, ningún píxel distinto fuera
-del borde. R10b: 20 semillas × 200 fotogramas: sección ± 1 % y separación ≥ 1 u entre tentáculos y con el cuerpo. Se ve fallar con
-`BBW_RIG_DEFECT=section-as-tangent` (el defecto real de `a4500d0`) y con `BBW_RIG_SVG=<maestro alterado>`. **Medidas y estado en el output de M1c.**
+**Guardia R10 (`scripts/lint/check-brand-mark-rig.ts`, M1c F4 · M1d F3; en `pnpm guard` y en el `pre-commit` desde M1d F6):** ejecuta el
+motor. R10c: el rig generado = el que se deriva del maestro. R10a: con amplitud 0, Hausdorff bidireccional contra el maestro ≤ 0,25 u en los
+seis y, en raster a 32/48/512 px, ningún píxel distinto fuera del borde. R10b: 20 semillas × 200 fotogramas: sección ± 1 % y separación con el
+cuerpo ≥ 1 u (fallan); separación entre tentáculos informativa. **R10d (identidad con el prototipo):** `scripts/lint/fixtures/brand-mark-golden.{json,bin}`
+guarda los vértices que escribió el prototipo aprobado en Chrome (3 semillas × 200 fotogramas, `Math.random` = mulberry32(semilla), muelle de
+entrada, dt = 1/60; 1 de cada 8 vértices + el centro de cada región; int16 a 0,01 u, que es la precisión con que el prototipo escribe el `d`),
+con el sha256 del prototipo de origen y las dos sustituciones con que se generó (muestreador del contorno = el del repo, porque el de Blink
+acumula en float32; signo por área orientada) declaradas en la cabecera; el motor del repo corre con las mismas semillas y falla si cualquier
+vértice guardado difiere > 0,05 u. Se ve fallar con `BBW_RIG_DEFECT=section-as-tangent` (el defecto real de `a4500d0`), con
+`BBW_RIG_SVG=<maestro alterado>` y, R10d, cambiando una sola constante de movimiento. **Medidas y estado en los outputs de M1c y M1d.**
 
 ## §13 — S10 · Consentimiento (`src/behavior/consent.ts`, P-BBW-82, L3, 2026-11-06)
 
@@ -388,4 +411,4 @@ No es un token de diseño: es una medida en tiempo de ejecución y por eso no ti
 dispara es, precisamente, el que la envoltura descarta (verificado en F5.4 del output de L3).
 
 ---
-*BBW-BEHAVIOR v1.7 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
+*BBW-BEHAVIOR v1.8 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
