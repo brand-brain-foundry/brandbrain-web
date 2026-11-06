@@ -135,15 +135,9 @@
 }
 
 /* ── ENLACES EN PROSA ───────────────────────────────────── */
+/* S11 (M2, P-BBW-83): el subrayado (por degradado, que se RECOGE al pasar), el hover de opacidad y el contexto de apilamiento del párrafo
+   («lo lejano pasa detrás del texto») los pone el sistema (base/document.css, `[data-scatter="prose"]`). Aquí solo el color (I-6). */
 .link {
   color: var(--bbf-accent);
-  text-decoration: underline;
-  text-decoration-thickness: from-font;
-  text-underline-offset: 0.15em;
   pointer-events: auto;
-  transition: opacity var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
-}
-
-.link:hover {
-  opacity: 0.75;
 }

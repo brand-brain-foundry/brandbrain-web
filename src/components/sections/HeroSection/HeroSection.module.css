@@ -174,8 +174,9 @@
 }
 
 /* Botón: 48 de alto (`space-12`), relleno lateral `space-7`, radio de píldora, contorno de 1 px en el texto del sistema.
-   Primario: relleno claro (`--bbf-text-on-base`) y texto en la superficie; al pasar, el acento madre (contraste del texto oscuro ~7,6).
-   Secundario: contorno y texto claros sobre transparente; al pasar, contorno y texto en el acento. */
+   Primario: relleno claro (`--bbf-text-on-base`) y texto en la superficie. Secundario: contorno y texto claros sobre transparente.
+   S11 (M2, P-BBW-83): al pasar, la PIEL se deshace y los glifos se sueltan (base/document.css, `[data-scatter="fill"]` / `"outline"`); los
+   hovers de acento y sus transiciones salen de aquí (I-6) y quedan, con movimiento reducido, como alternativa de reposo en ese bloque. */
 .cta {
   display: inline-flex;
   align-items: center;
@@ -192,10 +193,6 @@
   letter-spacing: var(--bbf-type-button-tracking);
   white-space: nowrap;
   text-decoration: none;
-  transition:
-    background-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
-    border-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
-    color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
 .ctaPrimary {
@@ -203,19 +200,9 @@
   color: var(--bbf-surface-base);
 }
 
-.ctaPrimary:hover {
-  background: var(--bbf-accent);
-  border-color: var(--bbf-accent);
-}
-
 .ctaSecondary {
   background: transparent;
   color: var(--bbf-text-on-base);
-}
-
-.ctaSecondary:hover {
-  border-color: var(--bbf-accent);
-  color: var(--bbf-accent);
 }
 
 /* Flecha: 16 (`space-4`), trazo por el rol de icono de la nav (`--bbf-line-toggle`, 1,5 px). */

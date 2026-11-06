@@ -92,3 +92,126 @@ body {
 :focus:not(:focus-visible) {
   outline: none;
 }
+
+/* S11 · DESARME DE ENLACES Y BOTONES (M2, P-BBW-83; `src/behavior/glyph-scatter.ts`, docs/system/BEHAVIOR.md §14): UN solo sitio, como la entrada y el
+   foco. Un enlace o botón se MARCA con `data-scatter` (text · icon · outline · fill · prose) y nada más; el cableador (un solo cliente en el layout)
+   parte el texto en glifos y los mueve, y escribe las marcas de estado (`data-scatter-on` = el prototipo tiene el puntero, el foco o el toque;
+   `data-scatter-skin-live` = la piel vectorial de un botón está en marcha). Todo lo que S11 necesita del CSS vive aquí, por rol; ningún componente
+   escribe nada de S11. El HTML servido trae el reposo (I-4): sin JavaScript no hay marca de estado y nada de esto cambia lo que se ve, salvo el
+   subrayado de los enlaces en prosa, que pasa a ser el del prototipo (un degradado de `--bbf-line-sm` al pie de la caja: es el único subrayado que
+   se puede RECOGER desde un lado; `text-decoration` no). */
+[data-scatter] {
+  position: relative;
+}
+
+[data-scatter-text] {
+  display: inline;
+}
+
+/* la palabra sigue siendo una caja EN LÍNEA (una caja atómica por palabra cambiaba los cortes de línea del párrafo, medido en F1); lo que no
+   se parte es su interior (`nowrap` gobierna los cortes entre sus glifos). */
+[data-scatter-word] {
+  display: inline;
+  white-space: nowrap;
+}
+
+[data-scatter-glyph] {
+  display: inline-block;
+  position: relative;
+  will-change: transform;
+}
+
+/* el texto literal, oculto visualmente, es el nombre accesible (mismo patrón que el nombre del icono en NavLink: ocupa la caja y se recorta) */
+[data-scatter-name] {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+/* la piel vectorial del botón: contorno en el color del texto (lo que hoy pinta el borde), relleno en la tinta clara (lo que hoy pinta el fondo de
+   la llamada primaria); grosor del contorno por rol. Mientras está en marcha, la piel CSS del átomo se retira y el `rect` es la piel. */
+[data-scatter-skin] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+[data-scatter-skin-live] > [data-scatter-skin] {
+  visibility: visible;
+}
+
+[data-scatter="outline"] [data-scatter-skin] rect {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--bbf-line-sm);
+}
+
+[data-scatter="fill"] [data-scatter-skin] rect {
+  fill: var(--bbf-text-on-base);
+}
+
+[data-scatter="outline"][data-scatter-skin-live] {
+  border-color: transparent;
+}
+
+[data-scatter="fill"][data-scatter-skin-live] {
+  border-color: transparent;
+  background-color: transparent;
+}
+
+/* «el texto toma el color del relleno» mientras el botón relleno está activo (prototipo: 0,3 s → el paso `link` de la retícula) */
+[data-scatter="fill"] {
+  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+[data-scatter="fill"][data-scatter-on] {
+  color: var(--bbf-text-on-base);
+}
+
+/* enlace en texto: subrayado por degradado que se recoge al activarse; el párrafo que lo contiene es un contexto de apilamiento propio para que
+   lo lejano (z-index −1 del glifo) pase DETRÁS del texto del párrafo y no del documento */
+[data-scatter="prose"] {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% var(--bbf-line-sm);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+[data-scatter="prose"][data-scatter-on] {
+  background-size: 0 var(--bbf-line-sm);
+}
+
+:is(p, li):has(> [data-scatter="prose"]) {
+  isolation: isolate;
+}
+
+/* QUIETUD (D-BBW-31, I-9): con movimiento reducido el cableador no arranca y estos son los estados activos: los hovers que el sitio tenía
+   antes de S11, por tipo de marca, en el único sitio del sistema (antes vivían en seis hojas de componente). */
+@media (prefers-reduced-motion: reduce) {
+  [data-scatter="text"]:hover,
+  [data-scatter="icon"]:hover,
+  [data-scatter="outline"]:hover {
+    color: var(--bbf-accent);
+  }
+
+  [data-scatter="outline"]:hover {
+    border-color: var(--bbf-accent);
+  }
+
+  [data-scatter="fill"]:hover {
+    border-color: var(--bbf-accent);
+    background-color: var(--bbf-accent);
+  }
+
+  [data-scatter="prose"]:hover {
+    opacity: 0.75;
+  }
+}

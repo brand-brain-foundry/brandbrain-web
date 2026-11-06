@@ -19,6 +19,9 @@ import styles from "./Footer.module.css";
  * aviso, agrupar la legal con los perfiles dejaba el extremo derecho vacío. El orden del DOM es el visual y la fila deja de estar invertida.
  * LO QUE SALE, en el mismo commit (I-6): el aviso de estado con su punto y su pulso (Q-BBW-010, confirmada por Zavala) y la FIRMA
  * (D-BBW-50), que pasa a tener una sola aparición en toda la página, bajo el encabezado del héroe.
+ * S11 (M2, P-BBW-83): los enlaces legales del pie solo se MARCAN (`data-scatter="text"`). EL SELLO NO SE MARCA (Zavala, 2026-11-06: UN efecto
+ * por pieza): conserva su propio efecto al pasar —elevación y halo de la insignia, tinte del texto (P-BBW-82)— y la guardia R11 lo exime por
+ * su selector nombrado (`a.cert`), no por un hueco del inventario (docs/system/BEHAVIOR.md §14).
  */
 export function Footer({ global, locale }: { global: GlobalDocument; locale: Locale }) {
   return (
@@ -30,7 +33,7 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
         {LEGAL_PAGES.map((page, i) => (
           <Fragment key={page.slug}>
             {i > 0 && <span className={styles.legalLinksSep} aria-hidden="true" />}
-            <Link className={styles.legalLinksItem} href={legalPageRoute(locale, page.slug)}>
+            <Link className={styles.legalLinksItem} href={legalPageRoute(locale, page.slug)} data-scatter="text">
               {global.legal.pages[page.slug]?.label ?? page.slug}
             </Link>
           </Fragment>
@@ -40,7 +43,7 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
             consentimiento lo intercepta por `data-consent-configure` y abre el panel. Es un `<a>` y no un `<Link>` a propósito: la
             navegación de cliente de Next se dispararía antes que la intercepción. */}
         <span className={styles.legalLinksSep} aria-hidden="true" />
-        <a className={styles.legalLinksItem} href={legalPageRoute(locale, "cookies")} {...{ [CONSENT_CONFIGURE_ATTR]: "" }}>
+        <a className={styles.legalLinksItem} href={legalPageRoute(locale, "cookies")} data-scatter="text" {...{ [CONSENT_CONFIGURE_ATTR]: "" }}>
           {global.consent.footerLink}
         </a>
       </nav>
@@ -53,7 +56,8 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
             2026-11-06 (P-BBW-82, sello y banner): el enlace lleva la ENTRADA al cargar (`data-enter`) y la VISIBILIDAD (oculto mientras la barra
             del consentimiento está a la vista, por `data-consent-bar` en `<html>`); su CUERPO es otro elemento porque es el que APARECE al bajar la
             barra, y una pieza con `data-enter` no puede transicionar lo que la entrada deja fijado (opacidad, desplazamiento, desenfoque). La
-            INSIGNIA tiene su clase porque es la que se eleva con el halo al pasar. El HTML servido lo trae visible (I-4). */}
+            INSIGNIA tiene su clase porque es la que se eleva con el halo al pasar. El HTML servido lo trae visible (I-4).
+            SIN `data-scatter` (S11): un efecto por pieza; el sello ya tiene el suyo. Exento en R11 como `a.cert`. */}
         <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="">
           <span className={styles.certBody}>
             <img
