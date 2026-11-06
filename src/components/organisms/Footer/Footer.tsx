@@ -6,7 +6,7 @@ import type { GlobalDocument } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
 import { identity } from "@/content/site";
-import { CONSENT_CONFIGURE_ATTR } from "@/components/organisms/ConsentBar";
+import { BAR_AVOID_ATTR, CONSENT_CONFIGURE_ATTR } from "@/components/organisms/ConsentBar";
 import { media } from "@/media";
 import styles from "./Footer.module.css";
 
@@ -53,12 +53,14 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
         </div>
         {/* EL SELLO (2026-11-02): enlace a la credencial verificable de Credly (`links.credly`, fuente única). Enlace simple, sin el guion
             de inserción de Credly (JS de terceros + iframe: I-4, I-5). Nombre accesible = su texto; la imagen va con `alt=""`.
-            2026-11-06 (P-BBW-82, sello y banner): el enlace lleva la ENTRADA al cargar (`data-enter`) y la VISIBILIDAD (oculto mientras la barra
-            del consentimiento está a la vista, por `data-consent-bar` en `<html>`); su CUERPO es otro elemento porque es el que APARECE al bajar la
-            barra, y una pieza con `data-enter` no puede transicionar lo que la entrada deja fijado (opacidad, desplazamiento, desenfoque). La
-            INSIGNIA tiene su clase porque es la que se eleva con el halo al pasar. El HTML servido lo trae visible (I-4).
+            2026-11-06 (P-BBW-82, sello y banner): el enlace lleva la ENTRADA al cargar (`data-enter`) y la VISIBILIDAD; su CUERPO es otro
+            elemento porque es el que APARECE, y una pieza con `data-enter` no puede transicionar lo que la entrada deja fijado (opacidad,
+            desplazamiento, desenfoque). La INSIGNIA tiene su clase porque es la que se eleva con el halo al pasar.
+            2026-11-06 (sello según solape): el enlace lleva la marca genérica `data-bar-avoid` (`ConsentBar/attr.ts`): el cableado de la barra
+            del consentimiento lo observa y le pone `data-bar-covered` SOLO MIENTRAS LA BARRA LO TAPA, aunque sea en parte; entero por encima de
+            la barra, aparece aunque ella siga abierta. El CSS de aquí solo lee esa marca. El HTML servido lo trae visible (I-4).
             SIN `data-scatter` (S11): un efecto por pieza; el sello ya tiene el suyo. Exento en R11 como `a.cert`. */}
-        <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="">
+        <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="" {...{ [BAR_AVOID_ATTR]: "" }}>
           <span className={styles.certBody}>
             <img
               className={styles.certBadge}
