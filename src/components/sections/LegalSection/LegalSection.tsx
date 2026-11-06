@@ -3,13 +3,14 @@ import type { LegalSection as LegalSectionType, Span } from "@/content/schema";
 import { identity } from "@/content/site";
 import styles from "./LegalSection.module.css";
 
-/** Resuelve un tramo a un nodo React: texto simple, enlace externo (fuente única) o enlace interno resuelto. S11: el enlace en prosa solo se
- * MARCA (`data-scatter="prose"`); subrayado, hover de reposo y contexto de apilamiento del párrafo los pone el sistema (base/document.css). */
+/** Resuelve un tramo a un nodo React: texto simple, enlace externo (fuente única) o enlace interno resuelto. M3 (P-BBW-84): el enlace en prosa solo
+ * se MARCA con su tipo (`data-hover="prose"`): subrayado y hover de color (acento → un paso más oscuro) los pone el sistema (base/document.css).
+ * SIN `data-scatter`: las legales no se desarman. */
 function renderSpan(span: Span, key: number) {
   if (typeof span === "string") return span;
   if ("path" in span) {
     // { text, path } — enlace interno generado por el puerto desde { page: slug }
-    return <Link key={key} href={span.path} className={styles.link} data-scatter="prose">{span.text}</Link>;
+    return <Link key={key} href={span.path} className={styles.link} data-hover="prose">{span.text}</Link>;
   }
   if ("page" in span || "global" in span) return null; // nunca llegan aquí: el puerto los resuelve antes de entregar el documento
   const href = identity.links[span.link];
@@ -19,7 +20,7 @@ function renderSpan(span: Span, key: number) {
       key={key}
       href={href}
       className={styles.link}
-      data-scatter="prose"
+      data-hover="prose"
       {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       {span.text}

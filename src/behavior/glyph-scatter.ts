@@ -13,8 +13,9 @@
  * UNA FUENTE: todas las constantes del movimiento viven aquí (D-BBW-30). Funciones PURAS (`makeGlyph`, `stepGlyph`, `glyphFrame`, `stepSkin`,
  * `skinFrame`) separadas de las que tocan el DOM (`splitGlyphs`, `fitSkin`, `startScatter`, marcadas). Un solo bucle `requestAnimationFrame`
  * para toda la página, que se para cuando nada está activo ni asentándose. El componente cliente (`GlyphScatter`) solo cablea una vez.
- * CABLEADO PUNTUAL: un componente solo se MARCA (`data-scatter="text|icon|outline|fill|prose"`, `data-scatter-skip` en lo que no se parte); el
- * cableador delega los eventos en `document` y hace el resto. Lo que crea lleva sus propias marcas (`data-scatter-word`, `-glyph`, `-name`, `-skin`).
+ * CABLEADO PUNTUAL (M3, P-BBW-84: OPT-IN): un componente solo se MARCA (`data-scatter` vacío = se desarma; su TIPO de piel está en
+ * `data-hover="text|icon|outline|fill|prose"`, la marca del hover de color que todo host lleva; `data-scatter-skip` en lo que no se parte); el
+ * cableador delega los eventos en `document` y hace el resto. Sin `data-scatter` no hay desarme: queda solo el hover de color del sistema. Lo que crea lleva sus propias marcas (`data-scatter-word`, `-glyph`, `-name`, `-skin`).
  * HTML SERVIDO (I-4): el texto íntegro y la piel CSS del átomo; el cliente parte el texto en glifos (dejando el texto literal como nombre oculto
  * visualmente, patrón del repo) y solo mueve. Sin JavaScript no cambia nada.
  * TOKENS QUE LEE (nunca repite): `--bbf-motion-scatter-play-state` (quietud, D-BBW-31) y el grosor del contorno de la piel, que el CSS fija en
@@ -234,8 +235,9 @@ export function frameDt(ts: number, last: number): number {
 
 // ───────────────────────────── DOM (impuro desde aquí) ─────────────────────────────
 
-/** Marcas del sistema: el host las declara (`data-scatter`), el cableador escribe las demás. */
+/** Marcas del sistema: el host declara `data-scatter` (opt-in) y `data-hover` (tipo); el cableador escribe las demás. */
 export const SCATTER_ATTR = "data-scatter";
+export const HOVER_ATTR = "data-hover";
 export const SCATTER_SKIP_ATTR = "data-scatter-skip";
 export const SCATTER_ON_ATTR = "data-scatter-on";
 export const SCATTER_SKIN_LIVE_ATTR = "data-scatter-skin-live";
@@ -443,7 +445,7 @@ export function startScatter(doc: Document, random: Random = Math.random): () =>
   const ensure = (el: HTMLElement): HostState => {
     let S = hosts.get(el);
     if (S) return S;
-    const kind = (el.getAttribute(SCATTER_ATTR) || "text") as HostKind;
+    const kind = (el.getAttribute(HOVER_ATTR) || "text") as HostKind;
     const isBtn = kind === "outline" || kind === "fill";
     const inProse = kind === "prose";
     const nodes = el.hasAttribute(SPLIT_ATTR) ? ([...el.querySelectorAll<HTMLElement>(`[${GLYPH_ATTR}]`)]) : splitGlyphs(el);

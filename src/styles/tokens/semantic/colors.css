@@ -74,4 +74,18 @@
   --bbf-field-lane-live: var(--bbf-color-mint-400);
   --bbf-field-read: var(--bbf-accent);
   --bbf-field-hit: var(--bbf-color-accent-200);
+
+  /* M3 (P-BBW-84, 2026-11-06) · HOVER DE COLOR, DOS ROLES ELEGIDOS POR MEDIDA, y SELECCIÓN. Lo que en reposo es MENTA pasa a acento; lo que en
+     reposo es ACENTO baja un paso. El peldaño de cada uno lo fija el contraste contra la BANDA del fondo real (el sombreador se mueve: criterio de
+     arriba, peor píxel, 10–30 muestras por host; tabla en OUTPUT-BBW-2026-11-06-M3 §0.2):
+     · `hover-on-mint` NO ES LA MADRE: bajo «Pura kaSaka» el peor fotograma deja `accent-400` en 4,29 (< 4,5 para texto); `accent-300` no baja de 5,56 en
+       ningún host del sitio. Es el mismo peldaño que el anillo de foco (D-BBW-72) y el agarrador (D-BBW-76), por la misma razón: el acento que tiene
+       que LEERSE sobre el fondo real va un paso por encima de la madre; la madre sigue siendo identidad (icono, píldora, selección).
+     · `hover-on-accent`: los hosts en acento (enlaces en prosa) viven sobre la superficie base o el velo (banda plana): `accent-500` da 5,11–5,15 y es
+       el ÚNICO paso más oscuro que pasa (`accent-600`: 3,4).
+     · `selection-*`: fondo en la madre y texto en la tinta base (7,59; la menta daría 2,53). Son los pasos de la píldora (D-BBW-77), por la misma medida. */
+  --bbf-hover-on-mint: var(--bbf-color-accent-300);
+  --bbf-hover-on-accent: var(--bbf-color-accent-500);
+  --bbf-selection-surface: var(--bbf-accent);
+  --bbf-selection-text: var(--bbf-surface-base);
 }

@@ -93,13 +93,58 @@ body {
   outline: none;
 }
 
-/* S11 · DESARME DE ENLACES Y BOTONES (M2, P-BBW-83; `src/behavior/glyph-scatter.ts`, docs/system/BEHAVIOR.md §14): UN solo sitio, como la entrada y el
-   foco. Un enlace o botón se MARCA con `data-scatter` (text · icon · outline · fill · prose) y nada más; el cableador (un solo cliente en el layout)
-   parte el texto en glifos y los mueve, y escribe las marcas de estado (`data-scatter-on` = el prototipo tiene el puntero, el foco o el toque;
-   `data-scatter-skin-live` = la piel vectorial de un botón está en marcha). Todo lo que S11 necesita del CSS vive aquí, por rol; ningún componente
-   escribe nada de S11. El HTML servido trae el reposo (I-4): sin JavaScript no hay marca de estado y nada de esto cambia lo que se ve, salvo el
-   subrayado de los enlaces en prosa, que pasa a ser el del prototipo (un degradado de `--bbf-line-sm` al pie de la caja: es el único subrayado que
-   se puede RECOGER desde un lado; `text-decoration` no). */
+/* HOVER DE COLOR (M3, P-BBW-84; antes vivía en seis hojas de componente, M2 lo sustituyó por S11 y Zavala lo quiere de vuelta JUNTO al desarme):
+   UN solo sitio, como la entrada y el foco. Todo enlace y botón se MARCA con su TIPO DE PIEL, `data-hover="text|icon|outline|fill|prose"` (la guardia
+   R11b lo exige), y por él recibe el hover del sistema, con y sin desarme, con y sin JavaScript (I-4), en todos los modos de movimiento (con
+   movimiento reducido la madre de duración colapsa y la transición no se ve: ninguna regla propia). Los pasos son roles elegidos por contraste medido
+   (semantic/colors.css): lo menta → `--bbf-hover-on-mint`; lo acento (`prose`, el único tipo cuyo reposo es acento) → `--bbf-hover-on-accent`.
+   El estado activo es el puntero, el foco de teclado o la marca `data-scatter-on` (el toque despierta S11 900 ms y el color lo acompaña). */
+[data-hover] {
+  transition:
+    color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
+    border-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
+    background-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+[data-hover="text"]:is(:hover, :focus-visible, [data-scatter-on]),
+[data-hover="icon"]:is(:hover, :focus-visible, [data-scatter-on]),
+[data-hover="outline"]:is(:hover, :focus-visible, [data-scatter-on]) {
+  color: var(--bbf-hover-on-mint);
+}
+
+[data-hover="outline"]:is(:hover, :focus-visible, [data-scatter-on]) {
+  border-color: var(--bbf-hover-on-mint);
+}
+
+/* el relleno: fondo y contorno al acento; el texto conserva la tinta base (sobre `hover-on-mint` contrasta 9,84) */
+[data-hover="fill"]:is(:hover, :focus-visible, [data-scatter-on]) {
+  border-color: var(--bbf-hover-on-mint);
+  background-color: var(--bbf-hover-on-mint);
+}
+
+[data-hover="prose"]:is(:hover, :focus-visible, [data-scatter-on]) {
+  color: var(--bbf-hover-on-accent);
+}
+
+/* enlace en texto: subrayado por degradado al pie de la caja (el del prototipo de S11, el único que se puede RECOGER desde un lado) como reposo
+   del tipo, con y sin desarme: un solo render para `prose`. Sigue al color (currentColor). */
+[data-hover="prose"] {
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 100% var(--bbf-line-sm);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition:
+    color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
+    background-size var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+/* S11 · DESARME DE ENLACES Y BOTONES (M2, P-BBW-83; M3, P-BBW-84: OPT-IN; `src/behavior/glyph-scatter.ts`, docs/system/BEHAVIOR.md §14): UN solo sitio,
+   como la entrada y el foco. Un enlace o botón se desarma SOLO si lleva la marca `data-scatter` (vacía); el tipo de piel lo lee en `data-hover`. Hoy la
+   llevan la navegación de la cabecera y los dos botones del héroe, y lo dice un solo sitio (R11b). El cableador (un solo cliente en el layout) parte el
+   texto en glifos y los mueve, y escribe las marcas de estado (`data-scatter-on` = el prototipo tiene el puntero, el foco o el toque;
+   `data-scatter-skin-live` = la piel vectorial de un botón está en marcha). S11 MUEVE; el color lo pone el bloque de arriba (I-6: un mecanismo por cosa).
+   El HTML servido trae el reposo (I-4): sin JavaScript no hay marca de estado y nada de esto cambia lo que se ve. */
 [data-scatter] {
   position: relative;
 }
@@ -130,8 +175,9 @@ body {
   clip-path: inset(50%);
 }
 
-/* la piel vectorial del botón: contorno en el color del texto (lo que hoy pinta el borde), relleno en la tinta clara (lo que hoy pinta el fondo de
-   la llamada primaria); grosor del contorno por rol. Mientras está en marcha, la piel CSS del átomo se retira y el `rect` es la piel. */
+/* la piel vectorial del botón: contorno en el color del texto (sigue al hover por currentColor), relleno en la tinta clara que pasa al acento con el
+   hover (transición de `fill` por el mismo rol); grosor del contorno por rol. Mientras está en marcha, la piel CSS del átomo se retira y el `rect` es
+   la piel. */
 [data-scatter-skin] {
   position: absolute;
   inset: 0;
@@ -146,72 +192,50 @@ body {
   visibility: visible;
 }
 
-[data-scatter="outline"] [data-scatter-skin] rect {
+[data-hover="outline"] [data-scatter-skin] rect {
   fill: none;
   stroke: currentColor;
   stroke-width: var(--bbf-line-sm);
 }
 
-[data-scatter="fill"] [data-scatter-skin] rect {
+[data-hover="fill"] [data-scatter-skin] rect {
   fill: var(--bbf-text-on-base);
+  transition: fill var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
-[data-scatter="outline"][data-scatter-skin-live] {
+[data-hover="fill"]:is(:hover, :focus-visible, [data-scatter-on]) [data-scatter-skin] rect {
+  fill: var(--bbf-hover-on-mint);
+}
+
+[data-hover="outline"][data-scatter-skin-live] {
   border-color: transparent;
 }
 
-[data-scatter="fill"][data-scatter-skin-live] {
+[data-hover="fill"][data-scatter-skin-live] {
   border-color: transparent;
   background-color: transparent;
 }
 
-/* «el texto toma el color del relleno» mientras el botón relleno está activo (prototipo: 0,3 s → el paso `link` de la retícula) */
-[data-scatter="fill"] {
-  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+/* «el texto toma el color del relleno» mientras el botón relleno está desarmado (prototipo: 0,3 s → el paso `link` de la retícula). M3: toma el color
+   de HOVER del relleno (`hover-on-mint`), no el menta, para que el color de hover sea uno solo en todo el sitio (despacho M3 §0.2; sobre el fondo
+   real del héroe: 7,94–8,26). */
+[data-hover="fill"][data-scatter-on] {
+  color: var(--bbf-hover-on-mint);
 }
 
-[data-scatter="fill"][data-scatter-on] {
-  color: var(--bbf-text-on-base);
-}
-
-/* enlace en texto: subrayado por degradado que se recoge al activarse; el párrafo que lo contiene es un contexto de apilamiento propio para que
-   lo lejano (z-index −1 del glifo) pase DETRÁS del texto del párrafo y no del documento */
-[data-scatter="prose"] {
-  text-decoration: none;
-  background-image: linear-gradient(currentColor, currentColor);
-  background-size: 100% var(--bbf-line-sm);
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  transition: background-size var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
-}
-
-[data-scatter="prose"][data-scatter-on] {
+/* enlace en texto desarmado: el subrayado se recoge; el párrafo que lo contiene es un contexto de apilamiento propio para que lo lejano (z-index −1
+   del glifo) pase DETRÁS del texto del párrafo y no del documento */
+[data-hover="prose"][data-scatter-on] {
   background-size: 0 var(--bbf-line-sm);
 }
 
-:is(p, li):has(> [data-scatter="prose"]) {
+:is(p, li):has(> [data-scatter]) {
   isolation: isolate;
 }
 
-/* QUIETUD (D-BBW-31, I-9): con movimiento reducido el cableador no arranca y estos son los estados activos: los hovers que el sitio tenía
-   antes de S11, por tipo de marca, en el único sitio del sistema (antes vivían en seis hojas de componente). */
-@media (prefers-reduced-motion: reduce) {
-  [data-scatter="text"]:hover,
-  [data-scatter="icon"]:hover,
-  [data-scatter="outline"]:hover {
-    color: var(--bbf-accent);
-  }
-
-  [data-scatter="outline"]:hover {
-    border-color: var(--bbf-accent);
-  }
-
-  [data-scatter="fill"]:hover {
-    border-color: var(--bbf-accent);
-    background-color: var(--bbf-accent);
-  }
-
-  [data-scatter="prose"]:hover {
-    opacity: 0.75;
-  }
+/* SELECCIÓN DE TEXTO (M3, P-BBW-84): UN solo sitio, por rol. Fondo en la madre del acento y texto en el de mejor contraste medido entre menta y tinta
+   base (tinta: 7,59; menta: 2,53 — semantic/colors.css). Vale sobre texto menta, acento y dentro de botones: el fondo de selección es opaco. */
+::selection {
+  background-color: var(--bbf-selection-surface);
+  color: var(--bbf-selection-text);
 }

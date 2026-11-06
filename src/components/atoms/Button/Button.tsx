@@ -8,8 +8,9 @@ import styles from "./Button.module.css";
  * Es un `<button type="button">`: nunca envía nada. El texto llega por `children` desde `content/`; el foco lo pinta el sistema (D-BBW-22).
  * Hereda la geometría de las llamadas a la acción del héroe (48 de alto, relleno lateral `space-7`, píldora, contorno de 1 px), por
  * los mismos tokens; no comparte hoja con ellas porque aquéllas son enlaces de una sección y éste es un control reutilizable.
- * S11 (M2, P-BBW-83): solo se MARCA (`data-scatter="outline"`); el desarme y el hover de reposo los pone el sistema (base/document.css). Sale el
- * hover de acento propio (I-6).
+ * M3 (P-BBW-84): solo se MARCA con su tipo de piel (`data-hover="outline"`): el hover de color (contorno y texto al acento, con transición) lo pone el
+ * sistema (base/document.css). SIN desarme S11: el botón del consentimiento no está entre los hosts declarados (cabecera y héroe). Si un día un botón
+ * lo necesita, `...rest` ya deja pasar `data-scatter=""` sin tocar el átomo.
  */
 export function Button({
   children,
@@ -18,7 +19,7 @@ export function Button({
   ...rest
 }: ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode }) {
   return (
-    <button type={type} className={`${styles.button}${className ? ` ${className}` : ""}`} data-scatter="outline" {...rest}>
+    <button type={type} className={`${styles.button}${className ? ` ${className}` : ""}`} data-hover="outline" {...rest}>
       {children}
     </button>
   );

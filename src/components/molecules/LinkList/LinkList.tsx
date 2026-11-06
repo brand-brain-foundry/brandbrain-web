@@ -20,18 +20,21 @@ export function LinkList({
   direction = "row",
   iconSize,
   enter = false,
+  scatter = false,
 }: {
   items: ResolvedLink[];
   typeRole: NavLinkProps["typeRole"];
   direction?: "row" | "column";
   iconSize?: NavLinkProps["iconSize"];
   enter?: boolean;
+  /** M3 (P-BBW-84): reenvía el opt-in del desarme S11 a cada enlace; la lista no decide nada */
+  scatter?: boolean;
 }) {
   return (
     <ul className={`${styles.list} ${styles[direction]}`} data-component="bbf-link-list">
       {items.map((item, i) => (
         <li key={item.id} className={styles.item} data-enter={enter ? "" : undefined} style={enter ? enterIndex(i) : undefined}>
-          <NavLink href={item.href} label={item.label} typeRole={typeRole} icon={item.icon} iconSize={iconSize} badge={item.badge} />
+          <NavLink href={item.href} label={item.label} typeRole={typeRole} icon={item.icon} iconSize={iconSize} badge={item.badge} scatter={scatter} />
         </li>
       ))}
     </ul>

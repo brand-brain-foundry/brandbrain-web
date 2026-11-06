@@ -26,8 +26,8 @@
   text-decoration: none;
 }
 
-/* S11 (M2, P-BBW-83): el hover de color (y su transición) sale de aquí (I-6): al pasar, el enlace se DESARMA (base/document.css,
-   `[data-scatter="text"]` / `"icon"`); con movimiento reducido el mismo bloque devuelve el color de acento como alternativa de reposo. */
+/* S11 (M2, P-BBW-83) y M3 (P-BBW-84): el hover de color (y su transición) viven en el sistema (base/document.css, `[data-hover="text"]` /
+   `"icon"`), en todos los modos; el DESARME solo donde el enlace lleva `data-scatter` (la cabecera). Nada de eso se escribe aquí (I-6). */
 
 /* un enlace que solo muestra un icono garantiza su área táctil también en anchura (44 → rol touch-min en la barra; 56 → ×14 en la hoja);
    medido en la primera pasada de F5: sin esto, el icono de 16 px dejaba un enlace de 16×44 */

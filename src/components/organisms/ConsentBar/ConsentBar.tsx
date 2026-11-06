@@ -40,14 +40,14 @@ function renderSpan(span: Span, key: number) {
   if (typeof span === "string") return span;
   if ("path" in span) {
     return (
-      <a key={key} href={span.path} className={styles.link} data-scatter="prose">
+      <a key={key} href={span.path} className={styles.link} data-hover="prose">
         {span.text}
       </a>
     );
   }
   if ("link" in span) {
     return (
-      <a key={key} href={identity.links[span.link]} className={styles.link} data-scatter="prose" target="_blank" rel="noopener noreferrer">
+      <a key={key} href={identity.links[span.link]} className={styles.link} data-hover="prose" target="_blank" rel="noopener noreferrer">
         {span.text}
       </a>
     );
