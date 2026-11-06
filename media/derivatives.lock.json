@@ -79,7 +79,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "4c0dec212a2e4ea6e45278ff57dcb7135dc0f9e26fc44955968825db935cd89e"
+    "sha256": "b080e6d34e94aadec23b32e2eaf2141c009526a82669108fc599f5c9f2c8b2eb"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -125,7 +125,7 @@
     "brandIconRig": {
       "master": "brandIcon",
       "profile": "rig step 0.5 samples 72",
-      "sha256": "e15c20150682623b9b1eb5d8dcd4dec8ec825ee07129c36a68da3fecfb97befb"
+      "sha256": "cd1d6964357d315c56e1fdd298d618622e41246776a7f5364170c18fe2b90d1a"
     }
   },
   "surface": {
