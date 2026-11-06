@@ -151,7 +151,10 @@ export function geometry(width: number, height: number, lineHeight: number | nul
   const pitch = wide ? (lineHeight as number) / C.LINE_DIVISIONS : C.NARROW_PITCH;
   const cols = Math.max(0, Math.floor(width / pitch));
   const rows = Math.max(0, Math.floor(height / pitch));
-  const start = Math.min(cols, Math.max(0, Math.ceil(textRight / pitch)));
+  // el recorte por el bloque de texto es del modo AMPLIO (el texto al lado del escenario). En el estrecho el texto va DEBAJO y, desde el
+  // 2026-11-06 (héroe móvil), su borde superior solapa el borde fundido de la caja: recortar ahí apagaba el campo entero (la addenda del
+  // despacho lo prohíbe); lo que protege la legibilidad en estrecho es la medida de contraste bajo el titular (I-8), no un recorte.
+  const start = wide ? Math.min(cols, Math.max(0, Math.ceil(textRight / pitch))) : 0;
   const step = wide ? C.LANE_STEP_WIDE : C.LANE_STEP_NARROW;
   let first = C.NARROW_FIRST_ROW;
   if (wide) {
