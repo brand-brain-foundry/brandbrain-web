@@ -197,7 +197,7 @@ export type GlobalDocument = {
 export type ConsentDocument = {
   /** primera capa: la barra inferior que no bloquea */
   banner: {
-    /** rótulo de la barra (también su nombre accesible como región) */
+    /** nombre accesible de la barra como región (`aria-label`); sin rótulo visible desde 2026-11-06 */
     label: string;
     /** el texto, con la referencia a la página de Cookies por `{ page }` */
     text: Span[];

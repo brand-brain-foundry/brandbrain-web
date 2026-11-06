@@ -71,7 +71,11 @@ function renderSpan(span: Span, key: number) {
  *     y abre el panel. Se escucha por delegación en el documento para no convertir el pie en cliente.
  *   · Retirar: si había aceptación y pasa a rechazo, el puerto cierra la puerta (`block()`) y la página se recarga para que el
  *     fragmento desaparezca; a partir de ahí, cero peticiones (requisito 3, F5.4).
- *   · La barra es FIJA abajo y no bloquea (región con nombre, no un diálogo). Para que no tape el pie sin forma de alcanzarlo
+ *   · La barra es FIJA abajo y no bloquea (región con nombre, no un diálogo). SIN RÓTULO VISIBLE (2026-11-06, orden de Zavala): la llave
+ *     `banner.label` sigue en `content/` y es el NOMBRE ACCESIBLE de la región (`aria-label`); el texto empieza en la primera frase.
+ *   · Va en la capa más alta del sistema (`--bbf-layer-toggle`): nada asoma por encima de ella (el sello del pie lo hacía) y, con la hoja de
+ *     navegación del teléfono abierta, sus enlaces siguen alcanzables porque quedan por encima de la barra (medido a 360 y 390).
+ *   · Para que no tape el pie sin forma de alcanzarlo
  *     (F5.8), su altura medida se escribe en el rol `--bbf-consent-reserve`, que `body` consume como margen inferior: el documento
  *     crece justo lo que la barra ocupa y el pie queda a la vista al desplazarse.
  *   · Sin animación de entrada, con o sin movimiento reducido (I-9).
@@ -87,7 +91,6 @@ export function ConsentBar({ consent }: { consent: ConsentDocument }) {
   const opener = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const switchId = useId();
-  const labelId = useId();
 
   /** Guarda la elección, cierra la barra y aplica la consecuencia: cargar la medición, o cerrarle la puerta y recargar. */
   const decide = useCallback(
@@ -180,13 +183,8 @@ export function ConsentBar({ consent }: { consent: ConsentDocument }) {
 
   return (
     <>
-      <section ref={bar} className={styles.bar} hidden={!visible} aria-labelledby={labelId} data-component="bbf-consent-bar">
-        <p className={styles.text}>
-          <span id={labelId} className={styles.label}>
-            {consent.banner.label}
-          </span>
-          {consent.banner.text.map((span, i) => renderSpan(span, i))}
-        </p>
+      <section ref={bar} className={styles.bar} hidden={!visible} aria-label={consent.banner.label} data-component="bbf-consent-bar">
+        <p className={styles.text}>{consent.banner.text.map((span, i) => renderSpan(span, i))}</p>
         <div className={styles.actions}>
           <Button onClick={() => decide(false)}>{consent.banner.reject}</Button>
           <Button onClick={() => decide(true)}>{consent.banner.accept}</Button>

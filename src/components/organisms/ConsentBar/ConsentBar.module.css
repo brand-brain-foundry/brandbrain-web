@@ -1,18 +1,23 @@
 /* ConsentBar — Tier 3: solo consume Tier 1/2. Ningún color, tamaño, espacio, duración ni media query escritos a mano; la vista
    responsiva llega por los roles de `semantic/viewport.css` (`--bbf-consent-*`, `--bbf-legal-table-*`).
-   BARRA (primera capa): fija al pie de la ventana, en la CAPA DE CONTENIDO —por encima del pie, que va antes en el documento, y por
-   DEBAJO de la cabecera y de su hoja (capas cromo y hoja): con el panel de navegación abierto en el teléfono, la hoja cubre la barra y
-   sus enlaces quedan alcanzables; al cerrarlo, la barra sigue ahí (medido en F5.8 del despacho L3: en la capa del cromo tapaba
-   «Contacto» y «Perfil de LinkedIn» de la hoja a 360 y 390)—, con el velo y el desenfoque de la hoja y un filete superior en la línea
-   del sistema. No bloquea: es una región, no un diálogo. `hidden` manda sobre el
-   `display` de la clase (sin esta regla el atributo no haría nada): así el HTML servido la trae oculta y sin JavaScript no se ve.
+   BARRA (primera capa): fija al pie de la ventana, en la CAPA MÁS ALTA del sistema (`--bbf-layer-toggle`, la del conmutador y el enlace de
+   salto): nada puede asomar por encima de ella. Antes iba en la capa de contenido y el sello del pie —en la misma capa y con su propio
+   apilamiento— se pintaba encima (medido a 1440, 2026-11-06). L3 la había dejado por debajo de la hoja del panel porque, con la barra de
+   entonces (tres píldoras apiladas, 184 px), tapaba «Contacto» y «Perfil de LinkedIn» de la hoja a 360 y 390 (F5.8); con la barra compacta
+   los enlaces de la hoja terminan por encima de la barra y siguen alcanzables (medido en fix/banner-compacto a 360×780 y 390×844).
+   Con el velo y el desenfoque de la hoja y un filete superior en la línea del sistema. No bloquea: es una región, no un diálogo; su nombre
+   accesible es `banner.label` (`aria-label`), sin rótulo visible. `hidden` manda sobre el `display` de la clase (sin esta regla el
+   atributo no haría nada): así el HTML servido la trae oculta y sin JavaScript no se ve.
    SIN animación de entrada (I-9): ni `data-enter` ni transición de aparición.
+   BOTONES: el mismo átomo y la misma variante para los tres de la barra y los tres del panel (AEPD, mismo nivel), con la geometría del
+   banner por sus roles (`--bbf-consent-button-*`, viewport.css): un peldaño por debajo del átomo en alto y relleno lateral, y la letra un
+   peldaño por debajo en la escala tipográfica. El átomo no cambia para el resto de la web.
    PANEL (segunda capa): `<dialog>` nativo sobre la superficie base, con el velo como telón; ancho de la columna de lectura. */
 .bar {
   position: fixed;
   inset-inline: 0;
   inset-block-end: 0;
-  z-index: var(--bbf-layer-content);
+  z-index: var(--bbf-layer-toggle);
   display: flex;
   flex-direction: var(--bbf-consent-direction);
   align-items: var(--bbf-consent-align);
@@ -40,17 +45,6 @@
   text-wrap: pretty;
 }
 
-/* El rótulo de la barra, en el rol de etiqueta y en el color secundario, en su propia línea. */
-.label {
-  display: block;
-  margin-block-end: var(--bbf-space-1);
-  color: var(--bbf-text-on-base-secondary);
-  font-family: var(--bbf-type-label-family);
-  font-size: var(--bbf-type-label-size);
-  font-weight: var(--bbf-type-label-weight);
-  letter-spacing: var(--bbf-type-label-tracking);
-}
-
 .link {
   color: var(--bbf-accent);
   text-decoration: underline;
@@ -70,7 +64,14 @@
 .actions > * {
   flex: var(--bbf-consent-button-flex);
   min-width: 0;
+}
+
+/* La geometría de los seis botones del consentimiento (barra y panel), por los roles del banner. */
+.actions > *,
+.panelActions > * {
+  height: var(--bbf-consent-button-height);
   padding-inline: var(--bbf-consent-button-inline);
+  font-size: var(--bbf-consent-button-size);
 }
 
 /* ── PANEL ───────────────────────────────────────────────────────────────── */
