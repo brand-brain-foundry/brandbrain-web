@@ -3,16 +3,16 @@ id: BBW-MEDIA-CONTRACT
 title: "Contrato del puerto de medios — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.2
+version: 1.4
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-17
-updated: 2026-09-29
-verified_against_code: 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
+updated: 2026-11-06
+verified_against_code: 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-21, D-BBW-24, D-BBW-02, D-BBW-03, D-BBW-09]
-summary: "Todo medio tiene un MAESTRO (fuente única, se edita a mano, media/masters/) y DERIVADOS (se generan por guion determinista con un perfil declarado, se versionan en public/ y nunca se editan). Un guardia comprueba la correspondencia maestro ⇔ derivados por hash. Nomenclatura por rol y dimensión. Adaptador actual: servidos desde el propio sitio; alternativa: almacenamiento externo. Hoy: el conjunto vigente de iconos + manifiesto y la imagen para compartir desde el icono de marca; el vídeo del héroe (D-BBW-24) desde el maestro nuevo del 2026-09-29 (H.264 1504×846 a 10 Mbit/s, fuente limpia; el maestro de registro comprimido de la 6d se conserva sin derivados): H.264 sin audio en dos tamaños + póster del primer fotograma, con presupuesto de peso por perfil comprobado por el guardia. Con esta fuente el formato moderno (AV1) SÍ ahorra a igual parecido (−17 %); no se aplica sin firma."
+summary: "Todo medio tiene un MAESTRO (fuente única, se edita a mano, media/masters/) y DERIVADOS (se generan por guion determinista con un perfil declarado, se versionan en public/ y nunca se editan). Un guardia comprueba la correspondencia maestro ⇔ derivados por hash. Nomenclatura por rol y dimensión. Adaptador actual: servidos desde el propio sitio; alternativa: almacenamiento externo. Hoy: el conjunto vigente de iconos + manifiesto y la imagen para compartir desde el icono de marca; el vídeo del héroe (D-BBW-24) desde el maestro nuevo del 2026-09-29 (H.264 1504×846 a 10 Mbit/s, fuente limpia; el maestro de registro comprimido de la 6d se conserva sin derivados): H.264 sin audio en dos tamaños + póster del primer fotograma, con presupuesto de peso por perfil comprobado por el guardia. Con esta fuente el formato moderno (AV1) SÍ ahorra a igual parecido (−17 %); no se aplica sin firma. v1.4 (M1c): el rig del imagotipo vivo es un derivado del perfil `rig` (anatomía derivada del maestro al compilar, en generated.ts, sellado en el lock, verificado por R10), no un maestro."
 tags: [medios, puerto, maestros, derivados, iconos, manifiesto, video, poster, brandbrain-web]
 ---
 
@@ -148,5 +148,25 @@ llevar `<script>`: el guion no lo evalúa y los derivados raster no lo conservan
 contextos en los que el navegador no ejecuta scripts). El manifiesto de procedencia C2PA del icono se conserva en maestro y derivado SVG
 como metadato inerte.
 
+## §9 — Rig del imagotipo vivo (perfil `rig` → `src/media/generated.ts`, M1c · 2026-11-06)
+
+El rig del imagotipo vivo (S9) **es un derivado, no un maestro** (M1c corrige a M1 §0.1 y a la v1.3 de este contrato): se deriva del maestro
+`brand-icon.svg` con el perfil `rig` declarado en el registro (`rigs.brandIconRig`: `step` 0,5 u, `samples` 72) por el mismo guion que todo lo
+demás (`pnpm media:build` → `scripts/media/brand-icon-rig.ts`), se escribe en `src/media/generated.ts` (`rigs`) y se sella en el lock
+(`rigs.<id>.sha256` = huella del JSON derivado; la huella de `generated.ts` lo cubre también). Nadie lo edita: se regenera.
+
+**Qué contiene (schema `brand-icon-rig/v3`):** `step`, `k`, `n` (muestras del contorno exterior), `l` (longitud del contorno) y seis tentáculos
+con `id` (TR · MR · BR · BL · ML · TL, por orden angular de la punta), `start`/`end` (índices de la región en el contorno muestreado), `w` (mediana
+de sección) y `l` (longitud) y `c` (línea central, 72 puntos a 0,001 u). Lo demás que el motor necesita (θ₀, longitudes de segmento, el marco
+(k, t, u, v) de cada punto de la región, los tramos fijos del cuerpo) **se deriva al arrancar** con el mismo código que derivó el rig: una
+sola fuente (I-1) y 3,6 KB comprimidos en vez de 28.
+
+**Qué lo vigila:** `check-media.ts` R3 (el lock lista exactamente los rigs del registro; R2 cubre `generated.ts`) y la guardia **R10**
+(`scripts/lint/check-brand-mark-rig.ts`, `pnpm lint:rig`, en `pnpm guard`): vuelve a derivar el rig del maestro y exige que coincida (R10c), y
+**ejecuta el motor** sobre él (R10a amplitud 0 ⇒ el maestro; R10b sección y separación en 20 semillas × 200 fotogramas). Cambiar el maestro sin
+regenerar rompe R1 (hash) y R10c.
+
+**Cómo se modifica:** nunca a mano. Cambia el maestro o el perfil → `pnpm media:build` → `pnpm lint:rig`.
+
 ---
-*BBW-MEDIA-CONTRACT v1.2 · `docs/system/MEDIA.md` · 2026-09-29 (v1.2: maestro nuevo del vídeo del héroe, `DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`; v1.1 fase 6d: vídeo del héroe, D-BBW-24, `DESPACHO-BBW-2026-09-17-fase6d-copy-video-y-fondo`) · nace en la fase 6c (`DESPACHO-BBW-2026-09-17-fase6c-sistema-de-medios-foco-y-piezas`, D-BBW-21)*
+*BBW-MEDIA-CONTRACT v1.4 · `docs/system/MEDIA.md` · 2026-11-06 (v1.4: §9 el rig pasa de maestro de configuración a derivado del perfil `rig`, sellado en el lock; M1c, `DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`) · v1.3: 2026-11-05 (M1) · v1.2: 2026-09-29 (`DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`) · v1.1 fase 6d: D-BBW-24 · nace en la fase 6c (D-BBW-21)*

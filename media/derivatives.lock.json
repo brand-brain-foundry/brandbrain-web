@@ -79,7 +79,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "cb31c25d197a7671cfadfc98a9902de8766230a567763725ea806446fbbd4cfa"
+    "sha256": "4c0dec212a2e4ea6e45278ff57dcb7135dc0f9e26fc44955968825db935cd89e"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -119,6 +119,13 @@
     "toggleArmTop": {
       "file": "toggle-arm-top.svg",
       "sha256": "7399dee05d20bda5470b44dfc1323a1fd7b20463a0020d317ef5817d409ea84e"
+    }
+  },
+  "rigs": {
+    "brandIconRig": {
+      "master": "brandIcon",
+      "profile": "rig step 0.5 samples 72",
+      "sha256": "e15c20150682623b9b1eb5d8dcd4dec8ec825ee07129c36a68da3fecfb97befb"
     }
   },
   "surface": {

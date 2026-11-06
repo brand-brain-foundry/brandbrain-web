@@ -31,6 +31,8 @@ export type LockFile = {
   surface: { token: string; srgb: string };
   masters: Record<string, LockMaster>;
   derivatives: Record<string, LockDerivative>;
+  /** M1c: rigs (anatomía derivada de un maestro vectorial, escrita en generated.ts): huella del JSON derivado, por id del registro */
+  rigs?: Record<string, { master: string; profile: string; sha256: string }>;
   generated: { path: string; sha256: string };
 };
 

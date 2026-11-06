@@ -166,7 +166,25 @@ export const derivatives: { readonly [K in DerivativeId]: Derivative } = _deriva
  * `use` distingue los iconos de perfil (los resuelve `iconFor(id)` desde el contenido) de los ornamentos (los pide un componente por nombre).
  */
 export type InlineIcon = { master: MasterId; paint: "fill" | "stroke"; use: "profile" | "ornament" };
+/**
+ * RIGS (M1c, 2026-11-05): derivados de ANATOMÍA de un maestro vectorial, no de imagen. El perfil `rig` muestrea el contorno del
+ * maestro cada `step` u y deriva los seis tentáculos (regiones, líneas centrales de `samples` puntos y sección) con el paso 1 del
+ * motor de referencia aprobado (`scripts/media/brand-icon-rig.ts`). Se escribe en `src/media/generated.ts` (`rigs`) y se sella en el
+ * lock; la guardia R10 lo vuelve a derivar y exige que coincida. Un rig no es un maestro: nadie lo edita, se regenera.
+ */
+export type RigProfile = { kind: "rig"; step: number; samples: number };
+export type RigSpec = { master: MasterId; profile: RigProfile; role: string };
+export const rigs = {
+  brandIconRig: {
+    master: "brandIcon",
+    profile: { kind: "rig", step: 0.5, samples: 72 },
+    role: "anatomía del imagotipo vivo (S9): regiones, líneas centrales y sección de los seis tentáculos; el motor la consume al arrancar",
+  },
+} as const satisfies Record<string, RigSpec>;
+export type RigId = keyof typeof rigs;
+
 export const inlineIcons = {
+  brandIcon: { master: "brandIcon", paint: "fill", use: "ornament" },
   linkedin: { master: "iconLinkedin", paint: "fill", use: "profile" },
   arrowRight: { master: "arrowRight", paint: "stroke", use: "ornament" },
   arrowUpRight: { master: "arrowUpRight", paint: "stroke", use: "ornament" },

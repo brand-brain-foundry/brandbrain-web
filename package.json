@@ -16,10 +16,11 @@
     "lint:media": "tsx scripts/lint/check-media.ts",
     "lint:budget": "tsx scripts/lint/check-context-budget.ts",
     "lint:legal": "tsx scripts/lint/check-legal-data.ts",
+    "lint:rig": "tsx scripts/lint/check-brand-mark-rig.ts",
     "media:build": "tsx scripts/media/build.ts",
     "preview": "pnpm build && tsx scripts/preview/serve.ts",
     "preview:serve": "tsx scripts/preview/serve.ts",
-    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:type-system && pnpm lint:content && pnpm lint:legal && pnpm lint:media && pnpm lint:budget",
+    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:type-system && pnpm lint:content && pnpm lint:legal && pnpm lint:media && pnpm lint:budget && pnpm lint:rig",
     "check": "pnpm typecheck && pnpm lint && pnpm guard"
   },
   "dependencies": {

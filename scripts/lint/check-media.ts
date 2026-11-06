@@ -25,7 +25,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import sharp from 'sharp';
-import { GENERATED_FILE, LOCK_FILE, MASTERS_DIR, MASTER_PAINT_TOKENS, PUBLIC_DIR, derivatives, masters, publicAllowList } from '../../src/media/registry';
+import { GENERATED_FILE, LOCK_FILE, MASTERS_DIR, MASTER_PAINT_TOKENS, PUBLIC_DIR, derivatives, masters, publicAllowList, rigs } from '../../src/media/registry';
 import { resolveColorToken } from '../media/tokens';
 import { REPO_ROOT, readLock, sha256File } from '../media/lock';
 
@@ -101,6 +101,14 @@ for (const [id, d] of Object.entries(derivatives)) {
 }
 for (const id of Object.keys(lock.derivatives)) {
   if (!(id in derivatives)) fails.push({ rule: 'R3', where: LOCK_FILE, detail: `derivado "${id}" en el lock que ya no está en el registro: regenerar` });
+}
+// R3 (M1c) — rigs: el lock lista exactamente los rigs del registro. Su contenido lo cubre la huella de generated.ts; que el contenido
+// sea el que se deriva del maestro lo exige la guardia R10 (check-brand-mark-rig.ts), que vuelve a derivarlo.
+for (const id of Object.keys(rigs)) {
+  if (!lock.rigs?.[id]) fails.push({ rule: 'R3', where: GENERATED_FILE, detail: `rig "${id}" sin entrada en el lock: regenerar (pnpm media:build)` });
+}
+for (const id of Object.keys(lock.rigs ?? {})) {
+  if (!(id in rigs)) fails.push({ rule: 'R3', where: LOCK_FILE, detail: `rig "${id}" en el lock que ya no está en el registro: regenerar` });
 }
 {
   const h = sha256File(path.join(REPO_ROOT, GENERATED_FILE));

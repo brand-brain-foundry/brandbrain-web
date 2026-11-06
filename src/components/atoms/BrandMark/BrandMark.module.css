@@ -1,7 +1,10 @@
 /* BrandMark — Tier 3: solo consume Tier 1/2. Tamaño del icono: 46 px del diseño → ×12 (48, como el margen de página; D-BBW-16).
    Halo del logo = composición de sombra prevista en primitives/shadows.css (fase 6a): halo de acento suave blur ×4 + sombra de tinta
    offset ×2 / blur ×5 (N0: drop-shadow(0 0 14px acento .28) drop-shadow(0 6px 18px negro .9)). La opacidad .9 del diseño no tiene escala:
-   reportada, no aplicada. */
+   reportada, no aplicada.
+   S9 (M1c): en reposo el imagotipo lleva el color de acento (--bbf-accent); al pasar el puntero fino o recibir foco cambia a menta
+   (--bbf-text-on-base) con la duración y la curva del sistema. El movimiento vive en el `d` del mismo `<path>`: el svg no recorta
+   (overflow visible) para que las puntas salgan de su caja sin moverla (CLS 0). El foco es del sistema (D-BBW-22): aquí no hay outline. */
 .brandMark {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-brand);
   --bbf-brand-mark-size: var(--bbf-space-12);
@@ -10,6 +13,13 @@
   display: inline-flex;
   align-items: center;
   min-height: var(--bbf-space-touch-min);
+  min-width: var(--bbf-space-touch-min);
+  color: var(--bbf-accent);
+  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.brandMark:hover,
+.brandMark:focus-visible {
   color: var(--bbf-text-on-base);
 }
 
@@ -17,5 +27,6 @@
   display: block;
   width: var(--bbf-brand-mark-size);
   height: auto;
+  overflow: visible;
   filter: var(--bbf-brand-mark-glow);
 }
