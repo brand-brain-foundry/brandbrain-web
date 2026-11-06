@@ -1,0 +1,9 @@
+/* ConsentConfigure — Tier 3: sin valores. El botón es el átomo tal cual (misma geometría que los demás botones de la web); aquí solo
+   su sitio en la columna de lectura y el estado SERVIDO: caja reservada e invisible hasta que el cliente hidrata (ver el componente). */
+.action {
+  display: flex;
+}
+
+.served {
+  visibility: hidden;
+}

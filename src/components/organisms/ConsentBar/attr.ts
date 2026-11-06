@@ -1,7 +1,8 @@
 /**
- * El atributo que marca el control del pie («Configurar cookies»). Vive en su propio módulo, sin `"use client"`, para que el pie
- * (componente de servidor) pueda importarlo como cadena: lo que se exporta desde un módulo de cliente llega a un componente de
- * servidor como referencia de cliente, no como valor.
+ * El atributo que marca el control que abre el panel («Configurar cookies»). Hasta la enmienda 1 de P-BBW-82 (2026-11-06) lo llevaba un enlace del
+ * pie; desde ella lo lleva el botón de la página de Cookies (`ConsentConfigure`). El cableado de la barra lo escucha por delegación en el documento
+ * y abre el panel desde cualquier pieza que lo lleve. Vive en su propio módulo, sin `"use client"`, para que un componente de servidor pueda
+ * importarlo como cadena: lo que se exporta desde un módulo de cliente llega a un componente de servidor como referencia de cliente, no como valor.
  */
 export const CONSENT_CONFIGURE_ATTR = "data-consent-configure";
 

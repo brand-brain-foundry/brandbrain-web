@@ -6,7 +6,7 @@ import type { GlobalDocument } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
 import { identity } from "@/content/site";
-import { BAR_AVOID_ATTR, CONSENT_CONFIGURE_ATTR } from "@/components/organisms/ConsentBar";
+import { BAR_AVOID_ATTR } from "@/components/organisms/ConsentBar";
 import { media } from "@/media";
 import styles from "./Footer.module.css";
 
@@ -23,6 +23,9 @@ import styles from "./Footer.module.css";
  * sistema; NINGUNO lleva `data-scatter`: el pie queda sin desarme (solo cabecera y héroe). EL SELLO conserva su efecto propio al pasar —elevación y
  * halo de la insignia (P-BBW-82; Zavala, 2026-11-06: un efecto por pieza)— y su COLOR de hover es ya el del sistema, por la misma marca
  * (docs/system/BEHAVIOR.md §14).
+ * P-BBW-82 ENMIENDA 1 (2026-11-06): «Configurar cookies» SALE DEL PIE (I-6: con su marca `data-consent-configure` y su separador) y vive como botón
+ * al principio de la página de Cookies (`ConsentConfigure`, BEHAVIOR §13). La fila legal queda en sus tres páginas: «Aviso legal · Privacidad · Cookies»,
+ * que ya no parte en dos líneas en el teléfono; la reserva del inicio pierde la línea que esa fila partida había pedido (semantic/viewport.css).
  */
 export function Footer({ global, locale }: { global: GlobalDocument; locale: Locale }) {
   return (
@@ -39,14 +42,6 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
             </Link>
           </Fragment>
         ))}
-        {/* «CONFIGURAR COOKIES» (P-BBW-82, requisito 3: retirar igual de fácil que dar): en la misma fila legal, en todas las páginas.
-            En el HTML es un enlace a la página de Cookies (la segunda capa, sin JavaScript); con JavaScript, el organismo del
-            consentimiento lo intercepta por `data-consent-configure` y abre el panel. Es un `<a>` y no un `<Link>` a propósito: la
-            navegación de cliente de Next se dispararía antes que la intercepción. */}
-        <span className={styles.legalLinksSep} aria-hidden="true" />
-        <a className={styles.legalLinksItem} href={legalPageRoute(locale, "cookies")} data-hover="text" {...{ [CONSENT_CONFIGURE_ATTR]: "" }}>
-          {global.consent.footerLink}
-        </a>
       </nav>
       <div className={styles.end}>
         <div className={styles.social} data-enter="">

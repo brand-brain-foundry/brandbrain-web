@@ -92,11 +92,11 @@
             },
             {
               "p": [
-                "Base legal. El consentimiento de quien visita la web (art. 6.1.a del RGPD y art. 22.2 de la LSSI). Se puede retirar en cualquier momento en «",
+                "Base legal. El consentimiento de quien visita la web (art. 6.1.a del RGPD y art. 22.2 de la LSSI). Se puede retirar en cualquier momento desde la página ",
                 {
-                  "global": "consent.footerLink"
+                  "page": "cookies"
                 },
-                "», al pie de cada página, con la misma facilidad con que se dio."
+                "."
               ]
             },
             {

@@ -67,8 +67,9 @@ function renderSpan(span: Span, key: number) {
  *   · «Rechazar» / «Aceptar» / «Configurar» en la barra, al mismo nivel (mismo átomo, misma variante); sin X; seguir navegando no decide.
  *   · El panel es un `<dialog>` nativo abierto con `showModal()`: foco dentro al abrir, Esc cierra SIN aceptar y el foco vuelve
  *     al control que lo abrió. El interruptor de la medición arranca apagado (o en la elección vigente, si la hay).
- *   · El control del pie (`[data-consent-configure]`): un enlace a la página de Cookies en el HTML; con JavaScript, `preventDefault`
- *     y abre el panel. Se escucha por delegación en el documento para no convertir el pie en cliente.
+ *   · El control «Configurar cookies» (`[data-consent-configure]`; desde la enmienda 1 de P-BBW-82, 2026-11-06, el botón al principio de la
+ *     página de Cookies, `ConsentConfigure`; antes, un enlace del pie): con JavaScript abre el panel. Se escucha por delegación en el documento,
+ *     así que cualquier pieza marcada lo abre sin acoplarse a este componente.
  *   · Retirar: si había aceptación y pasa a rechazo, el puerto cierra la puerta (`block()`) y la página se recarga para que el
  *     fragmento desaparezca; a partir de ahí, cero peticiones (requisito 3, F5.4).
  *   · La barra es FIJA abajo y no bloquea (región con nombre, no un diálogo). SIN RÓTULO VISIBLE (2026-11-06, orden de Zavala): la llave
@@ -138,7 +139,7 @@ export function ConsentBar({ consent }: { consent: ConsentDocument }) {
     if (snapshot === "accepted" && shouldMeasure(window.location.pathname)) analytics.load();
   }, [snapshot]);
 
-  // El control del pie abre el panel (delegación en el documento; el pie sigue siendo un componente de servidor).
+  // El control marcado con `data-consent-configure` (el botón de la página de Cookies) abre el panel: delegación en el documento.
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       const target = event.target instanceof Element ? event.target.closest<HTMLElement>(`[${CONSENT_CONFIGURE_ATTR}]`) : null;

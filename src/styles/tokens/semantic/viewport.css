@@ -163,8 +163,11 @@
     --bbf-hero-text-align-block: flex-end;
     /* 2026-11-05: la reserva cuenta el pie ENTERO que va superpuesto en el teléfono, fila a fila: su separación del borde, el sello, las dos
        separaciones entre filas y tres líneas de texto (Privacidad + crédito en dos líneas; cuatro cuerpos del rol legal ≈ tres líneas de
-       interlineado normal), más dos márgenes de página de aire. Medido antes: 4–16 px entre «Hablemos» y el sello, y solape en un teléfono real. */
-    --bbf-hero-text-inset-bottom: calc(var(--bbf-bar-bottom) + var(--bbf-cert-size) + var(--bbf-bar-row-gap) * 2 + var(--bbf-type-legal-size) * 4 + var(--bbf-type-legal-size) * var(--bbf-type-body-leading) + var(--bbf-space-page) * 2);
+       interlineado normal), más dos márgenes de página de aire. Medido antes: 4–16 px entre «Hablemos» y el sello, y solape en un teléfono real.
+       2026-11-06 (P-BBW-82 enmienda 1): SALE la línea extra que `737204f` había sumado porque «Configurar cookies» partía la fila legal en dos a
+       360–390 (I-6: el enlace ya no está en el pie y la fila «Aviso legal · Privacidad · Cookies» cabe en una línea; medido: 1 línea a 360/390/412).
+       Hueco botones→pie medido con la barra abierta: 53,8 / 53,3 / 53,3 px con la línea; sin ella, 35,0 / 34,5 / 34,6 px (≥ los dos márgenes de página). */
+    --bbf-hero-text-inset-bottom: calc(var(--bbf-bar-bottom) + var(--bbf-cert-size) + var(--bbf-bar-row-gap) * 2 + var(--bbf-type-legal-size) * 4 + var(--bbf-space-page) * 2);
     --bbf-hero-size-containment: inline-size;
     /* 2026-11-02 · `relative` y no `static`: una caja estática ignora el `z-index`, así que la VIÑETA (capa de velo, por encima del
        fondo) se pintaba ENCIMA del texto y lo oscurecía —se ve en la captura del sitio publicado en el teléfono—. En flujo igual que antes. */

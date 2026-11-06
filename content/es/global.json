@@ -76,6 +76,6 @@
       "acceptAll": "Aceptar todo",
       "save": "Guardar elección"
     },
-    "footerLink": "Configurar cookies"
+    "configureButton": "Configurar cookies"
   }
 }

@@ -3,12 +3,12 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.11
+version: 1.12
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-11-06
-verified_against_code: 2026-11-06@fix/sello-segun-solape (v1.11: §13 — el sello se oculta SOLO MIENTRAS LA BARRA LO TAPA: `IntersectionObserver` con la medida de la reserva y umbral `BAR_AVOID_THRESHOLD` = 1 (`barAvoidRootMargin`, `isCoveredByBar` en consent.ts), marcas genéricas `data-bar-avoid` / `data-bar-covered` (`ConsentBar/attr.ts`); sale `data-consent-bar` de `<html>` con su constante (sin lector, I-6); ocultar instantáneo porque no existe rol de salida, reportado) · 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
+verified_against_code: 2026-11-06@fix/cierre-legal-y-heroe-movil (v1.12: §13 — «Configurar cookies» sale del pie y es el botón `ConsentConfigure` al principio de la página de Cookies (P-BBW-82 enmienda 1); el cableado sigue escuchando `data-consent-configure` por delegación; sin JavaScript el botón no se muestra (caja reservada, `visibility: hidden`)) · 2026-11-06@fix/sello-segun-solape (v1.11: §13 — el sello se oculta SOLO MIENTRAS LA BARRA LO TAPA: `IntersectionObserver` con la medida de la reserva y umbral `BAR_AVOID_THRESHOLD` = 1 (`barAvoidRootMargin`, `isCoveredByBar` en consent.ts), marcas genéricas `data-bar-avoid` / `data-bar-covered` (`ConsentBar/attr.ts`); sale `data-consent-bar` de `<html>` con su constante (sin lector, I-6); ocultar instantáneo porque no existe rol de salida, reportado) · 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
@@ -428,6 +428,18 @@ El sello conserva su efecto propio al pasar: `--bbf-motion-hover-lift` (`semanti
 **Retirar (requisito 3):** si había aceptación y pasa a rechazo, el cableado pide al puerto `block()` (el adaptador envuelve `sendBeacon`,
 `XMLHttpRequest.open` y `fetch` y descarta toda petición al actor) y recarga la página; el envío de cierre del fragmento que la recarga
 dispara es, precisamente, el que la envoltura descarta (verificado en F5.4 del output de L3).
+
+**Dónde se cambia la elección (P-BBW-82 enmienda 1, 2026-11-06):** el control «Configurar cookies» **sale del pie** y pasa a ser un **botón al
+principio de la página de Cookies**, tras la introducción (`ConsentConfigure`, `src/components/organisms/ConsentBar/`; lo coloca la sección legal
+por la acción `consent-configure` de su contenido, modelo v3.8). Mismo átomo y misma variante que los botones del banner; lleva la marca
+`data-consent-configure` (`ConsentBar/attr.ts`) y el cableado de la barra la escucha **por delegación en el documento**, así que cualquier pieza
+marcada abre el panel y el foco vuelve a ella al cerrar. **Sin JavaScript no se muestra** (el panel no existe sin él): el HTML servido trae el botón
+con la caja reservada y `visibility: hidden` —fuera del foco y del árbol de accesibilidad— y el cliente lo descubre al hidratar
+(`useSyncExternalStore`, instantánea servida `false`); reservar la caja evita el salto de disposición al aparecer (CLS 0) a cambio de un hueco del
+alto del botón sin JavaScript, dicho. La página de Cookies, enlazada desde el pie de todas las páginas, es la segunda capa y el sitio de retirada
+(RGPD art. 7.3). Medido sobre el artefacto: retirar desde ese botón tras haber aceptado → 0 peticiones al actor tras recargar y 0 en el inicio
+(arnés `cierre-legal-y-heroe-movil/arnes/a-pie-y-cookies.cjs`). Con el enlace sale la línea legal extra de la reserva del inicio en el teléfono
+(`semantic/viewport.css`, I-6): la fila «Aviso legal · Privacidad · Cookies» cabe en una línea a 360/390/412.
 
 ## §14 — S11 · Desarme de enlaces y botones (`src/behavior/glyph-scatter.ts`, M2 · 2026-11-06 · P-BBW-83; **opt-in, hover de color y selección: M3 · P-BBW-84**)
 
