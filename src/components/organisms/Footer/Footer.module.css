@@ -113,28 +113,83 @@
   color: var(--bbf-accent);
 }
 
+/* EL SELLO Y LA BARRA DEL CONSENTIMIENTO (2026-11-06, P-BBW-82). Tres elementos, cada uno con UNA responsabilidad, porque las tres se pisan si
+   viven en el mismo:
+     · `.cert` (el enlace): la entrada al cargar (`data-enter`, que deja FIJADOS opacidad, desplazamiento y desenfoque al terminar: una animación
+       con `fill: both` gana a cualquier transición sobre las mismas propiedades) y la VISIBILIDAD. Mientras la barra está a la vista —y SOLO
+       entonces: el estado lo escribe el cableado del consentimiento como `data-consent-bar` en `<html>`, una vez, y aquí solo se lee (I-6;
+       `ConsentBar/attr.ts`)— el sello es `visibility: hidden`: ni se pinta, ni recibe el puntero, ni el foco, ni está en el árbol de
+       accesibilidad. El HTML servido NO trae el atributo (I-4): sin JavaScript o con elección guardada el sello está visible desde el primer byte.
+     · `.certBody` (imagen + texto): lo que APARECE al bajar la barra, con los MISMOS roles de la entrada del sistema (duración ×4, curva firma,
+       desplazamiento ×3 y desenfoque ×3 de `semantic/motion.css`): aparece de la misma forma que entró todo lo demás. OCULTAR ES INSTANTÁNEO
+       (el estado oculto lleva `transition: none`); solo el aparecer transiciona. Con movimiento reducido la madre de duración colapsa
+       (primitives/motion.css) y aparece sin transición (I-9).
+     · `.certBadge` (la insignia): el efecto AL PASAR: sube un cuanto (`--bbf-motion-hover-lift`, 0 con movimiento reducido) y se enciende un halo
+       del acento (blur ×4 con `--bbf-accent-glow`: la composición de halo que primitives/shadows.css prevé, por `drop-shadow` para seguir el
+       contorno redondo de la insignia), con la duración y la curva del rol `link`. SOLO CON PUNTERO FINO: el factor `--bbf-hover-fine`
+       (semantic/viewport.css, 0 ó 1) multiplica la elevación, el radio del halo y su opacidad, así que en táctil el `:hover` pegado tras el
+       toque no deja nada encendido; con FOCO DE TECLADO el factor es 1 en todos los dispositivos. El tinte del texto al pasar y con foco es el
+       mismo de todos los enlaces del sitio. Sin bucles: dos transiciones y nada más. */
 .cert {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
   display: flex;
-  flex-direction: var(--bbf-cert-direction);
   align-items: center;
-  gap: var(--bbf-space-3);
   color: var(--bbf-text-on-base-secondary);
   text-decoration: none;
   pointer-events: auto;
   transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
-.cert:hover {
+.cert:hover,
+.cert:focus-visible {
   color: var(--bbf-accent);
 }
 
-.cert img {
+:root[data-consent-bar] .cert {
+  visibility: hidden;
+}
+
+.certBody {
+  display: flex;
+  flex-direction: var(--bbf-cert-direction);
+  align-items: center;
+  gap: var(--bbf-space-3);
+  transition:
+    opacity var(--bbf-motion-enter-duration) var(--bbf-motion-enter-ease),
+    transform var(--bbf-motion-enter-duration) var(--bbf-motion-enter-ease),
+    filter var(--bbf-motion-enter-duration) var(--bbf-motion-enter-ease);
+}
+
+:root[data-consent-bar] .certBody {
+  opacity: 0;
+  transform: translateY(var(--bbf-motion-enter-shift));
+  filter: blur(var(--bbf-motion-enter-blur));
+  transition: none;
+}
+
+.certBadge {
+  --bbf-cert-raise: 0;
+
   display: block;
   flex: none;
   width: var(--bbf-cert-size);
   height: var(--bbf-cert-size);
+  transform: translateY(calc(-1 * var(--bbf-cert-raise) * var(--bbf-motion-hover-lift)));
+  filter: drop-shadow(
+    0 0 calc(var(--bbf-cert-raise) * var(--bbf-space-4)) color-mix(in oklch, var(--bbf-accent-glow) calc(var(--bbf-cert-raise) * 100%), transparent)
+  );
+  transition:
+    transform var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
+    filter var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.cert:hover .certBadge {
+  --bbf-cert-raise: var(--bbf-hover-fine);
+}
+
+.cert:focus-visible .certBadge {
+  --bbf-cert-raise: 1;
 }
 
 .certText {

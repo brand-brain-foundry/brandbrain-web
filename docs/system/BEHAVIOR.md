@@ -406,9 +406,18 @@ por defecto, sin JavaScript y sin preferencia, es «sin analítica».
 mientras está a la vista; `body` lo consume como margen inferior para que el pie, superpuesto al borde del documento, siga alcanzable (F5.8).
 No es un token de diseño: es una medida en tiempo de ejecución y por eso no tiene fórmula.
 
+**Lo que expone el cableado (sello y banner, 2026-11-06):** el estado «barra a la vista», UNA sola vez, como el atributo `data-consent-bar`
+en `<html>` (`ConsentBar/attr.ts`, `CONSENT_BAR_ATTR`), escrito por el mismo efecto que mide la reserva y retirado con ella al bajar la barra.
+Quien tenga que reaccionar lo LEE en CSS y nadie vuelve a calcular si la barra está visible (I-6). El HTML servido no lo trae: sin JavaScript o
+con elección guardada no existe (I-4). Primer lector: el sello del pie (`Footer.module.css`), oculto con `visibility: hidden` mientras la barra se
+muestra y que al bajar APARECE con los roles de la entrada del sistema (§6: duración ×4, curva firma, desplazamiento ×3, desenfoque ×3) por
+transición —ocultar es instantáneo; con movimiento reducido la madre colapsa y no hay estado intermedio visible—. El sello incorpora además el
+efecto al pasar con los dos roles nuevos `--bbf-motion-hover-lift` (`semantic/motion.css`, `space-half`; 0 con movimiento reducido) y
+`--bbf-hover-fine` (`semantic/viewport.css`, 1 solo con `(hover: hover) and (pointer: fine)`, consulta de capacidad sin literal de anchura).
+
 **Retirar (requisito 3):** si había aceptación y pasa a rechazo, el cableado pide al puerto `block()` (el adaptador envuelve `sendBeacon`,
 `XMLHttpRequest.open` y `fetch` y descarta toda petición al actor) y recarga la página; el envío de cierre del fragmento que la recarga
 dispara es, precisamente, el que la envoltura descarta (verificado en F5.4 del output de L3).
 
 ---
-*BBW-BEHAVIOR v1.8 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
+*BBW-BEHAVIOR v1.9 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.9 en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
