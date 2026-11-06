@@ -3,7 +3,7 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.7
+version: 1.8
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
@@ -355,6 +355,37 @@ salen de su caja sin moverla.
 R10a: con amplitud 0, Hausdorff bidireccional contra el maestro ≤ 0,25 u en los seis y, en raster a 32/48/512 px, ningún píxel distinto fuera
 del borde. R10b: 20 semillas × 200 fotogramas: sección ± 1 % y separación ≥ 1 u entre tentáculos y con el cuerpo. Se ve fallar con
 `BBW_RIG_DEFECT=section-as-tangent` (el defecto real de `a4500d0`) y con `BBW_RIG_SVG=<maestro alterado>`. **Medidas y estado en el output de M1c.**
+
+## §13 — S10 · Consentimiento (`src/behavior/consent.ts`, P-BBW-82, L3, 2026-11-06)
+
+**Qué hace:** guarda y lee la elección sobre la medición de visitas como preferencia TÉCNICA del navegador (almacenamiento local, exenta:
+solo conserva la elección) con **fecha y versión**, y juzga si una elección guardada sigue valiendo. Sin JSX, sin CSS, sin texto. El componente
+cliente (`src/components/organisms/ConsentBar/`) solo cablea; la medición entra por el puerto de analítica (`src/analytics/port.ts`, `PORTS.md`).
+No es un sistema de movimiento: no lee tokens, no tiene bucle ni quietud que declarar (I-9: la barra no tiene animación de entrada, con o sin
+movimiento reducido). Está aquí porque tiene **constantes de algoritmo** y una regla sobre dónde viven.
+
+| Constante | Valor | Dónde vive | Clase | Qué es |
+|---|---|---|---|---|
+| `CONSENT_STORAGE_KEY` | `bbf-consent` | `src/config/consent.ts` | plantilla | nombre de la preferencia guardada; la página de Cookies lo cita por `{{consentKey}}` |
+| `CONSENT_MONTHS` | 24 | `src/config/consent.ts` | estático (AEPD, Guía de cookies, mayo de 2024) | validez de la elección; la página de Cookies lo cita por `{{consentMonths}}` |
+| `CONSENT_VERSION` | `"1"` | `src/config/consent.ts` | dinámico | versión de las finalidades; subirla vuelve a preguntar a todo el mundo |
+| `MS_PER_MONTH` | 30,44 d | módulo | estático | la cota de validez en milisegundos (meses medios; la cota es lo que importa, no el calendario) |
+
+**Por qué las tres constantes viven en `src/config/` y no en el módulo:** las lee también el registro de sustituciones
+(`src/content/substitutions.ts`), para que el texto legal y el comportamiento salgan de **la misma constante** (I-1). El módulo las importa y no
+las repite (misma regla que §1.2 para los tokens).
+
+**Fail-safe (requisito 1 del despacho L3):** toda lectura y escritura va en `try/catch`. Sin almacenamiento, con JSON roto, versión distinta,
+fecha ilegible o futura, o más de `CONSENT_MONTHS` meses, el estado es «sin decidir»: se vuelve a preguntar y **no se carga nada**. El estado
+por defecto, sin JavaScript y sin preferencia, es «sin analítica».
+
+**Lo que mide el cableado (no se supone):** la altura real de la barra, que escribe en el rol `--bbf-consent-reserve` (`semantic/spacing.css`)
+mientras está a la vista; `body` lo consume como margen inferior para que el pie, superpuesto al borde del documento, siga alcanzable (F5.8).
+No es un token de diseño: es una medida en tiempo de ejecución y por eso no tiene fórmula.
+
+**Retirar (requisito 3):** si había aceptación y pasa a rechazo, el cableado pide al puerto `block()` (el adaptador envuelve `sendBeacon`,
+`XMLHttpRequest.open` y `fetch` y descarta toda petición al actor) y recarga la página; el envío de cierre del fragmento que la recarga
+dispara es, precisamente, el que la envoltura descarta (verificado en F5.4 del output de L3).
 
 ---
 *BBW-BEHAVIOR v1.7 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*

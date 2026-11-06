@@ -38,34 +38,38 @@ import { getLegalIdentity } from "./legal-identity";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
 
-/** Lee las etiquetas de páginas legales del global.json de un locale (sin pipeline completa, solo para resolver { page }). */
-function getLegalPageLabels(locale: Locale): Record<string, string> {
-  try {
-    const raw = readJson(`${locale}/${GLOBAL_DOCUMENT}.json`);
-    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-      const legal = (raw as Record<string, unknown>).legal;
-      if (legal && typeof legal === 'object' && !Array.isArray(legal)) {
-        const pages = (legal as Record<string, unknown>).pages;
-        if (pages && typeof pages === 'object' && !Array.isArray(pages)) {
-          const result: Record<string, string> = {};
-          for (const [slug, page] of Object.entries(pages as Record<string, unknown>)) {
-            if (page && typeof page === 'object' && !Array.isArray(page)) {
-              const label = (page as Record<string, unknown>).label;
-              if (typeof label === 'string') result[slug] = label;
-            }
-          }
-          return result;
-        }
-      }
-    }
-  } catch { /* vacío: si falla, lanzará el error en resolvePageRefs */ }
-  return {};
+/** Las etiquetas de las páginas legales de un documento global ya validado: alimentan `resolveRefs` para `{ page }`. */
+function legalPageLabels(global: GlobalDocument): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const [slug, page] of Object.entries(global.legal.pages)) result[slug] = page.label;
+  return result;
 }
 
-/** Convierte `{ page: slug }` → `{ text: label, path: "/${locale}/${slug}/" }`. Lanza si el slug no existe. */
-function resolvePageRefs<T>(doc: T, locale: Locale, pageLabels: Record<string, string>, path = "$"): T {
+/** Lee un texto del documento global por su ruta de llaves (`consent.banner.reject`). Solo llega a cadenas; lo demás es error. */
+function globalText(global: GlobalDocument, keyPath: string, where: string): string {
+  let node: unknown = global;
+  for (const key of keyPath.split(".")) {
+    if (!node || typeof node !== "object" || Array.isArray(node) || !(key in (node as Record<string, unknown>))) {
+      throw new Error(`[content] ${where}: la ruta "${keyPath}" no existe en el documento global (se corta en "${key}")`);
+    }
+    node = (node as Record<string, unknown>)[key];
+  }
+  if (typeof node !== "string") throw new Error(`[content] ${where}: la ruta "${keyPath}" del documento global no lleva a un texto`);
+  return node;
+}
+
+/**
+ * Resuelve las REFERENCIAS de un documento antes de entregarlo (I-1: una sola fuente para cada texto):
+ *   · `{ page: slug }`  → `{ text: label, path: "/${locale}/${slug}/" }` (P-BBW-80). Un slug sin etiqueta rompe el build.
+ *   · `{ global: ruta }` → la cadena del documento global en esa ruta (P-BBW-82). Una ruta sin texto rompe el build.
+ * Un tramo `{ global }` se convierte en una cadena suelta dentro de la lista de tramos: el componente lo pinta como texto normal.
+ */
+function resolveRefs<T>(doc: T, locale: Locale, global: GlobalDocument, pageLabels: Record<string, string>, path = "$"): T {
   if (doc && typeof doc === 'object' && !Array.isArray(doc)) {
     const r = doc as Record<string, unknown>;
+    if ('global' in r && typeof r.global === 'string' && Object.keys(r).length === 1) {
+      return globalText(global, r.global, path) as unknown as T;
+    }
     if ('page' in r && typeof r.page === 'string' && !('text' in r) && !('link' in r) && !('path' in r)) {
       const slug = r.page as string;
       const label = pageLabels[slug];
@@ -75,12 +79,12 @@ function resolvePageRefs<T>(doc: T, locale: Locale, pageLabels: Record<string, s
     const out: Record<string, unknown> = {};
     const SKIP = new Set(["id", "type", "link", "case"]);
     for (const [k, v] of Object.entries(r)) {
-      out[k] = SKIP.has(k) ? v : resolvePageRefs(v, locale, pageLabels, `${path}.${k}`);
+      out[k] = SKIP.has(k) ? v : resolveRefs(v, locale, global, pageLabels, `${path}.${k}`);
     }
     return out as T;
   }
   if (Array.isArray(doc)) {
-    return doc.map((x, i) => resolvePageRefs(x, locale, pageLabels, `${path}[${i}]`)) as unknown as T;
+    return doc.map((x, i) => resolveRefs(x, locale, global, pageLabels, `${path}[${i}]`)) as unknown as T;
   }
   return doc;
 }
@@ -174,13 +178,17 @@ function substituteLegal<T>(doc: T, relPath: string): T {
   return resolveLegalDoc(withGlobal, legal);
 }
 
-/** Documento global (navegación, pie) de un locale publicado. */
+/**
+ * Documento global (navegación, pie, consentimiento) de un locale publicado. Sus propias referencias `{ page }` (el banner del
+ * consentimiento cita la página de Cookies) se resuelven contra sus propias etiquetas.
+ */
 export function getGlobal(locale: Locale): GlobalDocument {
   assertPublished(locale);
   const rel = `${locale}/${GLOBAL_DOCUMENT}.json`;
   const doc = readJson(rel);
   failOn(validateGlobal(doc), rel);
-  return substitute(doc as GlobalDocument, rel);
+  const substituted = substitute(doc as GlobalDocument, rel);
+  return resolveRefs(substituted, locale, substituted, legalPageLabels(substituted));
 }
 
 /** Página de la colección `pages` para un locale publicado. */
@@ -196,21 +204,12 @@ export function getPage(locale: Locale, slug: string): PageDocument {
     ? substituteLegal(doc as PageDocument, rel)
     : substitute(doc as PageDocument, rel);
 
-  // Paso 2: resolver referencias { page: slug } → { text, path } usando las etiquetas del global
-  const pageLabels = getLegalPageLabels(locale);
-  const withPageRefs = resolvePageRefs(substituted, locale, pageLabels);
+  // Paso 2: resolver referencias { page: slug } → { text, path } y { global: ruta } → texto, contra el documento global validado
+  const global = getGlobal(locale);
+  const withRefs = resolveRefs(substituted, locale, global, legalPageLabels(global));
 
   // Paso 3: generar updatedLabel en las secciones legales desde global.legal.updatedLabel + updated formateado
-  const globalRaw = readJson(`${locale}/${GLOBAL_DOCUMENT}.json`);
-  let updatedLabelTemplate = 'Última actualización';
-  if (globalRaw && typeof globalRaw === 'object' && !Array.isArray(globalRaw)) {
-    const legal = (globalRaw as Record<string, unknown>).legal;
-    if (legal && typeof legal === 'object' && !Array.isArray(legal)) {
-      const lbl = (legal as Record<string, unknown>).updatedLabel;
-      if (typeof lbl === 'string' && lbl.trim()) updatedLabelTemplate = lbl.trim();
-    }
-  }
-  return addUpdatedLabels(withPageRefs, updatedLabelTemplate, locale);
+  return addUpdatedLabels(withRefs, global.legal.updatedLabel.trim(), locale);
 }
 
 /** La primera sección de un tipo; si la página no la tiene, el build falla con mensaje (no se renderiza a medias). */

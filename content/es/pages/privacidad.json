@@ -9,7 +9,7 @@
       "id": "privacidad",
       "heading": "Privacidad",
       "intro": [
-        "Esta página explica qué datos personales trato, para qué y con qué derechos. Tiene dos partes: la visita a esta web y el contacto por correo, y el asistente que atiende mis llamadas."
+        "Esta página explica qué datos personales trato, para qué y con qué derechos. Tiene tres partes: la visita a esta web y el contacto por correo, la medición de visitas y el asistente que atiende mis llamadas."
       ],
       "blocks": [
         {
@@ -23,7 +23,9 @@
                   "link": "contact"
                 },
                 ". El resto de datos de identificación están en el ",
-                { "page": "aviso-legal" },
+                {
+                  "page": "aviso-legal"
+                },
                 "."
               ]
             }
@@ -71,6 +73,45 @@
             {
               "p": [
                 "Decisiones automáticas. No se toman decisiones automáticas ni se elaboran perfiles."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "La medición de visitas",
+          "parts": [
+            {
+              "p": [
+                "Qué datos. Si quien visita la web lo acepta, una medición de Cloudflare Web Analytics recoge datos de uso: página vista, página de procedencia, tiempos de carga, tipo de dispositivo, navegador, sistema operativo y país. No usa cookies ni almacenamiento local y no identifica a nadie por su IP ni por su navegador."
+              ]
+            },
+            {
+              "p": [
+                "Para qué. Para saber qué contenidos se leen y cómo carga la web, en cifras agregadas."
+              ]
+            },
+            {
+              "p": [
+                "Base legal. El consentimiento de quien visita la web (art. 6.1.a del RGPD y art. 22.2 de la LSSI). Se puede retirar en cualquier momento en «",
+                {
+                  "global": "consent.footerLink"
+                },
+                "», al pie de cada página, con la misma facilidad con que se dio."
+              ]
+            },
+            {
+              "p": [
+                "Es voluntario. Rechazarla no cambia nada en el uso de la web."
+              ]
+            },
+            {
+              "p": [
+                "Quién interviene. Cloudflare, en las mismas condiciones descritas arriba."
+              ]
+            },
+            {
+              "p": [
+                "Cuánto tiempo. Cloudflare conserva los datos completos 7 días; después guarda solo una muestra, y su panel muestra hasta seis meses."
               ]
             }
           ]
@@ -159,7 +200,7 @@
           ]
         }
       ],
-      "updated": "2026-11-05"
+      "updated": "2026-11-06"
     }
   ]
 }

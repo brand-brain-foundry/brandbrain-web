@@ -13,6 +13,7 @@
  * D-DOC-06: las sustituciones se resuelven por búsqueda en una tabla; el contenido jamás se evalúa ni se interpreta.
  */
 import { site } from "../config/site";
+import { CONSENT_MONTHS, CONSENT_STORAGE_KEY } from "../config/consent";
 import { identity } from "./site";
 
 /** El registro: llave → valor. Solo texto plano. */
@@ -37,6 +38,13 @@ export const substitutions = {
    * Vive UNA vez; los textos legales la piden por `{{legalForm}}`.
    */
   legalForm: identity.legalForm,
+  /**
+   * CONSENTIMIENTO (P-BBW-82, L3 §0.1): el nombre de la preferencia guardada y su validez en meses, desde `src/config/consent.ts`,
+   * LA MISMA constante que usa el código que guarda y juzga la elección (`src/behavior/consent.ts`). Así la página de Cookies no
+   * puede decir una cosa y el navegador hacer otra (I-1). Técnicas: viven en código.
+   */
+  consentKey: CONSENT_STORAGE_KEY,
+  consentMonths: String(CONSENT_MONTHS),
 } as const;
 export type SubstitutionKey = keyof typeof substitutions;
 
@@ -63,8 +71,8 @@ export function isSubstitutionKey(v: string): v is SubstitutionKey {
 
 export type UndeclaredSubstitution = { path: string; token: string };
 
-/** Llaves estructurales: identifican o enlazan, no son texto; no se sustituye dentro de ellas. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case"]);
+/** Llaves estructurales: identifican, enlazan o referencian (`page`, `global`), no son texto; no se sustituye dentro de ellas. */
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global"]);
 
 /**
  * Recorre los textos de un documento y lista cada `{{…}}` que no sea una sustitución declarada (con su ruta).

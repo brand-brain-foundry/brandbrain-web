@@ -15,4 +15,12 @@
 
   --bbf-focus-ring-width: var(--bbf-space-half);
   --bbf-focus-ring-offset: var(--bbf-space-half);
+
+  /* RESERVA DEL CONSENTIMIENTO (P-BBW-82). La barra del consentimiento es fija al pie de la ventana y el pie de la página va
+     superpuesto al borde inferior del documento: sin reserva, la barra tapa el pie y no hay forma de alcanzarlo (F5.8 del
+     despacho L3). Este rol es la altura REAL de la barra, que el cableado MIDE y escribe aquí (`ResizeObserver`) mientras la
+     barra está a la vista, y `body` lo consume como margen inferior (base/document.css): el documento crece justo lo que la
+     barra ocupa y el pie queda a la vista al desplazarse. Cero cuando no hay barra. No es un valor de diseño: es una medida
+     en tiempo de ejecución, y por eso no tiene fórmula. */
+  --bbf-consent-reserve: 0px;
 }
