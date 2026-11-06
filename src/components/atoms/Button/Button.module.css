@@ -1,0 +1,30 @@
+/* Button — Tier 3: solo consume Tier 1/2. Una sola variante (P-BBW-82): contorno y texto en la tinta del sistema sobre
+   transparente; al pasar, contorno y texto en el acento. Misma geometría que las llamadas a la acción del héroe: 48 de alto
+   (`space-12`), relleno lateral `space-7`, radio de píldora, contorno `line-sm`. Sin foco propio (D-BBW-22). */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bbf-space-2);
+  box-sizing: border-box;
+  height: var(--bbf-space-12);
+  padding-inline: var(--bbf-space-7);
+  border: var(--bbf-line-sm) solid var(--bbf-text-on-base);
+  border-radius: var(--bbf-radius-pill);
+  background: transparent;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-button-family);
+  font-size: var(--bbf-type-button-size);
+  font-weight: var(--bbf-type-button-weight);
+  letter-spacing: var(--bbf-type-button-tracking);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
+    color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.button:hover {
+  border-color: var(--bbf-accent);
+  color: var(--bbf-accent);
+}

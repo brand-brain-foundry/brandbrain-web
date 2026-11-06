@@ -3,15 +3,15 @@ id: BBW-CONTENT-MODEL
 title: "Modelo de contenido — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 3.6
+version: 3.7
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
-updated: 2026-11-05
-verified_against_code: 2026-11-05@feat/paginas-legales (content/site.json · content/es/global.json · content/es/pages/{home,aviso-legal,privacidad,cookies}.json · src/content/{site,schema,index,substitutions}.ts · src/config/{site,pages}.ts · scripts/lint/check-content.ts · src/components/sections/index.tsx · src/components/sections/LegalSection/ · src/components/organisms/Footer/Footer.tsx · public/{_headers,_redirects})
+updated: 2026-11-06
+verified_against_code: 2026-11-06@feat/consentimiento (v3.7: global.consent, span { global }, parte { table }, sustituciones consentKey/consentMonths, getGlobal resuelve referencias; content/site.json · content/es/global.json · content/es/pages/{home,aviso-legal,privacidad,cookies}.json · src/content/{site,schema,index,substitutions}.ts · src/config/{site,pages}.ts · scripts/lint/check-content.ts · src/components/sections/index.tsx · src/components/sections/LegalSection/ · src/components/organisms/Footer/Footer.tsx · public/{_headers,_redirects})
 supersedes: []
 superseded_by: null
-related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-02, D-BBW-07, D-BBW-09, D-BBW-15, D-BBW-23, D-BBW-74, D-BBW-77, D-BBW-78, D-DOC-06]
+related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, D-BBW-02, D-BBW-07, D-BBW-09, D-BBW-15, D-BBW-23, D-BBW-74, D-BBW-77, D-BBW-78, P-BBW-82, D-DOC-06]
 summary: "El contenido vive en archivos versionados bajo content/<locale>/, fuera de src/ y de los componentes. v2.0 (fase 6a): modelo granular de toda la landing — cada texto con su propia llave nombrada por rol, sin presentación dentro (esquema estricto: llave desconocida o HTML = error), lo global (navegación, pie) separado de la página, secciones como lista ordenada con tipo, enlaces por llave de site.ts, marcadores [[PENDIENTE: …]] evidentes. Puerto src/content (getGlobal, getPage) fail-closed en build + guardia check-content.ts sobre el árbol completo. v2.1 (fase 6b): +1 llave nav.skipLabel (enlace de salto al contenido); renderizado por tipo de sección (SECTION_RENDERERS) con comportamiento definido ante un tipo sin renderizador (§4). v2.2 (fase 6c, D-BBW-23): sustituciones {{brand}} / {{domain}} / {{year}} resueltas al compilar desde la fuente única; conjunto cerrado y declarado (src/content/substitutions.ts); una no declarada o cualquier lógica entre llaves rompe el build y la guardia (R5). Colecciones de la dimensión (cases, articles): cómo entrarían sin rediseño, no creadas (P-BBW-18). v3.2 (D-BBW-78): LO EDITABLE VIVE EN DATOS — nombre, cargo, buzón y destinos de los enlaces bajan de src/config/site.ts a content/site.json (raíz, fuera de los locales); en código se queda solo lo técnico (dominio, locales, rutas). Nace nav.caseLabel (la palabra del caso, una sola vez) y LinkItem.badge pasa a LinkItem.case booleano. v3.3 (2026-11-02): hero nuevo sobre fondo oscuro (heading + paragraph1/2 + ctaPrimary/Secondary). v3.4 (P-BBW-73/74/75, 2026-11-05): primera página secundaria — `content/es/pages/privacidad.json` con `sections[{type:\"legal\"}]`; tipo `Span = string | {text,link}` para prosa con enlaces inline; `LegalSection` completo en schema.ts; sustitución `{{email}}` añadida al registro; `footer.privacy{label}` en GlobalDocument; enlace `aepd` añadido a content/site.json. v3.5 (correcciones, 2026-11-05): CAMBIO NO ADITIVO en LegalBlock — `body: Span[][] + items?: string[]` reemplazado por `parts: Array<{p: Span[]} | {list: string[]}>` para preservar el orden declarado; `updated` vive DENTRO de la sección (SECTION_KEYS.legal) no en la raíz del PageDocument; enlace Privacidad como hijo directo del footer flex, con roles de viewport para orden en móvil. v3.6 (P-BBW-80 L2b, 2026-11-05): CAMBIO NO ADITIVO — `footer.privacy` y `footer.legalLinks` eliminados; `global.legal.{updatedLabel,pages}` clave top-level; `LegalPagesMap = Record<string,{label}>` reemplaza `LegalLinkItem`; `updatedLabel` generado por el puerto desde global (no por página); `{page:slug}` como nuevo span inline resuelto por el puerto a `{text,path}`; sustitución `{{legalForm}}`; tres páginas legales (aviso-legal/privacidad/cookies); `src/config/pages.ts` registro fuente única de páginas legales; R6 guardia coherencia headers/_redirects."
 tags: [contenido, modelo, puerto, i18n, esquema, brandbrain-web]
 ---
@@ -148,6 +148,48 @@ Documento con 10 bloques, copy verbatim (Q-BBW-021 abierta: CC no reescribe el t
 | `hero.claimLine1..3` · `hero.heading` (el párrafo como `<h1>`) | `hero.heading` (el titular, `<h1>`) · `paragraph1` · `paragraph2` · `ctaPrimary` · `ctaSecondary` · `ctaSecondaryLink` | Orden de Zavala: el claim sale y entra el cuerpo de la home nueva. Cada texto su llave por rol; el destino secundario es una llave de `site.json`, el primario es el contacto derivado del buzón. |
 | `footer.social` con LinkedIn y GitHub | `footer.social` solo con LinkedIn · `footer.cert{label}` | GitHub sale del pie y de la hoja (su destino sigue en `site.json` porque lo usa `sameAs`). El sello enlaza a `links.credly` y no muestra el nivel. |
 
+## Consentimiento y medición de visitas (P-BBW-82, L3, 2026-11-06) — v3.7 del modelo, cambio NO aditivo
+
+### `global.consent` — los textos del banner, del panel y del enlace del pie
+**CAMBIO NO ADITIVO.** `GlobalDocument` gana `consent: ConsentDocument`; un `global.json` sin `consent` **rompe la compilación nombrando la llave**.
+Es global porque el banner (primera capa) y el enlace «Configurar cookies» del pie salen en TODAS las páginas. Cada texto, su llave por rol:
+
+| Llave | Qué es |
+|---|---|
+| `consent.banner.label` · `text: Span[]` · `reject` · `accept` · `configure` | La barra inferior: rótulo, texto (con `{ page: "cookies" }`) y los tres botones al mismo nivel |
+| `consent.panel.title` · `necessary{label,status,text}` · `measurement{label,text}` · `rejectAll` · `acceptAll` · `save` | El panel (`<dialog>` nativo): la categoría técnica siempre activa, la medición con su interruptor, y sus tres botones |
+| `consent.footerLink` | El enlace permanente del pie: en el HTML lleva a la página de Cookies; con JavaScript abre el panel |
+
+El consumidor es `src/components/organisms/ConsentBar/` (cliente: solo cablea; la preferencia es de `src/behavior/consent.ts` y la medición del
+puerto `src/analytics/port.ts`, `PORTS.md` fila «Analítica»). El pie consume `consent.footerLink`.
+
+### `{ global: "ruta.de.llaves" }` — citar un texto del global sin repetirlo
+**Nuevo span.** La página de Cookies tiene que nombrar los botones del banner («Rechazar», «Aceptar», «Configurar») y el enlace del pie
+(«Configurar cookies»). Copiarlos sería tener dos cadenas que conciliar; por eso el texto los **cita por su llave**:
+```json
+["La primera vez aparece un aviso con «", { "global": "consent.banner.reject" }, "», «", { "global": "consent.banner.accept" }, "»…"]
+```
+El puerto (`resolveRefs`) sustituye el tramo por la cadena del documento global **del mismo locale** antes de entregar el documento: el
+componente solo ve texto. Una ruta que no exista o no lleve a un texto **rompe el build** con la ruta exacta. El validador exige la forma
+`a.b.c` (identificadores separados por punto). Se resuelve también dentro del propio `global.json` (el banner cita la página de Cookies con
+`{ page }`): `getGlobal` resuelve sus referencias contra sus propias etiquetas.
+
+### `{ table: { columns, rows } }` — una tabla dentro de un bloque legal
+**Nueva parte de `LegalBlock.parts`**, junto a `{ p }` y `{ list }`. `columns: string[]` (rótulos) y `rows: string[][]`; **cada fila tiene
+exactamente tantas celdas como columnas** (el validador lo exige con la ruta de la fila). Las celdas son texto plano con sustituciones.
+Cómo se lee en un teléfono lo decide el sistema (roles `--bbf-legal-table-*` de `semantic/viewport.css`: la cabecera se oculta y cada celda
+antepone el rótulo de su columna), no el contenido. Primer consumidor: la tabla «Lo que usa esta web» de `cookies.json`.
+
+### Sustituciones `{{consentKey}}` y `{{consentMonths}}`
+Dos llaves más en el registro cerrado (`src/content/substitutions.ts`), leídas de `src/config/consent.ts`: **la misma constante** que usa el
+código que guarda y juzga la preferencia (`CONSENT_STORAGE_KEY`, `CONSENT_MONTHS`). Así la página de Cookies no puede decir «24 meses» y el
+navegador hacer otra cosa (I-1). Son técnicas: viven en código.
+
+### Estructura verificada (añadido a §3)
+`global.json` suma `consent.banner{label,text[],reject,accept,configure} · consent.panel{title,necessary{label,status,text},measurement{label,text},rejectAll,acceptAll,save} · consent.footerLink`.
+`cookies.json` reescrito (insumo TEXTOS-CONSENTIMIENTO-L3 §4): cinco bloques, una tabla, cuatro citas `{ global }`, dos sustituciones nuevas.
+`privacidad.json`: intro «tres partes» y bloque nuevo «La medición de visitas» (insumo §5), con una cita `{ global }`.
+
 ## Tres páginas legales y registro de páginas (P-BBW-80 L2b, 2026-11-05) — v3.6 del modelo, cambio NO aditivo
 
 ### `src/config/pages.ts` — registro fuente única de páginas legales
@@ -265,8 +307,8 @@ inexistente sería un marcador que el build no puede verificar).
 |---|---|
 | `src/content/site.ts` | El **documento del sitio** (D-BBW-78): lo importa como módulo (de ahí sale `LinkKey`, con la fuerza de los tipos), lo valida (`validateSite`, estricto en los dos sentidos) y expone `identity` con `contact` **derivada** del buzón. No rompe al cargarse a propósito: lo importa también la guardia, y un `throw` en su carga la dejaría sin informe. |
 | `src/content/schema.ts` | Tipos (`GlobalDocument`, `PageDocument`, `HeroSection`, unión `Section`) y **validador estricto** (`validateGlobal`, `validatePage`): devuelve problemas con ruta exacta (`$.footer.social[1].link`). Sin texto. |
-| `src/content/index.ts` | `getGlobal(locale)` · `getPage(locale, slug)` · `requireSection(page, type)`: leen en **tiempo de build** (`fs`), validan, resuelven las sustituciones, **resuelven las referencias `{page:}`** (`resolvePageRefs`), **inyectan `updatedLabel`** (`addUpdatedLabels`) y fallan el build con mensaje si el locale no está publicado, falta el archivo, el JSON es inválido, no cumple el modelo o usa una sustitución no declarada. `getLegalPageLabels(locale)` lee los labels de `global.legal.pages` directamente para alimentar `resolvePageRefs`. |
-| `src/content/substitutions.ts` | Registro cerrado de sustituciones (`brand`, `domain`, `year`, `email`, **`legalForm`**) con sus valores desde la fuente única; `findUndeclaredSubstitutions` (lista cada `{{…}}` inválido con su ruta) y `resolveDocument(doc, path, skipKeys?)` (copia del documento con los textos resueltos; `skipKeys` omite llaves restringidas sin lanzar — usado por `substituteLegal` para la primera pasada; las sustituciones restringidas `{{nif}}/{{domicilio}}/{{telefono}}` las resuelve la segunda pasada). Búsqueda en tabla: nada se evalúa (D-DOC-06). |
+| `src/content/index.ts` | `getGlobal(locale)` · `getPage(locale, slug)` · `requireSection(page, type)`: leen en **tiempo de build** (`fs`), validan, resuelven las sustituciones, **resuelven las referencias `{page:}` y `{global:}`** (`resolveRefs`, contra el documento global validado del mismo locale; `getGlobal` resuelve las suyas contra sí mismo), **inyectan `updatedLabel`** (`addUpdatedLabels`) y fallan el build con mensaje si el locale no está publicado, falta el archivo, el JSON es inválido, no cumple el modelo, usa una sustitución no declarada o cita una página o una ruta del global que no existen. |
+| `src/content/substitutions.ts` | Registro cerrado de sustituciones (`brand`, `domain`, `year`, `email`, `legalForm`, **`consentKey`**, **`consentMonths`**) con sus valores desde la fuente única; `findUndeclaredSubstitutions` (lista cada `{{…}}` inválido con su ruta) y `resolveDocument(doc, path, skipKeys?)` (copia del documento con los textos resueltos; `skipKeys` omite llaves restringidas sin lanzar — usado por `substituteLegal` para la primera pasada; las sustituciones restringidas `{{nif}}/{{domicilio}}/{{telefono}}` las resuelve la segunda pasada). Búsqueda en tabla: nada se evalúa (D-DOC-06). |
 | `src/config/pages.ts` | `LEGAL_PAGES: readonly LegalPage[]` — registro fuente única de páginas legales (slug, indexed, inSitemap, legalNavOrder). `SITEMAP_LEGAL_SLUGS` derivado. Importado por `Footer`, `sitemap.ts`, `robots.ts` y la guardia R6. |
 | `scripts/lint/check-content.ts` | Valida el **árbol completo** (todo `content/`, tenga o no consumidor): solo locales publicados, solo `global.json` + colecciones del esquema, todos los documentos válidos, `pages/home.json` presente, **solo sustituciones declaradas (R5)**, **R6** (coherencia `_headers`/`_redirects` contra `LEGAL_PAGES`). En `pnpm guard` y en el pre-commit (fail-closed). Cuenta textos, marcadores y sustituciones en uso. |
 
@@ -323,4 +365,4 @@ parezca una directiva es contenido a revisar en el PR, no un comando. El contado
 - Guardia: `pnpm lint:content` → `[content-gate] OK — … N texto(s), M marcador(es)`; demostrada fallando en `OUTPUT-BBW-2026-09-16-fase6a` §4.
 
 ---
-*BBW-CONTENT-MODEL v3.6 · `docs/system/CONTENT_MODEL.md` · 2026-11-05 (v3.6: P-BBW-80 L2b — LegalPagesMap, global.legal, updatedLabel en puerto, {page:} referencias cruzadas, legalForm, src/config/pages.ts, R6 guardia; v3.5: correcciones P-BBW-73/74/75 — LegalBlock.parts NO aditivo, updated dentro de la sección, Privacidad como hijo directo del footer; v3.4: P-BBW-73/74/75 — tipo Span, LegalSection, sustitución email, footer.privacy, aepd, privacidad.json) · 2026-11-02 (v3.3: hero nuevo sobre fondo oscuro) · 2026-09-22 (v3.2: D-BBW-78, lo editable en datos y la palabra del caso una sola vez) · 2026-09-17 (v1.0 y v2.0/v2.1 el 2026-09-16: fase 5; fase 6a `DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-construccion`; fase 6b `skipLabel` y renderizado por tipo) · v2.2 fase 6c (sustituciones, D-BBW-23)*
+*BBW-CONTENT-MODEL v3.7 · `docs/system/CONTENT_MODEL.md` · 2026-11-06 (v3.7: P-BBW-82 L3 — global.consent, span { global }, parte { table }, sustituciones consentKey/consentMonths) · 2026-11-05 (v3.6: P-BBW-80 L2b — LegalPagesMap, global.legal, updatedLabel en puerto, {page:} referencias cruzadas, legalForm, src/config/pages.ts, R6 guardia; v3.5: correcciones P-BBW-73/74/75 — LegalBlock.parts NO aditivo, updated dentro de la sección, Privacidad como hijo directo del footer; v3.4: P-BBW-73/74/75 — tipo Span, LegalSection, sustitución email, footer.privacy, aepd, privacidad.json) · 2026-11-02 (v3.3: hero nuevo sobre fondo oscuro) · 2026-09-22 (v3.2: D-BBW-78, lo editable en datos y la palabra del caso una sola vez) · 2026-09-17 (v1.0 y v2.0/v2.1 el 2026-09-16: fase 5; fase 6a `DESPACHO-BBW-2026-09-16-fase6a-residuales-y-modelo-de-construccion`; fase 6b `skipLabel` y renderizado por tipo) · v2.2 fase 6c (sustituciones, D-BBW-23)*

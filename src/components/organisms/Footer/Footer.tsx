@@ -6,6 +6,7 @@ import type { GlobalDocument } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
 import { identity } from "@/content/site";
+import { CONSENT_CONFIGURE_ATTR } from "@/components/organisms/ConsentBar";
 import { media } from "@/media";
 import styles from "./Footer.module.css";
 
@@ -34,6 +35,14 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
             </Link>
           </Fragment>
         ))}
+        {/* «CONFIGURAR COOKIES» (P-BBW-82, requisito 3: retirar igual de fácil que dar): en la misma fila legal, en todas las páginas.
+            En el HTML es un enlace a la página de Cookies (la segunda capa, sin JavaScript); con JavaScript, el organismo del
+            consentimiento lo intercepta por `data-consent-configure` y abre el panel. Es un `<a>` y no un `<Link>` a propósito: la
+            navegación de cliente de Next se dispararía antes que la intercepción. */}
+        <span className={styles.legalLinksSep} aria-hidden="true" />
+        <a className={styles.legalLinksItem} href={legalPageRoute(locale, "cookies")} {...{ [CONSENT_CONFIGURE_ATTR]: "" }}>
+          {global.consent.footerLink}
+        </a>
       </nav>
       <div className={styles.end}>
         <div className={styles.social} data-enter="">

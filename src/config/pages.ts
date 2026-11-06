@@ -19,13 +19,19 @@ export type LegalPage = {
   inSitemap: boolean;
   /** orden de aparición en el grupo legal del pie (menor primero) */
   legalNavOrder: number;
+  /**
+   * si la página entra en la medición de visitas cuando hay consentimiento (P-BBW-82, requisito 6 del despacho L3).
+   * El aviso legal queda FUERA: lleva datos de identificación y no se mide nunca, aunque se haya aceptado. El puerto de
+   * analítica (`src/analytics/port.ts`) calcula las rutas excluidas de aquí; ningún otro archivo las escribe.
+   */
+  measured: boolean;
 };
 
 /** Páginas legales del sitio, en orden de pie. */
 export const LEGAL_PAGES: readonly LegalPage[] = [
-  { slug: "aviso-legal", indexed: false, inSitemap: false, legalNavOrder: 0 },
-  { slug: "privacidad",  indexed: true,  inSitemap: true,  legalNavOrder: 1 },
-  { slug: "cookies",     indexed: true,  inSitemap: true,  legalNavOrder: 2 },
+  { slug: "aviso-legal", indexed: false, inSitemap: false, legalNavOrder: 0, measured: false },
+  { slug: "privacidad",  indexed: true,  inSitemap: true,  legalNavOrder: 1, measured: true },
+  { slug: "cookies",     indexed: true,  inSitemap: true,  legalNavOrder: 2, measured: true },
 ] as const;
 
 /** Los slugs de las páginas que entran en el sitemap. */

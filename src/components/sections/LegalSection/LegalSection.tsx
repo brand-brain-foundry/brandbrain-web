@@ -10,7 +10,7 @@ function renderSpan(span: Span, key: number) {
     // { text, path } — enlace interno generado por el puerto desde { page: slug }
     return <Link key={key} href={span.path} className={styles.link}>{span.text}</Link>;
   }
-  if ("page" in span) return null; // nunca llega aquí: el puerto lo resuelve a { text, path }
+  if ("page" in span || "global" in span) return null; // nunca llegan aquí: el puerto los resuelve antes de entregar el documento
   const href = identity.links[span.link];
   const isExternal = href.startsWith("https://") || href.startsWith("http://");
   return (
@@ -47,6 +47,31 @@ export function LegalSection({ section }: { section: LegalSectionType }) {
                 <p key={pi} className={styles.para}>
                   {part.p.map((span, si) => renderSpan(span, si))}
                 </p>
+              ) : "table" in part ? (
+                /* TABLA (P-BBW-82, v3.7): en la vista estrecha cada celda se apila y antepone el rótulo de su columna
+                   (`data-label`, desde el contenido) por el rol de vista; la cabecera se oculta. Nada de esto vive aquí. */
+                <table key={pi} className={styles.table}>
+                  <thead className={styles.tableHead}>
+                    <tr>
+                      {part.table.columns.map((column, ci) => (
+                        <th key={ci} scope="col" className={styles.tableHeading}>
+                          {column}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {part.table.rows.map((row, ri) => (
+                      <tr key={ri} className={styles.tableRow}>
+                        {row.map((cell, ci) => (
+                          <td key={ci} className={styles.tableCell} data-label={part.table.columns[ci]}>
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               ) : (
                 <ul key={pi} className={styles.list}>
                   {part.list.map((item, ii) => (

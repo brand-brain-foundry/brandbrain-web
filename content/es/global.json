@@ -48,5 +48,34 @@
       "privacidad": { "label": "Privacidad" },
       "cookies": { "label": "Cookies" }
     }
+  },
+  "consent": {
+    "banner": {
+      "label": "Cookies",
+      "text": [
+        "Uso una medición de visitas para saber qué se lee en esta web. Solo se activa con tu permiso. Más información en ",
+        { "page": "cookies" },
+        "."
+      ],
+      "reject": "Rechazar",
+      "accept": "Aceptar",
+      "configure": "Configurar"
+    },
+    "panel": {
+      "title": "Configurar cookies",
+      "necessary": {
+        "label": "Necesarias",
+        "status": "Siempre activas",
+        "text": "Conservan tu elección sobre la medición de visitas."
+      },
+      "measurement": {
+        "label": "Medición de visitas",
+        "text": "Cifras agregadas de qué páginas se leen y cómo carga la web. Cloudflare Web Analytics, sin cookies."
+      },
+      "rejectAll": "Rechazar todo",
+      "acceptAll": "Aceptar todo",
+      "save": "Guardar elección"
+    },
+    "footerLink": "Configurar cookies"
   }
 }
