@@ -49,16 +49,23 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
           <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />
         </div>
         {/* EL SELLO (2026-11-02): enlace a la credencial verificable de Credly (`links.credly`, fuente única). Enlace simple, sin el guion
-            de inserción de Credly (JS de terceros + iframe: I-4, I-5). Nombre accesible = su texto; la imagen va con `alt=""`. */}
+            de inserción de Credly (JS de terceros + iframe: I-4, I-5). Nombre accesible = su texto; la imagen va con `alt=""`.
+            2026-11-06 (P-BBW-82, sello y banner): el enlace lleva la ENTRADA al cargar (`data-enter`) y la VISIBILIDAD (oculto mientras la barra
+            del consentimiento está a la vista, por `data-consent-bar` en `<html>`); su CUERPO es otro elemento porque es el que APARECE al bajar la
+            barra, y una pieza con `data-enter` no puede transicionar lo que la entrada deja fijado (opacidad, desplazamiento, desenfoque). La
+            INSIGNIA tiene su clase porque es la que se eleva con el halo al pasar. El HTML servido lo trae visible (I-4). */}
         <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="">
-          <img
-            src={media.gcFoundational72.src}
-            srcSet={`${media.gcFoundational72.src} 1x, ${media.gcFoundational144.src} 2x`}
-            width={media.gcFoundational72.width}
-            height={media.gcFoundational72.height}
-            alt=""
-          />
-          <span className={styles.certText}>{global.footer.cert.label}</span>
+          <span className={styles.certBody}>
+            <img
+              className={styles.certBadge}
+              src={media.gcFoundational72.src}
+              srcSet={`${media.gcFoundational72.src} 1x, ${media.gcFoundational144.src} 2x`}
+              width={media.gcFoundational72.width}
+              height={media.gcFoundational72.height}
+              alt=""
+            />
+            <span className={styles.certText}>{global.footer.cert.label}</span>
+          </span>
         </a>
       </div>
     </footer>

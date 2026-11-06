@@ -6,7 +6,7 @@ import { identity } from "@/content/site";
 import { analytics, shouldMeasure } from "@/analytics/port";
 import { readConsent, writeConsent } from "@/behavior/consent";
 import { Button } from "@/components/atoms/Button";
-import { CONSENT_CONFIGURE_ATTR } from "./attr";
+import { CONSENT_BAR_ATTR, CONSENT_CONFIGURE_ATTR } from "./attr";
 import styles from "./ConsentBar.module.css";
 
 /** El rol que el cableado rellena con la altura medida de la barra para que el pie quede alcanzable (base/document.css). */
@@ -78,6 +78,9 @@ function renderSpan(span: Span, key: number) {
  *   · Para que no tape el pie sin forma de alcanzarlo
  *     (F5.8), su altura medida se escribe en el rol `--bbf-consent-reserve`, que `body` consume como margen inferior: el documento
  *     crece justo lo que la barra ocupa y el pie queda a la vista al desplazarse.
+ *   · EL ESTADO «BARRA A LA VISTA» SE EXPONE UNA SOLA VEZ (2026-11-06, P-BBW-82, sello y banner): el mismo efecto que escribe la reserva pone
+ *     `data-consent-bar` en `<html>` mientras la barra se muestra y lo quita al bajar. Quien tenga que reaccionar (el sello del pie) lo LEE en
+ *     CSS; nadie vuelve a calcular si la barra está visible (I-6). Sin JavaScript o con elección guardada el atributo no existe (I-4).
  *   · Sin animación de entrada, con o sin movimiento reducido (I-9).
  */
 export function ConsentBar({ consent }: { consent: ConsentDocument }) {
@@ -163,21 +166,27 @@ export function ConsentBar({ consent }: { consent: ConsentDocument }) {
     };
   }, []);
 
-  // La reserva: la altura real de la barra, medida, al rol que `body` consume; cero cuando no está.
+  // La reserva y el estado, del mismo efecto: la altura real de la barra, medida, al rol que `body` consume, y el atributo `data-consent-bar`
+  // en `<html>` mientras la barra está a la vista. Al bajar (o sin barra) se retiran los dos.
   useEffect(() => {
     const root = document.documentElement;
     const el = bar.current;
-    if (!visible || !el) {
+    const clear = () => {
       root.style.removeProperty(RESERVE_ROLE);
+      root.removeAttribute(CONSENT_BAR_ATTR);
+    };
+    if (!visible || !el) {
+      clear();
       return;
     }
+    root.setAttribute(CONSENT_BAR_ATTR, "");
     const apply = () => root.style.setProperty(RESERVE_ROLE, `${Math.ceil(el.getBoundingClientRect().height)}px`);
     apply();
     const observer = new ResizeObserver(apply);
     observer.observe(el);
     return () => {
       observer.disconnect();
-      root.style.removeProperty(RESERVE_ROLE);
+      clear();
     };
   }, [visible]);
 

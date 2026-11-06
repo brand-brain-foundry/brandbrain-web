@@ -136,6 +136,19 @@
   --bbf-legal-table-cell-display: table-cell;
   --bbf-legal-table-cell-padding: var(--bbf-space-2) var(--bbf-space-3) var(--bbf-space-2) 0;
   --bbf-legal-table-label-display: none;
+
+  /* PUNTERO FINO CON HOVER (2026-11-06, P-BBW-82, sello y banner): 1 cuando el dispositivo puede posar un puntero fino sobre una pieza
+     (`(hover: hover) and (pointer: fine)`), 0 si no (táctil: el `:hover` se queda pegado tras el toque y un efecto de paso no tiene sentido).
+     Es un rol de vista como los demás: un componente lo consume como factor de su efecto de paso y NUNCA escribe la consulta. El foco de
+     teclado no pasa por aquí: el efecto con foco se muestra en todos los dispositivos. La consulta de abajo es de CAPACIDAD, no de punto de
+     corte: no lleva ningún literal de anchura, así que no espeja ninguna madre `--bbf-bp-*` (R8 no la mira). */
+  --bbf-hover-fine: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --bbf-hover-fine: 1;
+  }
 }
 
 @media (max-width: 790px) {
