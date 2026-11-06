@@ -23,7 +23,9 @@
  *   3. MOTOR (`startCriterioField`): lienzo, reloj a 10 fps con `setTimeout`, quietud. Lo cablea el componente cliente.
  *
  * TOKENS QUE LEE (nunca repite; BEHAVIOR.md §1.2): `--bbf-field-lane`, `--bbf-field-lane-live`, `--bbf-field-read`, `--bbf-field-hit`,
- * `--bbf-text-on-base` (colores, resueltos por el navegador en un elemento sonda), `--bbf-motion-loop-play-state` (quietud: con
+ * `--bbf-text-on-base` (colores, resueltos por el navegador en un elemento sonda; los cuatro del campo son ROLES DE VISTA desde el 2026-11-06
+ * —semantic/viewport.css elige el juego de peldaños de cada composición del héroe— y por eso se vuelven a leer en cada `layout()`, es decir, al
+ * arrancar, al cambiar el tamaño de la placa y al cargar las fuentes: al cruzar el corte el campo repinta con los colores de la vista nueva), `--bbf-motion-loop-play-state` (quietud: con
  * movimiento reducido vale `paused`, se pinta UN fotograma y el bucle no arranca, I-9) y `--bbf-stage-mask-mid-share` (la parada media de la
  * máscara del escenario: hasta dónde llega su tinta; es la misma madre que recoloca el escenario en el teléfono, primitives/composition.css).
  *
