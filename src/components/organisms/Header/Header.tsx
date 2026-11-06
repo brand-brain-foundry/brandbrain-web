@@ -29,6 +29,8 @@ export function resolveLinks(items: LinkItem[], caseLabel?: string): ResolvedLin
  * (N0 §2.3): la lista en línea (vista amplia) y el panel móvil (vista colapsada, `<details>`, con los perfiles del pie además).
  * Qué se ve en cada vista lo deciden los roles de semantic/viewport.css, nunca una media query aquí. Todo texto desde `content/`.
  * Fase 6g: los enlaces en línea entran escalonados al cargar con el paso de la nav (`--bbf-enter-step` en la hoja del organismo).
+ * M3 (P-BBW-84): la navegación de la cabecera es uno de los DOS sitios con desarme S11 (el otro: los botones del héroe): las tres listas llevan
+ * `scatter` y la guardia R11b lo comprueba contra su lista declarada. Todo lo demás del sitio tiene solo el hover de color.
  */
 export function Header({ locale, global }: { locale: Locale; global: GlobalDocument }) {
   const nav = resolveLinks(global.nav.items, global.nav.caseLabel);
@@ -38,11 +40,11 @@ export function Header({ locale, global }: { locale: Locale; global: GlobalDocum
       <BrandMark href={`/${locale}/`} name={identity.brand} />
       <nav className={styles.nav}>
         <div className={styles.inline}>
-          <LinkList items={nav} typeRole="label" enter />
+          <LinkList items={nav} typeRole="label" enter scatter />
         </div>
         <NavPanel toggleLabel={global.nav.toggleLabel}>
-          <LinkList items={nav} typeRole="menu" direction="column" />
-          <LinkList items={social} typeRole="legal" iconSize="md" />
+          <LinkList items={nav} typeRole="menu" direction="column" scatter />
+          <LinkList items={social} typeRole="legal" iconSize="md" scatter />
         </NavPanel>
       </nav>
     </header>

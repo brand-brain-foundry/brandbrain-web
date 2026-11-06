@@ -45,7 +45,7 @@
   text-wrap: pretty;
 }
 
-/* S11 (M2, P-BBW-83): el subrayado del enlace del texto (que se recoge al pasar) lo pone el sistema (`[data-scatter="prose"]`). */
+/* M3 (P-BBW-84): el subrayado del enlace del texto y su hover de color los pone el sistema (`[data-hover="prose"]`); sin desarme. */
 .link {
   color: var(--bbf-accent);
 }

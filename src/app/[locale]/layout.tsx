@@ -77,7 +77,7 @@ export default async function LocaleLayout({
         {/* CONSENTIMIENTO (P-BBW-82): la barra y el panel van en el HTML de todas las páginas, la barra oculta; el cliente solo
             la muestra si no hay elección válida. Después del pie en el DOM: es lo último que se lee y lo primero que se decide. */}
         <ConsentBar consent={global.consent} />
-        {/* S11 DESARME (P-BBW-83): un solo cableador cliente para todos los enlaces y botones marcados con `data-scatter`; sin markup. */}
+        {/* S11 DESARME (P-BBW-83; opt-in desde M3, P-BBW-84): un solo cableador cliente para los enlaces y botones marcados con `data-scatter`; sin markup. */}
         <GlyphScatter />
       </body>
     </html>

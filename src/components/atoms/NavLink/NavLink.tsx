@@ -18,6 +18,8 @@ export type NavLinkProps = {
    * ningún `aria-label` que pudiera desincronizarse de lo visible. No lleva `aria-hidden` justamente por eso.
    */
   badge?: string;
+  /** M3 (P-BBW-84): DESARME S11 opt-in. Sin ella, el enlace tiene solo el hover de color del sistema; con ella, además se desarma. */
+  scatter?: boolean;
 };
 
 /** Un destino saliente (http/https) se abre en pestaña nueva con `rel` seguro (N0 §2.4: los enlaces externos abren en `_blank`). */
@@ -30,11 +32,11 @@ function isOutbound(href: string): boolean {
  * Fase 6c: onda de subrayado (maestros del diseño por el puerto de medios) bajo los roles `label` (base en reposo, tinta al pasar el
  * ratón o recibir el foco; sin transición) y `menu` (siempre visible); iconos de perfil con el texto como nombre accesible.
  * Área táctil mínima por token. Sin literales, sin valores.
- * S11 (M2, P-BBW-83): el enlace solo se MARCA (`data-scatter="text"` o `"icon"`); el nombre oculto del icono y la píldora llevan
- * `data-scatter-skip` (no se parten en glifos: el nombre no se ve y los glifos saliendo de la píldora romperían su forma). El hover de color
- * sale de esta hoja (I-6): lo pone el sistema como alternativa de reposo (base/document.css).
+ * S11 (M2, P-BBW-83; M3, P-BBW-84): el enlace solo se MARCA: `data-hover="text"` o `"icon"` (tipo de piel → hover de color del sistema, siempre) y
+ * `data-scatter` SOLO si `scatter` (desarme, opt-in). El nombre oculto del icono y la píldora llevan `data-scatter-skip` (no se parten en glifos: el
+ * nombre no se ve y los glifos saliendo de la píldora romperían su forma). Ningún hover ni transición en esta hoja (I-6): base/document.css.
  */
-export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }: NavLinkProps) {
+export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge, scatter = false }: NavLinkProps) {
   const outbound = isOutbound(href);
   const sizeClass = iconSize === "md" ? styles.sizeMd : styles.sizeSm;
   return (
@@ -42,7 +44,8 @@ export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }:
       href={href}
       className={`${styles.navLink} ${styles[typeRole]}${icon ? ` ${iconSize === "md" ? styles.touchMd : styles.touchSm}` : ""}`}
       data-component="bbf-nav-link"
-      data-scatter={icon ? "icon" : "text"}
+      data-hover={icon ? "icon" : "text"}
+      data-scatter={scatter ? "" : undefined}
       target={outbound ? "_blank" : undefined}
       rel={outbound ? "noopener noreferrer" : undefined}
     >

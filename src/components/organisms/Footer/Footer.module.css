@@ -72,13 +72,13 @@
 }
 
 /* EL SELLO (2026-11-02, orden de Zavala: sin la palabra del nivel). Imagen por el puerto de medios a `--bbf-cert-size` (72 en dos zonas,
-   64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento. Recibe el puntero aunque la
-   barra no (la barra deja pasar el puntero al héroe). */
+   64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento (M3: por `data-hover="text"`, el
+   rol del sistema, ya no una regla de aquí). Recibe el puntero aunque la barra no (la barra deja pasar el puntero al héroe). */
 /* FILA DE PÁGINAS LEGALES (P-BBW-80, L2): sustituye al enlace único de privacidad. Mismo orden y base; los ítems comparten el estilo
    del enlace de privacidad anterior. El separador «·» es ornamental (aria-hidden).
-   S11 (M2, P-BBW-83): los hovers de acento de los enlaces legales (y sus transiciones) salen de aquí (I-6): al pasar se DESARMAN
-   (base/document.css, `[data-scatter="text"]`); con movimiento reducido el mismo bloque devuelve el acento. EL SELLO QUEDA FUERA de S11
-   (Zavala, 2026-11-06: un efecto por pieza) y conserva abajo su efecto propio: tinte, elevación y halo (P-BBW-82). */
+   M3 (P-BBW-84): el hover de color de los enlaces legales (y su transición) es del sistema (base/document.css, `[data-hover="text"]`); SIN desarme
+   (el pie no está entre los hosts declarados). EL SELLO QUEDA FUERA de S11 (Zavala, 2026-11-06: un efecto por pieza) y conserva abajo su efecto
+   propio: elevación y halo (P-BBW-82); su color de hover es el mismo rol del sistema. */
 .legalLinks {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
@@ -138,13 +138,10 @@
   color: var(--bbf-text-on-base-secondary);
   text-decoration: none;
   pointer-events: auto;
-  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
 }
 
-.cert:hover,
-.cert:focus-visible {
-  color: var(--bbf-accent);
-}
+/* M3 (P-BBW-84): el color de hover/foco del sello y su transición SALEN de aquí (I-6): los pone el sistema por `data-hover="text"` (el mismo rol
+   `--bbf-hover-on-mint` que todo lo menta, elegido por contraste medido). Aquí quedan solo la elevación y el halo de la insignia. */
 
 .cert[data-bar-covered] {
   visibility: hidden;

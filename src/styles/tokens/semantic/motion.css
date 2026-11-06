@@ -98,7 +98,7 @@
   --bbf-motion-hover-lift: var(--bbf-space-half);
 
   /* S11 (M2, P-BBW-83): el desarme de enlaces y botones se pausa con movimiento reducido (D-BBW-31); el módulo lo LEE por JS y, en `paused`,
-     no registra nada: quedan los hovers de reposo del bloque `[data-scatter]` de base/document.css */
+     no registra nada: queda el hover de color del sistema (M3, `[data-hover]` en base/document.css), que es el mismo en todos los modos */
   --bbf-motion-scatter-play-state: running;
 }
 

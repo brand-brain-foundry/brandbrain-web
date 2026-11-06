@@ -19,9 +19,10 @@ import styles from "./Footer.module.css";
  * aviso, agrupar la legal con los perfiles dejaba el extremo derecho vacío. El orden del DOM es el visual y la fila deja de estar invertida.
  * LO QUE SALE, en el mismo commit (I-6): el aviso de estado con su punto y su pulso (Q-BBW-010, confirmada por Zavala) y la FIRMA
  * (D-BBW-50), que pasa a tener una sola aparición en toda la página, bajo el encabezado del héroe.
- * S11 (M2, P-BBW-83): los enlaces legales del pie solo se MARCAN (`data-scatter="text"`). EL SELLO NO SE MARCA (Zavala, 2026-11-06: UN efecto
- * por pieza): conserva su propio efecto al pasar —elevación y halo de la insignia, tinte del texto (P-BBW-82)— y la guardia R11 lo exime por
- * su selector nombrado (`a.cert`), no por un hueco del inventario (docs/system/BEHAVIOR.md §14).
+ * M3 (P-BBW-84): todo enlace del pie se MARCA con su tipo de piel (`data-hover="text"` / el icono `"icon"` por NavLink) y recibe el hover de color del
+ * sistema; NINGUNO lleva `data-scatter`: el pie queda sin desarme (solo cabecera y héroe). EL SELLO conserva su efecto propio al pasar —elevación y
+ * halo de la insignia (P-BBW-82; Zavala, 2026-11-06: un efecto por pieza)— y su COLOR de hover es ya el del sistema, por la misma marca
+ * (docs/system/BEHAVIOR.md §14).
  */
 export function Footer({ global, locale }: { global: GlobalDocument; locale: Locale }) {
   return (
@@ -33,7 +34,7 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
         {LEGAL_PAGES.map((page, i) => (
           <Fragment key={page.slug}>
             {i > 0 && <span className={styles.legalLinksSep} aria-hidden="true" />}
-            <Link className={styles.legalLinksItem} href={legalPageRoute(locale, page.slug)} data-scatter="text">
+            <Link className={styles.legalLinksItem} href={legalPageRoute(locale, page.slug)} data-hover="text">
               {global.legal.pages[page.slug]?.label ?? page.slug}
             </Link>
           </Fragment>
@@ -43,7 +44,7 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
             consentimiento lo intercepta por `data-consent-configure` y abre el panel. Es un `<a>` y no un `<Link>` a propósito: la
             navegación de cliente de Next se dispararía antes que la intercepción. */}
         <span className={styles.legalLinksSep} aria-hidden="true" />
-        <a className={styles.legalLinksItem} href={legalPageRoute(locale, "cookies")} data-scatter="text" {...{ [CONSENT_CONFIGURE_ATTR]: "" }}>
+        <a className={styles.legalLinksItem} href={legalPageRoute(locale, "cookies")} data-hover="text" {...{ [CONSENT_CONFIGURE_ATTR]: "" }}>
           {global.consent.footerLink}
         </a>
       </nav>
@@ -59,8 +60,9 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
             2026-11-06 (sello según solape): el enlace lleva la marca genérica `data-bar-avoid` (`ConsentBar/attr.ts`): el cableado de la barra
             del consentimiento lo observa y le pone `data-bar-covered` SOLO MIENTRAS LA BARRA LO TAPA, aunque sea en parte; entero por encima de
             la barra, aparece aunque ella siga abierta. El CSS de aquí solo lee esa marca. El HTML servido lo trae visible (I-4).
-            SIN `data-scatter` (S11): un efecto por pieza; el sello ya tiene el suyo. Exento en R11 como `a.cert`. */}
-        <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="" {...{ [BAR_AVOID_ATTR]: "" }}>
+            SIN `data-scatter` (S11): un efecto por pieza; el sello ya tiene el suyo (elevación y halo). M3 (P-BBW-84): su COLOR de hover es el del
+            sistema (`data-hover="text"`, el mismo rol que todo lo menta), no una regla propia. */}
+        <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="" data-hover="text" {...{ [BAR_AVOID_ATTR]: "" }}>
           <span className={styles.certBody}>
             <img
               className={styles.certBadge}

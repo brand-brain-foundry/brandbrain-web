@@ -429,10 +429,11 @@ El sello conserva su efecto propio al pasar: `--bbf-motion-hover-lift` (`semanti
 `XMLHttpRequest.open` y `fetch` y descarta toda petición al actor) y recarga la página; el envío de cierre del fragmento que la recarga
 dispara es, precisamente, el que la envoltura descarta (verificado en F5.4 del output de L3).
 
-## §14 — S11 · Desarme de enlaces y botones (`src/behavior/glyph-scatter.ts`, M2 · 2026-11-06 · P-BBW-83)
+## §14 — S11 · Desarme de enlaces y botones (`src/behavior/glyph-scatter.ts`, M2 · 2026-11-06 · P-BBW-83; **opt-in, hover de color y selección: M3 · P-BBW-84**)
 
-**Qué hace:** todos los enlaces y botones con texto del sitio comparten un único sistema dinámico de cliente (P-BBW-83, firmada por el `!` de M2;
-D-BBW-09 en los términos de D-BBW-28). **El prototipo aprobado por Zavala el 2026-11-06 (`despachos/2026-11/insumos/M2-prototipo-desarme-aprobado-2026-11-06.html`,
+**Qué hace:** los enlaces y botones **que lo declaran** comparten un único sistema dinámico de cliente (P-BBW-83, firmada por el `!` de M2; **P-BBW-84, firmada
+por el `!` de M3: el desarme pasa de todos los enlaces y botones a solo donde se declara** —la navegación de la cabecera y los dos botones del héroe de la
+home—; el resto, incluidos todo el contenido legal y el consentimiento, tiene solo el hover de color de abajo; D-BBW-09 en los términos de D-BBW-28). **El prototipo aprobado por Zavala el 2026-11-06 (`despachos/2026-11/insumos/M2-prototipo-desarme-aprobado-2026-11-06.html`,
 v2, profundidad activada) es la especificación literal del movimiento** (método de M1d: copia literal + guardia de identidad). Al pasar el puntero del
 ratón (`pointerType === 'mouse'`), recibir foco o tocar, cada glifo del texto y cada icono del puerto se suelta con x, y (em), giro en el plano y
 profundidad d ∈ [−1, 1] → escala 1 + 0,28·d y opacidad 1 + 0,22·d si d < 0; sin giros 3D. Cada glifo flota hacia un objetivo con tres frecuencias
@@ -440,17 +441,38 @@ por eje y vuelve con muelle propio y desfase; bajo `ENERGY_REST` se borra la tra
 (d < −0,05) pasa detrás del texto (el párrafo es contexto de apilamiento propio); fuera, siempre delante. Piel de botón: el contorno se deshace desde
 un punto al azar hacia los dos lados (`stroke-dasharray`); el relleno se encoge hacia un punto al azar y se disuelve, y el texto toma el color del
 relleno. Enlace en texto: el subrayado se recoge. Toque: despierta `WAKE_HOLD_MS` y suelta con `blur()`; sin `preventDefault`, el enlace navega.
-Quedan fuera el imagotipo (S9), el enlace de salto y **el sello del pie** (`a.cert` de `Footer.tsx`; Zavala, 2026-11-06: **un efecto por pieza**; el
-sello ya tiene el suyo —tinte del texto, elevación y halo de la insignia, §13— y no se parte). Las tres exenciones van **nombradas** en la guardia R11b
-(abajo), nunca por omisión.
+Quedan fuera (sin `data-scatter`) todo lo que no sea cabecera o héroe: pie, legales, banner y panel del consentimiento, prosa; y, además, sin `data-hover`
+(exentos por selector nombrado en R11b, nunca por omisión): el imagotipo (S9), el enlace de salto y la defensa de la raíz. **El sello del pie** (`a.cert`,
+Zavala 2026-11-06: **un efecto por pieza**) conserva elevación y halo propios (§13) y no se desarma; desde M3 su COLOR de hover es el del sistema, por
+`data-hover="text"`, como el de cualquier enlace menta.
 
 **Una fuente, cableado puntual:** las constantes y las funciones puras (`makeGlyph`, `stepGlyph`, `glyphFrame`, `stepSkin`, `skinFrame`, `frameDt`)
-viven en el módulo; `makeGlyph` sortea en el **mismo orden de llamadas a `random`** que el prototipo. Un componente solo se MARCA
-(`data-scatter="text|icon|outline|fill|prose"`; `data-scatter-skip` en lo que no se parte: el nombre oculto del icono y la píldora «Caso»); un único
+viven en el módulo; `makeGlyph` sortea en el **mismo orden de llamadas a `random`** que el prototipo. Un componente solo se MARCA, con **dos marcas de
+significado distinto (M3):** `data-hover="text|icon|outline|fill|prose"` —el TIPO de piel, obligatoria en todo enlace y botón, la que gobierna el hover de
+color— y `data-scatter` (vacía) —el OPT-IN del desarme: sin ella no hay desarme; el cableador busca `[data-scatter]` y lee el tipo en `data-hover`—
+(`data-scatter-skip` en lo que no se parte: el nombre oculto del icono y la píldora «Caso»). Cómo se activa: `NavLink` recibe `scatter` y emite
+`data-scatter={scatter ? "" : undefined}`; `LinkList` la reenvía; `Header` la fija en sus tres listas; los dos `<a>` del héroe llevan `data-scatter=""`
+literal; `Button` reparte `...rest` (bastaría `<Button data-scatter="">`), hoy sin consumidor. Un único
 cableador cliente (`src/components/organisms/GlyphScatter/`, montado una vez en el layout del locale) delega los eventos en `document`
 (`pointerenter`/`pointerleave` en captura, `focusin`/`focusout`, `pointerdown`) y lleva **un solo bucle rAF para toda la página**, que se para cuando
 nada está activo ni asentándose. Todo el CSS de S11 vive en un bloque `[data-scatter]` de `base/document.css` (hosts, palabras, glifos, nombre
-oculto, piel, subrayado, contexto de apilamiento y los hovers de reposo con movimiento reducido): ningún componente escribe nada de S11.
+oculto, piel, subrayado y contexto de apilamiento): ningún componente escribe nada de S11. **S11 mueve; el color lo pone el bloque de hover de color**
+(I-6, un mecanismo por cosa): en M3 salen de aquí los hovers de reposo con movimiento reducido (eran color) y el relleno de la piel pasa a seguir al hover.
+
+**Hover de color (M3, P-BBW-84; bloque `[data-hover]` de `base/document.css`, un solo sitio):** todo enlace y botón, con y sin desarme, con y sin JavaScript,
+en todos los modos. `text`/`icon`/`outline` → `color: --bbf-hover-on-mint` (el contorno también `border-color`); `fill` → relleno y contorno a
+`--bbf-hover-on-mint` y el texto conserva la tinta base; `prose` (el único tipo cuyo reposo es acento) → `color: --bbf-hover-on-accent`; estado activo =
+`:hover`, `:focus-visible` o `data-scatter-on` (el toque). Transición en `color`, `border-color`, `background-color` y `fill` (el `rect` de la piel) por
+`--bbf-motion-link-duration` / `--bbf-motion-link-ease`; con movimiento reducido la madre de duración colapsa: sin regla propia. **Los dos roles los fija el
+contraste medido contra la banda del fondo real (`semantic/colors.css`, OUTPUT-BBW-2026-11-06-M3 §0.2):** `hover-on-mint` = `accent-300` (la madre `accent-400`
+cae a 4,29 bajo «Pura kaSaka» en el peor fotograma; el 300 no baja de 5,56 en ningún host: el peldaño del anillo de foco y del agarrador) y
+`hover-on-accent` = `accent-500` (5,11–5,15 sobre superficie base y velo; `accent-600` 3,4 no pasa). Texto del botón relleno desarmado: toma el color de hover
+del relleno (`hover-on-mint`, 7,94–8,26 sobre el fondo del héroe), no el menta (despacho M3 §0.2). Subrayado de `prose`: el degradado del prototipo como
+reposo del tipo, con y sin desarme (un solo render).
+
+**Selección (M3):** `::selection` global en `base/document.css` desde dos roles: `--bbf-selection-surface` (= `--bbf-accent`, la madre) y
+`--bbf-selection-text` (= `--bbf-surface-base`: tinta 7,59 frente a menta 2,53). Vale sobre texto menta, acento y dentro de botones (fondo opaco). Reportado,
+sin cambio: dentro de la píldora «Caso» (mismos pasos, D-BBW-77) la selección no se distingue.
 
 | Constante | Valor | Origen | Clase | Qué es |
 |---|---|---|---|---|
@@ -485,7 +507,7 @@ los enlaces en prosa, que es el del prototipo (degradado de `--bbf-line-sm` al p
 el primer contacto (desplazamiento ≤ 0,33 px, CLS 0, medido en M2 F5) dejando el texto literal como nombre oculto.
 
 **Quietud (D-BBW-31, I-9):** con `--bbf-motion-scatter-play-state: paused` el cableador devuelve antes de registrar un oyente o un rAF y no parte
-nada; quedan los hovers de reposo (color de acento, contorno/relleno de acento, opacidad en prosa) del mismo bloque. Pestaña oculta: el bucle se
+nada; queda el hover de color del sistema (el mismo de todos los modos, sin transición porque la madre de duración colapsa). Pestaña oculta: el bucle se
 cancela y se reanuda al volver si queda energía. Un host fuera de pantalla que se asienta, o que deja de renderizarse mientras está activo (la barra
 del consentimiento se oculta al decidir), salta al reposo. Coste medido en el artefacto (M2 F5, privacidad con 19 hosts y 233 glifos activos a la
 vez): mediana 1,2 ms · p95 1,5 ms por fotograma en escritorio; 3,3 · 4,7 ms con CPU ×4.
@@ -496,13 +518,15 @@ dt = 1/60; el enlace «los casos» y los dos botones; x, y, giro, profundidad po
 única sustitución, exponer el estado). El módulo sortea los mismos glifos en el mismo orden y falla si un valor difiere > 0,001 em, > 0,1° o > 0,001.
 Vista fallar cambiando `AMP_X` y pasar (output de M2 §5).
 
-**Guardia R11b (misma guardia, inventario de hosts en el código; 2026-11-06, al rebasar M2 sobre sello y banner):** todo `<a>`, `<Link>` y `<button>`
-nativo de `src/components/**` y `src/app/**` lleva `data-scatter`, salvo los que la guardia exime **por selector nombrado con su motivo**:
-`a[data-component="bbf-skip-link"]` (enlace de salto: invisible hasta el foco, no es una pieza de la página), `a[data-component="bbf-brand-mark"]`
-(imagotipo: S9, su propio sistema), `a.cert` (sello del pie: un efecto por pieza, el suyo propio) y `(root)/page.tsx a` (defensa de la raíz, fuera del
-layout del locale: no hay cableador). Una exención que no corresponde a exactamente UN host del código también falla: la lista no puede quedar muerta ni
-tapar dos. Vista fallar quitando la exención del sello (1 host sin marcar: `Footer.tsx a.cert`) y añadiendo un `<a>` sin marcar a un componente; vista
-pasar al restaurar (output del rebase, §3).
+**Guardia R11b (misma guardia, inventario de hosts en el código; 2026-11-06 al rebasar M2; REESCRITA en M3 para la lista contraria):** (a) todo `<a>`, `<Link>`
+y `<button>` nativo de `src/components/**` y `src/app/**` lleva `data-hover`, salvo los que la guardia exime **por selector nombrado con su motivo**:
+`a[data-component="bbf-skip-link"]` (enlace de salto: invisible hasta el foco), `a[data-component="bbf-brand-mark"]` (imagotipo: S9) y `(root)/page.tsx a`
+(defensa de la raíz: sin hoja de estilos ni cableador); una exención que no corresponde a exactamente UN host también falla. (b) `SCATTER_HOSTS` es **el único
+sitio que dice dónde se activa el desarme**: `Header.tsx <LinkList scatter>` ×3 y `HeroSection.tsx <a data-scatter="">` ×2. Una etiqueta FIJA el desarme si
+escribe `data-scatter` (vacío) o `scatter` (verdadera) tal cual; un átomo o molécula solo puede REENVIARLO (`={scatter …}`); la guardia falla si un fichero
+fuera de la lista lo fija, si a uno declarado le falta o le sobra un host, o si aparece otra forma. Vista fallar añadiendo `data-scatter=""` a un enlace del
+pie (`FALLO R11b(b): desarme FIJADO fuera de la lista declarada`), quitándolo al botón relleno del héroe (`aparece ×1`) y quitando `data-hover` al átomo
+`Button` (`FALLO R11b(a)`); vista pasar al restaurar (OUTPUT-BBW-2026-11-06-M3 §2).
 
 ---
-*BBW-BEHAVIOR v1.11 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.11 en sello según solape (instrucción directa de Zavala, sigue P-BBW-82: §13 el sello se oculta solo mientras la barra lo tapa, `IntersectionObserver` con la medida de la reserva, marcas `data-bar-avoid`/`data-bar-covered`, sale `data-consent-bar`) · v1.10 al rebasar M2 sobre sello y banner (instrucción directa de Zavala: §14 exime el sello por selector nombrado, R11b inventario; §13 conserva la nota del sello) · v1.9 en M2 (`DESPACHO-BBW-2026-11-06-M2-desarme-de-enlaces-y-botones`: S11 desarme de enlaces y botones, P-BBW-83, R11) y en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
+*BBW-BEHAVIOR v1.12 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.12 en M3 (`DESPACHO-BBW-2026-11-06-M3-hover-de-color-variante-sin-desarme-y-seleccion`, P-BBW-84: §14 desarme opt-in por `data-scatter` con el tipo en `data-hover`, hover de color del sistema con roles `--bbf-hover-on-mint`/`--bbf-hover-on-accent` elegidos por contraste medido, `::selection` por rol, R11b lista contraria) · v1.11 en sello según solape (instrucción directa de Zavala, sigue P-BBW-82: §13 el sello se oculta solo mientras la barra lo tapa, `IntersectionObserver` con la medida de la reserva, marcas `data-bar-avoid`/`data-bar-covered`, sale `data-consent-bar`) · v1.10 al rebasar M2 sobre sello y banner (instrucción directa de Zavala: §14 exime el sello por selector nombrado, R11b inventario; §13 conserva la nota del sello) · v1.9 en M2 (`DESPACHO-BBW-2026-11-06-M2-desarme-de-enlaces-y-botones`: S11 desarme de enlaces y botones, P-BBW-83, R11) y en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*

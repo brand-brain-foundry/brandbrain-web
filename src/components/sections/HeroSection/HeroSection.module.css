@@ -175,8 +175,8 @@
 
 /* Botón: 48 de alto (`space-12`), relleno lateral `space-7`, radio de píldora, contorno de 1 px en el texto del sistema.
    Primario: relleno claro (`--bbf-text-on-base`) y texto en la superficie. Secundario: contorno y texto claros sobre transparente.
-   S11 (M2, P-BBW-83): al pasar, la PIEL se deshace y los glifos se sueltan (base/document.css, `[data-scatter="fill"]` / `"outline"`); los
-   hovers de acento y sus transiciones salen de aquí (I-6) y quedan, con movimiento reducido, como alternativa de reposo en ese bloque. */
+   S11 (M2, P-BBW-83) y M3 (P-BBW-84): al pasar, el COLOR cambia por el sistema (`[data-hover="fill"]` / `"outline"`: contorno y relleno al acento)
+   y, porque llevan `data-scatter`, la PIEL se deshace y los glifos se sueltan; todo en base/document.css, nada aquí (I-6). */
 .cta {
   display: inline-flex;
   align-items: center;

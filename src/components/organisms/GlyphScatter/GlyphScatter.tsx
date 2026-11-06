@@ -5,7 +5,8 @@ import { startScatter } from "@/behavior/glyph-scatter";
 
 /**
  * GlyphScatter — organism cliente sin markup (S11, M2, P-BBW-83). Cromo persistente que vive en el layout del locale y cablea UNA sola vez el
- * sistema de desarme de enlaces y botones sobre `document` (delegación de eventos): los componentes solo se marcan con `data-scatter` y nunca
+ * sistema de desarme de enlaces y botones sobre `document` (delegación de eventos): los componentes que se desarman solo se marcan con
+ * `data-scatter` (opt-in desde M3, P-BBW-84; el tipo de piel va en `data-hover`) y nunca
  * saben de él. El HTML servido no cambia (I-4): el módulo parte el texto en el cliente y solo mueve. Con movimiento reducido el módulo devuelve
  * antes de registrar nada (D-BBW-31, I-9). Solo cablea: ciclo de vida (BEHAVIOR.md §1.4).
  */
