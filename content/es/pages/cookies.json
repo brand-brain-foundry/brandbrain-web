@@ -9,7 +9,7 @@
       "id": "cookies",
       "heading": "Cookies",
       "intro": [
-        "Esta web usa lo mínimo. Una tecnología es técnica y siempre está activa; la otra, la medición de visitas, solo funciona si quien visita la web la acepta."
+        "Esta web usa lo mínimo. Dos tecnologías son técnicas: una siempre está activa y la otra solo aparece si Cloudflare pide una verificación de seguridad; la medición de visitas solo funciona si quien visita la web la acepta."
       ],
       "action": { "kind": "consent-configure", "label": { "global": "consent.configureButton" } },
       "blocks": [
@@ -36,6 +36,13 @@
                     "Conservar la elección sobre la medición de visitas",
                     "Propia",
                     "{{consentMonths}} meses"
+                  ],
+                  [
+                    "cf_clearance",
+                    "Cookie técnica de seguridad",
+                    "Demostrar que se ha superado una verificación de Cloudflare al abrir el Aviso legal; solo aparece si se pide esa verificación",
+                    "Cloudflare (encargado)",
+                    "El tiempo que fija la verificación de Cloudflare: 30 minutos por defecto"
                   ],
                   [
                     "Cloudflare Web Analytics",
