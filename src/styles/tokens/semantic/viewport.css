@@ -184,10 +184,14 @@
        fondo) se pintaba ENCIMA del texto y lo oscurecía —se ve en la captura del sitio publicado en el teléfono—. En flujo igual que antes. */
     --bbf-hero-text-flow: relative;
     --bbf-hero-text-min-block: 100svh;
-    /* el texto empieza bajo la parte DIBUJADA del escenario más un margen de página (ver el ancla, arriba). Hasta hoy se reservaba la caja
-       ENTERA («cero tinta del sujeto bajo el texto por construcción»): era la cota para el pez, y con el campo de puntos dejaba una banda
-       de 304–473 px con poca animación y el titular bajo la barra del consentimiento. */
-    --bbf-hero-text-inset-top: calc(var(--bbf-stage-anchor-y) + var(--bbf-stage-reach) + var(--bbf-space-page));
+    /* el texto empieza bajo la parte DIBUJADA del escenario más un aire de `space-3` (ver el ancla, arriba). Hasta el 2026-11-06 se reservaba
+       la caja ENTERA («cero tinta del sujeto bajo el texto por construcción»): era la cota para el pez, y con el campo de puntos dejaba una
+       banda de 304–473 px con poca animación y el titular bajo la barra del consentimiento.
+       2026-11-06 (héroe móvil, aire; decisión de Zavala): el aire entre el alcance y el titular baja de un margen de página (20 en el teléfono)
+       a `space-3` (12), y SOLO en esta vista. Medido antes: con la barra abierta a 360×640 el titular quedaba a 8,6 px de la barra (393 px entre
+       cabecera y barra: 199 de escenario dibujado + 167 de titular + 20 de margen); con `space-3`, 16,6 (≥ `space-4`). Lo que el escenario
+       sigue fundiendo bajo el titular lo juzga la medida de contraste (I-8), que no baja de lo medido en PR#58. */
+    --bbf-hero-text-inset-top: calc(var(--bbf-stage-anchor-y) + var(--bbf-stage-reach) + var(--bbf-space-3));
     --bbf-hero-flex: 1 0 auto;
 
     --bbf-hero-ctas-direction: column;
