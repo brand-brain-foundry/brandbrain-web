@@ -4,9 +4,9 @@ import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore }
 import type { ConsentDocument, Span } from "@/content/schema";
 import { identity } from "@/content/site";
 import { analytics, shouldMeasure } from "@/analytics/port";
-import { readConsent, writeConsent } from "@/behavior/consent";
+import { BAR_AVOID_THRESHOLD, barAvoidRootMargin, isCoveredByBar, readConsent, writeConsent } from "@/behavior/consent";
 import { Button } from "@/components/atoms/Button";
-import { CONSENT_BAR_ATTR, CONSENT_CONFIGURE_ATTR } from "./attr";
+import { BAR_AVOID_ATTR, BAR_COVERED_ATTR, CONSENT_CONFIGURE_ATTR } from "./attr";
 import styles from "./ConsentBar.module.css";
 
 /** El rol que el cableado rellena con la altura medida de la barra para que el pie quede alcanzable (base/document.css). */
@@ -78,9 +78,12 @@ function renderSpan(span: Span, key: number) {
  *   · Para que no tape el pie sin forma de alcanzarlo
  *     (F5.8), su altura medida se escribe en el rol `--bbf-consent-reserve`, que `body` consume como margen inferior: el documento
  *     crece justo lo que la barra ocupa y el pie queda a la vista al desplazarse.
- *   · EL ESTADO «BARRA A LA VISTA» SE EXPONE UNA SOLA VEZ (2026-11-06, P-BBW-82, sello y banner): el mismo efecto que escribe la reserva pone
- *     `data-consent-bar` en `<html>` mientras la barra se muestra y lo quita al bajar. Quien tenga que reaccionar (el sello del pie) lo LEE en
- *     CSS; nadie vuelve a calcular si la barra está visible (I-6). Sin JavaScript o con elección guardada el atributo no existe (I-4).
+ *   · LO QUE LA BARRA TAPA (2026-11-06, sello según solape; sustituye a «barra a la vista → sello oculto», I-6): el mismo efecto que escribe
+ *     la reserva crea, con esa MISMA medida entera, un `IntersectionObserver` sobre toda pieza marcada con `data-bar-avoid` (hoy, el sello del
+ *     pie): raíz = la ventana recortada por abajo con la altura de la barra, umbral 1 (`src/behavior/consent.ts`). Cada pieza tapada —aunque
+ *     sea en parte— recibe `data-bar-covered`; al quedar entera por encima de la barra lo pierde, aunque la barra siga abierta. Nadie escucha
+ *     el scroll. Si la barra cambia de altura (tamaño, orientación) el observador se rehace con la nueva medida. Quien tenga que reaccionar lo
+ *     LEE en CSS; nadie vuelve a calcular si la barra tapa algo (I-6). Sin JavaScript o con elección guardada la marca no existe (I-4).
  *   · Sin animación de entrada, con o sin movimiento reducido (I-9).
  */
 export function ConsentBar({ consent }: { consent: ConsentDocument }) {
@@ -166,26 +169,48 @@ export function ConsentBar({ consent }: { consent: ConsentDocument }) {
     };
   }, []);
 
-  // La reserva y el estado, del mismo efecto: la altura real de la barra, medida, al rol que `body` consume, y el atributo `data-consent-bar`
-  // en `<html>` mientras la barra está a la vista. Al bajar (o sin barra) se retiran los dos.
+  // La reserva y el solape, de la MISMA medida: la altura real de la barra, en píxeles enteros, va al rol que `body` consume y recorta por
+  // abajo la raíz del observador que juzga qué piezas marcadas con `data-bar-avoid` quedan pisadas por la barra (`data-bar-covered`). El
+  // observador se rehace solo cuando la altura medida cambia; la ventana la vigila él mismo (su raíz es la ventana). Al bajar la barra (o sin
+  // barra) se retiran la reserva y todas las marcas. Las piezas observadas son las que existen al mostrarse la barra (todas vienen en el HTML).
   useEffect(() => {
     const root = document.documentElement;
     const el = bar.current;
+    const pieces = () => Array.from(document.querySelectorAll<HTMLElement>(`[${BAR_AVOID_ATTR}]`));
+    let observer: IntersectionObserver | null = null;
     const clear = () => {
+      observer?.disconnect();
+      observer = null;
       root.style.removeProperty(RESERVE_ROLE);
-      root.removeAttribute(CONSENT_BAR_ATTR);
+      for (const piece of pieces()) piece.removeAttribute(BAR_COVERED_ATTR);
     };
     if (!visible || !el) {
       clear();
       return;
     }
-    root.setAttribute(CONSENT_BAR_ATTR, "");
-    const apply = () => root.style.setProperty(RESERVE_ROLE, `${Math.ceil(el.getBoundingClientRect().height)}px`);
+    let reserve = -1;
+    const apply = () => {
+      const measured = Math.ceil(el.getBoundingClientRect().height);
+      if (measured === reserve) return;
+      reserve = measured;
+      root.style.setProperty(RESERVE_ROLE, `${reserve}px`);
+      observer?.disconnect();
+      observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (isCoveredByBar(entry)) entry.target.setAttribute(BAR_COVERED_ATTR, "");
+            else entry.target.removeAttribute(BAR_COVERED_ATTR);
+          }
+        },
+        { rootMargin: barAvoidRootMargin(reserve), threshold: BAR_AVOID_THRESHOLD },
+      );
+      for (const piece of pieces()) observer.observe(piece);
+    };
     apply();
-    const observer = new ResizeObserver(apply);
-    observer.observe(el);
+    const resize = new ResizeObserver(apply);
+    resize.observe(el);
     return () => {
-      observer.disconnect();
+      resize.disconnect();
       clear();
     };
   }, [visible]);

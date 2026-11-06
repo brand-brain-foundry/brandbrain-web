@@ -111,17 +111,19 @@
   text-decoration: none;
 }
 
-/* EL SELLO Y LA BARRA DEL CONSENTIMIENTO (2026-11-06, P-BBW-82). Tres elementos, cada uno con UNA responsabilidad, porque las tres se pisan si
-   viven en el mismo:
+/* EL SELLO Y LA BARRA DEL CONSENTIMIENTO (2026-11-06, P-BBW-82; regla de solape del mismo día). Tres elementos, cada uno con UNA
+   responsabilidad, porque las tres se pisan si viven en el mismo:
      · `.cert` (el enlace): la entrada al cargar (`data-enter`, que deja FIJADOS opacidad, desplazamiento y desenfoque al terminar: una animación
-       con `fill: both` gana a cualquier transición sobre las mismas propiedades) y la VISIBILIDAD. Mientras la barra está a la vista —y SOLO
-       entonces: el estado lo escribe el cableado del consentimiento como `data-consent-bar` en `<html>`, una vez, y aquí solo se lee (I-6;
-       `ConsentBar/attr.ts`)— el sello es `visibility: hidden`: ni se pinta, ni recibe el puntero, ni el foco, ni está en el árbol de
-       accesibilidad. El HTML servido NO trae el atributo (I-4): sin JavaScript o con elección guardada el sello está visible desde el primer byte.
-     · `.certBody` (imagen + texto): lo que APARECE al bajar la barra, con los MISMOS roles de la entrada del sistema (duración ×4, curva firma,
+       con `fill: both` gana a cualquier transición sobre las mismas propiedades) y la VISIBILIDAD. Mientras LA BARRA LO TAPA, aunque sea en
+       parte —y SOLO entonces: el estado lo decide el cableado del consentimiento con un observador de intersección y lo escribe como la marca
+       `data-bar-covered` en la pieza, una vez, y aquí solo se lee (I-6; `ConsentBar/attr.ts`)— el sello es `visibility: hidden`: ni se pinta,
+       ni recibe el puntero, ni el foco, ni está en el árbol de accesibilidad. Entero por encima de la barra, aparece aunque ella siga abierta;
+       sin barra, siempre visible. El HTML servido NO trae la marca (I-4): sin JavaScript o con elección guardada el sello está visible desde el
+       primer byte. (Sustituye a `:root[data-consent-bar]`, «barra a la vista → oculto», retirado con su atributo: I-6.)
+     · `.certBody` (imagen + texto): lo que APARECE al destaparse, con los MISMOS roles de la entrada del sistema (duración ×4, curva firma,
        desplazamiento ×3 y desenfoque ×3 de `semantic/motion.css`): aparece de la misma forma que entró todo lo demás. OCULTAR ES INSTANTÁNEO
-       (el estado oculto lleva `transition: none`); solo el aparecer transiciona. Con movimiento reducido la madre de duración colapsa
-       (primitives/motion.css) y aparece sin transición (I-9).
+       (el estado tapado lleva `transition: none`): el sistema no declara ningún rol de salida y no se inventa aquí (reportado); solo el aparecer
+       transiciona. Con movimiento reducido la madre de duración colapsa (primitives/motion.css) y aparece sin transición (I-9).
      · `.certBadge` (la insignia): el efecto AL PASAR: sube un cuanto (`--bbf-motion-hover-lift`, 0 con movimiento reducido) y se enciende un halo
        del acento (blur ×4 con `--bbf-accent-glow`: la composición de halo que primitives/shadows.css prevé, por `drop-shadow` para seguir el
        contorno redondo de la insignia), con la duración y la curva del rol `link`. SOLO CON PUNTERO FINO: el factor `--bbf-hover-fine`
@@ -144,7 +146,7 @@
   color: var(--bbf-accent);
 }
 
-:root[data-consent-bar] .cert {
+.cert[data-bar-covered] {
   visibility: hidden;
 }
 
@@ -159,7 +161,7 @@
     filter var(--bbf-motion-enter-duration) var(--bbf-motion-enter-ease);
 }
 
-:root[data-consent-bar] .certBody {
+.cert[data-bar-covered] .certBody {
   opacity: 0;
   transform: translateY(var(--bbf-motion-enter-shift));
   filter: blur(var(--bbf-motion-enter-blur));

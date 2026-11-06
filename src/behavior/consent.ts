@@ -85,3 +85,28 @@ export function clearConsent(): void {
     /* sin almacenamiento: no había nada que borrar */
   }
 }
+
+/* ── SELLO SEGÚN SOLAPE (2026-11-06, sigue P-BBW-82; BEHAVIOR.md §13) ──────────────────────────────────────────────────────────────
+ * Una pieza marcada en el HTML con `data-bar-avoid` (hoy, solo el sello del pie) se oculta SOLO MIENTRAS LA BARRA LA TAPA, aunque sea en
+ * parte: si el desplazamiento la deja entera por encima de la barra, se muestra aunque la barra siga abierta; si la barra vuelve a pisarla,
+ * desaparece. Sin barra, siempre visible. Sustituye a «barra a la vista → sello oculto» (I-6).
+ * El juicio lo da un `IntersectionObserver` —nada escucha el scroll—: raíz = la ventana recortada por abajo con la altura REAL de la barra,
+ * la MISMA medida entera que ya escribe la reserva (`--bbf-consent-reserve`), y umbral 1: entera dentro de la raíz recortada = visible;
+ * cualquier otra cosa (pisada en parte, entera bajo la barra o aún fuera de la ventana por abajo) = tapada. Aquí viven las constantes y
+ * las funciones puras; el componente (`ConsentBar.tsx`) crea el observador con cada altura medida y escribe la marca `data-bar-covered`. */
+
+/** Umbral del observador (estático): una pieza cuenta como visible solo ENTERA dentro de la raíz recortada (ratio 1). */
+export const BAR_AVOID_THRESHOLD = 1;
+
+/**
+ * Margen de la raíz del observador: la ventana menos, por abajo, la reserva de la barra en píxeles enteros (la misma medida que `body`
+ * consume como margen inferior; una sola medida, un solo redondeo, en el cableado).
+ */
+export function barAvoidRootMargin(reservePx: number): string {
+  return `0px 0px -${reservePx}px 0px`;
+}
+
+/** Juzga una entrada del observador: tapada si no está entera dentro de la raíz recortada. Pura: se prueba con ratios. */
+export function isCoveredByBar(entry: { intersectionRatio: number }): boolean {
+  return entry.intersectionRatio < BAR_AVOID_THRESHOLD;
+}

@@ -3,12 +3,12 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.10
+version: 1.11
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-11-06
-verified_against_code: 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
+verified_against_code: 2026-11-06@fix/sello-segun-solape (v1.11: §13 — el sello se oculta SOLO MIENTRAS LA BARRA LO TAPA: `IntersectionObserver` con la medida de la reserva y umbral `BAR_AVOID_THRESHOLD` = 1 (`barAvoidRootMargin`, `isCoveredByBar` en consent.ts), marcas genéricas `data-bar-avoid` / `data-bar-covered` (`ConsentBar/attr.ts`); sale `data-consent-bar` de `<html>` con su constante (sin lector, I-6); ocultar instantáneo porque no existe rol de salida, reportado) · 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
@@ -393,6 +393,7 @@ movimiento reducido). Está aquí porque tiene **constantes de algoritmo** y una
 | `CONSENT_MONTHS` | 24 | `src/config/consent.ts` | estático (AEPD, Guía de cookies, mayo de 2024) | validez de la elección; la página de Cookies lo cita por `{{consentMonths}}` |
 | `CONSENT_VERSION` | `"1"` | `src/config/consent.ts` | dinámico | versión de las finalidades; subirla vuelve a preguntar a todo el mundo |
 | `MS_PER_MONTH` | 30,44 d | módulo | estático | la cota de validez en milisegundos (meses medios; la cota es lo que importa, no el calendario) |
+| `BAR_AVOID_THRESHOLD` | 1 | módulo | estático | umbral del observador de solape: una pieza marcada cuenta como visible solo ENTERA dentro de la ventana recortada por la barra (abajo) |
 
 **Por qué las tres constantes viven en `src/config/` y no en el módulo:** las lee también el registro de sustituciones
 (`src/content/substitutions.ts`), para que el texto legal y el comportamiento salgan de **la misma constante** (I-1). El módulo las importa y no
@@ -406,14 +407,23 @@ por defecto, sin JavaScript y sin preferencia, es «sin analítica».
 mientras está a la vista; `body` lo consume como margen inferior para que el pie, superpuesto al borde del documento, siga alcanzable (F5.8).
 No es un token de diseño: es una medida en tiempo de ejecución y por eso no tiene fórmula.
 
-**Lo que expone el cableado (sello y banner, 2026-11-06):** el estado «barra a la vista», UNA sola vez, como el atributo `data-consent-bar`
-en `<html>` (`ConsentBar/attr.ts`, `CONSENT_BAR_ATTR`), escrito por el mismo efecto que mide la reserva y retirado con ella al bajar la barra.
-Quien tenga que reaccionar lo LEE en CSS y nadie vuelve a calcular si la barra está visible (I-6). El HTML servido no lo trae: sin JavaScript o
-con elección guardada no existe (I-4). Primer lector: el sello del pie (`Footer.module.css`), oculto con `visibility: hidden` mientras la barra se
-muestra y que al bajar APARECE con los roles de la entrada del sistema (§6: duración ×4, curva firma, desplazamiento ×3, desenfoque ×3) por
-transición —ocultar es instantáneo; con movimiento reducido la madre colapsa y no hay estado intermedio visible—. El sello incorpora además el
-efecto al pasar con los dos roles nuevos `--bbf-motion-hover-lift` (`semantic/motion.css`, `space-half`; 0 con movimiento reducido) y
-`--bbf-hover-fine` (`semantic/viewport.css`, 1 solo con `(hover: hover) and (pointer: fine)`, consulta de capacidad sin literal de anchura).
+**Lo que marca el cableado (sello según solape, 2026-11-06; SUSTITUYE a «barra a la vista → sello oculto» de sello y banner, I-6):** una
+pieza marcada en el HTML servido con `data-bar-avoid` (`ConsentBar/attr.ts`, `BAR_AVOID_ATTR`; hoy, solo el sello del pie, `Footer.tsx`) se oculta
+**solo mientras la barra la tapa, aunque sea en parte**: si el desplazamiento la deja entera por encima de la barra, aparece aunque la barra siga
+abierta; si la barra vuelve a pisarla, desaparece. Sin barra, siempre visible. **Mecanismo:** el mismo efecto que escribe la reserva crea, con esa
+MISMA medida entera, un `IntersectionObserver` sobre las piezas marcadas (nadie escucha el scroll): raíz = la ventana con margen inferior negativo
+igual a la reserva (`barAvoidRootMargin`), umbral `BAR_AVOID_THRESHOLD` = 1 (`isCoveredByBar`: entera dentro = visible; pisada en parte, entera bajo
+la barra o aún fuera de la ventana por abajo = tapada). Cuando el `ResizeObserver` de la barra mide otra altura (tamaño, orientación), el observador
+se rehace con ella; los cambios de la ventana los ve él mismo. El cableado escribe `data-bar-covered` (`BAR_COVERED_ATTR`) en cada pieza tapada y la
+retira al destaparla o al bajar la barra; **quien tenga que reaccionar lo LEE en CSS** (hoy `Footer.module.css`, `.cert[data-bar-covered]`) y nadie
+vuelve a calcular si la barra tapa algo (I-6). **Sale el atributo `data-consent-bar` de `<html>` con su constante:** sin lector era estado muerto
+(I-6). El HTML servido trae `data-bar-avoid` y nunca `data-bar-covered` (I-4): sin JavaScript o con elección guardada el sello está visible desde el
+primer byte. **Ocultar es instantáneo** (el estado tapado lleva `transition: none`): `semantic/motion.css` no declara ningún rol de salida y no se
+inventa en el componente —reportado en el output del despacho—; **aparecer** usa por transición los roles de la entrada del sistema (§6: duración ×4,
+curva firma, desplazamiento ×3, desenfoque ×3); con movimiento reducido la madre colapsa y no hay estado intermedio visible (I-9). Sin parpadeo en la
+frontera: el observador solo avisa al cruzar el umbral y ocultar no mueve ninguna caja (ni la del enlace observado), así que no hay realimentación.
+El sello conserva su efecto propio al pasar: `--bbf-motion-hover-lift` (`semantic/motion.css`, `space-half`; 0 con movimiento reducido) y
+`--bbf-hover-fine` (`semantic/viewport.css`, 1 solo con `(hover: hover) and (pointer: fine)`), y sigue FUERA de S11 (§14).
 
 **Retirar (requisito 3):** si había aceptación y pasa a rechazo, el cableado pide al puerto `block()` (el adaptador envuelve `sendBeacon`,
 `XMLHttpRequest.open` y `fetch` y descarta toda petición al actor) y recarga la página; el envío de cierre del fragmento que la recarga
@@ -495,4 +505,4 @@ tapar dos. Vista fallar quitando la exención del sello (1 host sin marcar: `Foo
 pasar al restaurar (output del rebase, §3).
 
 ---
-*BBW-BEHAVIOR v1.10 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.10 al rebasar M2 sobre sello y banner (instrucción directa de Zavala: §14 exime el sello por selector nombrado, R11b inventario; §13 conserva la nota del sello) · v1.9 en M2 (`DESPACHO-BBW-2026-11-06-M2-desarme-de-enlaces-y-botones`: S11 desarme de enlaces y botones, P-BBW-83, R11) y en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
+*BBW-BEHAVIOR v1.11 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.11 en sello según solape (instrucción directa de Zavala, sigue P-BBW-82: §13 el sello se oculta solo mientras la barra lo tapa, `IntersectionObserver` con la medida de la reserva, marcas `data-bar-avoid`/`data-bar-covered`, sale `data-consent-bar`) · v1.10 al rebasar M2 sobre sello y banner (instrucción directa de Zavala: §14 exime el sello por selector nombrado, R11b inventario; §13 conserva la nota del sello) · v1.9 en M2 (`DESPACHO-BBW-2026-11-06-M2-desarme-de-enlaces-y-botones`: S11 desarme de enlaces y botones, P-BBW-83, R11) y en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
