@@ -111,14 +111,20 @@
   --bbf-legal-column-margin-inline: 0;
 
   /* CONSENTIMIENTO (P-BBW-82): en la vista amplia la barra es una fila (texto a la izquierda, los tres botones a la derecha) y
-     los botones miden lo que su texto; en la estrecha todo se apila y cada botón ocupa el ancho entero, uno bajo otro, para que
-     los tres sigan al mismo nivel sin partir la fila. */
+     los botones miden lo que su texto; en la estrecha todo se apila y los tres botones van en una fila a partes iguales, para que
+     los tres sigan al mismo nivel sin partir la fila.
+     BOTONES DEL BANNER (2026-11-06, banner compacto): un peldaño por debajo del átomo en la escala de espaciado —alto `space-11` (44)
+     frente a `space-12` (48), relleno lateral `space-6` (24) frente a `space-7` (28) en la vista amplia y `space-1` frente a `space-2` en
+     la estrecha— y la letra un peldaño por debajo en la escala tipográfica: `size-n2` (12,5 → 12,8 px) frente a `size-n1`, que es el
+     último paso que respeta el suelo (`--bbf-text-floor`, R5). Objetivo táctil 44 px de alto (≥ 24×24, WCAG 2.5.8). */
   --bbf-consent-direction: row;
   --bbf-consent-align: center;
   --bbf-consent-actions-direction: row;
   --bbf-consent-gap: var(--bbf-space-6);
   --bbf-consent-button-flex: none;
-  --bbf-consent-button-inline: var(--bbf-space-7);
+  --bbf-consent-button-height: var(--bbf-space-11);
+  --bbf-consent-button-inline: var(--bbf-space-6);
+  --bbf-consent-button-size: var(--bbf-size-n2);
   --bbf-consent-panel-actions-direction: row;
   --bbf-consent-panel-button-width: auto;
 
@@ -186,7 +192,7 @@
     --bbf-consent-actions-direction: row;
     --bbf-consent-gap: var(--bbf-space-4);
     --bbf-consent-button-flex: 1 1 0;
-    --bbf-consent-button-inline: var(--bbf-space-2);
+    --bbf-consent-button-inline: var(--bbf-space-1);
     /* El panel conserva la columna a todo el ancho: sus rótulos («Guardar elección») no caben tres en una fila. */
     --bbf-consent-panel-actions-direction: column;
     --bbf-consent-panel-button-width: 100%;

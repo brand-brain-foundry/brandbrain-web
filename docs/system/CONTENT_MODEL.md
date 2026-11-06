@@ -156,7 +156,7 @@ Es global porque el banner (primera capa) y el enlace «Configurar cookies» del
 
 | Llave | Qué es |
 |---|---|
-| `consent.banner.label` · `text: Span[]` · `reject` · `accept` · `configure` | La barra inferior: rótulo, texto (con `{ page: "cookies" }`) y los tres botones al mismo nivel |
+| `consent.banner.label` · `text: Span[]` · `reject` · `accept` · `configure` | La barra inferior: nombre accesible de la región (`aria-label`, sin rótulo visible desde 2026-11-06), texto (con `{ page: "cookies" }`) y los tres botones al mismo nivel |
 | `consent.panel.title` · `necessary{label,status,text}` · `measurement{label,text}` · `rejectAll` · `acceptAll` · `save` | El panel (`<dialog>` nativo): la categoría técnica siempre activa, la medición con su interruptor, y sus tres botones |
 | `consent.footerLink` | El enlace permanente del pie: en el HTML lleva a la página de Cookies; con JavaScript abre el panel |
 
