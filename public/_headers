@@ -21,5 +21,8 @@
 # ALCANCE DE HOY. Solo la regla de no indexar. Las cabeceras de seguridad, caché y compresión
 # entran en el cutover, en este mismo fichero.
 
+/es/aviso-legal/*
+  X-Robots-Tag: noindex, noarchive
+
 https://:project.pages.dev/*
   X-Robots-Tag: noindex

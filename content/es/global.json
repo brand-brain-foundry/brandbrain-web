@@ -39,9 +39,14 @@
     ],
     "cert": {
       "label": "Google Cloud Certified"
-    },
-    "privacy": {
-      "label": "Privacidad"
+    }
+  },
+  "legal": {
+    "updatedLabel": "Última actualización",
+    "pages": {
+      "aviso-legal": { "label": "Aviso legal" },
+      "privacidad": { "label": "Privacidad" },
+      "cookies": { "label": "Cookies" }
     }
   }
 }

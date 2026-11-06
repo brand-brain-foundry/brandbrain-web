@@ -50,11 +50,15 @@ export function isPlaceholder(text: string): boolean {
 
 // ── Global ─────────────────────────────────────────────────────────────────────────────────────────────
 /**
- * Un tramo de texto en la capa legal (D-BBW-DESPACHO-2026-11-05, §0.1 b, modelo v3.4).
+ * Un tramo de texto en la capa legal (D-BBW-DESPACHO-2026-11-05, §0.1 b, modelo v3.4; extendido v3.6 con `{ page }`).
  * - Cadena simple: texto plano, sin URL ni correo literal.
  * - Objeto `{ text, link }`: texto visible + llave de `content/site.json`. Los destinos nunca se escriben aquí.
+ * - Objeto `{ page: slug }`: referencia a otra página del sitio por su slug (P-BBW-80, L2 §0.3.3). El texto visible
+ *   es la etiqueta del registro (`global.legal.pages.<slug>.label`); no lleva `text`. El puerto resuelve esto antes
+ *   de devolver el documento: el componente nunca recibe `{ page }`, recibe `{ text, path }`.
+ * - Objeto `{ text, path }`: enlace interno resuelto (lo que el componente ve después de que el puerto resolvió `{ page }`).
  */
-export type Span = string | { text: string; link: LinkKey };
+export type Span = string | { text: string; link: LinkKey } | { page: string } | { text: string; path: string };
 
 /** Un bloque de la página legal: rótulo `<h2>` y partes ordenadas. Cada parte es un párrafo `{ p }` o una lista `{ list }`. El orden del array es el orden de la página. */
 export type LegalBlock = {
@@ -63,19 +67,31 @@ export type LegalBlock = {
   parts: Array<{ p: Span[] } | { list: string[] }>;
 };
 
-/** Sección de lectura legal (P-BBW-73/75, D-BBW-DESPACHO-2026-11-05). Un `<h1>`, párrafo de introducción, bloques `<h2>` y fecha. */
+/**
+ * Sección de lectura legal (P-BBW-73/75, D-BBW-DESPACHO-2026-11-05).
+ * Un `<h1>`, párrafo de introducción, bloques `<h2>` y fecha.
+ *
+ * v3.6 (P-BBW-80, L2 §0.3.4): `updatedLabel` ya NO vive en el JSON de contenido (lo generaba el editor
+ * y se copiaba en cada página). Ahora vive UNA vez en `global.json → legal.updatedLabel` y el puerto lo
+ * combina con `updated` antes de devolver el documento. El componente sigue recibiendo `updatedLabel`
+ * (cadena ya resuelta), pero el JSON no la escribe: una llave `updatedLabel` en el JSON rompe la compilación.
+ */
 export type LegalSection = {
   type: "legal";
   id: string;
   /** único `<h1>` de la página */
   heading: string;
-  /** párrafo introductorio: lista de tramos (puede llevar enlace al correo) */
+  /** párrafo introductorio: lista de tramos (puede llevar enlace al correo o referencia a otra página) */
   intro: Span[];
   /** bloques h2 en orden: encabezado + párrafos + lista opcional */
   blocks: LegalBlock[];
-  /** etiqueta de la fecha de actualización, p. ej. «Última actualización: 2026-11-05» — sin literal en el componente */
+  /**
+   * Etiqueta resuelta de la fecha de actualización, p. ej. «Última actualización: 5 de noviembre de 2026».
+   * El JSON solo tiene `updated` (AAAA-MM-DD); el puerto combina `global.legal.updatedLabel` + fecha formateada
+   * y la escribe aquí antes de devolver el documento. El componente no sabe de dónde vino.
+   */
   updatedLabel: string;
-  /** fecha de última actualización en formato AAAA-MM-DD */
+  /** fecha de última actualización en formato AAAA-MM-DD (el JSON la escribe; el puerto la formatea en `updatedLabel`) */
   updated: string;
 };
 
@@ -99,6 +115,14 @@ export type LinkItem = {
    */
   case?: boolean;
 };
+
+/**
+ * Mapa de etiquetas de páginas legales (P-BBW-80, L2 §0.3.2, v3.6).
+ * Cada llave es el slug de una página legal; el valor es su etiqueta visible (nombre de la página).
+ * El slug y el orden de aparición en el pie vienen del registro de código (`src/config/pages.ts`);
+ * aquí solo vive el texto: una llave por slug, una llave, un texto.
+ */
+export type LegalPagesMap = Record<string, { label: string }>;
 
 export type GlobalDocument = {
   nav: {
@@ -129,8 +153,20 @@ export type GlobalDocument = {
      * Sin nivel visible por orden de Zavala. El destino (la credencial verificable) es `links.credly` en content/site.json.
      */
     cert: { label: string };
-    /** ENLACE DE PRIVACIDAD en el pie (P-BBW-74). `label` es el texto visible («Privacidad»). Destino: `/es/privacidad/`. */
-    privacy: { label: string };
+  };
+  /**
+   * DATOS LEGALES GLOBALES (P-BBW-80, L2 §0.3.2 y §0.3.4, v3.6, cambio NO aditivo).
+   * - `updatedLabel`: la etiqueta de «Última actualización», una vez, para todas las páginas legales.
+   *   El puerto la combina con la fecha de la sección para generar `LegalSection.updatedLabel`.
+   * - `pages`: etiquetas de las páginas legales, por slug. Los slugs y el orden en el pie vienen en el
+   *   registro de código (`src/config/pages.ts`); aquí solo vive el texto visible.
+   *   Un `global.json` sin `legal` rompe la compilación nombrando la llave (cambio NO aditivo).
+   */
+  legal: {
+    /** texto «Última actualización» — sin fecha: la fecha la pone el puerto al combinar con `LegalSection.updated` */
+    updatedLabel: string;
+    /** nombre de cada página legal por slug; el slug y el orden de aparición vienen de `src/config/pages.ts` */
+    pages: LegalPagesMap;
   };
 };
 
@@ -183,7 +219,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
   hero: ["type", "id", "heading", "paragraph1", "paragraph2", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
-  legal: ["type", "id", "heading", "intro", "blocks", "updatedLabel", "updated"],
+  legal: ["type", "id", "heading", "intro", "blocks", "updated"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -228,19 +264,33 @@ function checkSpanString(v: string, path: string, problems: Problem[]): void {
   if (EMAIL_IN_TEXT_RE.test(v)) problems.push({ path, message: `contiene un correo literal: usar la sustitución {{email}} o la llave "contact"` });
 }
 
-/** Valida un tramo: cadena o { text, link }. */
+/**
+ * Valida un tramo: cadena, { text, link } o { page: slug } (P-BBW-80, L2 §0.3.3, v3.6).
+ * - { text, link }: enlace externo (llave de content/site.json).
+ * - { page: slug }: referencia interna a otra página; el slug se verifica en el puerto. No lleva `text`.
+ */
 function checkSpan(v: unknown, path: string, problems: Problem[]): void {
   if (typeof v === "string") {
     checkSpanString(v, path, problems);
   } else if (isRecord(v)) {
-    checkKeys(v, ["text", "link"], path, problems);
-    if (typeof v.text === "string") checkSpanString(v.text, `${path}.text`, problems);
-    else if ("text" in v) problems.push({ path: `${path}.text`, message: `debe ser texto` });
-    if (typeof v.link !== "string" || !isLinkKey(v.link as string)) {
-      problems.push({ path: `${path}.link`, message: `"${String(v.link)}" no es una llave de enlace (los destinos viven solo en content/site.json)` });
+    if ("page" in v && !("text" in v) && !("link" in v)) {
+      // { page: slug } — referencia interna
+      checkKeys(v, ["page"], path, problems);
+      if (typeof v.page !== "string" || v.page.trim().length === 0) {
+        problems.push({ path: `${path}.page`, message: `el slug de la página no puede estar vacío` });
+      } else if (!/^[a-z][a-z0-9-]*$/.test(v.page.trim())) {
+        problems.push({ path: `${path}.page`, message: `slug inválido (minúsculas, dígitos y guiones; empieza por letra)` });
+      }
+    } else {
+      checkKeys(v, ["text", "link"], path, problems);
+      if (typeof v.text === "string") checkSpanString(v.text, `${path}.text`, problems);
+      else if ("text" in v) problems.push({ path: `${path}.text`, message: `debe ser texto` });
+      if (typeof v.link !== "string" || !isLinkKey(v.link as string)) {
+        problems.push({ path: `${path}.link`, message: `"${String(v.link)}" no es una llave de enlace (los destinos viven solo en content/site.json)` });
+      }
     }
   } else {
-    problems.push({ path, message: `un tramo debe ser texto o { text, link }` });
+    problems.push({ path, message: `un tramo debe ser texto, { text, link } o { page: slug }` });
   }
 }
 
@@ -282,6 +332,7 @@ function checkLegalBlock(v: unknown, path: string, problems: Problem[]): void {
   }
 }
 
+
 function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista` });
   const seen = new Set<string>();
@@ -300,10 +351,20 @@ function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   });
 }
 
+function checkLegalPages(v: unknown, path: string, problems: Problem[]): void {
+  if (!isRecord(v)) return void problems.push({ path, message: `debe ser un objeto { <slug>: { label } }` });
+  for (const [slug, entry] of Object.entries(v)) {
+    const p = `${path}.${slug}`;
+    if (!isRecord(entry)) { problems.push({ path: p, message: `debe ser { label }` }); continue; }
+    checkKeys(entry, ["label"], p, problems);
+    checkText(entry.label, `${p}.label`, problems);
+  }
+}
+
 export function validateGlobal(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  checkKeys(v, ["nav", "footer"], "$", problems);
+  checkKeys(v, ["nav", "footer", "legal"], "$", problems);
   if (isRecord(v.nav)) {
     checkKeys(v.nav, ["skipLabel", "toggleLabel", "caseLabel", "items"], "$.nav", problems);
     checkText(v.nav.skipLabel, "$.nav.skipLabel", problems);
@@ -312,18 +373,19 @@ export function validateGlobal(v: unknown): Problem[] {
     checkLinkItems(v.nav.items, "$.nav.items", problems);
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });
   if (isRecord(v.footer)) {
-    checkKeys(v.footer, ["legal", "social", "cert", "privacy"], "$.footer", problems);
+    checkKeys(v.footer, ["legal", "social", "cert"], "$.footer", problems);
     checkText(v.footer.legal, "$.footer.legal", problems);
     checkLinkItems(v.footer.social, "$.footer.social", problems);
     if (isRecord(v.footer.cert)) {
       checkKeys(v.footer.cert, ["label"], "$.footer.cert", problems);
       checkText(v.footer.cert.label, "$.footer.cert.label", problems);
     } else if ("cert" in v.footer) problems.push({ path: "$.footer.cert", message: "debe ser un objeto { label }" });
-    if (isRecord(v.footer.privacy)) {
-      checkKeys(v.footer.privacy, ["label"], "$.footer.privacy", problems);
-      checkText(v.footer.privacy.label, "$.footer.privacy.label", problems);
-    } else if ("privacy" in v.footer) problems.push({ path: "$.footer.privacy", message: "debe ser un objeto { label }" });
   } else if ("footer" in v) problems.push({ path: "$.footer", message: "debe ser un objeto" });
+  if (isRecord(v.legal)) {
+    checkKeys(v.legal, ["updatedLabel", "pages"], "$.legal", problems);
+    checkText(v.legal.updatedLabel, "$.legal.updatedLabel", problems);
+    checkLegalPages(v.legal.pages, "$.legal.pages", problems);
+  } else if ("legal" in v) problems.push({ path: "$.legal", message: "debe ser un objeto { updatedLabel, pages }" });
   return problems;
 }
 
@@ -348,7 +410,8 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     } else if ("blocks" in v) {
       problems.push({ path: `${path}.blocks`, message: `debe ser una lista de bloques` });
     }
-    checkText(v.updatedLabel, `${path}.updatedLabel`, problems);
+    // updatedLabel ya NO vive en el JSON (v3.6): el puerto lo genera desde global.legal.updatedLabel + updated.
+    // Si el JSON lo trae, checkKeys ya lo habrá rechazado como llave desconocida.
     checkText(v.updated, `${path}.updated`, problems);
     if (typeof v.updated === "string" && v.updated.trim().length > 0 && !DATE_RE.test(v.updated.trim())) {
       problems.push({ path: `${path}.updated`, message: `debe tener formato AAAA-MM-DD` });

@@ -1,5 +1,7 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import type { Locale } from "@/config/site";
+import { LEGAL_PAGES, legalPageRoute } from "@/config/pages";
 import type { GlobalDocument } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
@@ -23,9 +25,16 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
       <p className={styles.legal} data-enter="">
         {global.footer.legal}
       </p>
-      <Link className={styles.privacy} href={`/${locale}/privacidad/`} data-enter="">
-        {global.footer.privacy.label}
-      </Link>
+      <nav className={styles.legalLinks} data-enter="" aria-label="Páginas legales">
+        {LEGAL_PAGES.map((page, i) => (
+          <Fragment key={page.slug}>
+            {i > 0 && <span className={styles.legalLinksSep} aria-hidden="true" />}
+            <Link className={styles.legalLinksItem} href={legalPageRoute(locale, page.slug)}>
+              {global.legal.pages[page.slug]?.label ?? page.slug}
+            </Link>
+          </Fragment>
+        ))}
+      </nav>
       <div className={styles.end}>
         <div className={styles.social} data-enter="">
           <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />

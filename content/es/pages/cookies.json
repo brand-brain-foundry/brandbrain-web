@@ -1,0 +1,51 @@
+{
+  "meta": {
+    "title": "Cookies · {{brand}}",
+    "description": "Qué cookies y tecnologías similares usa {{domain}} y cómo gestionarlas."
+  },
+  "sections": [
+    {
+      "type": "legal",
+      "id": "cookies",
+      "heading": "Cookies",
+      "intro": [
+        "Esta web usa lo mínimo. Hoy no instala cookies ni deja nada en el navegador. Cuando se active la medición de visitas, solo funcionará si quien visita la web la acepta."
+      ],
+      "blocks": [
+        {
+          "heading": "Qué son",
+          "parts": [
+            {
+              "p": [
+                "Las cookies son pequeños archivos que un sitio deja en el navegador. La ley trata igual otras tecnologías parecidas que guardan o leen información del dispositivo, como el almacenamiento local o un código que hace que el navegador envíe datos (art. 22.2 de la LSSI)."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Lo que usa esta web",
+          "parts": [
+            {
+              "p": [
+                "Ninguna."
+              ]
+            }
+          ]
+        },
+        {
+          "heading": "Más información",
+          "parts": [
+            {
+              "p": [
+                "Más información sobre los datos que trato en ",
+                { "page": "privacidad" },
+                "."
+              ]
+            }
+          ]
+        }
+      ],
+      "updated": "2026-11-05"
+    }
+  ]
+}

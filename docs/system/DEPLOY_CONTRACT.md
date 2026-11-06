@@ -127,6 +127,27 @@ conexión y la URL de previsualización cuando existan.
 **Local, sin panel:** `pnpm preview` compila y sirve `out/` en `http://127.0.0.1:4173/es/` con rangos HTTP (el vídeo del héroe no carga sin ellos,
 L-51); `pnpm preview:serve` solo sirve. Es herramienta de desarrollo (`scripts/preview/serve.ts`, solo Node): no toca el artefacto.
 
+### 7.1 · Variables sensibles de compilación (D-BBW-78 · P-BBW-78, medido 2026-11-05)
+
+La landing necesita tres datos legales en tiempo de **compilación** (no de runtime): NIF, domicilio y teléfono, que el aviso legal exige
+en texto visible (LSSI art. 10.1). Se tratan como secretos de build, no como constantes del repo.
+
+| Variable | Tipo en Production | Entorno | Comportamiento sin ella |
+|---|---|---|---|
+| `LEGAL_NIF` | **Secret** (cifrada) | Production | Build falla: error con el nombre de la variable, nunca su valor |
+| `LEGAL_DOMICILIO` | **Secret** (cifrada) | Production | Build falla: ídem |
+| `LEGAL_TELEFONO` | **Secret** (cifrada) | Production | Build falla: ídem |
+
+**Lo que se midió el 2026-11-05 (medido por Zavala y Strategic, L2c):**
+- Pages entrega variables **Text** y **Secret** al build de igual modo: ambas llegan a `process.env` durante `pnpm build`.
+- El registro de compilación de Cloudflare **no imprime** los valores de ningún tipo de variable (verificado con el build de `f753150`, 21:09 UTC).
+- Las variables de tipo **Text** se muestran en claro en el panel de Pages (valor visible a quien tenga acceso al panel). Por eso los datos legales reales van como **Secret**, aunque en un entorno de prueba un valor ficticio puede ir como Text.
+- **Preview**: las variables van en el entorno Preview del proyecto; Production no tiene `LEGAL_*` hasta el paso final de la serie L (P-BBW-78).
+- **Fuera de producción** (cualquier rama distinta de `main` sin `LEGAL_ENV=production`): el módulo devuelve `'[DATO LEGAL — RELLENO DE PRUEBA]'` en lugar del valor real. El build no falla.
+- **Local con valores ficticios:** `LEGAL_ENV=production LEGAL_NIF=... pnpm build` activa el modo producción sin ser Cloudflare. Verificado en F3 de L2c: el NIF ficticio aparece solo en `out/es/aviso-legal/`.
+
+**El §2 sigue siendo correcto.** La prohibición de «variables en runtime» no cambia: las tres variables existen solo durante `pnpm build` y el artefacto estático no las lee en tiempo de ejecución.
+
 ## 8. Indexación de la dirección de prueba (D-BBW-43 · D-BBW-44, 2026-09-19)
 
 **El hecho, verificado en la documentación oficial y con peticiones reales el 2026-09-19:**
@@ -250,4 +271,4 @@ solo casa con anfitriones de la forma `<algo>.pages.dev`. **`zavalacubas.com` no
 obligatoria el día del cutover: `curl -sI https://zavalacubas.com/es/ | grep -i x-robots-tag` no debe devolver **nada**.
 
 ---
-*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 + D-BBW-55 + D-BBW-58/59 · `docs/system/DEPLOY_CONTRACT.md` · v1.5 · 2026-09-21 (v1.4: 2026-09-19 · v1.3: 2026-09-19 · v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*
+*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 + D-BBW-55 + D-BBW-58/59 + D-BBW-78 · `docs/system/DEPLOY_CONTRACT.md` · v1.6 · 2026-11-05 §7.1 (v1.5: 2026-09-21 · v1.4: 2026-09-19 · v1.3: 2026-09-19 · v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*

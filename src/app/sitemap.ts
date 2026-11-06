@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
+import { SITEMAP_LEGAL_SLUGS, legalPageRoute } from "@/config/pages";
 import { homeUrl } from "@/seo/jsonld";
 
 /**
@@ -22,6 +23,8 @@ export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     ...site.publishedLocales.map((locale) => ({ url: homeUrl(locale) })),
-    ...site.publishedLocales.map((locale) => ({ url: `${site.url}/${locale}/privacidad/` })),
+    ...site.publishedLocales.flatMap((locale) =>
+      SITEMAP_LEGAL_SLUGS.map((slug) => ({ url: `${site.url}${legalPageRoute(locale, slug)}` }))
+    ),
   ];
 }

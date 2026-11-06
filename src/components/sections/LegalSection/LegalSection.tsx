@@ -1,10 +1,16 @@
+import Link from "next/link";
 import type { LegalSection as LegalSectionType, Span } from "@/content/schema";
 import { identity } from "@/content/site";
 import styles from "./LegalSection.module.css";
 
-/** Resuelve un tramo a un nodo React: texto simple o enlace con destino de la fuente única. */
+/** Resuelve un tramo a un nodo React: texto simple, enlace externo (fuente única) o enlace interno resuelto. */
 function renderSpan(span: Span, key: number) {
   if (typeof span === "string") return span;
+  if ("path" in span) {
+    // { text, path } — enlace interno generado por el puerto desde { page: slug }
+    return <Link key={key} href={span.path} className={styles.link}>{span.text}</Link>;
+  }
+  if ("page" in span) return null; // nunca llega aquí: el puerto lo resuelve a { text, path }
   const href = identity.links[span.link];
   const isExternal = href.startsWith("https://") || href.startsWith("http://");
   return (

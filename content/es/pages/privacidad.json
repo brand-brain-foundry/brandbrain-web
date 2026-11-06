@@ -1,15 +1,15 @@
 {
   "meta": {
-    "title": "Privacidad del asistente de llamadas · {{brand}}",
-    "description": "Política de privacidad del asistente de inteligencia artificial que atiende las llamadas de {{brand}} cuando no puede contestar."
+    "title": "Privacidad · {{brand}}",
+    "description": "Política de privacidad de {{domain}}: qué datos personales trata {{brand}}, para qué y con qué derechos."
   },
   "sections": [
     {
       "type": "legal",
-      "id": "privacidad-asistente",
-      "heading": "Privacidad del asistente de llamadas",
+      "id": "privacidad",
+      "heading": "Privacidad",
       "intro": [
-        "Cuando no puedo contestar, atiende mi teléfono un asistente de inteligencia artificial. Te lo dice al empezar la llamada. Aquí te explico qué hace con lo que le cuentas."
+        "Esta página explica qué datos personales trato, para qué y con qué derechos. Tiene dos partes: la visita a esta web y el contacto por correo, y el asistente que atiende mis llamadas."
       ],
       "blocks": [
         {
@@ -17,59 +17,92 @@
           "parts": [
             {
               "p": [
-                "{{brand}}, profesional autónomo con domicilio en Valencia (España). Contacto: ",
+                "{{brand}}, {{legalForm}}. Contacto: ",
                 {
                   "text": "{{email}}",
                   "link": "contact"
                 },
+                ". El resto de datos de identificación están en el ",
+                { "page": "aviso-legal" },
                 "."
               ]
             }
           ]
         },
         {
-          "heading": "Qué datos se tratan",
+          "heading": "La visita a la web y el contacto por correo",
           "parts": [
             {
               "p": [
-                "El número desde el que llamas y lo que cuentas en la llamada: tu nombre, tu empresa, el motivo y la hora a la que prefieres que te llame. Si tu número llega oculto, el asistente puede pedirte uno para devolverte la llamada. La llamada se transcribe. El audio no se guarda."
+                "Qué datos. Al visitar la web, el servidor registra datos técnicos de cada petición: dirección IP, fecha y hora, página solicitada y tipo de navegador. Si alguien me escribe, trato lo que incluya en el correo: como mínimo su dirección y lo que cuente en el mensaje."
+              ]
+            },
+            {
+              "p": [
+                "Para qué. Para servir la web y protegerla frente a abusos, y para responder a quien me escribe."
+              ]
+            },
+            {
+              "p": [
+                "Base legal. Para servir y proteger la web, mi interés legítimo en ofrecer un sitio disponible y seguro (art. 6.1.f del RGPD). Para responder, la aplicación de medidas precontractuales a petición de quien escribe (art. 6.1.b) o, si no hay relación profesional en juego, mi interés legítimo en atender la correspondencia (art. 6.1.f)."
+              ]
+            },
+            {
+              "p": [
+                "Es voluntario. Los datos técnicos de la visita son necesarios para mostrar la web. Escribirme es voluntario; sin una dirección de correo no puedo responder."
+              ]
+            },
+            {
+              "list": [
+                "Cloudflare, que aloja y sirve la web.",
+                "Hostinger, que presta el servicio de correo."
+              ]
+            },
+            {
+              "p": [
+                "Cloudflare puede tratar datos en Estados Unidos, al amparo del Marco de Privacidad de Datos UE-EE. UU., con cláusulas contractuales tipo de respaldo. Hostinger guarda los buzones en centros de datos de la Unión Europea, en Francia y Alemania; algunos de sus proveedores pueden tratar datos fuera del Espacio Económico Europeo, con cláusulas contractuales tipo."
+              ]
+            },
+            {
+              "p": [
+                "Cuánto tiempo. Los registros técnicos, el tiempo que Cloudflare necesite para proteger el servicio: no publica un plazo fijo y los borra cuando dejan de hacer falta. Los correos, el tiempo necesario para responder. Si empieza una relación profesional, lo que esa relación necesite y, después, los plazos que exige la normativa tributaria."
+              ]
+            },
+            {
+              "p": [
+                "Decisiones automáticas. No se toman decisiones automáticas ni se elaboran perfiles."
               ]
             }
           ]
         },
         {
-          "heading": "Para qué",
+          "heading": "El asistente de llamadas",
           "parts": [
             {
               "p": [
-                "Para tomar tu recado, ordenarlo según el asunto y devolverte la llamada. No se usa para otra cosa ni para elaborar perfiles."
+                "Cuando no puedo contestar, atiende mi teléfono un asistente de inteligencia artificial. Te lo dice al empezar la llamada. Aquí te explico qué hace con lo que le cuenta quien llama."
               ]
-            }
-          ]
-        },
-        {
-          "heading": "Base legal",
-          "parts": [
+            },
             {
               "p": [
-                "Mi interés legítimo en atender y devolver las llamadas que recibo cuando no puedo contestar. Si me pides una propuesta o una cita, también la aplicación de medidas precontractuales a petición tuya."
+                "Qué datos. El número desde el que se llama y lo que se cuenta en la llamada: tu nombre, tu empresa, el motivo y la hora preferida para devolver la llamada. Si tu número llega oculto, el asistente puede pedirte uno para devolverte la llamada. La llamada se transcribe. El audio no se conserva."
               ]
-            }
-          ]
-        },
-        {
-          "heading": "Es voluntario",
-          "parts": [
+            },
             {
               "p": [
-                "Puedes no dar ningún dato. Si no me dejas un nombre o un número, puede que no pueda devolverte la llamada."
+                "Para qué. Para tomar el recado, ordenarlo según el asunto y devolver la llamada. No se usa para otra cosa ni para elaborar perfiles."
               ]
-            }
-          ]
-        },
-        {
-          "heading": "Quién interviene",
-          "parts": [
+            },
+            {
+              "p": [
+                "Base legal. Mi interés legítimo en atender y devolver las llamadas que recibo cuando no puedo contestar. Si se me pide una propuesta o una cita, también la aplicación de medidas precontractuales a petición de quien llama."
+              ]
+            },
+            {
+              "p": [
+                "Es voluntario. Dar datos es voluntario. Sin un nombre o un número, puede que no pueda devolverte la llamada."
+              ]
+            },
             {
               "list": [
                 "Telnyx, que gestiona la línea telefónica.",
@@ -80,42 +113,27 @@
             },
             {
               "p": [
-                "Telnyx y ElevenLabs pueden tratar datos en Estados Unidos. Lo hacen al amparo del Marco de Privacidad de Datos UE-EE. UU. o de cláusulas contractuales tipo aprobadas por la Comisión Europea. Telegram guarda los datos de usuarios del Espacio Económico Europeo en Países Bajos y aplica cláusulas contractuales tipo cuando los comparte con empresas de su grupo fuera del EEE. Puedes pedirme información sobre estas garantías y cómo obtener una copia en ",
+                "Telnyx y ElevenLabs pueden tratar datos en Estados Unidos. Lo hacen al amparo del Marco de Privacidad de Datos UE-EE. UU. o de cláusulas contractuales tipo aprobadas por la Comisión Europea. Telegram guarda los datos de usuarios del Espacio Económico Europeo en Países Bajos y aplica cláusulas contractuales tipo cuando los comparte con empresas de su grupo fuera del EEE. Cualquier persona puede pedirme información sobre estas garantías y cómo obtener una copia en ",
                 {
                   "text": "{{email}}",
                   "link": "contact"
                 },
                 "."
               ]
-            }
-          ]
-        },
-        {
-          "heading": "Cuánto tiempo",
-          "parts": [
+            },
             {
               "p": [
-                "La transcripción, la ficha de la llamada y el aviso que recibo se borran a los 30 días. Si empezamos a trabajar juntos, conservo lo necesario para esa relación. Si me pides que no te contacte, guardo solo tu número en una lista de exclusión para respetar tu petición."
+                "Cuánto tiempo. La transcripción, la ficha de la llamada y el aviso que recibo se borran a los 30 días. Si empezamos a trabajar juntos, conservo lo necesario para esa relación. Si se me pide no volver a contactar, conservo solo el número en una lista de exclusión para respetar esa petición."
               ]
-            }
-          ]
-        },
-        {
-          "heading": "Decisiones automáticas",
-          "parts": [
+            },
             {
               "p": [
-                "El asistente clasifica el motivo de la llamada y cuelga las llamadas comerciales con prefijo 400. No toma decisiones con efectos jurídicos sobre ti ni que te afecten de forma significativa."
+                "Decisiones automáticas. El asistente clasifica el motivo de la llamada y cuelga las llamadas comerciales con prefijo 400. No toma decisiones con efectos jurídicos sobre quien llama ni que le afecten de forma significativa."
               ]
-            }
-          ]
-        },
-        {
-          "heading": "Menores",
-          "parts": [
+            },
             {
               "p": [
-                "Si quien llama parece menor de edad, el asistente no le pide datos."
+                "Menores. Si quien llama parece menor de edad, el asistente no le pide datos."
               ]
             }
           ]
@@ -125,12 +143,12 @@
           "parts": [
             {
               "p": [
-                "Puedes pedir acceso, rectificación, supresión, oposición, limitación del tratamiento y, cuando proceda, portabilidad. Escríbeme a ",
+                "Cualquier persona puede pedir el acceso a sus datos, su rectificación o supresión, oponerse a su tratamiento, pedir su limitación y, cuando proceda, su portabilidad. Basta escribir a ",
                 {
                   "text": "{{email}}",
                   "link": "contact"
                 },
-                " o dilo en la propia llamada. Te respondo en un mes como máximo. Si crees que no he atendido bien tu petición, puedes reclamar ante la Agencia Española de Protección de Datos (",
+                "; en el caso del asistente, también se puede pedir en la propia llamada. Respondo en un mes como máximo. También se me puede pedir información sobre las garantías de los datos que salen del Espacio Económico Europeo y cómo obtener una copia. Quien considere que no he atendido bien su petición puede reclamar ante la Agencia Española de Protección de Datos (",
                 {
                   "text": "www.aepd.es",
                   "link": "aepd"
@@ -141,7 +159,6 @@
           ]
         }
       ],
-      "updatedLabel": "Última actualización: 2026-11-05",
       "updated": "2026-11-05"
     }
   ]

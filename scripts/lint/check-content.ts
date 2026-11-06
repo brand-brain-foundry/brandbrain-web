@@ -28,6 +28,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { publishedLocales } from '../../src/config/site';
+import { LEGAL_PAGES } from '../../src/config/pages';
 import {
   GLOBAL_DOCUMENT,
   collections,
@@ -154,6 +155,47 @@ for (const locale of published) {
     }
   }
   if (!hasGlobal) fails.push({ rule: 'R2', where: `content/${locale}/${GLOBAL_DOCUMENT}.json`, detail: 'falta el documento global (navegación, pie)' });
+}
+
+// R6 — COHERENCIA HEADERS + REDIRECTS (§0.3.6, P-BBW-80): cada página con indexed=false tiene su X-Robots-Tag
+// en _headers (no acotado al anfitrión); cada slug de página legal tiene su redirección sin prefijo en _redirects.
+{
+  const headersPath = path.join(REPO_ROOT, 'public', '_headers');
+  const redirectsPath = path.join(REPO_ROOT, 'public', '_redirects');
+  let headersText = '';
+  let redirectsText = '';
+  try { headersText = fs.readFileSync(headersPath, 'utf8'); } catch { fails.push({ rule: 'R6', where: 'public/_headers', detail: 'no se puede leer el fichero de cabeceras' }); }
+  try { redirectsText = fs.readFileSync(redirectsPath, 'utf8'); } catch { fails.push({ rule: 'R6', where: 'public/_redirects', detail: 'no se puede leer el fichero de redirecciones' }); }
+
+  for (const page of LEGAL_PAGES) {
+    if (!page.indexed) {
+      // La regla global (no acotada al anfitrión) para esta ruta debe existir en _headers
+      const routePattern = `/es/${page.slug}/`;
+      const hasHeader = headersText.split('\n').some((line) => {
+        const t = line.trim();
+        return t === `/es/${page.slug}` || t === `/es/${page.slug}/*`;
+      });
+      if (!hasHeader) {
+        fails.push({ rule: 'R6', where: 'public/_headers', detail: `falta la regla de ruta "/es/${page.slug}/*" para X-Robots-Tag (§0.3.6, P-BBW-80): la página ${page.slug} tiene indexed=false pero no tiene cabecera ${routePattern}` });
+      } else {
+        // Comprobar que la cabecera incluye noarchive además de noindex
+        const lines = headersText.split('\n');
+        const idx = lines.findIndex((l) => { const t = l.trim(); return t === `/es/${page.slug}` || t === `/es/${page.slug}/*`; });
+        const headerLine = lines.slice(idx + 1).find((l) => l.trim().startsWith('X-Robots-Tag:')) ?? '';
+        if (!headerLine.includes('noarchive')) {
+          fails.push({ rule: 'R6', where: 'public/_headers', detail: `la regla para /es/${page.slug}/* tiene X-Robots-Tag sin "noarchive" (P-BBW-80 §0.1)` });
+        }
+      }
+    }
+    // Verificar redirección sin prefijo en _redirects
+    const hasRedirect = redirectsText.split('\n').some((line) => {
+      const parts = line.trim().split(/\s+/);
+      return parts[0] === `/${page.slug}` && parts[1]?.includes(`/${page.slug}/`);
+    });
+    if (!hasRedirect) {
+      fails.push({ rule: 'R6', where: 'public/_redirects', detail: `falta la redirección "/${page.slug} → /es/${page.slug}/" (§0.3.6, P-BBW-80)` });
+    }
+  }
 }
 
 if (fails.length === 0) {
