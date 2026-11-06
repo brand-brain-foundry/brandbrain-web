@@ -63,12 +63,12 @@
          necesario.
        · `-split`  = **43 %**, el valor del diseño, sin tocar. */
   --bbf-stage-anchor-y-split: 43%;
-  /* D-BBW-62 — el ancla de la vista de una zona pasa de PORCENTAJE a la unidad de ventana pequeña. Un porcentaje se resuelve contra
-     la altura del héroe, y desde D-BBW-62 el héroe CRECE cuando el texto no cabe: con `%` el arte bajaría persiguiendo al texto.
-     Con `svh` el arte se queda donde estaba, en el primer visor. **En toda pantalla donde el héroe mide exactamente una ventana
-     —que son todas las que no tenían el defecto— `40.5svh` y `40.5%` son el MISMO número**: el cambio solo actúa donde antes había
-     solape. El ancla de la vista de dos zonas sigue siendo `%` y no se toca. */
-  --bbf-stage-anchor-y-single: 40.5svh;
+  /* D-BBW-62 — el ancla de la vista de una zona pasó de PORCENTAJE a la unidad de ventana pequeña (`40.5svh`) para que el arte no bajara
+     persiguiendo al texto cuando el héroe crece. 2026-11-06 (cierre legal y héroe móvil): esa madre `--bbf-stage-anchor-y-single` SE RETIRA
+     (I-6). El 40,5 % se había medido contra la tinta del pez bajo el bloque de texto (D-BBW-57), y el pez ya no está: en la vista de UNA zona el
+     ancla deja de ser un número y pasa a DERIVARSE (semantic/viewport.css) de la reserva de la cabecera y del ALCANCE DIBUJADO del escenario
+     (`--bbf-stage-reach`, mitad de su alto por la parada media de la máscara), de modo que la parte animada quede entera entre la cabecera y
+     el titular y el titular suba. El ancla de la vista de dos zonas sigue siendo `%` y no se toca. */
   /* La proporción del escenario, en DOS madres además de la razón, porque CSS no sabe dividir por un `<ratio>` y la cota de ancho
      necesita hacerlo. Una sola fuente de verdad: la razón se compone de ellas. */
   --bbf-stage-aspect-w: 16;
@@ -77,7 +77,12 @@
   --bbf-stage-mask-rx: 50%;
   --bbf-stage-mask-ry: 50%;
   --bbf-stage-mask-solid: 44%;
-  --bbf-stage-mask-mid: 74%;
+  /* PARADA MEDIA DE LA MÁSCARA como PROPORCIÓN (2026-11-06): hasta donde el escenario tiene al menos la mitad de su tinta. Es la madre de
+     dos cosas: la parada del degradado (abajo, derivada) y el ALCANCE DIBUJADO del escenario (`--bbf-stage-reach`, semantic/composition.css),
+     que es lo que la vista de una zona reserva entre la cabecera y el titular en vez de la caja entera. Un solo número, dos lecturas: la
+     máscara y la reserva no pueden discrepar. S8 lee la misma madre por `getPropertyValue` para contar su zona visible (BEHAVIOR §11). */
+  --bbf-stage-mask-mid-share: 0.74;
+  --bbf-stage-mask-mid: calc(var(--bbf-stage-mask-mid-share) * 100%);
 
   /* ── viñeta ── */
   --bbf-vignette-rx: 64%;

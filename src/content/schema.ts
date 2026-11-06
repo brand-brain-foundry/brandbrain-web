@@ -16,6 +16,11 @@
  *   y `LinkItem.badge` (una palabra por elemento) se convierte en `LinkItem.case` (una declaración booleana). Un `global.json` con la forma
  *   vieja rompe la compilación nombrando las dos llaves. Además, las llaves de enlace ya no salen de `src/config/site.ts` sino de
  *   `content/site.json`: lo editable vive en datos, lo técnico en código.
+ * P-BBW-82 enmienda 1 (2026-11-06, v3.8 del modelo, cambio NO aditivo): «Configurar cookies» SALE DEL PIE y pasa a la página de Cookies como
+ *   BOTÓN al principio de la página. `consent.footerLink` se convierte en `consent.configureButton` (el nombre del botón, una sola vez; un
+ *   `global.json` con la llave vieja rompe la compilación nombrándola) y la sección legal admite una ACCIÓN opcional (`action: { kind, label }`),
+ *   hoy una sola declarada, `consent-configure`: la página que la lleva pone tras la introducción el botón que abre el panel del consentimiento;
+ *   sin JavaScript no se muestra. `kind` es llave ESTRUCTURAL (qué control), nunca texto.
  * Fase 6b: +1 llave `nav.skipLabel` (el enlace para saltar al contenido exige un texto y ningún texto vive en un componente). Cambio ADITIVO
  * del modelo (v2.1), propuesto en el PR de la fase 6b: el esquema estricto lo exige en todo locale publicado.
  * Reglas del modelo (fase 6a, DESPACHO-BBW-2026-09-16-fase6a §F3):
@@ -92,6 +97,17 @@ export type LegalBlock = {
  * combina con `updated` antes de devolver el documento. El componente sigue recibiendo `updatedLabel`
  * (cadena ya resuelta), pero el JSON no la escribe: una llave `updatedLabel` en el JSON rompe la compilación.
  */
+/**
+ * ACCIONES de una página legal (P-BBW-82 enmienda 1, v3.8): controles que el sistema coloca tras la introducción. El conjunto es CERRADO y
+ * declarado aquí; un `kind` que no esté rompe la compilación con la ruta. Hoy uno: `consent-configure`, el botón que abre el panel del
+ * consentimiento (lo pinta `ConsentConfigure`, `src/components/organisms/ConsentBar/`). Añadir una acción = su `kind` aquí + su componente en
+ * el mapa `LEGAL_ACTIONS` de `LegalSection.tsx` (tipado sobre esta unión: una acción sin componente rompe el typecheck).
+ */
+export const LEGAL_ACTION_KINDS = ["consent-configure"] as const;
+export type LegalActionKind = (typeof LEGAL_ACTION_KINDS)[number];
+/** `kind` es ESTRUCTURAL (qué control); `label` su texto, que el JSON cita del global (`{ global: "consent.configureButton" }`) y el puerto entrega resuelto. */
+export type LegalAction = { kind: LegalActionKind; label: string };
+
 export type LegalSection = {
   type: "legal";
   id: string;
@@ -99,6 +115,8 @@ export type LegalSection = {
   heading: string;
   /** párrafo introductorio: lista de tramos (puede llevar enlace al correo o referencia a otra página) */
   intro: Span[];
+  /** acción opcional tras la introducción (v3.8): hoy, el botón «Configurar cookies» de la página de Cookies */
+  action?: LegalAction;
   /** bloques h2 en orden: encabezado + párrafos + lista opcional */
   blocks: LegalBlock[];
   /**
@@ -217,8 +235,12 @@ export type ConsentDocument = {
     acceptAll: string;
     save: string;
   };
-  /** el enlace permanente del pie («Configurar cookies»): en el HTML lleva a la página de Cookies; con JavaScript abre el panel */
-  footerLink: string;
+  /**
+   * el nombre del BOTÓN que cambia la elección («Configurar cookies»; P-BBW-82 enmienda 1, v3.8): vive al principio de la página de Cookies
+   * —la acción `consent-configure` de su sección legal lo cita por `{ global: "consent.configureButton" }`— y abre el panel. Sustituye a
+   * `footerLink`: ya no hay enlace en el pie (RGPD art. 7.3: retirar tan fácil como dar, desde la página que lo explica).
+   */
+  configureButton: string;
 };
 
 // ── Página ──────────────────────────────────────────────────────────────────────────────────────────────
@@ -271,6 +293,11 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
   hero: ["type", "id", "heading", "paragraph1", "paragraph2", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
   legal: ["type", "id", "heading", "intro", "blocks", "updated"],
+};
+/** llaves ADMITIDAS (no obligatorias) por tipo de sección: hoy solo la acción de la página legal (v3.8). */
+const SECTION_OPTIONAL_KEYS: Record<SectionType, readonly string[]> = {
+  hero: [],
+  legal: ["action"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -424,6 +451,19 @@ function checkLegalTable(v: unknown, path: string, problems: Problem[]): void {
   });
 }
 
+/** Valida la acción de una página legal (v3.8): { kind, label }, `kind` del conjunto cerrado y `label` texto o cita del global `{ global: ruta }`. */
+function checkLegalAction(v: unknown, path: string, problems: Problem[]): void {
+  if (!isRecord(v)) return void problems.push({ path, message: `debe ser un objeto { kind, label }` });
+  checkKeys(v, ["kind", "label"], path, problems);
+  if (typeof v.kind !== "string" || !(LEGAL_ACTION_KINDS as readonly string[]).includes(v.kind)) {
+    problems.push({ path: `${path}.kind`, message: `acción desconocida "${String(v.kind)}" (acciones: ${LEGAL_ACTION_KINDS.join(", ")})` });
+  }
+  if (!("label" in v)) return; // la llave que falta ya la reportó checkKeys
+  if (typeof v.label === "string") checkSpanString(v.label, `${path}.label`, problems);
+  else if (isRecord(v.label) && "global" in v.label) checkSpan(v.label, `${path}.label`, problems);
+  else problems.push({ path: `${path}.label`, message: `debe ser texto o una cita del global { global: ruta } (p. ej. "consent.configureButton")` });
+}
+
 function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista` });
   const seen = new Set<string>();
@@ -479,14 +519,14 @@ export function validateGlobal(v: unknown): Problem[] {
   } else if ("legal" in v) problems.push({ path: "$.legal", message: "debe ser un objeto { updatedLabel, pages }" });
   if (isRecord(v.consent)) {
     checkConsent(v.consent, "$.consent", problems);
-  } else if ("consent" in v) problems.push({ path: "$.consent", message: "debe ser un objeto { banner, panel, footerLink }" });
+  } else if ("consent" in v) problems.push({ path: "$.consent", message: "debe ser un objeto { banner, panel, configureButton }" });
   return problems;
 }
 
 /** Valida los textos del consentimiento (P-BBW-82): cada texto su llave, estrictas en los dos sentidos. */
 function checkConsent(v: Record<string, unknown>, path: string, problems: Problem[]): void {
-  checkKeys(v, ["banner", "panel", "footerLink"], path, problems);
-  checkText(v.footerLink, `${path}.footerLink`, problems);
+  checkKeys(v, ["banner", "panel", "configureButton"], path, problems);
+  checkText(v.configureButton, `${path}.configureButton`, problems);
   if (isRecord(v.banner)) {
     const b = v.banner;
     const bp = `${path}.banner`;
@@ -527,10 +567,11 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     return void problems.push({ path: `${path}.type`, message: `tipo de sección desconocido "${String(type)}" (tipos: ${Object.keys(SECTION_KEYS).join(", ")})` });
   }
   const keys = SECTION_KEYS[type as SectionType];
-  checkKeys(v, keys, path, problems);
+  checkKeys(v, keys, path, problems, SECTION_OPTIONAL_KEYS[type as SectionType]);
   checkId(v.id, `${path}.id`, seen, problems);
   if (type === "legal") {
     checkText(v.heading, `${path}.heading`, problems);
+    if ("action" in v) checkLegalAction(v.action, `${path}.action`, problems);
     if (Array.isArray(v.intro)) {
       checkSpans(v.intro, `${path}.intro`, problems);
     } else if ("intro" in v) {
@@ -585,8 +626,8 @@ export function isPageDocument(v: unknown): v is PageDocument {
   return validatePage(v).length === 0;
 }
 
-/** Llaves estructurales: identifican, enlazan, referencian (`page`, `global`) o declaran una condición; no son texto editable. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global"]);
+/** Llaves estructurales: identifican, enlazan, referencian (`page`, `global`), declaran una condición o un control (`kind`); no son texto editable. */
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global", "kind"]);
 
 /** Recorre los TEXTOS EDITABLES de un documento (para contar textos y marcadores; nunca para interpretarlos, D-DOC-06). */
 export function collectTexts(v: unknown, acc: string[] = []): string[] {

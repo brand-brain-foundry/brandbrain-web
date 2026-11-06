@@ -67,10 +67,14 @@
   --bbf-hero-size-containment: inline-size;
   --bbf-hero-text-flow: relative;
   --bbf-hero-text-min-block: 100svh;
-  --bbf-hero-text-inset-top: calc(var(--bbf-space-page) * 2 + var(--bbf-space-12));
+  /* LA RESERVA DE LA CABECERA (2026-11-06, un solo sitio): su relleno arriba y abajo (el margen de página) más la marca (`space-12`). La
+     consumen la reserva superior del héroe en dos zonas (el mismo valor de siempre), el arranque de las páginas de lectura y, desde hoy, el
+     ancla del escenario en la vista de una zona. */
+  --bbf-hero-head-reserve: calc(var(--bbf-space-page) * 2 + var(--bbf-space-12));
+  --bbf-hero-text-inset-top: var(--bbf-hero-head-reserve);
   /* 2026-11-05: las páginas de lectura empiezan bajo la cabecera (su relleno y la marca) más un margen de página, en todas las vistas.
      No usan la reserva del héroe, que en el teléfono guarda la banda del campo de puntos. */
-  --bbf-legal-inset-top: calc(var(--bbf-space-page) * 3 + var(--bbf-space-12));
+  --bbf-legal-inset-top: calc(var(--bbf-hero-head-reserve) + var(--bbf-space-page));
   --bbf-hero-flex: 1 0 auto;
 
   /* Las llamadas a la acción del cuerpo (2026-11-02): en fila en dos zonas; apiladas a todo el ancho del bloque en una. */
@@ -156,24 +160,34 @@
     --bbf-space-safe: var(--bbf-space-4);
 
     --bbf-stage-anchor-x: var(--bbf-stage-anchor-x-single);
-    --bbf-stage-anchor-y: var(--bbf-stage-anchor-y-single);
+    /* EL ESCENARIO EN EL TELÉFONO (2026-11-06, cierre legal y héroe móvil; captura de Zavala en Android con la barra abierta: banda alta con poca
+       animación entre la cabecera y el titular, y el titular cortado por la barra). Antes el ancla era un número medido contra el pez (40,5svh,
+       D-BBW-57/62) y el texto empezaba en la MITAD del escenario (su caja entera reservada); el escenario no se hace más pequeño ni se quita:
+       SE RECOLOCA para que su parte DIBUJADA (hasta la parada media de la máscara, `--bbf-stage-reach`) quede entera entre la cabecera y el
+       titular, y el texto sube. Ancla = la reserva de la cabecera + el alcance (el centro queda un alcance por debajo de la cabecera); texto =
+       el ancla + el alcance + un margen de página de aire. Todo derivado: ningún número nuevo. Lo que la máscara sigue fundiendo más allá del
+       alcance (menos de la mitad de la tinta, hasta el borde de la caja) lo juzga la medida de contraste bajo el titular (I-8). */
+    --bbf-stage-anchor-y: calc(var(--bbf-hero-head-reserve) + var(--bbf-stage-reach));
     --bbf-stage-height-ratio: var(--bbf-stage-height-ratio-single);
     --bbf-stage-width-cap: var(--bbf-stage-width-cap-single);
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
     /* 2026-11-05: la reserva cuenta el pie ENTERO que va superpuesto en el teléfono, fila a fila: su separación del borde, el sello, las dos
        separaciones entre filas y tres líneas de texto (Privacidad + crédito en dos líneas; cuatro cuerpos del rol legal ≈ tres líneas de
-       interlineado normal), más dos márgenes de página de aire. Medido antes: 4–16 px entre «Hablemos» y el sello, y solape en un teléfono real. */
-    --bbf-hero-text-inset-bottom: calc(var(--bbf-bar-bottom) + var(--bbf-cert-size) + var(--bbf-bar-row-gap) * 2 + var(--bbf-type-legal-size) * 4 + var(--bbf-type-legal-size) * var(--bbf-type-body-leading) + var(--bbf-space-page) * 2);
+       interlineado normal), más dos márgenes de página de aire. Medido antes: 4–16 px entre «Hablemos» y el sello, y solape en un teléfono real.
+       2026-11-06 (P-BBW-82 enmienda 1): SALE la línea extra que `737204f` había sumado porque «Configurar cookies» partía la fila legal en dos a
+       360–390 (I-6: el enlace ya no está en el pie y la fila «Aviso legal · Privacidad · Cookies» cabe en una línea; medido: 1 línea a 360/390/412).
+       Hueco botones→pie medido con la barra abierta: 53,8 / 53,3 / 53,3 px con la línea; sin ella, 35,0 / 34,5 / 34,6 px (≥ los dos márgenes de página). */
+    --bbf-hero-text-inset-bottom: calc(var(--bbf-bar-bottom) + var(--bbf-cert-size) + var(--bbf-bar-row-gap) * 2 + var(--bbf-type-legal-size) * 4 + var(--bbf-space-page) * 2);
     --bbf-hero-size-containment: inline-size;
     /* 2026-11-02 · `relative` y no `static`: una caja estática ignora el `z-index`, así que la VIÑETA (capa de velo, por encima del
        fondo) se pintaba ENCIMA del texto y lo oscurecía —se ve en la captura del sitio publicado en el teléfono—. En flujo igual que antes. */
     --bbf-hero-text-flow: relative;
     --bbf-hero-text-min-block: 100svh;
-    /* la banda del escenario: de su ancla al borde inferior de su caja. Se reserva la caja ENTERA y no el dibujo, que la máscara radial
-       desvanece mucho antes: es la cota conservadora, y es lo que convierte «cero tinta del sujeto bajo el texto» en algo cierto por
-       construcción en vez de por medida. */
-    --bbf-hero-text-inset-top: calc(var(--bbf-stage-top) + var(--bbf-stage-height) / 2);
+    /* el texto empieza bajo la parte DIBUJADA del escenario más un margen de página (ver el ancla, arriba). Hasta hoy se reservaba la caja
+       ENTERA («cero tinta del sujeto bajo el texto por construcción»): era la cota para el pez, y con el campo de puntos dejaba una banda
+       de 304–473 px con poca animación y el titular bajo la barra del consentimiento. */
+    --bbf-hero-text-inset-top: calc(var(--bbf-stage-anchor-y) + var(--bbf-stage-reach) + var(--bbf-space-page));
     --bbf-hero-flex: 1 0 auto;
 
     --bbf-hero-ctas-direction: column;

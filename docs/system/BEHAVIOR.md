@@ -3,12 +3,12 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.11
+version: 1.13
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-11-06
-verified_against_code: 2026-11-06@fix/sello-segun-solape (v1.11: §13 — el sello se oculta SOLO MIENTRAS LA BARRA LO TAPA: `IntersectionObserver` con la medida de la reserva y umbral `BAR_AVOID_THRESHOLD` = 1 (`barAvoidRootMargin`, `isCoveredByBar` en consent.ts), marcas genéricas `data-bar-avoid` / `data-bar-covered` (`ConsentBar/attr.ts`); sale `data-consent-bar` de `<html>` con su constante (sin lector, I-6); ocultar instantáneo porque no existe rol de salida, reportado) · 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
+verified_against_code: 2026-11-06@fix/cierre-legal-y-heroe-movil (v1.13: §11 — S8 con consultas SIMULTÁNEAS (P-BBW-86): ranuras derivadas de la zona visible (`windows`, `slotsOf`, `activeQueries`), `SLOTS_MIN` = 2, arranque escalonado al azar con cota (DISSOLVE_START_S − periodo/k)/2, lee `--bbf-stage-mask-mid-share` (`readMidShare`) y la ventana (`readView`); el recorte por el texto solo con el texto AL LADO (`readLine`, `beside`); quietud con todas las ranuras resueltas · v1.12: §13 — «Configurar cookies» sale del pie y es el botón `ConsentConfigure` al principio de la página de Cookies (P-BBW-82 enmienda 1); el cableado sigue escuchando `data-consent-configure` por delegación; sin JavaScript el botón no se muestra (caja reservada, `visibility: hidden`)) · 2026-11-06@fix/sello-segun-solape (v1.11: §13 — el sello se oculta SOLO MIENTRAS LA BARRA LO TAPA: `IntersectionObserver` con la medida de la reserva y umbral `BAR_AVOID_THRESHOLD` = 1 (`barAvoidRootMargin`, `isCoveredByBar` en consent.ts), marcas genéricas `data-bar-avoid` / `data-bar-covered` (`ConsentBar/attr.ts`); sale `data-consent-bar` de `<html>` con su constante (sin lector, I-6); ocultar instantáneo porque no existe rol de salida, reportado) · 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
@@ -267,12 +267,45 @@ dependencia nueva. **Queda como paso del arnés**, y este es el paso:
 Valores de referencia de la 6m: margen mínimo de tinta 16,05 px (360) · 21,48 (780) · 32,00 (1000) · 40,00 (1728 y 1920), desborde 0 en todos;
 servido, 20,00 px a 360 con el titular a 37,963 px y 270 px de ancho sobre 328 disponibles.
 
-## §11 — S8 · Campo del criterio (`src/behavior/criterio-field.ts`, 2026-11-02)
+## §11 — S8 · Campo del criterio (`src/behavior/criterio-field.ts`, 2026-11-02; **consultas simultáneas: P-BBW-86, 2026-11-06**)
 
-**Qué hace:** una rejilla de puntos donde corren carriles de «texto». Cada 4,1 s una consulta barre una banda de carriles con un cursor,
-enciende los aciertos, la cierra con dos corchetes, saca a la derecha una barra por carril y se disuelve punto a punto. Conducta escrita en
+**Qué hace:** una rejilla de puntos donde corren carriles de «texto». Una consulta barre una banda de carriles con un cursor, enciende los
+aciertos, la cierra con dos corchetes, saca a la derecha una barra por carril y se disuelve punto a punto. Conducta escrita en
 `OUTPUT-BBW-2026-11-01-F0` §4 (hub); **implementación propia**: el archivo de la referencia (`criterio-field.js`) no se abrió (C14). PRNG
 mulberry32 y hash entero propios, deterministas por semilla. El componente `CriterioField` (molecule cliente) solo cablea.
+
+**Consultas simultáneas (P-BBW-86, firmada por el `!` del despacho de cierre, 2026-11-06).** Hasta entonces una sola consulta cada 4,1 s en una
+banda al azar que, en el teléfono, nacía en el borde izquierdo de la caja: fuera de la ventana o bajo la máscara ya fundida, y el campo parecía
+quieto. Ahora: **varias a la vez, cada una en su RANURA** (un grupo de carriles contiguos que no se solapa con los demás) y con su **arranque
+escalonado al azar** por la semilla del módulo (determinista). Cada consulta conserva su línea de tiempo (barrido, corchetes, barras, disolución)
+y su periodo (4,1 s). **Cobertura, no número fijo:**
+  · **Zona visible** (`Geometry.windows`, por carril): la cuerda de la elipse de la máscara **hasta su parada media** (al menos la mitad de la
+    tinta; la madre `--bbf-stage-mask-mid-share`, leída por `readMidShare`, la misma que recoloca el escenario en el teléfono), recortada por la
+    **ventana** (`readView`: lo que el primer visor deja ver de la placa, documento sin desplazar) y, con el texto al lado, por el arranque de los
+    carriles. Un carril es USABLE si su ventana aloja una consulta entera (`BAND_BASE + BAR_GAP + BAR_MIN` = 26 columnas, derivado).
+  · **Ranuras** (`slotsOf`): k = ⌈usables / carriles máximos de una banda⌉, nunca menos que `SLOTS_MIN` (2) ni más que usables; los usables se
+    reparten en k grupos contiguos del mismo tamaño (±1). Medido: 2 ranuras a 360×640 (12 usables), 390×844 (9), 790×1024 (11); 3 a 1440×900 (17).
+  · **Arranque** de la ranura s = `QUERY_FIRST_S` + s · periodo / k + una desviación uniforme sorteada (mulberry32 con la semilla) y **acotada** en
+    ±(`DISSOLVE_START_S` − periodo / k) / 2 (nunca más de medio paso): entre el arranque de una consulta y el de la siguiente —en la ranura que sea,
+    también al dar la vuelta al periodo— nunca pasan más de 2,48 s, que es cuando la anterior empieza a disolverse. **Consecuencia demostrable:**
+    con k ≥ 2 en cualquier instante hay al menos una consulta que todavía no se disuelve (y por tanto en curso) en la zona visible. Con k = 2 la
+    cota es ±0,215 s (paso 2,05); con k = 3, ±0,557 (paso 1,37). Dos ranuras bastan porque el hueco muerto (periodo − vida = 0,72 s) es menor que
+    medio periodo; más carriles visibles = más ranuras, para que toda la zona tenga vida.
+  · **La banda** de cada consulta cabe entera (banda, hueco y barras) en la ventana común a sus carriles (la más estrecha manda); la posición
+    pedida es la de siempre (`BAND_START_*` a la derecha del arranque) recortada a la ventana. La ranura 0 sortea con las mismas semillas que la
+    consulta única anterior; las demás con semillas desplazadas por ranura (`hash3(índice, 23/29/31 + 7·s, …)`); la disolución de cada consulta se
+    sortea por su índice y su ranura.
+  · **Intactos:** carriles a la derecha del bloque de texto cuando el texto está AL LADO del escenario (dos zonas); tokens leídos, nunca
+    repetidos; 10 fps con `setTimeout`; reposo del HTML servido (placa vacía). **El recorte por el texto se decide por dónde está el texto, no por
+    el modo** (`readLine`, `beside`): «amplio» (paso por el interlineado) es cosa del tamaño de la placa (≥ 480 px) y a 390 ya se cumple con el
+    texto DEBAJO; recortar ahí apagaba el campo entero (medido en la primera ejecución: 0 consultas a 390×844). Debajo del escenario lo que
+    protege la legibilidad es la medida de contraste bajo el titular (I-8), no un recorte.
+  · **Medido sobre el artefacto** (`cierre-legal-y-heroe-movil/arnes/cobertura.cjs` + `cobertura-analitica.ts`, 150 muestras cada 100 ms = 15 s
+    ≥ 3 periodos): píxeles de tinta de consulta en la zona visible, mínimo 404 / 495 / 132 / 407 a 360×640 / 390×844 / 790×1024 / 1440×900
+    (0 muestras a cero); analítico desde el segundo periodo: mínimo de consultas en curso 1 / 1 / 1 / 2 y sin disolver 1 / 1 / 1 / 1. Coste por tick
+    (`coste.cjs`, 8 s, el mismo arnés para base y nuevo, control en blanco 0,0 ms): a 390×844 mediana 0,2 → 0,3 ms (CPU ×4: 0,6 → 0,7, p95
+    1,3 → 1,5); a 1440×900 0,4 → 0,4 (CPU ×4: 1,2 → 1,3, p95 2,4 → 2,7); carga de la máquina 7,9 → 5,8 (10 núcleos). Contraste bajo el
+    titular con el campo nuevo: peor píxel 11,84 / 12,62 / 13,73 / 13,99 / 15,81 a 360×640 / 360×780 / 390×844 / 412×915 / 790×1024 (umbral 5,65).
 
 | Constante | Valor | Origen | Clase | Qué es |
 |---|---|---|---|---|
@@ -286,19 +319,24 @@ mulberry32 y hash entero propios, deterministas por semilla. El componente `Crit
 | `LIVE_WINDOW_S` · `LIVE_SHARE` · `FRAME_MS` | 2,6 s · 34 % · 100 ms | F0 §4.2, §4.4 | dinámico / estático | carriles vivos avanzan una posición por fotograma; 10 fps con `setTimeout` |
 | `QUERY_*` · `SWEEP_END_S` · `RESULT_END_S` · `DISSOLVE_START_S` | 1,2 / 4,1 / 3,38 s · 0,76 · 1,18 · 2,48 s | F0 §4.3 | dinámico | línea de tiempo de la consulta |
 | `BAND_*` · `BAR_*` · `HIT_EXTRA_SHARE` · `TRAMA_EVERY` | ver módulo | F0 §4.3 | dinámico | banda, barras, aciertos y trama |
-| `STILL_AT_S` | 2,7 s | F0 §4.4 | estático | fotograma único con movimiento reducido |
+| `STILL_AT_S` | 2,7 s | F0 §4.4 | estático | fotograma único con movimiento reducido (las consultas de todas las ranuras resueltas a esa edad) |
+| `SLOTS_MIN` | 2 | P-BBW-86 | plantilla | ranuras mínimas de consultas simultáneas; el número real se deriva de la geometría (zona visible) |
 
 **En el héroe oscuro (2026-11-02):** ocupa el ESCENARIO que tenía el vídeo del pez (misma geometría, máscara radial y entrada). Como el escenario
-pasa por debajo del bloque de texto, el módulo lee el borde derecho del bloque y **los carriles nacen a su derecha** (`Geometry.start`), con el
-borde suave contado desde ahí. Medido antes de esta regla: con el campo bajo los párrafos el contraste caía a **1,67** a 1440 (el cursor claro
+pasa por debajo del bloque de texto cuando el texto está a su lado, el módulo lee el borde derecho del bloque y **los carriles nacen a su derecha**
+(`Geometry.start`), con el borde suave contado desde ahí (solo con el texto AL LADO, ver arriba). Medido antes de esta regla: con el campo bajo los párrafos el contraste caía a **1,67** a 1440 (el cursor claro
 pasando bajo el texto); con ella, el peor píxel de fondo bajo el texto da **≥ 5,65**, y **≥ 9,95** cuando además la zona de texto pasa por encima de la viñeta (cinco anchos, seis tomas por ancho, D-BBW-25).
 
 **Tokens que lee (nunca repite):** `--bbf-field-lane`, `--bbf-field-lane-live`, `--bbf-field-read`, `--bbf-field-hit` y `--bbf-text-on-base`,
-resueltos por el navegador en un elemento sonda; la quietud por `--bbf-motion-loop-play-state`.
+resueltos por el navegador en un elemento sonda; la quietud por `--bbf-motion-loop-play-state`; la parada media de la máscara por
+`--bbf-stage-mask-mid-share` (si no está, 1: toda la caja cuenta como visible, dicho en el módulo).
 
-**Quietud (D-BBW-31, I-9):** con movimiento reducido se pinta UN fotograma (una consulta resuelta) y el bucle **no arranca**; se repinta si
-cambia el tamaño o cargan las fuentes. Con la pestaña oculta el reloj se detiene y, al volver, sigue donde estaba. **HTML servido:** la placa
-vacía, que es su reposo (decorativo, `aria-hidden`: no hay texto que perder, I-4).
+**Quietud (D-BBW-31, I-9):** con movimiento reducido se pinta UN fotograma con **las consultas resueltas de todas las ranuras** (todas con su
+primera consulta arrancada en `QUERY_FIRST_S`, a la edad de `STILL_AT_S`: aciertos, corchetes y barras cubriendo la zona visible) y el bucle **no
+arranca**; se repinta si cambia el tamaño o cargan las fuentes. Con la pestaña oculta el reloj se detiene y, al volver, sigue donde estaba. Medido
+(`quietud.cjs`, 390×844 y 1440×900): 0 ticks en 8 s, el lienzo pintado con tinta de consulta en ≥ 160 filas y sin que ningún punto aparezca ni
+desaparezca entre 5 s y 8 s; con la pestaña oculta 0 ticks en 2 s y 9–10 al segundo tras volver. **HTML servido:** la placa vacía, que es su reposo
+(decorativo, `aria-hidden`: no hay texto que perder, I-4).
 
 ## §12 — S9 · Imagotipo vivo (`src/behavior/brand-mark-octopus.ts`, M1c · 2026-11-06 · M1d: idéntico al prototipo)
 
@@ -428,6 +466,18 @@ El sello conserva su efecto propio al pasar: `--bbf-motion-hover-lift` (`semanti
 **Retirar (requisito 3):** si había aceptación y pasa a rechazo, el cableado pide al puerto `block()` (el adaptador envuelve `sendBeacon`,
 `XMLHttpRequest.open` y `fetch` y descarta toda petición al actor) y recarga la página; el envío de cierre del fragmento que la recarga
 dispara es, precisamente, el que la envoltura descarta (verificado en F5.4 del output de L3).
+
+**Dónde se cambia la elección (P-BBW-82 enmienda 1, 2026-11-06):** el control «Configurar cookies» **sale del pie** y pasa a ser un **botón al
+principio de la página de Cookies**, tras la introducción (`ConsentConfigure`, `src/components/organisms/ConsentBar/`; lo coloca la sección legal
+por la acción `consent-configure` de su contenido, modelo v3.8). Mismo átomo y misma variante que los botones del banner; lleva la marca
+`data-consent-configure` (`ConsentBar/attr.ts`) y el cableado de la barra la escucha **por delegación en el documento**, así que cualquier pieza
+marcada abre el panel y el foco vuelve a ella al cerrar. **Sin JavaScript no se muestra** (el panel no existe sin él): el HTML servido trae el botón
+con la caja reservada y `visibility: hidden` —fuera del foco y del árbol de accesibilidad— y el cliente lo descubre al hidratar
+(`useSyncExternalStore`, instantánea servida `false`); reservar la caja evita el salto de disposición al aparecer (CLS 0) a cambio de un hueco del
+alto del botón sin JavaScript, dicho. La página de Cookies, enlazada desde el pie de todas las páginas, es la segunda capa y el sitio de retirada
+(RGPD art. 7.3). Medido sobre el artefacto: retirar desde ese botón tras haber aceptado → 0 peticiones al actor tras recargar y 0 en el inicio
+(arnés `cierre-legal-y-heroe-movil/arnes/a-pie-y-cookies.cjs`). Con el enlace sale la línea legal extra de la reserva del inicio en el teléfono
+(`semantic/viewport.css`, I-6): la fila «Aviso legal · Privacidad · Cookies» cabe en una línea a 360/390/412.
 
 ## §14 — S11 · Desarme de enlaces y botones (`src/behavior/glyph-scatter.ts`, M2 · 2026-11-06 · P-BBW-83; **opt-in, hover de color y selección: M3 · P-BBW-84**)
 

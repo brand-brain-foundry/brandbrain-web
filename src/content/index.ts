@@ -62,7 +62,8 @@ function globalText(global: GlobalDocument, keyPath: string, where: string): str
  * Resuelve las REFERENCIAS de un documento antes de entregarlo (I-1: una sola fuente para cada texto):
  *   · `{ page: slug }`  → `{ text: label, path: "/${locale}/${slug}/" }` (P-BBW-80). Un slug sin etiqueta rompe el build.
  *   · `{ global: ruta }` → la cadena del documento global en esa ruta (P-BBW-82). Una ruta sin texto rompe el build.
- * Un tramo `{ global }` se convierte en una cadena suelta dentro de la lista de tramos: el componente lo pinta como texto normal.
+ * Un tramo `{ global }` se convierte en una cadena suelta dentro de la lista de tramos: el componente lo pinta como texto normal. También vale
+ * fuera de una lista: la etiqueta de una acción legal (`action.label`, v3.8) llega al componente como cadena. `kind` es estructural: no se recorre.
  */
 function resolveRefs<T>(doc: T, locale: Locale, global: GlobalDocument, pageLabels: Record<string, string>, path = "$"): T {
   if (doc && typeof doc === 'object' && !Array.isArray(doc)) {
@@ -77,7 +78,7 @@ function resolveRefs<T>(doc: T, locale: Locale, global: GlobalDocument, pageLabe
       return { text: label, path: `/${locale}/${slug}/` } as unknown as T;
     }
     const out: Record<string, unknown> = {};
-    const SKIP = new Set(["id", "type", "link", "case"]);
+    const SKIP = new Set(["id", "type", "link", "case", "kind"]);
     for (const [k, v] of Object.entries(r)) {
       out[k] = SKIP.has(k) ? v : resolveRefs(v, locale, global, pageLabels, `${path}.${k}`);
     }
@@ -156,7 +157,7 @@ function resolveLegalDoc<T>(doc: T, extras: Record<string, string>, path = "$"):
   }
   if (Array.isArray(doc)) return doc.map((x, i) => resolveLegalDoc(x, extras, `${path}[${i}]`)) as T;
   if (doc && typeof doc === "object") {
-    const SKIP = new Set(["id", "type", "link", "case"]);
+    const SKIP = new Set(["id", "type", "link", "case", "kind"]);
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(doc as Record<string, unknown>)) {
       out[k] = SKIP.has(k) ? v : resolveLegalDoc(v, extras, `${path}.${k}`);

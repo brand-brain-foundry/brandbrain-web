@@ -41,6 +41,12 @@
     )
   );
   --bbf-stage-top: var(--bbf-stage-anchor-y);
+  /* ALCANCE DIBUJADO del escenario (2026-11-06, cierre legal y héroe móvil): desde su centro hasta donde la máscara deja la mitad de la tinta
+     (la parada media, `--bbf-stage-mask-mid-share`), en el eje vertical: alto × proporción / 2. Es la medida de LO QUE SE VE del escenario, y
+     no de su caja: la vista de una zona ancla el escenario y empieza el texto a partir de este alcance (semantic/viewport.css). Más allá de él
+     la máscara sigue fundiendo hasta el borde de la caja, con menos de la mitad de la tinta; lo que de ahí caiga bajo el titular lo juzga la
+     medida de contraste bajo el texto (I-8, ≥ 5,65 en el peor píxel), no la construcción. */
+  --bbf-stage-reach: calc(var(--bbf-stage-height) * var(--bbf-stage-mask-mid-share) / 2);
   /* DÓNDE VIVE EL ARTE (D-BBW-47). El escenario deja de estar siempre centrado: en la vista de dos zonas su centro se va al
      medio de la zona derecha. Es el DESTINO lo que cambia, no el algoritmo: el seguimiento del sujeto (behavior/subject-tracking.ts)
      sigue llevando el centroide al centro DE SU ESCENARIO con la misma traslación acotada y la misma holgura, y por eso ni las

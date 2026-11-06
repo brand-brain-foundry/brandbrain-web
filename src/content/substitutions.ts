@@ -71,8 +71,8 @@ export function isSubstitutionKey(v: string): v is SubstitutionKey {
 
 export type UndeclaredSubstitution = { path: string; token: string };
 
-/** Llaves estructurales: identifican, enlazan o referencian (`page`, `global`), no son texto; no se sustituye dentro de ellas. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global"]);
+/** Llaves estructurales: identifican, enlazan, referencian (`page`, `global`) o declaran un control (`kind`), no son texto; no se sustituye dentro de ellas. */
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global", "kind"]);
 
 /**
  * Recorre los textos de un documento y lista cada `{{…}}` que no sea una sustitución declarada (con su ruta).
