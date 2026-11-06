@@ -1,5 +1,6 @@
 /* Button — Tier 3: solo consume Tier 1/2. Una sola variante (P-BBW-82): contorno y texto en la tinta del sistema sobre
-   transparente; al pasar, contorno y texto en el acento. Misma geometría que las llamadas a la acción del héroe: 48 de alto
+   transparente. S11 (M2, P-BBW-83): al pasar, el DESARME del sistema (base/document.css, `[data-scatter="outline"]`): el hover de acento y su
+   transición salen de aquí (I-6) y viven como alternativa de reposo, con movimiento reducido, en ese mismo bloque. Misma geometría que las llamadas a la acción del héroe: 48 de alto
    (`space-12`), relleno lateral `space-7`, radio de píldora, contorno `line-sm`. Sin foco propio (D-BBW-22). */
 .button {
   display: inline-flex;
@@ -19,12 +20,4 @@
   letter-spacing: var(--bbf-type-button-tracking);
   white-space: nowrap;
   cursor: pointer;
-  transition:
-    border-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease),
-    color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
-}
-
-.button:hover {
-  border-color: var(--bbf-accent);
-  color: var(--bbf-accent);
 }

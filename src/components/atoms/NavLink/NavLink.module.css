@@ -26,14 +26,8 @@
   text-decoration: none;
 }
 
-.navLink {
-  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
-}
-
-.navLink:hover,
-.navLink:active {
-  color: var(--bbf-accent);
-}
+/* S11 (M2, P-BBW-83): el hover de color (y su transición) sale de aquí (I-6): al pasar, el enlace se DESARMA (base/document.css,
+   `[data-scatter="text"]` / `"icon"`); con movimiento reducido el mismo bloque devuelve el color de acento como alternativa de reposo. */
 
 /* un enlace que solo muestra un icono garantiza su área táctil también en anchura (44 → rol touch-min en la barra; 56 → ×14 en la hoja);
    medido en la primera pasada de F5: sin esto, el icono de 16 px dejaba un enlace de 16×44 */
@@ -56,19 +50,12 @@
   font-weight: var(--bbf-type-label-weight);
   letter-spacing: var(--bbf-type-label-tracking);
   text-shadow: var(--bbf-type-label-shadow);
-  transition: letter-spacing var(--bbf-motion-link-tracking-duration) var(--bbf-motion-link-ease);
 }
 
-/* fase 6m · el enlace ABRE SU INTERLETRADO al estar activo (N1 doc B §5). Es el segundo estado del diseño junto al color; el tercero que su
-   código declara, `translateY(-2px)`, NO se porta y no es una carencia: está MUERTO en el propio diseño, medido en el export — la entrada
-   `ef-emerge` lleva `fill: both` y `transform` entre sus propiedades, así que al terminar retiene la identidad y la elevación nunca llega a
-   aplicarse (`matrix(1,0,0,1,0,0)` antes y después de pasar el cursor). Portar un efecto que el diseño no renderiza no sería fidelidad.
-   Con movimiento reducido la transición colapsa con la madre de duración: el estado cambia, el recorrido no. */
-.navLink:hover .label,
-.navLink:focus-visible .label,
-.navLink:active .label {
-  letter-spacing: var(--bbf-type-label-tracking-active);
-}
+/* fase 6m · el interletrado que se abría al estar activo (×7 → ×8) SALE en M2 (I-6). Estaba MUERTO desde la retirada de las ondas
+   (2026-11-02): la regla buscaba un descendiente `.label` y la clase del rol va en el propio enlace; medido en el artefacto de `main`
+   `ec3b369`: 3,58 px en reposo y bajo el puntero. Con él se van sus dos tokens sin consumidor (`--bbf-type-label-tracking-active`,
+   `--bbf-motion-link-tracking-duration`). S11 es ahora el único estado activo del enlace. */
 
 .menu {
   font-family: var(--bbf-type-menu-family);

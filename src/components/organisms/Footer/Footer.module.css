@@ -75,7 +75,10 @@
    64 en una: rol de vista), hueco `space-3`, texto en el rol legal y en el color secundario; al pasar, el acento. Recibe el puntero aunque la
    barra no (la barra deja pasar el puntero al héroe). */
 /* FILA DE PÁGINAS LEGALES (P-BBW-80, L2): sustituye al enlace único de privacidad. Mismo orden y base; los ítems comparten el estilo
-   del enlace de privacidad anterior. El separador «·» es ornamental (aria-hidden). */
+   del enlace de privacidad anterior. El separador «·» es ornamental (aria-hidden).
+   S11 (M2, P-BBW-83): los hovers de acento de los enlaces legales (y sus transiciones) salen de aquí (I-6): al pasar se DESARMAN
+   (base/document.css, `[data-scatter="text"]`); con movimiento reducido el mismo bloque devuelve el acento. EL SELLO QUEDA FUERA de S11
+   (Zavala, 2026-11-06: un efecto por pieza) y conserva abajo su efecto propio: tinte, elevación y halo (P-BBW-82). */
 .legalLinks {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-social);
 
@@ -106,11 +109,6 @@
   letter-spacing: var(--bbf-type-legal-tracking-mixed);
   text-shadow: var(--bbf-type-legal-shadow);
   text-decoration: none;
-  transition: color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
-}
-
-.legalLinksItem:hover {
-  color: var(--bbf-accent);
 }
 
 /* EL SELLO Y LA BARRA DEL CONSENTIMIENTO (2026-11-06, P-BBW-82). Tres elementos, cada uno con UNA responsabilidad, porque las tres se pisan si

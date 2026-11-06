@@ -46,9 +46,9 @@
   --bbf-motion-link-ease: var(--bbf-ease-signature);
   /* fase 6m · estados de la nav (N1 doc B §5): el enlace ABRE SU INTERLETRADO al pasar (0,28em → 0,32em = ×7 → ×8 de la retícula, los dos
      exactos) y la onda de tinta se revela con su propia duración, más larga que el cambio de color: 520 → ×2 y 640 → ×2,5 (tabla de la 6a). */
-  --bbf-motion-link-tracking-duration: var(--bbf-duration-2);
-  /* 2026-11-02 (orden de Zavala): salen con las ondas de la nav el revelado de la onda y su ripple (`-link-reveal-duration`,
-     `-ripple-duration`, `-ripple-shift`, I-6). El interletrado del enlace y su transición se quedan. */
+  /* M2 (P-BBW-83): sale `--bbf-motion-link-tracking-duration` con el interletrado activo de la nav, que estaba muerto (I-6).
+     2026-11-02 (orden de Zavala): salen con las ondas de la nav el revelado de la onda y su ripple (`-link-reveal-duration`,
+     `-ripple-duration`, `-ripple-shift`, I-6). */
   --bbf-motion-pulse-duration: var(--bbf-duration-15);
   --bbf-motion-pulse-ease: var(--bbf-ease-in-out);
   --bbf-motion-enter-ease: var(--bbf-ease-signature);
@@ -96,6 +96,10 @@
      halo y el tinte), que no es movimiento (I-9). Primer consumidor: el sello del pie (`Footer.module.css`). Solo entra con puntero fino,
      por el rol de vista `--bbf-hover-fine` (semantic/viewport.css); con foco de teclado, siempre. */
   --bbf-motion-hover-lift: var(--bbf-space-half);
+
+  /* S11 (M2, P-BBW-83): el desarme de enlaces y botones se pausa con movimiento reducido (D-BBW-31); el módulo lo LEE por JS y, en `paused`,
+     no registra nada: quedan los hovers de reposo del bloque `[data-scatter]` de base/document.css */
+  --bbf-motion-scatter-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -107,5 +111,6 @@
     --bbf-motion-loop-play-state: paused;
     --bbf-motion-octopus-play-state: paused;
     --bbf-motion-hover-lift: 0px;
+    --bbf-motion-scatter-play-state: paused;
   }
 }

@@ -45,11 +45,9 @@
   text-wrap: pretty;
 }
 
+/* S11 (M2, P-BBW-83): el subrayado del enlace del texto (que se recoge al pasar) lo pone el sistema (`[data-scatter="prose"]`). */
 .link {
   color: var(--bbf-accent);
-  text-decoration: underline;
-  text-decoration-thickness: from-font;
-  text-underline-offset: 0.15em;
 }
 
 /* Los tres botones: mismo átomo, misma variante, misma fila, también en el teléfono (a partes iguales). */

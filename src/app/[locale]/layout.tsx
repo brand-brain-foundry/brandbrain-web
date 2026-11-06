@@ -9,6 +9,7 @@ import { SkipLink } from "@/components/atoms/SkipLink";
 import { Header } from "@/components/organisms/Header";
 import { Footer } from "@/components/organisms/Footer";
 import { ConsentBar } from "@/components/organisms/ConsentBar";
+import { GlyphScatter } from "@/components/organisms/GlyphScatter";
 import { MAIN_ID } from "@/components/main-id";
 import "../globals.css";
 
@@ -76,6 +77,8 @@ export default async function LocaleLayout({
         {/* CONSENTIMIENTO (P-BBW-82): la barra y el panel van en el HTML de todas las páginas, la barra oculta; el cliente solo
             la muestra si no hay elección válida. Después del pie en el DOM: es lo último que se lee y lo primero que se decide. */}
         <ConsentBar consent={global.consent} />
+        {/* S11 DESARME (P-BBW-83): un solo cableador cliente para todos los enlaces y botones marcados con `data-scatter`; sin markup. */}
+        <GlyphScatter />
       </body>
     </html>
   );

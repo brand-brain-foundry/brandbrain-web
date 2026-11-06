@@ -1,0 +1,1 @@
+export { GlyphScatter } from "./GlyphScatter";

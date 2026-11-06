@@ -1,6 +1,6 @@
 #!/bin/bash
 # pre-commit — brandbrain-web (D-SEC-04 + D-BBW-06)
-# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia tipográfica propia (fase 5, extendida 6a-bis y 6b). 5) guardia de contenido (fase 6a, +sustituciones 6c). 6) guardia anti-fuga legal (P-BBW-78). 7) guardia del imagotipo vivo R10 (M1c; en el hook desde M1d). 8) guardia de medios (fase 6c).
+# 1) gitleaks sobre staged (S-4). 2) guardia de color. 3) guardia de tipografía. 4) guardia tipográfica propia (fase 5, extendida 6a-bis y 6b). 5) guardia de contenido (fase 6a, +sustituciones 6c). 6) guardia anti-fuga legal (P-BBW-78). 7) guardia del imagotipo vivo R10 (M1c; en el hook desde M1d). 8) guardia del desarme R11 (M2). 9) guardia de medios (fase 6c).
 # Semántica FAIL-CLOSED: error del tool = commit cancelado. Único skip: gitleaks ausente (aviso).
 # gitleaks 8.30.x: --exit-code 2 = leaks; 0 = limpio; otro = error del tool. Sin -q (bug gitleaks).
 
@@ -109,6 +109,21 @@ if [ "$RIG_STATUS" -eq 1 ]; then
 elif [ "$RIG_STATUS" -ne 0 ]; then
   echo "" >&2
   echo "[pre-commit] FAIL-CLOSED: error de la guardia del imagotipo vivo (exit $RIG_STATUS) — commit cancelado" >&2
+  exit 1
+fi
+
+# Guardia propia del repo (M2 F4, P-BBW-83): R11 ejecuta el módulo S11 (desarme de enlaces y botones) con las semillas del dorado del prototipo
+# aprobado y falla si un fotograma difiere. docs/system/BEHAVIOR.md §14.
+pnpm exec tsx scripts/lint/check-glyph-scatter.ts
+SCATTER_STATUS=$?
+if [ "$SCATTER_STATUS" -eq 1 ]; then
+  echo "" >&2
+  echo "[pre-commit] guardia del desarme (R11): el módulo S11 se separa del prototipo aprobado — commit cancelado" >&2
+  echo "  El mensaje nombra la corrida y la medida; un umbral que falla se escala (I-8), no se cambia." >&2
+  exit 1
+elif [ "$SCATTER_STATUS" -ne 0 ]; then
+  echo "" >&2
+  echo "[pre-commit] FAIL-CLOSED: error de la guardia del desarme (exit $SCATTER_STATUS) — commit cancelado" >&2
   exit 1
 fi
 

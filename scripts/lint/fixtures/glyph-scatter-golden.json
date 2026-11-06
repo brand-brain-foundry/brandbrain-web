@@ -1,0 +1,347 @@
+{
+  "source": "M2-prototipo-desarme-aprobado-2026-11-06.html",
+  "sourceSha256": "31876cbef7236ea5e1d83705d508f2d1949372c3c66c547745b5fd3f93ca7aa1",
+  "generated": "2026-11-06",
+  "substitutions": [
+    {
+      "what": "exponer el estado",
+      "from": "const all = [];",
+      "to": "const all = window.__all = [];",
+      "why": "leer x, y, giro, profundidad y la p de la piel de cada fotograma; no cambia ninguna línea de conducta"
+    }
+  ],
+  "control": "Math.random = mulberry32(semilla) antes de cargar el prototipo; performance.now y requestAnimationFrame controlados; activación por pointerenter (ratón) con since = 0; fotograma f a ts = (f+1)·1000/60 (dt = 1/60)",
+  "seeds": [
+    1,
+    2,
+    3
+  ],
+  "frames": 200,
+  "dof": 4,
+  "elements": [
+    {
+      "kind": "link",
+      "glyphs": 8,
+      "inProse": true,
+      "text": "el método"
+    },
+    {
+      "kind": "link",
+      "glyphs": 8,
+      "inProse": true,
+      "text": "los casos"
+    },
+    {
+      "kind": "link",
+      "glyphs": 15,
+      "inProse": true,
+      "text": "cerebros de marca"
+    },
+    {
+      "kind": "link",
+      "glyphs": 9,
+      "inProse": true,
+      "text": "por correo"
+    },
+    {
+      "kind": "outline",
+      "glyphs": 11,
+      "inProse": false,
+      "text": "ver el método"
+    },
+    {
+      "kind": "fill",
+      "glyphs": 16,
+      "inProse": false,
+      "text": "escribir a zavala"
+    }
+  ],
+  "runs": [
+    {
+      "seed": 1,
+      "target": "enlace-los-casos",
+      "kind": "link",
+      "element": 1,
+      "glyphs": 8,
+      "origin": 0.7971577360294759,
+      "offset": 0,
+      "skinOffset": 6400,
+      "lastTransforms": [
+        "translate3d(-0.286em, 0.519em, 0px) rotate(0deg) scale(0.72)",
+        "translate3d(0.449em, -0.034em, 0px) rotate(-19.3deg) scale(0.893)",
+        "translate3d(0.043em, 0.368em, 0px) rotate(-10.6deg) scale(1.158)",
+        "translate3d(0.143em, -0.232em, 0px) rotate(8.7deg) scale(0.72)",
+        "translate3d(0.111em, -0.395em, 0px) rotate(-39.6deg) scale(0.72)",
+        "translate3d(-0.299em, 0.02em, 0px) rotate(23.3deg) scale(1.219)",
+        "translate3d(-0.344em, -0.101em, 0px) rotate(-23.8deg) scale(1.189)",
+        "translate3d(-0.265em, 0.356em, 0px) rotate(15.9deg) scale(1.19)"
+      ],
+      "rect": null,
+      "since": 0
+    },
+    {
+      "seed": 1,
+      "target": "boton-contorno",
+      "kind": "outline",
+      "element": 4,
+      "glyphs": 11,
+      "origin": 0.7971577360294759,
+      "offset": 6600,
+      "skinOffset": 15400,
+      "lastTransforms": [
+        "translate3d(-0.501em, 0.341em, 0px) rotate(22.7deg) scale(1.209)",
+        "translate3d(0.427em, 0.505em, 0px) rotate(24.6deg) scale(0.738)",
+        "translate3d(-0.122em, -0.571em, 0px) rotate(45.7deg) scale(1.016)",
+        "translate3d(-0.233em, 0.634em, 0px) rotate(-25.3deg) scale(1.216)",
+        "translate3d(-0.208em, -0.44em, 0px) rotate(41.4deg) scale(1.118)",
+        "translate3d(0.179em, -0.374em, 0px) rotate(-16.9deg) scale(1.102)",
+        "translate3d(-0.752em, -0.115em, 0px) rotate(2.4deg) scale(0.931)",
+        "translate3d(-0.509em, 0.45em, 0px) rotate(28deg) scale(0.72)",
+        "translate3d(-0.529em, 0.442em, 0px) rotate(-44.2deg) scale(1.159)",
+        "translate3d(0.132em, 0.385em, 0px) rotate(-8.7deg) scale(0.803)",
+        "translate3d(-0.207em, -0.565em, 0px) rotate(-17.2deg) scale(0.741)"
+      ],
+      "rect": {
+        "dash": "0, 361.985",
+        "offset": "-469.551",
+        "transform": "",
+        "origin": "",
+        "opacity": "",
+        "perim": 361.984619140625,
+        "w": 155.640625,
+        "h": 48
+      },
+      "since": 0
+    },
+    {
+      "seed": 1,
+      "target": "boton-relleno",
+      "kind": "fill",
+      "element": 5,
+      "glyphs": 16,
+      "origin": 0.7971577360294759,
+      "offset": 15600,
+      "skinOffset": 28400,
+      "lastTransforms": [
+        "translate3d(0.175em, 0.3em, 0px) rotate(-2.4deg) scale(1.08)",
+        "translate3d(-0.323em, 0.451em, 0px) rotate(6.9deg) scale(1.106)",
+        "translate3d(-0.07em, -0.379em, 0px) rotate(35.9deg) scale(1.197)",
+        "translate3d(0.36em, 0.227em, 0px) rotate(-34.2deg) scale(1.278)",
+        "translate3d(0.688em, -0.246em, 0px) rotate(4.3deg) scale(1.21)",
+        "translate3d(0.088em, -0.436em, 0px) rotate(26.4deg) scale(0.901)",
+        "translate3d(-0.528em, 0.256em, 0px) rotate(-12.6deg) scale(0.996)",
+        "translate3d(-0.405em, -0.32em, 0px) rotate(4.6deg) scale(0.963)",
+        "translate3d(-0.357em, -0.279em, 0px) rotate(-26.4deg) scale(1.262)",
+        "translate3d(0.372em, -0.38em, 0px) rotate(26.4deg) scale(1.28)",
+        "translate3d(0.649em, 0.241em, 0px) rotate(4.1deg) scale(0.72)",
+        "translate3d(0.24em, 0.302em, 0px) rotate(-33.2deg) scale(0.799)",
+        "translate3d(0.122em, -0.496em, 0px) rotate(17.9deg) scale(0.72)",
+        "translate3d(0.196em, 0.225em, 0px) rotate(32.8deg) scale(0.947)",
+        "translate3d(0.545em, -0.124em, 0px) rotate(-18.4deg) scale(1.067)",
+        "translate3d(0.467em, -0.239em, 0px) rotate(40.7deg) scale(0.869)"
+      ],
+      "rect": {
+        "dash": "",
+        "offset": "",
+        "transform": "scale(0.08, 0.3)",
+        "origin": "145px 24px",
+        "opacity": "0",
+        "perim": 447.04345703125,
+        "w": 196.609375,
+        "h": 48
+      },
+      "since": 0
+    },
+    {
+      "seed": 2,
+      "target": "enlace-los-casos",
+      "kind": "link",
+      "element": 1,
+      "glyphs": 8,
+      "origin": 0.8367662890814245,
+      "offset": 28600,
+      "skinOffset": 35000,
+      "lastTransforms": [
+        "translate3d(-0.122em, 0.476em, 0px) rotate(-22.1deg) scale(0.747)",
+        "translate3d(-0.116em, 0.458em, 0px) rotate(37.4deg) scale(0.734)",
+        "translate3d(0.16em, -0.249em, 0px) rotate(-32.3deg) scale(1.098)",
+        "translate3d(0.269em, -0.094em, 0px) rotate(32.3deg) scale(0.72)",
+        "translate3d(-0.127em, 0.178em, 0px) rotate(7.9deg) scale(1.216)",
+        "translate3d(0.476em, 0.085em, 0px) rotate(-6.7deg) scale(1.165)",
+        "translate3d(-0.187em, -0.495em, 0px) rotate(-26deg) scale(1.059)",
+        "translate3d(-0.087em, 0.39em, 0px) rotate(23.8deg) scale(1.2)"
+      ],
+      "rect": null,
+      "since": 0
+    },
+    {
+      "seed": 2,
+      "target": "boton-contorno",
+      "kind": "outline",
+      "element": 4,
+      "glyphs": 11,
+      "origin": 0.8367662890814245,
+      "offset": 35200,
+      "skinOffset": 44000,
+      "lastTransforms": [
+        "translate3d(0.389em, -0.035em, 0px) rotate(-23.5deg) scale(0.802)",
+        "translate3d(0.531em, -0.01em, 0px) rotate(16.2deg) scale(1.267)",
+        "translate3d(-0.271em, -0.216em, 0px) rotate(-12.7deg) scale(0.867)",
+        "translate3d(-0.269em, 0.429em, 0px) rotate(25deg) scale(0.732)",
+        "translate3d(0.392em, -0.502em, 0px) rotate(8.1deg) scale(1.071)",
+        "translate3d(0.801em, -0.439em, 0px) rotate(3.3deg) scale(1.18)",
+        "translate3d(-0.296em, 0.186em, 0px) rotate(27.7deg) scale(0.833)",
+        "translate3d(-0.297em, -0.077em, 0px) rotate(-28.4deg) scale(1.135)",
+        "translate3d(-0.25em, -0.53em, 0px) rotate(23.8deg) scale(1.187)",
+        "translate3d(0.083em, -0.413em, 0px) rotate(47.4deg) scale(1.182)",
+        "translate3d(-0.071em, 0.606em, 0px) rotate(-23.3deg) scale(0.814)"
+      ],
+      "rect": {
+        "dash": "0, 361.985",
+        "offset": "-483.889",
+        "transform": "",
+        "origin": "",
+        "opacity": "",
+        "perim": 361.984619140625,
+        "w": 155.640625,
+        "h": 48
+      },
+      "since": 0
+    },
+    {
+      "seed": 2,
+      "target": "boton-relleno",
+      "kind": "fill",
+      "element": 5,
+      "glyphs": 16,
+      "origin": 0.8367662890814245,
+      "offset": 44200,
+      "skinOffset": 57000,
+      "lastTransforms": [
+        "translate3d(0.565em, 0.382em, 0px) rotate(-13.6deg) scale(0.727)",
+        "translate3d(-0.571em, -0.192em, 0px) rotate(-6.4deg) scale(1.279)",
+        "translate3d(-0.105em, 0.427em, 0px) rotate(37.3deg) scale(1.274)",
+        "translate3d(-0.548em, -0.038em, 0px) rotate(4.5deg) scale(0.76)",
+        "translate3d(0.698em, -0.117em, 0px) rotate(12.3deg) scale(1.236)",
+        "translate3d(0.367em, 0.574em, 0px) rotate(-18.5deg) scale(1.154)",
+        "translate3d(0.411em, 0.19em, 0px) rotate(-29.3deg) scale(1.116)",
+        "translate3d(-0.496em, 0.013em, 0px) rotate(12deg) scale(1.1)",
+        "translate3d(-0.483em, -0.075em, 0px) rotate(-24.7deg) scale(1.28)",
+        "translate3d(-0.38em, 0.511em, 0px) rotate(-8.6deg) scale(1.28)",
+        "translate3d(0.288em, 0.218em, 0px) rotate(-0.3deg) scale(0.943)",
+        "translate3d(0.528em, 0.11em, 0px) rotate(-12.4deg) scale(1.002)",
+        "translate3d(0.178em, -0.744em, 0px) rotate(44.2deg) scale(1.192)",
+        "translate3d(0.416em, 0.629em, 0px) rotate(21deg) scale(0.916)",
+        "translate3d(-0.087em, 0.681em, 0px) rotate(-34.4deg) scale(0.835)",
+        "translate3d(0.187em, -0.747em, 0px) rotate(-14.5deg) scale(0.72)"
+      ],
+      "rect": {
+        "dash": "",
+        "offset": "",
+        "transform": "scale(0.08, 0.3)",
+        "origin": "151.3px 24px",
+        "opacity": "0",
+        "perim": 447.04345703125,
+        "w": 196.609375,
+        "h": 48
+      },
+      "since": 0
+    },
+    {
+      "seed": 3,
+      "target": "enlace-los-casos",
+      "kind": "link",
+      "element": 1,
+      "glyphs": 8,
+      "origin": 0.49707577587105334,
+      "offset": 57200,
+      "skinOffset": 63600,
+      "lastTransforms": [
+        "translate3d(-0.189em, -0.18em, 0px) rotate(-6.6deg) scale(1.108)",
+        "translate3d(0.2em, -0.425em, 0px) rotate(2deg) scale(0.978)",
+        "translate3d(-0.39em, 0.203em, 0px) rotate(-27.1deg) scale(1.122)",
+        "translate3d(-0.287em, 0.375em, 0px) rotate(12deg) scale(0.92)",
+        "translate3d(-0.449em, -0.188em, 0px) rotate(38.9deg) scale(0.955)",
+        "translate3d(0.51em, -0.133em, 0px) rotate(12.3deg) scale(0.822)",
+        "translate3d(-0.235em, 0.049em, 0px) rotate(-20.9deg) scale(1.267)",
+        "translate3d(0.488em, 0.249em, 0px) rotate(17.7deg) scale(0.72)"
+      ],
+      "rect": null,
+      "since": 0
+    },
+    {
+      "seed": 3,
+      "target": "boton-contorno",
+      "kind": "outline",
+      "element": 4,
+      "glyphs": 11,
+      "origin": 0.49707577587105334,
+      "offset": 63800,
+      "skinOffset": 72600,
+      "lastTransforms": [
+        "translate3d(0.296em, -0.627em, 0px) rotate(7.7deg) scale(0.882)",
+        "translate3d(0.317em, -0.689em, 0px) rotate(-39.6deg) scale(0.969)",
+        "translate3d(0.642em, -0.191em, 0px) rotate(-10.1deg) scale(1.236)",
+        "translate3d(0.418em, 0.177em, 0px) rotate(-6.5deg) scale(0.931)",
+        "translate3d(-0.588em, -0.08em, 0px) rotate(-39.2deg) scale(1.28)",
+        "translate3d(-0.074em, -0.789em, 0px) rotate(31.5deg) scale(0.953)",
+        "translate3d(0.052em, -0.642em, 0px) rotate(7.8deg) scale(0.805)",
+        "translate3d(-0.603em, 0.303em, 0px) rotate(-1.5deg) scale(1.037)",
+        "translate3d(-0.469em, -0.184em, 0px) rotate(8.1deg) scale(0.731)",
+        "translate3d(-0.535em, 0.064em, 0px) rotate(-36.2deg) scale(0.996)",
+        "translate3d(0.447em, -0.031em, 0px) rotate(-14.7deg) scale(1.073)"
+      ],
+      "rect": {
+        "dash": "0, 361.985",
+        "offset": "-360.926",
+        "transform": "",
+        "origin": "",
+        "opacity": "",
+        "perim": 361.984619140625,
+        "w": 155.640625,
+        "h": 48
+      },
+      "since": 0
+    },
+    {
+      "seed": 3,
+      "target": "boton-relleno",
+      "kind": "fill",
+      "element": 5,
+      "glyphs": 16,
+      "origin": 0.49707577587105334,
+      "offset": 72800,
+      "skinOffset": 85600,
+      "lastTransforms": [
+        "translate3d(0.425em, 0.27em, 0px) rotate(-5.1deg) scale(1.196)",
+        "translate3d(0.21em, -0.635em, 0px) rotate(-6.9deg) scale(1.047)",
+        "translate3d(-0.542em, 0.097em, 0px) rotate(-31deg) scale(1.091)",
+        "translate3d(-0.146em, -0.755em, 0px) rotate(46.5deg) scale(1.108)",
+        "translate3d(-0.115em, 0.732em, 0px) rotate(34deg) scale(1.14)",
+        "translate3d(-0.465em, 0.367em, 0px) rotate(6deg) scale(1.003)",
+        "translate3d(0.569em, 0.392em, 0px) rotate(31.3deg) scale(0.995)",
+        "translate3d(-0.581em, 0.585em, 0px) rotate(-19.1deg) scale(1.144)",
+        "translate3d(0.238em, 0.692em, 0px) rotate(9.6deg) scale(1.036)",
+        "translate3d(-0.168em, -0.676em, 0px) rotate(42.4deg) scale(1.28)",
+        "translate3d(0.395em, -0.749em, 0px) rotate(44.6deg) scale(0.78)",
+        "translate3d(0.432em, 0.527em, 0px) rotate(18.3deg) scale(1.204)",
+        "translate3d(-0.182em, 0.38em, 0px) rotate(43.6deg) scale(0.872)",
+        "translate3d(0.327em, -0.301em, 0px) rotate(8.5deg) scale(0.983)",
+        "translate3d(-0.6em, -0.043em, 0px) rotate(24.6deg) scale(0.888)",
+        "translate3d(-0.211em, -0.369em, 0px) rotate(-40.8deg) scale(0.986)"
+      ],
+      "rect": {
+        "dash": "",
+        "offset": "",
+        "transform": "scale(0.08, 0.3)",
+        "origin": "97.8px 24px",
+        "opacity": "0",
+        "perim": 447.04345703125,
+        "w": 196.609375,
+        "h": 48
+      },
+      "since": 0
+    }
+  ],
+  "layout": "bin = Float32Array; por corrida: frames × glyphs × 4 valores (x, y, giro, profundidad) desde offset, después frames valores de p de la piel desde skinOffset"
+}

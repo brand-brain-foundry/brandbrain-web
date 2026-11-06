@@ -3,12 +3,12 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.8
+version: 1.10
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
 updated: 2026-11-06
-verified_against_code: 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
+verified_against_code: 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
 related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
@@ -419,5 +419,80 @@ efecto al pasar con los dos roles nuevos `--bbf-motion-hover-lift` (`semantic/mo
 `XMLHttpRequest.open` y `fetch` y descarta toda petición al actor) y recarga la página; el envío de cierre del fragmento que la recarga
 dispara es, precisamente, el que la envoltura descarta (verificado en F5.4 del output de L3).
 
+## §14 — S11 · Desarme de enlaces y botones (`src/behavior/glyph-scatter.ts`, M2 · 2026-11-06 · P-BBW-83)
+
+**Qué hace:** todos los enlaces y botones con texto del sitio comparten un único sistema dinámico de cliente (P-BBW-83, firmada por el `!` de M2;
+D-BBW-09 en los términos de D-BBW-28). **El prototipo aprobado por Zavala el 2026-11-06 (`despachos/2026-11/insumos/M2-prototipo-desarme-aprobado-2026-11-06.html`,
+v2, profundidad activada) es la especificación literal del movimiento** (método de M1d: copia literal + guardia de identidad). Al pasar el puntero del
+ratón (`pointerType === 'mouse'`), recibir foco o tocar, cada glifo del texto y cada icono del puerto se suelta con x, y (em), giro en el plano y
+profundidad d ∈ [−1, 1] → escala 1 + 0,28·d y opacidad 1 + 0,22·d si d < 0; sin giros 3D. Cada glifo flota hacia un objetivo con tres frecuencias
+por eje y vuelve con muelle propio y desfase; bajo `ENERGY_REST` se borra la transformación (reposo exacto). Dentro de un párrafo lo lejano
+(d < −0,05) pasa detrás del texto (el párrafo es contexto de apilamiento propio); fuera, siempre delante. Piel de botón: el contorno se deshace desde
+un punto al azar hacia los dos lados (`stroke-dasharray`); el relleno se encoge hacia un punto al azar y se disuelve, y el texto toma el color del
+relleno. Enlace en texto: el subrayado se recoge. Toque: despierta `WAKE_HOLD_MS` y suelta con `blur()`; sin `preventDefault`, el enlace navega.
+Quedan fuera el imagotipo (S9), el enlace de salto y **el sello del pie** (`a.cert` de `Footer.tsx`; Zavala, 2026-11-06: **un efecto por pieza**; el
+sello ya tiene el suyo —tinte del texto, elevación y halo de la insignia, §13— y no se parte). Las tres exenciones van **nombradas** en la guardia R11b
+(abajo), nunca por omisión.
+
+**Una fuente, cableado puntual:** las constantes y las funciones puras (`makeGlyph`, `stepGlyph`, `glyphFrame`, `stepSkin`, `skinFrame`, `frameDt`)
+viven en el módulo; `makeGlyph` sortea en el **mismo orden de llamadas a `random`** que el prototipo. Un componente solo se MARCA
+(`data-scatter="text|icon|outline|fill|prose"`; `data-scatter-skip` en lo que no se parte: el nombre oculto del icono y la píldora «Caso»); un único
+cableador cliente (`src/components/organisms/GlyphScatter/`, montado una vez en el layout del locale) delega los eventos en `document`
+(`pointerenter`/`pointerleave` en captura, `focusin`/`focusout`, `pointerdown`) y lleva **un solo bucle rAF para toda la página**, que se para cuando
+nada está activo ni asentándose. Todo el CSS de S11 vive en un bloque `[data-scatter]` de `base/document.css` (hosts, palabras, glifos, nombre
+oculto, piel, subrayado, contexto de apilamiento y los hovers de reposo con movimiento reducido): ningún componente escribe nada de S11.
+
+| Constante | Valor | Origen | Clase | Qué es |
+|---|---|---|---|---|
+| `DOF` | 4 | ref:L109 | estático | x, y, giro, profundidad |
+| `REACH_BUTTON` · `REACH_LINK` | 1 · 0,75 em | ref:L126 | dinámico | alcance del desarme |
+| `BASE_X` · `BASE_Y` · `BASE_ROT` · `BASE_DEPTH` | [0,3; 0,75]·alcance · [0,35; 0,85]·alcance · [−42; 42]° · [−1; 1] | ref:L114 | dinámico | objetivo base por glifo (x, y en una dirección al azar) |
+| `FREQ` · `FREQ_WEIGHTS` · `PHASE` | [0,35; 0,9] · [0,9; 1,7] · [1,7; 2,6] rad/s · 0,6 · 0,3 · 0,1 · [0; 6,28] | ref:L115–L116, L168 | dinámico / estático | tres frecuencias por eje, pesos y fases |
+| `AMP_X` · `AMP_Y` · `AMP_ROT` · `AMP_DEPTH` | 0,16·alcance · 0,2·alcance · 16° · 0,45 | ref:L117 | dinámico | amplitud de la flotación |
+| `SPRING_K_ON` · `SPRING_Z_ON` · `SPRING_K_OFF` · `SPRING_Z_OFF` | [70; 110] · [0,38; 0,52] · [120; 170] · [0,62; 0,78] | ref:L118 | plantilla | muelles vivo (subamortiguado) y suelta |
+| `DELAY` · `TIME0` | [0; 0,07] s · [0; 50] s | ref:L119 | plantilla / estático | desfase de arranque y reloj inicial por glifo |
+| `SCALE_PER_DEPTH` · `OPACITY_PER_DEPTH` · `BEHIND_DEPTH` | 0,28 · 0,22 · −0,05 | ref:L182, L184, L186 | dinámico | profundidad → escala, opacidad, capa |
+| `ENERGY_REST` · `ENERGY_W_POS` · `ENERGY_W_VEL` | 0,02 · [20, 20, 0,05, 10] · [2, 2, 0,01, 2] | ref:L173, L176 | estático | umbral de reposo y pesos |
+| `SKIN_K_ON` · `SKIN_Z_ON` · `SKIN_K_OFF` · `SKIN_Z_OFF` · `SKIN_REST` | 260 · 0,9 · 90 · 0,75 · 0,002 | ref:L190, L192 | plantilla | muelle de la piel |
+| `FILL_ORIGIN_MIN` · `FILL_ORIGIN_SPAN` · `FILL_SCALE_X` · `FILL_SCALE_Y` | 0,1 · 0,8 · 0,92 · 0,7 | ref:L203–L204 | dinámico | encogido del relleno hacia un punto al azar |
+| `DT_MAX` · `DT_DEFAULT` · `WAKE_HOLD_MS` | 33 ms · 16 ms · 900 ms | ref:L155, L146 | estático / plantilla | paso de tiempo y toque |
+| `FMT_3` · `FMT_ROT` · `FMT_ORIGIN` | 3 · 1 · 1 | ref:L183, L186, L203 | estático | decimales escritos |
+
+`ref:Lnn` = línea del prototipo aprobado. **Lo que el porte añade sin cambiar lo visible (M2 output §8):** ajuste entre glifos por la medida del
+texto en reposo (un glifo por caja rompía la conformación del texto corrido: hasta 1,7 px por palabra, medido) y U+2060 en los bordes del enlace
+pegados a puntuación (una caja atómica abría cortes de línea que el texto no tenía); la palabra es una caja en línea con `nowrap` y el glifo la caja
+atómica; piel vectorial inyectada en el primer contacto (sin JavaScript el `rect` del prototipo no tiene geometría: la piel CSS del átomo es el
+reposo, I-4) y cambio de renderizador bajo `data-scatter-skin-live`; nombre accesible por texto oculto visualmente y no por `aria-label`; el
+conmutador de profundidad, el anillo de foco y el `preventDefault` del prototipo no se portan (D-BBW-22; el enlace navega); sus transiciones de 0,3 s
+→ `--bbf-motion-link-duration`; `stroke-width: 1` → `--bbf-line-sm`.
+
+**Tokens que lee (nunca repite):** `--bbf-motion-scatter-play-state` (quietud, D-BBW-31) y el grosor del contorno de la piel (`stroke-width` computado
+del `rect`, fijado por CSS en `--bbf-line-sm`). Los ±1 de capa dentro del párrafo son constantes de algoritmo. El margen por glifo es una medida
+en tiempo de ejecución, no un valor de diseño.
+
+**HTML servido (D-BBW-28, I-4):** el texto íntegro de cada enlace y botón y la piel CSS del átomo; sin JavaScript no cambia nada salvo el subrayado de
+los enlaces en prosa, que es el del prototipo (degradado de `--bbf-line-sm` al pie de la caja) con y sin JavaScript. El cliente parte el texto en
+el primer contacto (desplazamiento ≤ 0,33 px, CLS 0, medido en M2 F5) dejando el texto literal como nombre oculto.
+
+**Quietud (D-BBW-31, I-9):** con `--bbf-motion-scatter-play-state: paused` el cableador devuelve antes de registrar un oyente o un rAF y no parte
+nada; quedan los hovers de reposo (color de acento, contorno/relleno de acento, opacidad en prosa) del mismo bloque. Pestaña oculta: el bucle se
+cancela y se reanuda al volver si queda energía. Un host fuera de pantalla que se asienta, o que deja de renderizarse mientras está activo (la barra
+del consentimiento se oculta al decidir), salta al reposo. Coste medido en el artefacto (M2 F5, privacidad con 19 hosts y 233 glifos activos a la
+vez): mediana 1,2 ms · p95 1,5 ms por fotograma en escritorio; 3,3 · 4,7 ms con CPU ×4.
+
+**Guardia R11 (`scripts/lint/check-glyph-scatter.ts`, `lint:scatter`, en `pnpm guard` y en el pre-commit):** `scripts/lint/fixtures/glyph-scatter-golden.{json,bin}`
+guarda lo que escribió el prototipo aprobado en Chrome (3 semillas × 200 fotogramas, `Math.random` = mulberry32, activación por `pointerenter`,
+dt = 1/60; el enlace «los casos» y los dos botones; x, y, giro, profundidad por glifo y la p de la piel; cabecera con el sha256 del prototipo y la
+única sustitución, exponer el estado). El módulo sortea los mismos glifos en el mismo orden y falla si un valor difiere > 0,001 em, > 0,1° o > 0,001.
+Vista fallar cambiando `AMP_X` y pasar (output de M2 §5).
+
+**Guardia R11b (misma guardia, inventario de hosts en el código; 2026-11-06, al rebasar M2 sobre sello y banner):** todo `<a>`, `<Link>` y `<button>`
+nativo de `src/components/**` y `src/app/**` lleva `data-scatter`, salvo los que la guardia exime **por selector nombrado con su motivo**:
+`a[data-component="bbf-skip-link"]` (enlace de salto: invisible hasta el foco, no es una pieza de la página), `a[data-component="bbf-brand-mark"]`
+(imagotipo: S9, su propio sistema), `a.cert` (sello del pie: un efecto por pieza, el suyo propio) y `(root)/page.tsx a` (defensa de la raíz, fuera del
+layout del locale: no hay cableador). Una exención que no corresponde a exactamente UN host del código también falla: la lista no puede quedar muerta ni
+tapar dos. Vista fallar quitando la exención del sello (1 host sin marcar: `Footer.tsx a.cert`) y añadiendo un `<a>` sin marcar a un componente; vista
+pasar al restaurar (output del rebase, §3).
+
 ---
-*BBW-BEHAVIOR v1.9 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.9 en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*
+*BBW-BEHAVIOR v1.10 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.10 al rebasar M2 sobre sello y banner (instrucción directa de Zavala: §14 exime el sello por selector nombrado, R11b inventario; §13 conserva la nota del sello) · v1.9 en M2 (`DESPACHO-BBW-2026-11-06-M2-desarme-de-enlaces-y-botones`: S11 desarme de enlaces y botones, P-BBW-83, R11) y en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*

@@ -151,9 +151,8 @@
   --bbf-type-label-weight: var(--bbf-weight-text-regular);
   --bbf-type-label-tracking: var(--bbf-tracking-7);
   --bbf-type-label-shadow: var(--bbf-shadow-md);
-  /* fase 6m: el interletrado del rol cuando el enlace está ACTIVO (cursor, foco o pulsación). Los dos valores del diseño caen exactos en la
-     retícula del interletrado: 0,28em = ×7 (reposo) y 0,32em = ×8 (activo). */
-  --bbf-type-label-tracking-active: var(--bbf-tracking-8);
+  /* fase 6m: `--bbf-type-label-tracking-active` (×8, el interletrado del enlace activo) SALE en M2 (I-6): su única regla estaba muerta desde el
+     2026-11-02 y S11 es el único estado activo del enlace (P-BBW-83). */
 
   --bbf-type-menu-family: var(--bbf-font-text);
   --bbf-type-menu-size: var(--bbf-size-2);

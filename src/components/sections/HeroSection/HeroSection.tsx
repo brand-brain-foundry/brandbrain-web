@@ -36,12 +36,13 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
             {section.paragraph2}
           </p>
           <div className={styles.ctas} data-enter="">
-            {/* 2026-11-02 (orden de Zavala): primero el perfil de LinkedIn y después «Hablemos»; cada botón conserva su estilo. */}
-            <a href={identity.links[section.ctaSecondaryLink]} className={`${styles.cta} ${styles.ctaSecondary}`} target="_blank" rel="noopener noreferrer">
+            {/* 2026-11-02 (orden de Zavala): primero el perfil de LinkedIn y después «Hablemos»; cada botón conserva su estilo.
+                S11 (M2, P-BBW-83): solo se MARCAN con su tipo de piel (`outline` / `fill`); el desarme es del sistema. */}
+            <a href={identity.links[section.ctaSecondaryLink]} className={`${styles.cta} ${styles.ctaSecondary}`} data-scatter="outline" target="_blank" rel="noopener noreferrer">
               {section.ctaSecondary}
               <Icon name="arrowUpRight" className={styles.arrow} />
             </a>
-            <a href={identity.links.contact} className={`${styles.cta} ${styles.ctaPrimary}`}>
+            <a href={identity.links.contact} className={`${styles.cta} ${styles.ctaPrimary}`} data-scatter="fill">
               {section.ctaPrimary}
               <Icon name="arrowRight" className={styles.arrow} />
             </a>

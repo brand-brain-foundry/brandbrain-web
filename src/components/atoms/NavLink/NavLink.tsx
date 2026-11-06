@@ -30,6 +30,9 @@ function isOutbound(href: string): boolean {
  * Fase 6c: onda de subrayado (maestros del diseño por el puerto de medios) bajo los roles `label` (base en reposo, tinta al pasar el
  * ratón o recibir el foco; sin transición) y `menu` (siempre visible); iconos de perfil con el texto como nombre accesible.
  * Área táctil mínima por token. Sin literales, sin valores.
+ * S11 (M2, P-BBW-83): el enlace solo se MARCA (`data-scatter="text"` o `"icon"`); el nombre oculto del icono y la píldora llevan
+ * `data-scatter-skip` (no se parten en glifos: el nombre no se ve y los glifos saliendo de la píldora romperían su forma). El hover de color
+ * sale de esta hoja (I-6): lo pone el sistema como alternativa de reposo (base/document.css).
  */
 export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }: NavLinkProps) {
   const outbound = isOutbound(href);
@@ -39,13 +42,16 @@ export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }:
       href={href}
       className={`${styles.navLink} ${styles[typeRole]}${icon ? ` ${iconSize === "md" ? styles.touchMd : styles.touchSm}` : ""}`}
       data-component="bbf-nav-link"
+      data-scatter={icon ? "icon" : "text"}
       target={outbound ? "_blank" : undefined}
       rel={outbound ? "noopener noreferrer" : undefined}
     >
       {icon ? (
         <>
           <Icon name={icon} className={`${styles.profileIcon} ${sizeClass}`} />
-          <span className={styles.hidden}>{label}</span>
+          <span className={styles.hidden} data-scatter-skip="">
+            {label}
+          </span>
         </>
       ) : (
         <span className={styles.text}>
@@ -53,7 +59,7 @@ export function NavLink({ href, label, typeRole, icon, iconSize = "sm", badge }:
           {/* El espacio es LITERAL y no decorativo: el nombre accesible se calcula concatenando los nodos de texto, y sin él un lector de
               pantalla anuncia «Sivar BrainsCaso» de corrido. El margen de la hoja separa a la vista, no al oído. Medido sobre el HTML
               generado antes de añadirlo. */}
-          {badge ? <> <span className={styles.badge}>{badge}</span></> : null}
+          {badge ? <> <span className={styles.badge} data-scatter-skip="">{badge}</span></> : null}
         </span>
       )}
     </a>
