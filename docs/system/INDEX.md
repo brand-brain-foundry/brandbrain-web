@@ -25,6 +25,7 @@ Cada despacho nombra en su §2 los contratos que toca.
 | `MEDIA.md` | Maestros, derivados, contrato del pipeline de medios | tocas medios (imágenes, vídeo, iconos, manifesto) |
 | `TYPOGRAPHY_WEIGHTS.md` | Sistema de pesos tipográficos, ejes de variable, rangos por familia | tocas `--bbf-weight-*`, añades una familia o cambias el eje |
 | `DESIGN_EXCEPTIONS.md` | Registro de excepciones al sistema de diseño (EXC-BBW-xx) | registras, modificas o verificas una excepción al sistema de diseño |
+| `SEO.md` | Sistema de posicionamiento por capas: registro de páginas, tipos de página, constructores de metadatos y datos estructurados, guardia R7 | añades una página o un tipo de página, tocas metadatos, canónica, Open Graph, JSON-LD, sitemap, robots.txt, `src/seo/`, `src/config/{pages,page-types}.ts` o la guardia R7 |
 | `BEHAVIOR.md` | Constantes de algoritmo de los sistemas dinámicos (S1–S11) | tocas `src/behavior/`, añades un sistema dinámico, re-mides cotas |
 
 ## Historia y secciones archivadas

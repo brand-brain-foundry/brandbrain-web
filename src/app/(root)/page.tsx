@@ -1,4 +1,5 @@
 import { site } from "@/config/site";
+import { pageRoute } from "@/config/pages";
 import { identity } from "@/content/site";
 
 /**
@@ -16,7 +17,7 @@ import { identity } from "@/content/site";
  * primera: cumple —acaba llevando al locale— pero no es instantánea, y de ahí el 301 del borde.
  */
 export default function RootPage() {
-  const target = `/${site.defaultLocale}/`;
+  const target = pageRoute(site.defaultLocale, "home");
   return (
     <>
       <meta httpEquiv="refresh" content={`0; url=${target}`} />
