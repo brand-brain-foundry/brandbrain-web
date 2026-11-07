@@ -382,7 +382,7 @@
         },
         "description": {
           "type": "object",
-          "description": "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Se emite cuando una sección la escriba («Quién», S3b). Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
+          "description": "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Visible en la entrada de la página de perfil (S3c), que la referencia. Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -461,7 +461,7 @@
         },
         "descriptionLong": {
           "type": "object",
-          "description": "Descripción larga de la persona, en primera persona (sección «Quién», PERFIL-CZC §5.3; D-BBW-84, D-BBW-88). No se emite en los datos estructurados.",
+          "description": "Descripción larga de la persona, en primera persona (PERFIL-CZC §5.3; D-BBW-84, D-BBW-88): el bloque «Cómo trabajo» de la página de perfil la referencia. No se emite en los datos estructurados.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -615,7 +615,7 @@
         },
         "credentials": {
           "type": "object",
-          "description": "Credenciales verificables (Person.hasCredential): nombre, emisor y la llave de $.links con la dirección pública de la credencial (la de Credly ya está en $.links.credly).",
+          "description": "Credenciales verificables (Person.hasCredential): nombre, emisor, categoría (credentialCategory, opcional) y la llave de $.links con la dirección pública de la credencial.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -656,6 +656,12 @@
                     "minLength": 1,
                     "pattern": "^(?![\\s\\S]*<\\/?[a-zA-Z!])",
                     "description": "Texto plano, no vacío, sin HTML."
+                  },
+                  "category": {
+                    "type": "string",
+                    "enum": [
+                      "certification"
+                    ]
                   },
                   "link": {
                     "type": "string",
@@ -723,7 +729,7 @@
         },
         "image": {
           "type": "object",
-          "description": "Imagen de la persona (Person.image), por el puerto de medios: un identificador de src/media, nunca una ruta.",
+          "description": "Imagen de la persona (Person.image), por el puerto de medios: un identificador de src/media (derivado o conjunto de recortes), nunca una ruta. Se emite solo si el retrato está publicado y la página lo muestra en un <img>.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -753,11 +759,15 @@
                 "icon512",
                 "icon512Maskable",
                 "share",
+                "portrait1x1",
+                "portrait4x3",
+                "portrait16x9",
                 "gcFoundational72",
                 "gcFoundational144",
-                "manifest"
+                "manifest",
+                "portrait"
               ],
-              "description": "Un identificador del puerto de medios (src/media), nunca una ruta."
+              "description": "Un identificador del puerto de medios (src/media: derivado o conjunto de recortes), nunca una ruta."
             }
           },
           "allOf": [
@@ -809,14 +819,15 @@
         },
         "location": {
           "type": "object",
-          "description": "La base pública: solo ciudad o región (D-BBW-86), nunca un domicilio (P-BBW-78). Su frase visible es la de D-BBW-88, en la sección «Quién» (S3b). No se emite.",
+          "description": "La base pública de trabajo: localidad y código de país (D-BBW-86, enmendada por D-BBW-93), nunca un domicilio (P-BBW-78). Person.workLocation (no homeLocation: el texto visible dice dónde trabaja, no dónde reside). Se emite si la localidad es visible en la página.",
           "additionalProperties": false,
           "required": [
             "status"
           ],
-          "x-kind": "text",
+          "x-kind": "place",
           "x-cms": "short-text",
-          "x-translatable": true,
+          "x-translatable": false,
+          "x-emits": "Person.workLocation",
           "x-source": "$.entity.location.value",
           "properties": {
             "status": {
@@ -829,10 +840,26 @@
               "description": "aprobado: decidido por Zavala · heredado: existe pero viene de otro sitio · pendiente: declarado y vacío."
             },
             "value": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^(?![\\s\\S]*<\\/?[a-zA-Z!])",
-              "description": "Texto plano, no vacío, sin HTML."
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "locality",
+                "country"
+              ],
+              "properties": {
+                "locality": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^(?![\\s\\S]*<\\/?[a-zA-Z!])",
+                  "description": "Texto plano, no vacío, sin HTML."
+                },
+                "country": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$",
+                  "description": "Código de país ISO 3166-1 alfa-2."
+                }
+              },
+              "description": "Un lugar público: localidad y país. Nunca una dirección."
             }
           },
           "allOf": [
@@ -970,7 +997,7 @@
         },
         "relations": {
           "type": "object",
-          "description": "Otras entidades enlazadas y su relación con la persona (construida · caso · portafolio-anterior). Vacía hasta la sesión C; no se emite.",
+          "description": "Otras entidades enlazadas y su relación con la persona (construida · fundada · caso · portafolio-anterior; S3c, D-BBW-92). No se emite hasta que existan sus nodos de organización (fase 2).",
           "additionalProperties": false,
           "required": [
             "status"
@@ -1016,6 +1043,7 @@
                     "type": "string",
                     "enum": [
                       "construida",
+                      "fundada",
                       "caso",
                       "portafolio-anterior"
                     ]

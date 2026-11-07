@@ -4,7 +4,19 @@
  * aquí, no los componentes. `generated.ts` lo escribe `scripts/media/build.ts`; no se edita a mano (guardia check-media).
  */
 export { media, surfaceColor, inlineIcons, rigs } from "./generated";
-import { inlineIcons as icons } from "./generated";
+export { mediaSets } from "./generated";
+// los conjuntos llegan GENERADOS (no del registro): este índice lo importan componentes cliente y el registro no debe viajar al navegador
+import { inlineIcons as icons, media as derived, mediaSets as sets } from "./generated";
+
+/** Los identificadores que la entidad puede referenciar: los derivados y los conjuntos de recortes (S3c). */
+export const MEDIA_IDENTIFIERS: readonly string[] = [...Object.keys(derived), ...Object.keys(sets)];
+
+/** Los derivados que nombra un identificador: el conjunto en su orden, o el derivado solo. `[]` si no existe. */
+export function mediaMembers(id: string): { src: string; width?: number; height?: number }[] {
+  if (Object.prototype.hasOwnProperty.call(sets, id)) return sets[id as keyof typeof sets].map((m) => derived[m]);
+  if (Object.prototype.hasOwnProperty.call(derived, id)) return [derived[id as keyof typeof derived]];
+  return [];
+}
 
 export type InlineIconName = keyof typeof icons;
 

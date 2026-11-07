@@ -46,10 +46,15 @@ export type EntityFieldKind =
   | "text"
   /** una lista de textos planos (materias, `knowsAbout`) */
   | "textList"
-  /** credenciales: `{ name, issuer?, link }`, con `link` = llave de `$.links` (la credencial verificable) */
+  /** credenciales: `{ name, issuer?, category?, link }`, con `link` = llave de `$.links` (la credencial verificable) */
   | "credentialList"
-  /** un identificador del puerto de medios (`src/media`, D-BBW-21): nunca una ruta ni una dimensión */
+  /**
+   * un identificador del puerto de medios (`src/media`, D-BBW-21): un derivado o un CONJUNTO de recortes del mismo maestro (`mediaSets`, S3c);
+   * nunca una ruta ni una dimensión
+   */
   | "media"
+  /** un lugar público: `{ locality, country }` (localidad y código de país ISO 3166-1 alfa-2), nunca una dirección (P-BBW-78; S3c, D-BBW-93) */
+  | "place"
   /** llaves de `$.links` que son perfiles de la propia persona (`sameAs`) */
   | "linkList"
   /** otras entidades enlazadas y su relación con la persona: `{ link, kind }` */
@@ -59,9 +64,10 @@ export type EntityFieldKind =
  * Relaciones admitidas con OTRAS entidades (las que `jsonld.ts` ya distinguía de los perfiles propios). Cerradas y nombradas por lo que la
  * decisión o la biblia dicen, no por lo que suene bien: `construida` = la persona la diseñó y construyó bajo el método («Zavala Cubas
  * construye. Sivar Brains ejecuta», biblia v5 §5 y §8: regla de atribución); `caso` = un caso que la navegación marca como tal;
- * `portafolio-anterior` = el portafolio previo que sigue publicado y se enlaza (D-BBW-80).
+ * `portafolio-anterior` = el portafolio previo que sigue publicado y se enlaza (D-BBW-80); `fundada` = la persona la fundó (S3c, D-BBW-92:
+ * el estudio). Ninguna relación se emite hasta que existan los nodos de organización (fase 2 del insumo de la página de perfil, §6.2).
  */
-export const RELATION_KINDS = ["construida", "caso", "portafolio-anterior"] as const;
+export const RELATION_KINDS = ["construida", "fundada", "caso", "portafolio-anterior"] as const;
 export type RelationKind = (typeof RELATION_KINDS)[number];
 
 /** Cómo se comprueba que un campo emitido es VISIBLE en la página que lo emite (R7g). */
@@ -181,7 +187,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "long-text",
     visible: "text",
-    doc: "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Se emite cuando una sección la escriba («Quién», S3b). Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
+    doc: "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Visible en la entrada de la página de perfil (S3c), que la referencia. Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
   },
   descriptionLong: {
     kind: "text",
@@ -189,7 +195,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "long-text",
     visible: "none",
-    doc: "Descripción larga de la persona, en primera persona (sección «Quién», PERFIL-CZC §5.3; D-BBW-84, D-BBW-88). No se emite en los datos estructurados.",
+    doc: "Descripción larga de la persona, en primera persona (PERFIL-CZC §5.3; D-BBW-84, D-BBW-88): el bloque «Cómo trabajo» de la página de perfil la referencia. No se emite en los datos estructurados.",
   },
   knowsAbout: {
     kind: "textList",
@@ -207,7 +213,7 @@ export const ENTITY_FIELDS = {
     translatable: false,
     cms: "repeater",
     visible: "href",
-    doc: "Credenciales verificables (Person.hasCredential): nombre, emisor y la llave de $.links con la dirección pública de la credencial (la de Credly ya está en $.links.credly).",
+    doc: "Credenciales verificables (Person.hasCredential): nombre, emisor, categoría (credentialCategory, opcional) y la llave de $.links con la dirección pública de la credencial.",
   },
   image: {
     kind: "media",
@@ -216,15 +222,16 @@ export const ENTITY_FIELDS = {
     translatable: false,
     cms: "media",
     visible: "img",
-    doc: "Imagen de la persona (Person.image), por el puerto de medios: un identificador de src/media, nunca una ruta.",
+    doc: "Imagen de la persona (Person.image), por el puerto de medios: un identificador de src/media (derivado o conjunto de recortes), nunca una ruta. Se emite solo si el retrato está publicado y la página lo muestra en un <img>.",
   },
   location: {
-    kind: "text",
+    kind: "place",
     source: { kind: "own" },
-    translatable: true,
+    emits: "workLocation",
+    translatable: false,
     cms: "short-text",
-    visible: "none",
-    doc: "La base pública: solo ciudad o región (D-BBW-86), nunca un domicilio (P-BBW-78). Su frase visible es la de D-BBW-88, en la sección «Quién» (S3b). No se emite.",
+    visible: "text",
+    doc: "La base pública de trabajo: localidad y código de país (D-BBW-86, enmendada por D-BBW-93), nunca un domicilio (P-BBW-78). Person.workLocation (no homeLocation: el texto visible dice dónde trabaja, no dónde reside). Se emite si la localidad es visible en la página.",
   },
   sameAs: {
     kind: "linkList",
@@ -242,7 +249,7 @@ export const ENTITY_FIELDS = {
     translatable: false,
     cms: "repeater",
     visible: "none",
-    doc: "Otras entidades enlazadas y su relación con la persona (construida · caso · portafolio-anterior). Vacía hasta la sesión C; no se emite.",
+    doc: "Otras entidades enlazadas y su relación con la persona (construida · fundada · caso · portafolio-anterior; S3c, D-BBW-92). No se emite hasta que existan sus nodos de organización (fase 2).",
   },
 } as const satisfies Record<string, EntityFieldSpec>;
 
@@ -254,8 +261,12 @@ export function fieldSpec(key: EntityFieldKey): EntityFieldSpec {
 }
 
 /**
- * EL MÍNIMO para que la portada se declare `ProfilePage` (Google, «ProfilePage structured data», act. 2026-09-08: `mainEntity` con `name`
- * obligatorio; recomendados `description`, `sameAs`, `image`). Se activa cuando TODOS se EMITAN (aprobados y visibles). Hoy no: `description`
- * está aprobada y no es visible hasta la sección «Quién» (S3b).
+ * EL MÍNIMO para que la página de perfil se declare `ProfilePage` (Google, «ProfilePage structured data», act. 2026-09-08: `mainEntity` con
+ * `name` obligatorio; recomendados `description`, `sameAs`, `image`). Se activa cuando TODOS se EMITAN (aprobados y visibles en esa página);
+ * sin él, la página emite solo el `Person`.
  */
 export const PROFILE_PAGE_MINIMUM = ["name", "description", "sameAs"] as const satisfies readonly EntityFieldKey[];
+
+/** Categorías de credencial admitidas (`EducationalOccupationalCredential.credentialCategory`), cerradas. S3c: la de la credencial de la página de perfil. */
+export const CREDENTIAL_CATEGORIES = ["certification"] as const;
+export type CredentialCategory = (typeof CREDENTIAL_CATEGORIES)[number];

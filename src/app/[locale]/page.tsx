@@ -35,7 +35,7 @@ export default async function LocalePage({
   return (
     <WithStructuredData locale={locale} id={PAGE} page={page}>
       <main id={MAIN_ID} className={styles.main} data-component="bbf-main">
-        {page.sections.map((section) => renderSection(section, where))}
+        {page.sections.map((section) => renderSection(section, where, locale))}
       </main>
     </WithStructuredData>
   );

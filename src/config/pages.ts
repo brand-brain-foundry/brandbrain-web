@@ -49,6 +49,8 @@ export const PAGES = [
     // la marca + la categoría EXACTA de D-BBW-81 (que no se acorta) suman 61 caracteres; el valor no se escribe aquí: sale del contenido
     titleLengthException: { length: 61, reason: "el título propio de la portada es la repetición exacta de la categoría (D-BBW-81)", decision: "D-BBW-87" },
   },
+  // la página de perfil (S3c, D-BBW-90): la dirección canónica de la persona (`Person.url`)
+  { id: "quien",       slug: "quien",       type: "profile" },
   { id: "aviso-legal", slug: "aviso-legal", type: "legal-restricted", footerOrder: 0 },
   { id: "privacidad",  slug: "privacidad",  type: "legal",            footerOrder: 1 },
   { id: "cookies",     slug: "cookies",     type: "legal",            footerOrder: 2 },
@@ -99,6 +101,16 @@ export function pageUrl(locale: Locale, id: PageId): string {
 export function pagesWhere(predicate: (rules: PageTypeRules) => boolean): readonly RegisteredPage[] {
   return PAGES.filter((p) => predicate(PAGE_TYPES[p.type]));
 }
+
+/**
+ * LA PÁGINA DE PERFIL (S3c, D-BBW-90): la del tipo `profile`. Hay exactamente una (la persona se declara una vez en todo el sitio): cero o dos
+ * rompen la carga del registro. Su dirección es `Person.url` y el destino de las referencias a «quién».
+ */
+export const PROFILE_PAGE: PageId = (() => {
+  const found = PAGES.filter((p) => p.type === "profile");
+  if (found.length !== 1) throw new Error(`[pages] tiene que haber exactamente UNA página de tipo "profile" y hay ${found.length} (S3c, D-BBW-90)`);
+  return found[0].id;
+})();
 
 /** Las páginas del grupo legal del pie, en su orden. */
 export const FOOTER_PAGES: readonly RegisteredPage[] = (PAGES as readonly (RegisteredPage & Pick<PageEntry, "footerOrder">)[])

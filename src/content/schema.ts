@@ -35,8 +35,17 @@
  *      referencia una LLAVE de `identity.links`; una llave inexistente es error de build. Nunca una URL en un documento de texto.
  *      Hasta D-BBW-78 ese documento era `src/config/site.ts`, que es código; la regla no cambia, cambia dónde vive la fuente.
  *   7. Marcadores de posición EVIDENTES mientras no haya copy: `[[PENDIENTE: …]]`. Nadie los confunde con copy final y se cuentan.
+ * S3c · página de perfil (D-BBW-90…95, v3.13 del modelo, cambio NO aditivo):
+ *   · nace la sección `profile` (la página de perfil) y la REFERENCIA A LA ENTIDAD `{ entity: <campo> }`: un texto de la persona no se escribe en
+ *     el documento, se cita del bloque de entidad de `content/site.json` y el puerto lo entrega resuelto (I-1). Solo campos aprobados.
+ *   · `LinkItem` admite un destino INTERNO por página (`page: <id del registro>`) en vez de una llave de enlace; y su `label` (como la llamada
+ *     secundaria del héroe) puede ser una cita del global `{ global: ruta }`: así la etiqueta de un destino se escribe una vez (`linkLabels.<llave>`).
+ *   · `footer.legal` pasa de texto a TRAMOS (`Span[]`) para que el nombre enlace a la página de perfil con `{ text, page }`; `footer.cert` gana
+ *     `link` (la credencial del sello, leída del contenido y no cableada en el componente); nace `linkLabels` en lo global.
  */
 import { isLinkKey, type LinkKey } from "./site";
+import { isPageId } from "../config/pages";
+import { ENTITY_FIELDS, fieldSpec, type EntityFieldKey, type EntityFieldKind } from "./entity-fields";
 
 /** Colecciones con un documento por slug (`content/<locale>/<colección>/<slug>.json`). */
 export const collections = {
@@ -71,6 +80,8 @@ export type Span =
   | string
   | { text: string; link: LinkKey }
   | { page: string }
+  /** S3c: enlace interno con TEXTO PROPIO (el nombre del pie hacia la página de perfil); el puerto lo entrega como `{ text, path }` */
+  | { text: string; page: string }
   | { text: string; path: string }
   | { global: string };
 
@@ -133,10 +144,14 @@ export type LegalSection = {
 export type LinkItem = {
   /** identificador estable por rol (llave de React, ancla en pruebas); único dentro de su lista */
   id: string;
-  /** texto visible o nombre accesible del enlace */
+  /** texto visible o nombre accesible del enlace (en el documento: texto o cita del global `{ global }`, S3c; el puerto lo entrega como texto) */
   label: string;
-  /** llave de `identity.links` (content/site.json); el destino nunca se escribe aquí */
-  link: LinkKey;
+  /**
+   * EL DESTINO, uno de los dos (S3c): `link` = llave de `identity.links` (content/site.json; el destino nunca se escribe aquí) o `page` = el
+   * identificador de una página del registro (`src/config/pages.ts`), cuya ruta pone el organismo con `pageRoute`.
+   */
+  link?: LinkKey;
+  page?: string;
   /**
    * ¿ESTE DESTINO ES UN CASO? (D-BBW-78, sobre D-BBW-74/77). El elemento **declara su condición**; NO escribe la palabra.
    * La palabra vive una sola vez, en `nav.caseLabel`, y el organismo la reparte a los elementos que la declaran: si mañana «Caso»
@@ -172,6 +187,12 @@ export type GlobalDocument = {
     /** los enlaces de navegación, en orden; el mismo dato se renderiza en escritorio y en la hoja (N0 §2.3) */
     items: LinkItem[];
   };
+  /**
+   * LAS ETIQUETAS ÚNICAS DE LOS DESTINOS (S3c, D-BBW-95), por llave de enlace: el texto con el que se nombra un destino en TODO el sitio
+   * escrito una vez. El héroe, el pie y la página de perfil lo citan con `{ global: "linkLabels.<llave>" }`; un enlace a ese
+   * destino que escriba su propia etiqueta rompe la guardia (check-content R8).
+   */
+  linkLabels: Record<string, string>;
   footer: {
     /**
      * LÍNEA LEGAL, y desde D-BBW-60 también **la única aparición visible del nombre** en toda la página. No escribe la cadena: la pide por
@@ -179,14 +200,14 @@ export type GlobalDocument = {
      * Por qué el nombre vive aquí y no en una llave propia: la regla de los datos estructurados exige que lo declarado se VEA en la página,
      * y el pie es la superficie que quedaba. Una llave, un consumidor.
      */
-    legal: string;
+    legal: Span[];
     /** enlaces a perfiles externos, en orden (2026-11-02: solo LinkedIn; GitHub sale del pie y de la hoja) */
     social: LinkItem[];
     /**
      * SELLO DE CERTIFICACIÓN (2026-11-02). `label` es el nombre de la credencial tal como se lee en el pie («Google Cloud Certified»).
      * Sin nivel visible por orden de Zavala. El destino (la credencial verificable) es `links.credly` en content/site.json.
      */
-    cert: { label: string };
+    cert: { label: string; link: LinkKey };
   };
   /**
    * DATOS LEGALES GLOBALES (P-BBW-80, L2 §0.3.2 y §0.3.4, v3.6, cambio NO aditivo).
@@ -266,8 +287,48 @@ export type HeroSection = {
   ctaSecondaryLink: LinkKey;
 };
 
+/** Un proyecto de la página de perfil: nombre (enlazado), su línea y la llave del destino. */
+export type ProfileProject = { id: string; name: string; text: string; link: LinkKey };
+/** Una credencial tal como llega al componente (resuelta desde `$.entity.credentials`). */
+export type ProfileCredential = { name: string; issuer?: string; category?: string; link: LinkKey };
+
+/**
+ * LA PÁGINA DE PERFIL (S3c, D-BBW-90; insumo CONTENIDO-PERFIL-WEB v1.0 §3). Los textos de la persona REFERENCIAN la entidad en el documento
+ * (`{ entity: <campo> }` o una sustitución de identidad) y llegan aquí RESUELTOS; los textos propios de la página (encabezados, etiquetas, las
+ * líneas de los proyectos) viven en el documento. `published`/`updated` (AAAA-MM-DD) son las fechas de la página que edita una persona: los
+ * datos estructurados las emiten tal cual (`dateCreated`/`dateModified`), nunca la hora de la compilación (R7h).
+ */
+export type ProfileSection = {
+  type: "profile";
+  id: string;
+  /** el `<h1>`: el nombre (`{{brand}}`) */
+  heading: string;
+  /** la línea bajo el `<h1>`: el cargo (`{{role}}`) */
+  role: string;
+  /** la frase definitoria (`{ entity: "description" }`) */
+  lead: string;
+  /** el retrato: `media` = el identificador del puerto de medios citado de `$.entity.image`; `alt` = su texto alternativo */
+  portrait: { media: string; alt: string };
+  /** «Cómo trabajo»: encabezado y la descripción larga (`{ entity: "descriptionLong" }`) */
+  approach: { heading: string; text: string };
+  /** «Especialidades»: encabezado y las materias (`{ entity: "knowsAbout" }`) */
+  specialties: { heading: string; items: string[] };
+  /** «Proyectos»: encabezado y los proyectos */
+  projects: { heading: string; items: ProfileProject[] };
+  /** «Certificación»: encabezado, la etiqueta del enlace a la credencial y las credenciales (`{ entity: "credentials" }`) */
+  credentials: { heading: string; linkLabel: string; items: ProfileCredential[] };
+  /** «Contacto»: encabezado y los enlaces (el correo y los perfiles) */
+  contact: { heading: string; links: LinkItem[] };
+  /** el cierre de la página: la frase madre (`{{motto}}`) */
+  closing: string;
+  /** fecha de publicación de la página (AAAA-MM-DD) → `dateCreated` */
+  published: string;
+  /** fecha de la última edición humana del perfil (AAAA-MM-DD) → `dateModified` */
+  updated: string;
+};
+
 /** Unión de tipos de sección. Un tipo nuevo se añade aquí y en SECTION_KEYS (y su renderizador, fase 6b). */
-export type Section = HeroSection | LegalSection;
+export type Section = HeroSection | LegalSection | ProfileSection;
 export type SectionType = Section["type"];
 
 export type PageDocument = {
@@ -298,11 +359,13 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
   hero: ["type", "id", "heading", "paragraph", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
   legal: ["type", "id", "heading", "intro", "blocks", "updated"],
+  profile: ["type", "id", "heading", "role", "lead", "portrait", "approach", "specialties", "projects", "credentials", "contact", "closing", "published", "updated"],
 };
 /** llaves ADMITIDAS (no obligatorias) por tipo de sección: hoy solo la acción de la página legal (v3.8). */
 const SECTION_OPTIONAL_KEYS: Record<SectionType, readonly string[]> = {
   hero: [],
   legal: ["action"],
+  profile: [],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -365,6 +428,12 @@ function checkSpan(v: unknown, path: string, problems: Problem[]): void {
       if (typeof v.global !== "string" || !GLOBAL_PATH_RE.test(v.global)) {
         problems.push({ path: `${path}.global`, message: `ruta de llaves inválida (p. ej. "consent.banner.reject")` });
       }
+    } else if ("page" in v && "text" in v) {
+      // { text, page } — enlace interno con texto propio (S3c)
+      checkKeys(v, ["text", "page"], path, problems);
+      if (typeof v.text === "string") checkSpanString(v.text, `${path}.text`, problems);
+      else problems.push({ path: `${path}.text`, message: `debe ser texto` });
+      checkPageRef(v.page, `${path}.page`, problems);
     } else if ("page" in v && !("text" in v) && !("link" in v)) {
       // { page: slug } — referencia interna
       checkKeys(v, ["page"], path, problems);
@@ -469,22 +538,102 @@ function checkLegalAction(v: unknown, path: string, problems: Problem[]): void {
   else problems.push({ path: `${path}.label`, message: `debe ser texto o una cita del global { global: ruta } (p. ej. "consent.configureButton")` });
 }
 
+/** Un identificador de página del registro (S3c): slug válido y registrado en `src/config/pages.ts`. */
+function checkPageRef(v: unknown, path: string, problems: Problem[]): void {
+  if (typeof v !== "string" || !/^[a-z][a-z0-9-]*$/.test(v)) return void problems.push({ path, message: `identificador de página inválido (minúsculas, dígitos y guiones)` });
+  if (!isPageId(v)) problems.push({ path, message: `la página "${v}" no está en el registro (src/config/pages.ts)` });
+}
+
+/** Una etiqueta (S3c): texto plano o una cita del global `{ global: ruta }` (la etiqueta única de un destino, `linkLabels.<llave>`). */
+function checkLabel(v: unknown, path: string, problems: Problem[]): void {
+  if (v === undefined) return;
+  if (isRecord(v) && "global" in v) return checkSpan(v, path, problems);
+  checkText(v, path, problems);
+}
+
 function checkLinkItems(v: unknown, path: string, problems: Problem[]): void {
   if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista` });
   const seen = new Set<string>();
   v.forEach((item, i) => {
     const p = `${path}[${i}]`;
-    if (!isRecord(item)) return void problems.push({ path: p, message: `debe ser un objeto { id, label, link }` });
-    checkKeys(item, ["id", "label", "link"], p, problems, ["case"]);
+    if (!isRecord(item)) return void problems.push({ path: p, message: `debe ser un objeto { id, label, link } o { id, label, page }` });
+    checkKeys(item, ["id", "label"], p, problems, ["case", "link", "page"]);
     if (item.case !== undefined && typeof item.case !== "boolean") {
       problems.push({ path: `${p}.case`, message: `debe ser true o false (la PALABRA del caso vive una sola vez, en $.nav.caseLabel)` });
     }
     checkId(item.id, `${p}.id`, seen, problems);
-    checkText(item.label, `${p}.label`, problems);
-    if (typeof item.link !== "string" || !isLinkKey(item.link)) {
+    checkLabel(item.label, `${p}.label`, problems);
+    if (("link" in item) === ("page" in item)) {
+      problems.push({ path: p, message: `un enlace lleva exactamente UN destino: \`link\` (llave de content/site.json) o \`page\` (página del registro)` });
+    } else if ("page" in item) {
+      checkPageRef(item.page, `${p}.page`, problems);
+    } else if (typeof item.link !== "string" || !isLinkKey(item.link)) {
       problems.push({ path: `${p}.link`, message: `"${String(item.link)}" no es una llave de enlace (los destinos viven solo en content/site.json; aquí va la llave, nunca la dirección)` });
     }
   });
+}
+
+/**
+ * REFERENCIA A LA ENTIDAD (S3c): `{ entity: <campo> }`, con el campo descrito en `src/content/entity-fields.ts` y de una de las clases que el
+ * hueco admite. Que el campo esté APROBADO lo comprueba el puerto al resolverla (es estado, no forma).
+ */
+function checkEntityRef(v: unknown, path: string, kinds: readonly EntityFieldKind[], problems: Problem[]): void {
+  if (!isRecord(v) || !("entity" in v)) return void problems.push({ path, message: `debe ser una referencia a la entidad { entity: <campo> } (clase ${kinds.join(" o ")})` });
+  checkKeys(v, ["entity"], path, problems);
+  const key = v.entity;
+  if (typeof key !== "string" || !(key in ENTITY_FIELDS)) return void problems.push({ path: `${path}.entity`, message: `"${String(key)}" no es un campo de la entidad (src/content/entity-fields.ts)` });
+  const kind = fieldSpec(key as EntityFieldKey).kind;
+  if (!kinds.includes(kind)) problems.push({ path: `${path}.entity`, message: `el campo "${key}" es de clase ${kind} y este hueco admite ${kinds.join(" o ")}` });
+}
+
+/** Un objeto con encabezado y una pieza más (los bloques de la página de perfil). */
+function checkHeaded(v: unknown, path: string, keys: readonly string[], problems: Problem[]): v is Record<string, unknown> {
+  if (!isRecord(v)) { problems.push({ path, message: `debe ser un objeto { ${keys.join(", ")} }` }); return false; }
+  checkKeys(v, keys, path, problems);
+  if (keys.includes("heading")) checkText(v.heading, `${path}.heading`, problems);
+  return true;
+}
+
+/** La sección de la página de perfil, tal como se ESCRIBE (con referencias a la entidad sin resolver). */
+function checkProfileSection(v: Record<string, unknown>, path: string, problems: Problem[]): void {
+  checkText(v.heading, `${path}.heading`, problems);
+  checkText(v.role, `${path}.role`, problems);
+  checkEntityRef(v.lead, `${path}.lead`, ["text"], problems);
+  if (isRecord(v.portrait)) {
+    checkKeys(v.portrait, ["media", "alt"], `${path}.portrait`, problems);
+    checkEntityRef(v.portrait.media, `${path}.portrait.media`, ["media"], problems);
+    checkText(v.portrait.alt, `${path}.portrait.alt`, problems);
+  } else problems.push({ path: `${path}.portrait`, message: `debe ser un objeto { media, alt }` });
+  if (checkHeaded(v.approach, `${path}.approach`, ["heading", "text"], problems)) checkEntityRef(v.approach.text, `${path}.approach.text`, ["text"], problems);
+  if (checkHeaded(v.specialties, `${path}.specialties`, ["heading", "items"], problems)) checkEntityRef(v.specialties.items, `${path}.specialties.items`, ["textList"], problems);
+  if (checkHeaded(v.projects, `${path}.projects`, ["heading", "items"], problems)) {
+    const items = v.projects.items;
+    if (!Array.isArray(items) || items.length === 0) problems.push({ path: `${path}.projects.items`, message: `debe ser una lista no vacía de { id, name, text, link }` });
+    else {
+      const seen = new Set<string>();
+      items.forEach((it, i) => {
+        const p = `${path}.projects.items[${i}]`;
+        if (!isRecord(it)) return void problems.push({ path: p, message: `debe ser un objeto { id, name, text, link }` });
+        checkKeys(it, ["id", "name", "text", "link"], p, problems);
+        checkId(it.id, `${p}.id`, seen, problems);
+        if (typeof it.name === "string") checkSpanString(it.name, `${p}.name`, problems); else problems.push({ path: `${p}.name`, message: `debe ser texto` });
+        if (typeof it.text === "string") checkSpanString(it.text, `${p}.text`, problems); else problems.push({ path: `${p}.text`, message: `debe ser texto` });
+        if (typeof it.link !== "string" || !isLinkKey(it.link)) problems.push({ path: `${p}.link`, message: `"${String(it.link)}" no es una llave de enlace (content/site.json)` });
+      });
+    }
+  }
+  if (checkHeaded(v.credentials, `${path}.credentials`, ["heading", "linkLabel", "items"], problems)) {
+    checkText(v.credentials.linkLabel, `${path}.credentials.linkLabel`, problems);
+    checkEntityRef(v.credentials.items, `${path}.credentials.items`, ["credentialList"], problems);
+  }
+  if (checkHeaded(v.contact, `${path}.contact`, ["heading", "links"], problems)) checkLinkItems(v.contact.links, `${path}.contact.links`, problems);
+  checkText(v.closing, `${path}.closing`, problems);
+  for (const k of ["published", "updated"] as const) {
+    if (typeof v[k] !== "string" || !DATE_RE.test(v[k] as string)) problems.push({ path: `${path}.${k}`, message: `debe ser una fecha AAAA-MM-DD (la edita una persona; nunca la hora de la compilación)` });
+  }
+  if (typeof v.published === "string" && typeof v.updated === "string" && v.updated < v.published) {
+    problems.push({ path: `${path}.updated`, message: `la última edición (${v.updated}) es anterior a la publicación (${v.published})` });
+  }
 }
 
 function checkLegalPages(v: unknown, path: string, problems: Problem[]): void {
@@ -500,7 +649,14 @@ function checkLegalPages(v: unknown, path: string, problems: Problem[]): void {
 export function validateGlobal(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  checkKeys(v, ["nav", "footer", "legal", "consent"], "$", problems);
+  checkKeys(v, ["nav", "linkLabels", "footer", "legal", "consent"], "$", problems);
+  if (isRecord(v.linkLabels)) {
+    if (Object.keys(v.linkLabels).length === 0) problems.push({ path: "$.linkLabels", message: "sin ninguna etiqueta" });
+    for (const [k, label] of Object.entries(v.linkLabels)) {
+      if (!isLinkKey(k)) problems.push({ path: `$.linkLabels.${k}`, message: `"${k}" no es una llave de enlace (content/site.json)` });
+      checkText(label, `$.linkLabels.${k}`, problems);
+    }
+  } else if ("linkLabels" in v) problems.push({ path: "$.linkLabels", message: "debe ser un objeto { <llave de enlace>: etiqueta }" });
   if (isRecord(v.nav)) {
     checkKeys(v.nav, ["skipLabel", "toggleLabel", "caseLabel", "items"], "$.nav", problems);
     checkText(v.nav.skipLabel, "$.nav.skipLabel", problems);
@@ -510,12 +666,13 @@ export function validateGlobal(v: unknown): Problem[] {
   } else if ("nav" in v) problems.push({ path: "$.nav", message: "debe ser un objeto" });
   if (isRecord(v.footer)) {
     checkKeys(v.footer, ["legal", "social", "cert"], "$.footer", problems);
-    checkText(v.footer.legal, "$.footer.legal", problems);
+    checkSpans(v.footer.legal, "$.footer.legal", problems);
     checkLinkItems(v.footer.social, "$.footer.social", problems);
     if (isRecord(v.footer.cert)) {
-      checkKeys(v.footer.cert, ["label"], "$.footer.cert", problems);
+      checkKeys(v.footer.cert, ["label", "link"], "$.footer.cert", problems);
       checkText(v.footer.cert.label, "$.footer.cert.label", problems);
-    } else if ("cert" in v.footer) problems.push({ path: "$.footer.cert", message: "debe ser un objeto { label }" });
+      if (typeof v.footer.cert.link !== "string" || !isLinkKey(v.footer.cert.link)) problems.push({ path: "$.footer.cert.link", message: `"${String(v.footer.cert.link)}" no es una llave de enlace (content/site.json)` });
+    } else if ("cert" in v.footer) problems.push({ path: "$.footer.cert", message: "debe ser un objeto { label, link }" });
   } else if ("footer" in v) problems.push({ path: "$.footer", message: "debe ser un objeto" });
   if (isRecord(v.legal)) {
     checkKeys(v.legal, ["updatedLabel", "pages"], "$.legal", problems);
@@ -595,8 +752,13 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     }
     return;
   }
+  if (type === "profile") return checkProfileSection(v, path, problems);
   for (const k of keys) {
     if (k === "type" || k === "id") continue;
+    if (k === "ctaPrimary" || k === "ctaSecondary") {
+      checkLabel(v[k], `${path}.${k}`, problems);
+      continue;
+    }
     if (k === "ctaSecondaryLink") {
       if (typeof v[k] !== "string" || !isLinkKey(v[k] as string)) {
         problems.push({ path: `${path}.${k}`, message: `"${String(v[k])}" no es una llave de enlace (los destinos viven solo en content/site.json)` });
@@ -634,8 +796,8 @@ export function isPageDocument(v: unknown): v is PageDocument {
   return validatePage(v).length === 0;
 }
 
-/** Llaves estructurales: identifican, enlazan, referencian (`page`, `global`), declaran una condición o un control (`kind`); no son texto editable. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global", "kind"]);
+/** Llaves estructurales: identifican, enlazan, referencian (`page`, `global`, `entity`, `media`), declaran una condición o un control (`kind`); no son texto editable. */
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global", "kind", "entity", "media"]);
 
 /** Recorre los TEXTOS EDITABLES de un documento (para contar textos y marcadores; nunca para interpretarlos, D-DOC-06). */
 export function collectTexts(v: unknown, acc: string[] = []): string[] {

@@ -5,6 +5,11 @@
     "caseLabel": "Caso",
     "items": [
       {
+        "id": "quien",
+        "label": "Quién",
+        "page": "quien"
+      },
+      {
         "id": "agency",
         "label": "Sivar Brains",
         "link": "agency",
@@ -28,17 +33,21 @@
       }
     ]
   },
+  "linkLabels": {
+    "linkedin": "LinkedIn"
+  },
   "footer": {
-    "legal": "© {{year}} {{brand}} · {{role}}",
+    "legal": ["© {{year}} ", { "text": "{{brand}}", "page": "quien" }, " · {{role}}"],
     "social": [
       {
         "id": "linkedin",
-        "label": "Perfil de LinkedIn",
+        "label": { "global": "linkLabels.linkedin" },
         "link": "linkedin"
       }
     ],
     "cert": {
-      "label": "Google Cloud Certified"
+      "label": "Google Cloud Certified",
+      "link": "credly"
     }
   },
   "legal": {

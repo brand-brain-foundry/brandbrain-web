@@ -68,6 +68,30 @@
       "profile": "manifest icon192,icon512,icon512Maskable",
       "sha256": "0b0b519b870f218cfda4d995cad0cec01b49667e91e23a4570c8022dfe6f5951"
     },
+    "portrait16x9": {
+      "height": 338,
+      "master": "portrait",
+      "path": "public/portrait-600x338.jpg",
+      "profile": "jpeg-crop 16:9 ancho 600 ancla-y 0.15 q 90 ≥ 50000 px",
+      "sha256": "82c8d3e318e582138927f5a4fa5443bbfe583a4873ea46398eda1b01436cf0b7",
+      "width": 600
+    },
+    "portrait1x1": {
+      "height": 600,
+      "master": "portrait",
+      "path": "public/portrait-600x600.jpg",
+      "profile": "jpeg-crop 1:1 ancho 600 ancla-y 0.15 q 90 ≥ 50000 px",
+      "sha256": "ae37d93c004bf0b77a0eeb17932d7ba97f86d61b88479316276177485bb53859",
+      "width": 600
+    },
+    "portrait4x3": {
+      "height": 450,
+      "master": "portrait",
+      "path": "public/portrait-600x450.jpg",
+      "profile": "jpeg-crop 4:3 ancho 600 ancla-y 0.15 q 90 ≥ 50000 px",
+      "sha256": "630da955d9f128783ff8eee8f4d7bc851eba2190d75d9237b7379288804b1465",
+      "width": 600
+    },
     "share": {
       "height": 630,
       "master": "brandIcon",
@@ -79,7 +103,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "b080e6d34e94aadec23b32e2eaf2141c009526a82669108fc599f5c9f2c8b2eb"
+    "sha256": "90ad25d0a4fe6b1479d39a2365ddd39e313574218d68e4837b8bbdebe2f1b2a8"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -111,6 +135,10 @@
     "iconLinkedin": {
       "file": "icon-linkedin.svg",
       "sha256": "9baab7408df41919c24f0dbe8fb8807c56cc8d7be66da37d3a2467a1b8c82b08"
+    },
+    "portrait": {
+      "file": "portrait.jpg",
+      "sha256": "127a449cb89537d2a6e0fb7b9d1698050226220fbe1e25f4bf516d463389e921"
     },
     "toggleArmBottom": {
       "file": "toggle-arm-bottom.svg",

@@ -55,6 +55,17 @@ export const masters = {
     kind: "raster",
     origin: "handoff de la home nueva (handoff-diseno/assets/gc-foundational.png), copiado byte a byte el 2026-11-01; traído a esta rama desde 3a62247 el 2026-11-02",
   },
+  /**
+   * EL RETRATO (S3c, D-BBW-91). Foto de la persona entregada por Zavala con el despacho de la página de perfil (insumo
+   * `retrato-zavala-cubas-600.jpg`): JPEG sRGB 600×600, sin datos de ubicación (EXIF solo con la resolución; IPTC vacío). Vive UNA vez aquí;
+   * la entidad (`$.entity.image`) lo referencia por su CONJUNTO de recortes (`mediaSets.portrait`) y un lote futuro del campo de imágenes
+   * (serie R) lo referenciará también, sin duplicarlo.
+   */
+  portrait: {
+    file: "portrait.jpg",
+    kind: "raster",
+    origin: "insumo de DESPACHO-BBW-2026-11-07-S3c-pagina-de-perfil (retrato-zavala-cubas-600.jpg, 222 544 B, 600×600), copiado byte a byte el 2026-11-07",
+  },
   toggleArmTop: { file: "toggle-arm-top.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo superior del conmutador 34×6), 2026-09-17" },
   toggleArmBottom: { file: "toggle-arm-bottom.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo inferior del conmutador 34×6), 2026-09-17" },
   /**
@@ -112,9 +123,20 @@ export type Profile =
   | { kind: "share"; width: number; height: number; iconHeight: number }
   | { kind: "manifest"; icons: readonly string[] }
   /** Redimensiona un maestro raster (PNG/JPEG) a `size`×`size` con su transparencia. Herramienta: sharp. */
-  | { kind: "png-resize"; size: number };
+  | { kind: "png-resize"; size: number }
+  /**
+   * RECORTE POR FÓRMULA de un maestro raster (S3c, D-BBW-91): la caja más grande de proporción `aspect` que cabe en el maestro, centrada en
+   * horizontal y colocada en vertical por `anchorY` (y = anchorY × (alto del maestro − alto de la caja); 0 = arriba, 1 = abajo), escalada a
+   * `width` de ancho (alto = round(width × aspect[1] / aspect[0])) sin AMPLIAR nunca el maestro, y codificada en JPEG `quality` sin metadatos.
+   * `minPixels`: el área mínima que el uso exige (Google, ProfilePage: ≥ 50 000 píxeles por recorte); el guion rompe si no se alcanza.
+   */
+  | { kind: "jpeg-crop"; aspect: readonly [number, number]; width: number; anchorY: number; quality: number; minPixels: number };
 
 export type Derivative = { master: MasterId; path: string; profile: Profile; role: string };
+
+/** El perfil de los recortes del retrato: una fórmula, tres proporciones (S3c). */
+const PORTRAIT_CROP = (aspect: readonly [number, number]) =>
+  ({ kind: "jpeg-crop", aspect, width: 600, anchorY: 0.15, quality: 90, minPixels: 50_000 }) as const;
 
 /**
  * CONJUNTO VIGENTE de iconos y manifiesto (industria verificada en vivo 2026-09-17: evilmartians.com "How to favicon", web.dev
@@ -153,6 +175,11 @@ const _derivativesConst = {
   /* 2026-11-02 (orden de Zavala): el pez sale del héroe y el campo de puntos ocupa su escenario. Salen los tres derivados del vídeo
      (720p, 360p y póster) con su único consumidor, `HeroMedia`. Los DOS MAESTROS se conservan declarados y sellados, sin derivados, como
      ya se hacía con `heroLoopRegistro`: el pez puede volver con regenerar sus derivados, sin buscar el archivo en el historial. */
+  /* EL RETRATO (S3c, D-BBW-91): tres recortes del mismo maestro, 1:1, 4:3 y 16:9 (Google, ProfilePage: «16x9, 4x3 y 1x1», ≥ 50 000 píxeles
+     cada uno). Ancho = el del maestro (600: no se amplía). `anchorY` 0,15 deja la cara entera en los tres (medido sobre el maestro). */
+  portrait1x1: { master: "portrait", path: "portrait-600x600.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil y de Person.image)" },
+  portrait4x3: { master: "portrait", path: "portrait-600x450.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
+  portrait16x9: { master: "portrait", path: "portrait-600x338.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
   gcFoundational72: { master: "gcFoundational", path: "gc-foundational-72.png", profile: { kind: "png-resize", size: 72 }, role: "sello del pie, 72 px (1×)" },
   gcFoundational144: { master: "gcFoundational", path: "gc-foundational-144.png", profile: { kind: "png-resize", size: 144 }, role: "sello del pie, 144 px (2×, pantalla de alta densidad)" },
 } as const satisfies Record<string, Derivative>;
@@ -182,6 +209,17 @@ export const rigs = {
   },
 } as const satisfies Record<string, RigSpec>;
 export type RigId = keyof typeof rigs;
+
+/**
+ * CONJUNTOS DE MEDIOS (S3c, D-BBW-91): un identificador que nombra varios derivados del MISMO maestro, en orden. La entidad referencia el
+ * conjunto (`$.entity.image` = `portrait`) y los datos estructurados emiten todos sus miembros (`Person.image`); la página muestra el
+ * PRIMERO en un `<img>`. Un miembro que no sea derivado del maestro declarado rompe el guion (`scripts/media/build.ts`), que los escribe en
+ * `src/media/generated.ts`: los consumidores los leen de allí (este registro no viaja al navegador).
+ */
+export const mediaSets = {
+  portrait: { master: "portrait", members: ["portrait1x1", "portrait4x3", "portrait16x9"] },
+} as const satisfies Record<string, { master: MasterId; members: readonly DerivativeId[] }>;
+export type MediaSetId = keyof typeof mediaSets;
 
 export const inlineIcons = {
   brandIcon: { master: "brandIcon", paint: "fill", use: "ornament" },

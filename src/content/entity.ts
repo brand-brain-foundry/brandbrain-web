@@ -23,8 +23,9 @@
  * D-DOC-06: el bloque es DATO. Se parsea y se valida; jamás se interpreta ni se ejecuta.
  */
 import document from "../../content/site.json";
-import { media } from "../media/generated";
+import { MEDIA_IDENTIFIERS, mediaMembers } from "../media";
 import {
+  CREDENTIAL_CATEGORIES,
   ENTITY_FIELDS,
   ENTITY_FIELD_KEYS,
   ENTITY_STATUSES,
@@ -37,15 +38,20 @@ import {
 } from "./entity-fields";
 import type { GlobalDocument, PageDocument, Problem } from "./schema";
 
+const mediaMembersCount = (id: string): number => mediaMembers(id).length;
+
 /** Un campo en los datos: su estado y, si es propio, su valor. */
 export type EntityFieldData = { status: EntityStatus; value?: unknown };
 export type EntityBlock = Record<EntityFieldKey, EntityFieldData>;
 
-export type Credential = { name: string; issuer?: string; link: string };
+export type Credential = { name: string; issuer?: string; category?: (typeof CREDENTIAL_CATEGORIES)[number]; link: string };
 export type Relation = { link: string; kind: (typeof RELATION_KINDS)[number] };
+/** Un lugar público (S3c): localidad y código de país; nunca una dirección (P-BBW-78). */
+export type Place = { locality: string; country: string };
 
 const HTML_RE = /<\/?[a-zA-Z!]/;
-const MEDIA_IDS: readonly string[] = Object.keys(media);
+const MEDIA_IDS: readonly string[] = MEDIA_IDENTIFIERS;
+const COUNTRY_RE = /^[A-Z]{2}$/;
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null && !Array.isArray(v);
@@ -79,15 +85,24 @@ function checkValue(spec: EntityFieldSpec, v: unknown, path: string, linkKeys: r
       return v.forEach((c, i) => {
         const p = `${path}[${i}]`;
         if (!isRecord(c)) return void problems.push({ path: p, message: `debe ser un objeto { name, issuer?, link }` });
-        for (const k of Object.keys(c)) if (!["name", "issuer", "link"].includes(k)) problems.push({ path: `${p}.${k}`, message: `llave desconocida` });
+        for (const k of Object.keys(c)) if (!["name", "issuer", "category", "link"].includes(k)) problems.push({ path: `${p}.${k}`, message: `llave desconocida` });
         checkText(c.name, `${p}.name`, problems);
         if ("issuer" in c) checkText(c.issuer, `${p}.issuer`, problems);
+        if ("category" in c && !(CREDENTIAL_CATEGORIES as readonly unknown[]).includes(c.category)) {
+          problems.push({ path: `${p}.category`, message: `categoría desconocida "${String(c.category)}" (categorías: ${CREDENTIAL_CATEGORIES.join(", ")})` });
+        }
         if (!isLink(c.link)) problems.push({ path: `${p}.link`, message: notLink(c.link) });
       });
     case "media":
       if (typeof v !== "string" || !MEDIA_IDS.includes(v)) {
         problems.push({ path, message: `"${String(v)}" no es un identificador del puerto de medios (src/media; D-BBW-21: nunca una ruta)` });
       }
+      return;
+    case "place":
+      if (!isRecord(v)) return void problems.push({ path, message: `debe ser un lugar { locality, country } (nunca una dirección, P-BBW-78)` });
+      for (const k of Object.keys(v)) if (!["locality", "country"].includes(k)) problems.push({ path: `${path}.${k}`, message: `llave desconocida: un lugar es localidad y país, nunca una dirección (P-BBW-78)` });
+      checkText(v.locality, `${path}.locality`, problems);
+      if (typeof v.country !== "string" || !COUNTRY_RE.test(v.country)) problems.push({ path: `${path}.country`, message: `debe ser un código de país ISO 3166-1 alfa-2 (dos mayúsculas)` });
       return;
     case "linkList":
       if (!Array.isArray(v)) return void problems.push({ path, message: `debe ser una lista de llaves de $.links` });
@@ -204,7 +219,7 @@ export type VisibilityContext = {
 };
 
 /** Llaves que no son texto visible: identifican, enlazan, referencian o declaran un control (las mismas del puerto y del esquema). */
-const STRUCTURAL_KEYS = new Set(["id", "type", "case", "page", "global", "kind", "path"]);
+const STRUCTURAL_KEYS = new Set(["id", "type", "case", "page", "global", "kind", "path", "media", "entity"]);
 const LINK_KEY_RE = /link$/i;
 
 function walk(node: unknown, acc: { texts: string[]; linkKeys: Set<string>; strings: Set<string> }, key?: string): void {
@@ -226,17 +241,26 @@ export function visibilityContext(page: PageDocument, global: GlobalDocument): V
 }
 
 /**
+ * Los TEXTOS por los que un campo se ve en la página (S3c): el texto, cada elemento de una lista, la localidad de un lugar. Vacío si el campo
+ * no tiene valor o su clase no se ve como texto.
+ */
+export function visibleStrings(key: EntityFieldKey): string[] {
+  const value = entityValue(key);
+  if (value === undefined) return [];
+  if (fieldSpec(key).kind === "place") return [String((value as Place).locality)];
+  if (Array.isArray(value)) return value.filter((x): x is string => typeof x === "string");
+  return typeof value === "string" ? [value] : [];
+}
+
+/**
  * Qué valores de texto de un campo NO aparecen en un texto dado (vacío = todos aparecen). Un valor que es SUBCADENA de otro valor de la entidad
  * (`alternateName` «Zavala Cubas» dentro de `name` «Christian Zavala Cubas») solo cuenta como visible FUERA de las apariciones de ese otro
  * valor: la página que escribe el nombre completo no está escribiendo la variante. Misma función para el contenido (aquí) y para el HTML (R7g).
  */
 export function missingInText(key: EntityFieldKey, text: string): string[] {
-  const value = entityValue(key);
-  if (value === undefined) return [`sin valor`];
-  const list = Array.isArray(value) ? value.map(String) : [String(value)];
-  const containers = ENTITY_FIELD_KEYS.filter((k) => k !== key && fieldSpec(k).visible === "text")
-    .map((k) => entityValue(k))
-    .flatMap((v) => (Array.isArray(v) ? v.map(String) : typeof v === "string" ? [v] : []));
+  if (entityValue(key) === undefined) return [`sin valor`];
+  const list = visibleStrings(key);
+  const containers = ENTITY_FIELD_KEYS.filter((k) => k !== key && fieldSpec(k).visible === "text").flatMap((k) => visibleStrings(k));
   return list.filter((v) => {
     let haystack = text;
     for (const c of containers) if (c !== v && c.includes(v)) haystack = haystack.split(c).join(" ");
@@ -265,7 +289,8 @@ export function notVisibleInContent(key: EntityFieldKey, ctx: VisibilityContext)
       return keys.filter((k) => !ctx.linkKeys.has(k));
     }
     case "img":
-      return list.filter((v) => !ctx.strings.has(v));
+      // el identificador (derivado o conjunto) escrito en el contenido de la página, y con derivados publicados (S3c)
+      return list.filter((v) => !ctx.strings.has(v) || mediaMembersCount(v) === 0);
     case "none":
       return [];
   }
@@ -284,14 +309,14 @@ export function isEmittedOn(key: EntityFieldKey, ctx: VisibilityContext): boolea
   return false;
 }
 
-/** La portada se declara `ProfilePage` cuando el mínimo se EMITE (aprobado y visible). Hoy no: `description` espera la sección «Quién». */
+/** La página de perfil se declara `ProfilePage` cuando el mínimo se EMITE (aprobado y visible en ella). */
 export function isProfilePageReadyOn(ctx: VisibilityContext): boolean {
   return PROFILE_PAGE_MINIMUM.every((k) => isEmittedOn(k, ctx));
 }
 
-/** Los tipos del grafo que la portada emite, en orden alfabético (lo que R7e compara). */
-export function entityGraphTypesOn(ctx: VisibilityContext): string[] {
-  return isProfilePageReadyOn(ctx) ? ["Person", "ProfilePage", "WebSite"] : ["Person", "WebSite"];
+/** Los tipos de primer nivel del grafo de la página de perfil (lo que R7e compara): `ProfilePage` con el `Person` dentro, o el `Person` solo. */
+export function profileGraphTypesOn(ctx: VisibilityContext): string[] {
+  return isProfilePageReadyOn(ctx) ? ["ProfilePage"] : ["Person"];
 }
 
 /**

@@ -53,6 +53,14 @@
   text-wrap: pretty;
 }
 
+/* S3c (D-BBW-94): el nombre de la línea legal enlaza a la página de perfil. Hereda color y tipo de la línea (el aspecto de la línea no cambia);
+   el hover de color lo pone el sistema (`data-hover="text"`). La barra deja pasar el puntero al héroe: el enlace lo recupera. */
+.legalName {
+  color: inherit;
+  text-decoration: none;
+  pointer-events: auto;
+}
+
 /* Grupo derecho (C2/C3): perfiles (hoy solo LinkedIn) y sello. En la vista amplia, margin-inline-start: auto lo empuja al extremo
    derecho. En la colapsada flex-basis: 100% lo lleva a la primera fila (order 0 por defecto). */
 .end {

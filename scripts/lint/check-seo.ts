@@ -36,6 +36,11 @@
  *         resolver en el HTML servido (`{{…}}`): una de entidad bloqueada que llegara a lo servido se vería aquí. (c) INFORME de la entidad:
  *         completitud (aprobados · heredados · pendientes) y EMISIÓN (qué aprobados se emiten, cuáles no y por qué; `ProfilePage`): se
  *         imprime, no falla.
+ *   R7h · LA PERSONA, UNA VEZ (S3c, D-BBW-90). (a) En TODO el sitio servido, un solo documento declara un `Person` (cualquier objeto con
+ *         `@type: Person` a cualquier profundidad del JSON-LD), y es la página de tipo `profile`; las demás solo la REFERENCIAN por su `@id`.
+ *         (b) `ProfilePage.dateCreated`/`dateModified` son EXACTAMENTE las fechas del contenido de la página (`published`/`updated`, AAAA-MM-DD):
+ *         nunca la hora de la compilación. (c) `Person.image`: cada dirección es un archivo PUBLICADO en `out/` y es un recorte del conjunto que
+ *         la entidad referencia con al menos 50 000 píxeles; al menos una aparece como `src` de un `<img>` de la página.
  * Uso: `pnpm lint:seo [--out <dir>]` · al final de `pnpm build`. No corre en el pre-commit porque necesita el sitio compilado (14 s).
  */
 import * as fs from 'fs';
@@ -46,12 +51,13 @@ import { PAGES, pageRoute, pageUrl, pageRules, pageTitleException, type PageId }
 import { AI_AGENTS } from '../../src/app/robots';
 import { identity } from '../../src/content/site';
 import { getGlobal, getPage } from '../../src/content';
-import { media } from '../../src/media';
+import { media, mediaMembers } from '../../src/media';
 import { ENTITY_FIELD_KEYS, PROFILE_PAGE_MINIMUM, fieldSpec, type EntityFieldKey } from '../../src/content/entity-fields';
 import {
   entityCompleteness,
   entityEmissionReport,
-  entityGraphTypesOn,
+  profileGraphTypesOn,
+  visibleStrings,
   entityStatus,
   entityValue,
   isEmittedOn,
@@ -74,6 +80,9 @@ const fail = (rule: string, where: string, detail: string) => fails.push({ rule,
 const inheritedNotVisible: string[] = [];
 /** R7g (c): el informe de emisión de la entidad por página que emite el grafo (S3 F9): se imprime, no falla. */
 const emissionLines: string[] = [];
+/** R7h (a): qué páginas declaran un Person (S3c). */
+const personDeclarations: { route: string; type: string; count: number }[] = [];
+const PERSON_ID = `${site.url}/#person`;
 
 function die(msg: string): never {
   console.error(`[seo-gate] FAIL-CLOSED: ${msg}`);
@@ -285,30 +294,61 @@ for (const e of expected) {
         if (g['@context'] !== 'https://schema.org') fail('R7e', where, `@context "${String(g['@context'])}" ≠ https://schema.org`);
         const nodes = Array.isArray(g['@graph']) ? (g['@graph'] as Record<string, unknown>[]) : [];
         const types = nodes.map((n) => String(n['@type'])).sort();
-        const want = kind === 'entity' ? entityGraphTypesOn(ctx) : [];
+        const want = kind === 'website' ? ['WebSite'] : profileGraphTypesOn(ctx);
         if (types.join(',') !== want.join(',')) fail('R7e', where, `tipos del grafo [${types.join(', ')}] ≠ [${want.join(', ')}]`);
-        const person = nodes.find((n) => n['@type'] === 'Person');
-        if (person) {
+        const profileNode = nodes.find((n) => n['@type'] === 'ProfilePage');
+        const person = nodes.find((n) => n['@type'] === 'Person') ?? (profileNode?.mainEntity as Record<string, unknown> | undefined);
+        if (kind === 'profile' && !person) fail('R7e', where, 'la página de perfil no declara el Person');
+        if (kind === 'profile' && person) {
           for (const field of ['name', 'jobTitle'] as const) {
             const value = person[field];
             if (typeof value !== 'string' || value.length === 0) fail('R7e', where, `Person.${field} ausente`);
             else if (!h.text.includes(value)) fail('R7e', where, `Person.${field} "${value}" no aparece en el texto visible de la página (los datos estructurados describen la página, no la amplían)`);
           }
           if (person.name !== identity.brand) fail('R7e', where, `Person.name ≠ la marca de la fuente única`);
-          if (person.url !== pageUrl(e.locale, 'home')) fail('R7e', where, `Person.url "${String(person.url)}" ≠ la portada del locale`);
+          if (person['@id'] !== PERSON_ID) fail('R7e', where, `Person.@id "${String(person['@id'])}" ≠ ${PERSON_ID}`);
+          // S3c §0.3.2: la dirección canónica de la persona es la de su página de perfil (la portada redirige)
+          if (person.url !== e.url) fail('R7e', where, `Person.url "${String(person.url)}" ≠ la canónica de la página de perfil "${e.url}"`);
+          // R7g (a) — la entidad: cada propiedad del Person contra el estado de su campo y su visibilidad
+          checkEntityEmission(person, nodes, html, h, where, ctx, e);
         }
         const website = nodes.find((n) => n['@type'] === 'WebSite');
-        if (website && website.url !== pageUrl(e.locale, 'home')) fail('R7e', where, `WebSite.url ≠ la portada del locale`);
-        if (website && website.name !== identity.brand) fail('R7e', where, `WebSite.name ≠ la marca`);
-        // R7g (a) — la entidad: cada propiedad del Person contra el estado de su campo y su visibilidad
-        if (person) checkEntityEmission(person, nodes, html, h, where, ctx);
+        if (kind === 'website') {
+          if (!website) fail('R7e', where, 'la portada no declara el WebSite');
+          else {
+            if (website.url !== pageUrl(e.locale, 'home')) fail('R7e', where, `WebSite.url ≠ la portada del locale`);
+            if (website.name !== identity.brand) fail('R7e', where, `WebSite.name ≠ la marca`);
+            if (!h.text.includes(String(website.name))) fail('R7e', where, `WebSite.name no aparece en el texto visible`);
+            const pub = website.publisher as Record<string, unknown> | undefined;
+            if (!pub || pub['@id'] !== PERSON_ID || Object.keys(pub).length !== 1) fail('R7h', where, `WebSite.publisher debe ser SOLO la referencia {"@id": "${PERSON_ID}"} (la persona se declara en la página de perfil)`);
+          }
+        }
       }
     }
-    // R7g (c) — informe de emisión de la entidad en la página que emite el grafo (S3 F9)
+    // R7g (c) — informe de emisión de la entidad en la página que la declara (S3 F9; desde S3c, la página de perfil)
+    if (kind === 'profile') {
     const report = entityEmissionReport(ctx);
     emissionLines.push(`[entidad] ${e.route}: se emiten ${report.emitted.length} campo(s) [${report.emitted.join(', ')}] · ProfilePage: ${isProfilePageReadyOn(ctx) ? 'activa' : `no (mínimo emitido: ${PROFILE_PAGE_MINIMUM.join(', ')})`}`);
     for (const a of report.approvedNotVisible) emissionLines.push(`[entidad] ${e.route}: entity.${a.key} aprobado y NO visible → no se emite (${a.why})`);
     if (report.approvedNotEmitting.length) emissionLines.push(`[entidad] ${e.route}: aprobados sin propiedad en el Person (no se emiten por diseño): ${report.approvedNotEmitting.join(', ')}`);
+    }
+  }
+
+  // R7h (a) — quién declara un Person (a cualquier profundidad del JSON-LD de la página)
+  for (const block of h.ldjson) {
+    let parsed: unknown;
+    try { parsed = JSON.parse(block); } catch { continue; } // ya lo informó R7e
+    const found: Record<string, unknown>[] = [];
+    const walk = (v: unknown) => {
+      if (Array.isArray(v)) return v.forEach(walk);
+      if (v && typeof v === 'object') {
+        const o = v as Record<string, unknown>;
+        if (o['@type'] === 'Person') found.push(o);
+        Object.values(o).forEach(walk);
+      }
+    };
+    walk(parsed);
+    if (found.length > 0) personDeclarations.push({ route: e.route, type: pageEntryType(e.id), count: found.length });
   }
 
   // R7g (b) — ninguna sustitución sin resolver en lo servido
@@ -327,7 +367,11 @@ function notVisible(key: EntityFieldKey, emitted: unknown, html: string, h: Head
   switch (spec.visible) {
     case 'text': {
       // la misma regla que el constructor aplica al contenido: un valor contenido en otro valor de la entidad solo cuenta fuera de él (S3)
-      const values = Array.isArray(emitted) ? emitted.map(String) : [String(emitted)];
+      // un lugar se ve por su localidad (S3c); el resto, por su texto o cada elemento de su lista
+      const values = spec.kind === 'place'
+        ? [String(((emitted as { address?: { addressLocality?: unknown } }).address ?? {}).addressLocality)]
+        : Array.isArray(emitted) ? emitted.map(String) : [String(emitted)];
+      if (spec.kind === 'place' && values[0] !== visibleStrings(key)[0]) missing.push(`localidad emitida "${values[0]}" ≠ la de la entidad`);
       const declared = missingInText(key, h.text);
       for (const v of values) if (declared.includes(v) || !h.text.includes(v)) missing.push(v);
       break;
@@ -336,13 +380,16 @@ function notVisible(key: EntityFieldKey, emitted: unknown, html: string, h: Head
       if (!hasHref(`mailto:${String(emitted)}`)) missing.push(`mailto:${String(emitted)}`);
       break;
     case 'href': {
-      const urls = Array.isArray(emitted) ? emitted.map((x) => (typeof x === 'string' ? x : String((x as { url?: unknown }).url))) : [String(emitted)];
+      // una lista de direcciones (`sameAs`) o de credenciales, o una credencial sola (S3c): de cada una, su dirección
+      const urls = (Array.isArray(emitted) ? emitted : [emitted]).map((x) => (typeof x === 'string' ? x : String((x as { url?: unknown }).url)));
       for (const u of urls) if (!hasHref(u)) missing.push(u);
       break;
     }
     case 'img': {
-      const src = String(emitted).replace(site.url, '');
-      if (!html.includes(`src="${src}"`)) missing.push(src);
+      // S3c: una o varias direcciones; basta con que UNA se vea como `src` de un <img> (los demás recortes son la misma imagen); que cada
+      // una exista publicada y sea un recorte del conjunto lo comprueba R7h (c)
+      const srcs = (Array.isArray(emitted) ? emitted : [emitted]).map((u) => String(u).replace(site.url, ''));
+      if (!srcs.some((src) => new RegExp(`<img\\b[^>]*\\ssrc="${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`).test(html))) missing.push(`ningún <img> con src en [${srcs.join(', ')}]`);
       break;
     }
     case 'none':
@@ -351,7 +398,7 @@ function notVisible(key: EntityFieldKey, emitted: unknown, html: string, h: Head
   return missing;
 }
 
-function checkEntityEmission(person: Record<string, unknown>, nodes: Record<string, unknown>[], html: string, h: Head, where: string, ctx: VisibilityContext): void {
+function checkEntityEmission(person: Record<string, unknown>, nodes: Record<string, unknown>[], html: string, h: Head, where: string, ctx: VisibilityContext, e: Expected): void {
   const FIXED = new Set(['@type', '@id', 'url']);
   const byProperty = new Map<string, EntityFieldKey>();
   for (const key of ENTITY_FIELD_KEYS) { const p = fieldSpec(key).emits; if (p) byProperty.set(p, key); }
@@ -376,10 +423,10 @@ function checkEntityEmission(person: Record<string, unknown>, nodes: Record<stri
     if (status === 'aprobado') fail('R7g', where, `Person.${prop} (entity.${key}, aprobado) es visible según el contenido pero NO en el HTML servido: ${missing.join(', ')} (un componente no pinta lo que lee; los datos estructurados describen la página, no la amplían)`);
     else inheritedNotVisible.push(`entity.${key} (Person.${prop}, heredado): no visible ${missing.join(', ')}`);
   }
-  // credenciales emitidas: su dirección es la de la llave declarada
-  if (Array.isArray(person.hasCredential)) {
+  // credenciales emitidas (un objeto o una lista): su dirección es la de la llave declarada
+  if (person.hasCredential !== undefined) {
     const declared = (entityValue('credentials') as Credential[] | undefined) ?? [];
-    for (const c of person.hasCredential as { url?: unknown }[]) {
+    for (const c of (Array.isArray(person.hasCredential) ? person.hasCredential : [person.hasCredential]) as { url?: unknown }[]) {
       if (!declared.some((d) => identity.links[d.link as keyof typeof identity.links] === c.url)) fail('R7g', where, `hasCredential con url "${String(c.url)}" que no es la de ninguna credencial declarada en la entidad`);
     }
   }
@@ -387,11 +434,36 @@ function checkEntityEmission(person: Record<string, unknown>, nodes: Record<stri
   const profile = nodes.find((n) => n['@type'] === 'ProfilePage');
   if (profile && !isProfilePageReadyOn(ctx)) fail('R7g', where, 'ProfilePage emitida sin el mínimo de la entidad aprobado y visible');
   if (profile && (profile.mainEntity as { '@id'?: unknown } | undefined)?.['@id'] !== person['@id']) fail('R7g', where, 'ProfilePage.mainEntity no apunta a la Person del grafo');
+  // R7h (b) — las fechas de la página son las de su contenido (las edita una persona), nunca la hora de la compilación
+  if (profile) {
+    const section = getPage(e.locale, e.id).sections.find((s) => s.type === 'profile');
+    const want = section && section.type === 'profile' ? { dateCreated: section.published, dateModified: section.updated } : null;
+    if (!want) fail('R7h', where, 'ProfilePage sin sección de perfil en su documento');
+    else for (const k of ['dateCreated', 'dateModified'] as const) {
+      if (profile[k] !== want[k]) fail('R7h', where, `ProfilePage.${k} "${String(profile[k])}" ≠ la fecha del contenido "${want[k]}" (una fecha la escribe una persona en el documento; nunca la hora de la compilación)`);
+    }
+  }
+  // R7h (c) — el retrato: cada dirección publicada en out/, recorte del conjunto de la entidad, ≥ 50 000 píxeles
+  if (person.image !== undefined) {
+    const members = mediaMembers(String(entityValue('image') ?? ''));
+    for (const url of (Array.isArray(person.image) ? person.image : [person.image]).map(String)) {
+      const rel = url.startsWith(site.url) ? url.slice(site.url.length) : null;
+      const m = members.find((x) => x.src === rel);
+      if (!rel || !fs.existsSync(path.join(OUT, rel))) fail('R7h', where, `Person.image "${url}" no es un archivo publicado del sitio (sin retrato publicado no se escribe la propiedad)`);
+      if (!m) fail('R7h', where, `Person.image "${url}" no es un recorte del conjunto que la entidad referencia`);
+      else if ((m.width ?? 0) * (m.height ?? 0) < 50_000) fail('R7h', where, `Person.image "${url}" mide ${m.width}×${m.height}, por debajo de 50 000 píxeles (Google, ProfilePage)`);
+    }
+  }
 }
 
 function pageEntryType(id: PageId): string {
   return PAGES.find((p) => p.id === id)?.type ?? '?';
 }
+
+// R7h (a) — la persona se declara en UN documento del sitio, el de la página de perfil
+if (personDeclarations.length !== 1 || personDeclarations[0].type !== 'profile') {
+  fail('R7h', 'out/', `el Person se declara en [${personDeclarations.map((d) => `${d.route} (${d.type}, ×${d.count})`).join(', ') || 'ninguna página'}]: tiene que declararse una sola vez, en la página de perfil; las demás lo referencian por su @id`);
+} else if (personDeclarations[0].count !== 1) fail('R7h', `out${personDeclarations[0].route}index.html`, `${personDeclarations[0].count} declaraciones del Person en la página de perfil (una)`);
 
 // R7f — mapa del sitio y robots, en conjunto
 const expectedSitemap = expected.filter((e) => pageRules(e.id).indexable).map((e) => e.url);

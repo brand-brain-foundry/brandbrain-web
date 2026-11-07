@@ -116,7 +116,7 @@ export function findBlockedEntitySubstitutions(doc: unknown, path = "$", acc: Bl
 export type UndeclaredSubstitution = { path: string; token: string };
 
 /** Llaves estructurales: identifican, enlazan, referencian (`page`, `global`) o declaran un control (`kind`), no son texto; no se sustituye dentro de ellas. */
-const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global", "kind"]);
+const STRUCTURAL_KEYS = new Set(["id", "type", "link", "case", "page", "global", "kind", "entity", "media"]);
 
 /**
  * Recorre los textos de un documento y lista cada `{{…}}` que no sea una sustitución declarada (con su ruta).

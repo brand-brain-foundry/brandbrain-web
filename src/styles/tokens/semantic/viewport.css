@@ -104,6 +104,10 @@
      Los componentes lo consumen por este rol, nunca como un número escrito a mano. */
   --bbf-legal-max-width: calc(var(--bbf-space-21) * 8);
 
+  /* LADO DEL RETRATO de la página de perfil (S3c, D-BBW-91): 252 px = 3 × el paso-21, tres octavos de la columna de lectura. El derivado
+     mide 600 (más de 2× para pantallas densas); el componente lo consume por este rol. */
+  --bbf-profile-portrait-size: calc(var(--bbf-space-21) * 3);
+
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
   /* fase 6f (composición del pie leída del export): en la vista amplia legal + perfiles a la izquierda y aviso a la derecha; en la

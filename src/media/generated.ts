@@ -17,6 +17,9 @@ export const media = {
   icon512: { src: "/icon-512.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   icon512Maskable: { src: "/icon-512-maskable.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   share: { src: "/share-1200x630.png", type: "image/png", width: 1200, height: 630, sizes: "1200x630" },
+  portrait1x1: { src: "/portrait-600x600.jpg", type: "image/jpeg", width: 600, height: 600, sizes: "600x600" },
+  portrait4x3: { src: "/portrait-600x450.jpg", type: "image/jpeg", width: 600, height: 450, sizes: "600x450" },
+  portrait16x9: { src: "/portrait-600x338.jpg", type: "image/jpeg", width: 600, height: 338, sizes: "600x338" },
   gcFoundational72: { src: "/gc-foundational-72.png", type: "image/png", width: 72, height: 72, sizes: "72x72" },
   gcFoundational144: { src: "/gc-foundational-144.png", type: "image/png", width: 144, height: 144, sizes: "144x144" },
   manifest: { src: "/manifest.webmanifest", type: "application/manifest+json" },
@@ -29,6 +32,11 @@ export const inlineIcons = {
   arrowUpRight: { viewBox: "0 0 16 16", paint: "stroke", use: "ornament", d: "M4.5 11.5l7-7M5.5 4.5h6v6" },
   toggleArmTop: { viewBox: "0 0 34 6", paint: "stroke", use: "ornament", d: "M0 3 Q 4.25 0.5 8.5 3 T 17 3 T 25.5 3 T 34 3" },
   toggleArmBottom: { viewBox: "0 0 34 6", paint: "stroke", use: "ornament", d: "M0 3 Q 4.25 5.5 8.5 3 T 17 3 T 25.5 3 T 34 3" },
+} as const;
+
+/** Conjuntos de medios (S3c): un identificador → los derivados del mismo maestro, en orden (declarados en `mediaSets` del registro). */
+export const mediaSets = {
+  portrait: ["portrait1x1", "portrait4x3", "portrait16x9"],
 } as const;
 
 /** Rigs (M1c): anatomía derivada de un maestro vectorial (perfil `rig` del registro); la consume el motor S9 al arrancar. */
