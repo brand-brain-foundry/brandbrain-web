@@ -30,11 +30,25 @@ export type PageEntry = {
   readonly type: PageType;
   /** orden en el grupo legal del pie (menor primero); ausente = no aparece en el pie */
   readonly footerOrder?: number;
+  /**
+   * EXCEPCIÓN AL RANGO DEL `<title>` de su tipo (S3, C-7 → D-BBW-87): una longitud EXACTA admitida fuera del rango, con su razón y la
+   * decisión que la firma. Es la forma que D-BBW-16 fija para cualquier excepción (valor + razón + registro) llevada al sistema de
+   * posicionamiento: el rango sigue siendo del TIPO (`page-types.ts`, `SEO.md` §4) y la excepción es de UNA página y de UN valor. Si el
+   * título cambia de longitud, deja de coincidir y R7c vuelve a romper: una excepción no es un rango más ancho. R7c la LEE de aquí
+   * (`pageTitleException`); la guardia no escribe ningún número.
+   */
+  readonly titleLengthException?: { readonly length: number; readonly reason: string; readonly decision: string };
 };
 
 /** Las páginas del sitio. El orden de este array es el orden del mapa del sitio. */
 export const PAGES = [
-  { id: "home",        slug: "",            type: "home" },
+  {
+    id: "home",
+    slug: "",
+    type: "home",
+    // la marca + la categoría EXACTA de D-BBW-81 (que no se acorta) suman 61 caracteres; el valor no se escribe aquí: sale del contenido
+    titleLengthException: { length: 61, reason: "el título propio de la portada es la repetición exacta de la categoría (D-BBW-81)", decision: "D-BBW-87" },
+  },
   { id: "aviso-legal", slug: "aviso-legal", type: "legal-restricted", footerOrder: 0 },
   { id: "privacidad",  slug: "privacidad",  type: "legal",            footerOrder: 1 },
   { id: "cookies",     slug: "cookies",     type: "legal",            footerOrder: 2 },
@@ -62,6 +76,12 @@ export function pageEntry(id: PageId): RegisteredPage {
 /** Las reglas que la página hereda de su tipo. */
 export function pageRules(id: PageId): PageTypeRules {
   return PAGE_TYPES[pageEntry(id).type];
+}
+
+/** La excepción registrada al rango del `<title>` de una página, si la tiene (S3, D-BBW-87). R7c la lee; nadie más la necesita. */
+export function pageTitleException(id: PageId): PageEntry["titleLengthException"] {
+  const entry: PageEntry = pageEntry(id);
+  return entry.titleLengthException;
 }
 
 /** Ruta canónica de una página para un locale, con la barra final que emite el build: `/es/` · `/es/privacidad/`. */

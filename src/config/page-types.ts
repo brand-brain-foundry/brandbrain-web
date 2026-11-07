@@ -15,6 +15,12 @@
  * FÓRMULA DEL TÍTULO. El documento de la página lleva su título PROPIO (`meta.title`, sin la marca); el tipo compone el `<title>`.
  * Google (Search Central, «Influencing your title links», act. 2025-12-10) recomienda el nombre del sitio «al principio o al final de cada
  * `<title>`, separado del resto con un delimitador»: la portada lo lleva delante (es la página de la persona) y las demás detrás.
+ * S3 (D-BBW-81, D-BBW-87): el título propio de la portada es la CATEGORÍA, referenciada (`{{category}}`) y no escrita, y la categoría se
+ * escribe en minúscula y sin poseerla; la mayúscula inicial del `<title>` la pone la fórmula del tipo `home` (una variante por fórmula,
+ * I-3), nunca el contenido. Las demás fórmulas no la necesitan: sus títulos propios ya empiezan en mayúscula.
+ *
+ * EXCEPCIÓN AL RANGO: una página puede registrar en `pages.ts` (`titleLengthException`: longitud exacta + razón + decisión) un `<title>`
+ * fuera del rango de su tipo; R7c la lee de allí. Hoy una: la portada, 61 caracteres (D-BBW-87).
  *
  * RANGOS DE LONGITUD — CRITERIO PROPIO, dicho porque no hay cifra oficial: Google declara que «no hay límite de longitud» ni para el
  * `<title>` («Influencing your title links», act. 2025-12-10) ni para la descripción («Control your snippets», act. 2026-04-20), y
@@ -51,6 +57,9 @@ const TITLE_SEPARATOR = " · ";
 const TITLE_LENGTH = [20, 60] as const;
 const DESCRIPTION_LENGTH = [50, 160] as const;
 
+/** Mayúscula inicial (y nada más): la variante por fórmula de un título propio que el contenido escribe en minúscula (la categoría, D-BBW-81). */
+const sentenceCase = (s: string): string => s.charAt(0).toLocaleUpperCase("es") + s.slice(1);
+
 export const PAGE_TYPES = {
   /** la portada: la página de la persona; emite el grafo de la entidad (`Person` + `WebSite`) y lleva la marca delante del título */
   home: {
@@ -58,7 +67,7 @@ export const PAGE_TYPES = {
     measured: true,
     share: true,
     structuredData: "entity",
-    title: (own, brand) => `${brand}${TITLE_SEPARATOR}${own}`,
+    title: (own, brand) => `${brand}${TITLE_SEPARATOR}${sentenceCase(own)}`,
     titleLength: TITLE_LENGTH,
     descriptionLength: DESCRIPTION_LENGTH,
   },

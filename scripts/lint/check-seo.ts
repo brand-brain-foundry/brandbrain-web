@@ -14,8 +14,9 @@
  *   R7b · TODA PÁGINA: `<html lang>` = locale; un solo `<h1>`; `<title>` = la fórmula de su tipo sobre el título propio del documento;
  *         descripción = la del documento; canónica absoluta = dominio + ruta; Open Graph completo (`og:title/description/url/site_name/type`)
  *         coherente con lo anterior; la marca en el `<title>`.
- *   R7c · PÁGINA INDEXABLE: título y descripción dentro del rango de su tipo; sin `noindex`; en el mapa del sitio; con imagen de compartir
- *         y tarjeta grande si su tipo la declara (y SIN imagen si no).
+ *   R7c · PÁGINA INDEXABLE: título y descripción dentro del rango de su tipo —o el título con la longitud EXACTA de la excepción que la página
+ *         registra en `src/config/pages.ts` (`titleLengthException`, S3 · D-BBW-87: la guardia la LEE, no escribe ningún número)—; sin
+ *         `noindex`; en el mapa del sitio; con imagen de compartir y tarjeta grande si su tipo la declara (y SIN imagen si no).
  *   R7d · PÁGINA OCULTA: `<meta name="robots">` con `noindex` y `noarchive`; regla de ruta en `_headers` con `X-Robots-Tag` equivalente;
  *         fuera del mapa del sitio; sin datos estructurados; sin imagen de compartir; `Disallow` de su ruta para CADA agente de IA de
  *         `robots.txt`.
@@ -29,21 +30,37 @@
  *         bloque de entidad de `content/site.json`: (a) ningún campo sale en los datos estructurados sin estar `aprobado` y VISIBLE en la
  *         página (texto literal, `href`, `mailto:` o `src` según el campo); lo `pendiente` no sale; lo `heredado` solo si ya se emitía antes
  *         de S2, y entonces se informa si no es visible; ninguna propiedad del `Person` que no tenga campo en la entidad; `ProfilePage` solo
- *         con el mínimo aprobado. (b) Ninguna sustitución queda sin resolver en el HTML servido (`{{…}}`): una de entidad bloqueada que
- *         llegara a lo servido se vería aquí. (c) INFORME DE COMPLETITUD de la entidad (aprobados · heredados · pendientes): se imprime, no falla.
+ *         con el mínimo emitido. S3: la emisión esperada se calcula como la calcula el constructor —aprobado Y visible según la capa de
+ *         contenido (`visibilityContext`)— y después se CONFIRMA sobre el HTML: lo emitido tiene que verse; lo aprobado y no visible no
+ *         tiene que emitirse. El texto visible es el CUERPO (`<body>`): ni `<title>` ni `meta` cuentan. (b) Ninguna sustitución queda sin
+ *         resolver en el HTML servido (`{{…}}`): una de entidad bloqueada que llegara a lo servido se vería aquí. (c) INFORME de la entidad:
+ *         completitud (aprobados · heredados · pendientes) y EMISIÓN (qué aprobados se emiten, cuáles no y por qué; `ProfilePage`): se
+ *         imprime, no falla.
  * Uso: `pnpm lint:seo [--out <dir>]` · al final de `pnpm build`. No corre en el pre-commit porque necesita el sitio compilado (14 s).
  */
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { site, publishedLocales, type Locale } from '../../src/config/site';
-import { PAGES, pageRoute, pageUrl, pageRules, type PageId } from '../../src/config/pages';
+import { PAGES, pageRoute, pageUrl, pageRules, pageTitleException, type PageId } from '../../src/config/pages';
 import { AI_AGENTS } from '../../src/app/robots';
 import { identity } from '../../src/content/site';
-import { getPage } from '../../src/content';
+import { getGlobal, getPage } from '../../src/content';
 import { media } from '../../src/media';
-import { ENTITY_FIELD_KEYS, fieldSpec, type EntityFieldKey } from '../../src/content/entity-fields';
-import { entityCompleteness, entityGraphTypes, entityStatus, entityValue, isEmitted, isProfilePageReady, type Credential } from '../../src/content/entity';
+import { ENTITY_FIELD_KEYS, PROFILE_PAGE_MINIMUM, fieldSpec, type EntityFieldKey } from '../../src/content/entity-fields';
+import {
+  entityCompleteness,
+  entityEmissionReport,
+  entityGraphTypesOn,
+  entityStatus,
+  entityValue,
+  isEmittedOn,
+  isProfilePageReadyOn,
+  missingInText,
+  visibilityContext,
+  type Credential,
+  type VisibilityContext,
+} from '../../src/content/entity';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -53,8 +70,10 @@ const OUT = argOut > 0 ? path.resolve(process.argv[argOut + 1]) : path.join(REPO
 type Fail = { rule: string; where: string; detail: string };
 const fails: Fail[] = [];
 const fail = (rule: string, where: string, detail: string) => fails.push({ rule, where, detail });
-/** R7g (c): lo heredado que se emite sin ser visible, para el informe (no falla: lo resuelve la sesión C). */
+/** R7g (c): lo heredado que se emite sin ser visible, para el informe (no falla). */
 const inheritedNotVisible: string[] = [];
+/** R7g (c): el informe de emisión de la entidad por página que emite el grafo (S3 F9): se imprime, no falla. */
+const emissionLines: string[] = [];
 
 function die(msg: string): never {
   console.error(`[seo-gate] FAIL-CLOSED: ${msg}`);
@@ -73,8 +92,9 @@ const attr = (tag: string, name: string): string | null => {
 };
 const decode = (s: string): string =>
   s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#x27;/g, "'").replace(/&#39;/g, "'");
+/** El texto VISIBLE: el cuerpo sin guiones ni estilos. La cabecera entera queda fuera (S3): un `<title>` o una `meta` no es texto de la página. */
 const visibleText = (html: string): string =>
-  decode(html.replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<style[\s\S]*?<\/style>/g, ' ').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+  decode(html.replace(/<head[\s\S]*?<\/head>/, ' ').replace(/<script[\s\S]*?<\/script>/g, ' ').replace(/<style[\s\S]*?<\/style>/g, ' ').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
 
 type Head = {
   lang: string | null;
@@ -190,6 +210,8 @@ for (const e of expected) {
   const doc = getPage(e.locale, e.id);
   const expectedTitle = rules.title(doc.meta.title, identity.brand);
   const h = parse(html);
+  // lo que esta página muestra según la capa de contenido: la misma pregunta que se hace el constructor del grafo (S3)
+  const ctx = visibilityContext(doc, getGlobal(e.locale));
 
   // R7b — toda página
   if (h.lang !== e.locale) fail('R7b', where, `<html lang> = "${h.lang}" y la página es del locale "${e.locale}"`);
@@ -217,7 +239,11 @@ for (const e of expected) {
     // R7c — indexable
     if (h.title) {
       const [min, max] = rules.titleLength;
-      if (h.title.length < min || h.title.length > max) fail('R7c', where, `<title> de ${h.title.length} caracteres fuera del rango [${min}, ${max}] del tipo`);
+      const exception = pageTitleException(e.id);
+      if (h.title.length < min || h.title.length > max) {
+        if (!exception) fail('R7c', where, `<title> de ${h.title.length} caracteres fuera del rango [${min}, ${max}] del tipo (sin excepción registrada en src/config/pages.ts)`);
+        else if (h.title.length !== exception.length) fail('R7c', where, `<title> de ${h.title.length} caracteres fuera del rango [${min}, ${max}] del tipo y distinto de la excepción registrada (${exception.length}, ${exception.decision}): una excepción es un valor, no un rango más ancho`);
+      }
     }
     if (description !== null) {
       const [min, max] = rules.descriptionLength;
@@ -259,7 +285,7 @@ for (const e of expected) {
         if (g['@context'] !== 'https://schema.org') fail('R7e', where, `@context "${String(g['@context'])}" ≠ https://schema.org`);
         const nodes = Array.isArray(g['@graph']) ? (g['@graph'] as Record<string, unknown>[]) : [];
         const types = nodes.map((n) => String(n['@type'])).sort();
-        const want = kind === 'entity' ? entityGraphTypes() : [];
+        const want = kind === 'entity' ? entityGraphTypesOn(ctx) : [];
         if (types.join(',') !== want.join(',')) fail('R7e', where, `tipos del grafo [${types.join(', ')}] ≠ [${want.join(', ')}]`);
         const person = nodes.find((n) => n['@type'] === 'Person');
         if (person) {
@@ -275,9 +301,14 @@ for (const e of expected) {
         if (website && website.url !== pageUrl(e.locale, 'home')) fail('R7e', where, `WebSite.url ≠ la portada del locale`);
         if (website && website.name !== identity.brand) fail('R7e', where, `WebSite.name ≠ la marca`);
         // R7g (a) — la entidad: cada propiedad del Person contra el estado de su campo y su visibilidad
-        if (person) checkEntityEmission(person, nodes, html, h, where);
+        if (person) checkEntityEmission(person, nodes, html, h, where, ctx);
       }
     }
+    // R7g (c) — informe de emisión de la entidad en la página que emite el grafo (S3 F9)
+    const report = entityEmissionReport(ctx);
+    emissionLines.push(`[entidad] ${e.route}: se emiten ${report.emitted.length} campo(s) [${report.emitted.join(', ')}] · ProfilePage: ${isProfilePageReadyOn(ctx) ? 'activa' : `no (mínimo emitido: ${PROFILE_PAGE_MINIMUM.join(', ')})`}`);
+    for (const a of report.approvedNotVisible) emissionLines.push(`[entidad] ${e.route}: entity.${a.key} aprobado y NO visible → no se emite (${a.why})`);
+    if (report.approvedNotEmitting.length) emissionLines.push(`[entidad] ${e.route}: aprobados sin propiedad en el Person (no se emiten por diseño): ${report.approvedNotEmitting.join(', ')}`);
   }
 
   // R7g (b) — ninguna sustitución sin resolver en lo servido
@@ -295,8 +326,10 @@ function notVisible(key: EntityFieldKey, emitted: unknown, html: string, h: Head
   const hasHref = (url: string) => html.includes(`href="${url}"`);
   switch (spec.visible) {
     case 'text': {
+      // la misma regla que el constructor aplica al contenido: un valor contenido en otro valor de la entidad solo cuenta fuera de él (S3)
       const values = Array.isArray(emitted) ? emitted.map(String) : [String(emitted)];
-      for (const v of values) if (!h.text.includes(v)) missing.push(v);
+      const declared = missingInText(key, h.text);
+      for (const v of values) if (declared.includes(v) || !h.text.includes(v)) missing.push(v);
       break;
     }
     case 'mailto':
@@ -318,7 +351,7 @@ function notVisible(key: EntityFieldKey, emitted: unknown, html: string, h: Head
   return missing;
 }
 
-function checkEntityEmission(person: Record<string, unknown>, nodes: Record<string, unknown>[], html: string, h: Head, where: string): void {
+function checkEntityEmission(person: Record<string, unknown>, nodes: Record<string, unknown>[], html: string, h: Head, where: string, ctx: VisibilityContext): void {
   const FIXED = new Set(['@type', '@id', 'url']);
   const byProperty = new Map<string, EntityFieldKey>();
   for (const key of ENTITY_FIELD_KEYS) { const p = fieldSpec(key).emits; if (p) byProperty.set(p, key); }
@@ -328,16 +361,19 @@ function checkEntityEmission(person: Record<string, unknown>, nodes: Record<stri
   for (const [prop, key] of byProperty) {
     const status = entityStatus(key);
     const present = person[prop] !== undefined;
-    const emitted = isEmitted(key);
+    const emitted = isEmittedOn(key, ctx);
     if (!emitted && present) {
-      fail('R7g', where, `Person.${prop} emitido con el campo entity.${key} en estado "${status}": solo sale lo aprobado${fieldSpec(key).emittedWhileInherited ? '' : ' (y no se emitía antes de S2)'}`);
+      const why = status === 'aprobado'
+        ? 'aprobado pero NO visible según el contenido de la página: solo se emite lo aprobado y visible (P-BBW-95)'
+        : `en estado "${status}": solo sale lo aprobado${fieldSpec(key).emittedWhileInherited ? '' : ' (y no se emitía antes de S2)'}`;
+      fail('R7g', where, `Person.${prop} emitido con el campo entity.${key} ${why}`);
       continue;
     }
-    if (emitted && !present) { fail('R7g', where, `entity.${key} está "${status}" y se emite, pero Person.${prop} no está en lo servido`); continue; }
+    if (emitted && !present) { fail('R7g', where, `entity.${key} está "${status}", es visible según el contenido y se emite, pero Person.${prop} no está en lo servido`); continue; }
     if (!present) continue;
     const missing = notVisible(key, person[prop], html, h);
     if (missing.length === 0) continue;
-    if (status === 'aprobado') fail('R7g', where, `Person.${prop} (entity.${key}, aprobado) no es visible en la página: ${missing.join(', ')} (los datos estructurados describen la página, no la amplían)`);
+    if (status === 'aprobado') fail('R7g', where, `Person.${prop} (entity.${key}, aprobado) es visible según el contenido pero NO en el HTML servido: ${missing.join(', ')} (un componente no pinta lo que lee; los datos estructurados describen la página, no la amplían)`);
     else inheritedNotVisible.push(`entity.${key} (Person.${prop}, heredado): no visible ${missing.join(', ')}`);
   }
   // credenciales emitidas: su dirección es la de la llave declarada
@@ -349,7 +385,7 @@ function checkEntityEmission(person: Record<string, unknown>, nodes: Record<stri
   }
   // ProfilePage: solo con el mínimo aprobado, y apuntando a la persona
   const profile = nodes.find((n) => n['@type'] === 'ProfilePage');
-  if (profile && !isProfilePageReady()) fail('R7g', where, 'ProfilePage emitida sin el mínimo de la entidad aprobado');
+  if (profile && !isProfilePageReadyOn(ctx)) fail('R7g', where, 'ProfilePage emitida sin el mínimo de la entidad aprobado y visible');
   if (profile && (profile.mainEntity as { '@id'?: unknown } | undefined)?.['@id'] !== person['@id']) fail('R7g', where, 'ProfilePage.mainEntity no apunta a la Person del grafo');
 }
 
@@ -382,7 +418,8 @@ if (sitemapLine !== `${site.url}/sitemap.xml`) fail('R7f', 'out/robots.txt', `Si
 // R7g (c) — completitud de la entidad: se imprime siempre (pase o falle la guardia), no falla
 const completeness = entityCompleteness();
 console.log(completeness.line);
-for (const line of inheritedNotVisible) console.log(`[entidad] heredado y emitido sin ser visible (lo resuelve la sesión C): ${line}`);
+for (const line of emissionLines) console.log(line);
+for (const line of inheritedNotVisible) console.log(`[entidad] heredado y emitido sin ser visible: ${line}`);
 if (fails.length === 0) {
   const indexable = expected.filter((e) => pageRules(e.id).indexable).length;
   console.log(`[seo-gate] OK — ${checkedPages} página(s) servida(s) = ${PAGES.length} registrada(s) × ${publishedLocales.length} locale(s); ${indexable} indexable(s) en el mapa del sitio, ${expected.length - indexable} oculta(s) con noindex + cabecera + Disallow para ${AI_AGENTS.length} agentes; datos estructurados coherentes con el texto visible y con la entidad.`);

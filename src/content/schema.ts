@@ -275,7 +275,8 @@ export type PageDocument = {
     /**
      * título PROPIO de la página (v3.9, S1 · P-BBW-94): SIN la marca. El `<title>` lo compone la fórmula del tipo de página
      * (`src/config/page-types.ts`: la portada «marca · título», las demás «título · marca») desde la fuente única. Escribir
-     * `{{brand}}` aquí rompe la compilación: la marca la pone la fórmula, una vez.
+     * `{{brand}}` aquí rompe la compilación: la marca la pone la fórmula, una vez. Puede ser una referencia a la entidad (v3.11, S3:
+     * la portada escribe `{{category}}`), y la fórmula del tipo pone la mayúscula inicial.
      */
     title: string;
     /** descripción para buscadores */
