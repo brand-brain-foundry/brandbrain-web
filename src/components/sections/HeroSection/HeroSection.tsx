@@ -12,9 +12,12 @@ import styles from "./HeroSection.module.css";
  * 2026-11-02 (orden de Zavala): cambia el CONTENIDO de las dos zonas y nada más.
  *   · el ESCENARIO deja de llevar el vídeo del pez y lleva el campo de puntos S8 (`CriterioField`), con la misma geometría, la misma máscara
  *     radial y la misma entrada que tenía el vídeo. Salen `HeroMedia` y el seguimiento del sujeto (I-6); los maestros del vídeo se conservan.
- *   · el BLOQUE de texto deja el claim de tres líneas y lleva el cuerpo de la home nueva: el `<h1>` en el rol `heading`, dos párrafos en el
+ *   · el BLOQUE de texto deja el claim de tres líneas y lleva el cuerpo de la home nueva: el `<h1>` en el rol `heading`, el cuerpo en el
  *     rol `body` y dos llamadas a la acción en el rol `button`. Sale `HeroClaim` (I-6). El velo local de legibilidad (D-BBW-25) se queda.
  * Lo que NO cambia: el sombreador, las partículas, la viñeta, la composición por roles de vista, la cabecera y el pie.
+ * S3b (D-BBW-89, 2026-11-07): el cuerpo pasa de dos párrafos a UNO (`paragraph`), que sigue siendo la línea de referencia del campo de
+ *   puntos (`data-field-line`: S8 lee su interlineado y el centro de su primera línea, BEHAVIOR.md §11). Sale el segundo párrafo con su
+ *   retardo de entrada (I-6); nada más cambia.
  */
 export function HeroSection({ section }: { section: HeroSectionData }) {
   const headingId = `${section.id}-heading`;
@@ -29,11 +32,8 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
           <h1 id={headingId} className={styles.heading} data-enter="">
             {section.heading}
           </h1>
-          <p className={`${styles.body} ${styles.bodyFirst}`} data-enter="" data-field-line="">
-            {section.paragraph1}
-          </p>
-          <p className={`${styles.body} ${styles.bodySecond}`} data-enter="">
-            {section.paragraph2}
+          <p className={styles.body} data-enter="" data-field-line="">
+            {section.paragraph}
           </p>
           <div className={styles.ctas} data-enter="">
             {/* 2026-11-02 (orden de Zavala): primero el perfil de LinkedIn y después «Hablemos»; cada botón conserva su estilo.
