@@ -14,13 +14,22 @@
  * ESTADO DE CADA CAMPO (`status`, en los datos, legible por la guardia y NUNCA emitido en el HTML):
  *   · `aprobado`  — el valor está decidido por Zavala. Se emite en los datos estructurados SOLO si además es visible en la página que los
  *                   emite (regla de Google y de `jsonld.ts`: el marcado describe lo visible). Desbloquea su sustitución.
+ *                   S3 (P-BBW-95 aplicada entera): la visibilidad se decide AL CONSTRUIR, desde la capa de contenido (`./entity.ts`,
+ *                   `visibilityContext`: los textos del cuerpo de la página y del documento global, las llaves de enlace que referencian),
+ *                   y R7g la confirma sobre el HTML servido. Un campo aprobado y todavía no visible NO se emite y el informe de la entidad
+ *                   lo dice con su motivo; se emitirá el día que una sección lo escriba (la sección «Quién», S3b).
  *   · `heredado`  — el valor existe pero viene de otro sitio (otro documento, otra web, una decisión anterior) y no está aprobado COMO
  *                   DATO DE LA ENTIDAD. No se emite, salvo lo que YA se emitía antes de S2 (`emittedWhileInherited`: excepción finita, para
- *                   que S2 no cambie nada de lo emitido; la sesión C lo resuelve). Su sustitución sigue bloqueada.
- *   · `pendiente` — declarado y vacío hasta la sesión C. No se emite, no se inventa, no se rellena con otro texto. Sustitución bloqueada.
+ *                   que S2 no cambiara nada de lo emitido). Desde S3 ningún campo está heredado; el estado y su mecánica se conservan
+ *                   para el día en que un valor vuelva a venir de fuera. Su sustitución sigue bloqueada.
+ *   · `pendiente` — declarado y vacío. No se emite, no se inventa, no se rellena con otro texto. Sustitución bloqueada.
  *
- * NADA SENSIBLE (P-BBW-78): ni domicilio, ni NIF, ni teléfono tienen campo aquí ni lo tendrán. `location` admite solo ciudad o región, y
- * solo si Zavala la aprueba en C.
+ * LOS VALORES (S3, sesión C del 2026-11-07, decisiones D-BBW-81…88): PERFIL-CZC es la fuente editorial del perfil (Drive); para la web
+ * mandan las decisiones registradas en el hub y el valor en ejecución vive UNA vez en `content/site.json` `$.entity`. La biblia v5 dejó de ser
+ * fuente de cadenas donde choca con ellas (nota de supersesión al principio de la biblia).
+ *
+ * NADA SENSIBLE (P-BBW-78): ni domicilio, ni NIF, ni teléfono tienen campo aquí ni lo tendrán. `location` admite solo ciudad y país
+ * (D-BBW-86), nunca un domicilio.
  *
  * TRADUCCIÓN: el bloque vive en la raíz de `content/` (no se traduce lo que es un nombre, una dirección o una relación). Los campos marcados
  * `translatable` son texto en el idioma publicado (hoy solo ES, D-BBW-15); cuando exista copy EN, esos campos pasan a un mapa por locale y
@@ -103,7 +112,7 @@ export type EntityFieldSpec = {
 
 /**
  * LOS CAMPOS. El orden es el orden del bloque en `content/site.json`, del esquema exportado y del informe de completitud.
- * Existentes (se referencian sin cambiar su valor): `name`, `role`, `email`. Nuevos (declarados; vacíos o heredados hasta C): el resto.
+ * Referenciados (su valor vive en una llave de primer nivel): `name`, `role`, `email`. Propios: el resto. `alternateName` entra en S3 (D-BBW-85).
  */
 export const ENTITY_FIELDS = {
   name: {
@@ -115,6 +124,15 @@ export const ENTITY_FIELDS = {
     cms: "short-text",
     visible: "text",
     doc: "El nombre de la persona: la cadena completa y sin variantes (D-BBW-58, consistencia de entidad). Vive en $.brand; aquí solo su estado.",
+  },
+  alternateName: {
+    kind: "text",
+    source: { kind: "own" },
+    emits: "alternateName",
+    translatable: false,
+    cms: "short-text",
+    visible: "text",
+    doc: "La ÚNICA variante admitida del nombre (D-BBW-85, enmienda de D-BBW-58): la marca y el logotipo. Person.alternateName; se emite solo cuando aparece escrita en la página. Ninguna otra abreviatura ni inicial tiene campo.",
   },
   role: {
     kind: "text",
@@ -143,7 +161,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "short-text",
     visible: "text",
-    doc: "La categoría: qué se construye, en minúscula y sin poseerla (biblia v5 §5). El copy la referencia por {{category}}; vacía hasta la sesión C.",
+    doc: "La categoría: qué se construye, en minúscula y sin poseerla (D-BBW-81). El copy la referencia por {{category}}: hoy, el título propio de la portada (la fórmula del tipo pone la mayúscula). No se emite como propiedad: es copy, no un hecho del Person.",
   },
   motto: {
     kind: "text",
@@ -152,7 +170,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "short-text",
     visible: "text",
-    doc: "La frase madre (biblia v5 §6). El copy la referencia por {{motto}}; vacía hasta la sesión C.",
+    doc: "La frase madre (D-BBW-83). El copy la referencia por {{motto}}; su lugar visible en la página es decisión de Zavala (S3b). No se emite como propiedad.",
   },
   description: {
     kind: "text",
@@ -163,7 +181,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "long-text",
     visible: "text",
-    doc: "Descripción corta de la persona (Person.description). Mientras esté heredada, los datos estructurados siguen emitiendo la meta.description de la portada, como antes de S2.",
+    doc: "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Se emite cuando una sección la escriba («Quién», S3b). Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
   },
   descriptionLong: {
     kind: "text",
@@ -171,7 +189,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "long-text",
     visible: "none",
-    doc: "Descripción larga de la persona, si hace falta (sección «Quién», biblia v5 §16). No se emite en los datos estructurados.",
+    doc: "Descripción larga de la persona, en primera persona (sección «Quién», PERFIL-CZC §5.3; D-BBW-84, D-BBW-88). No se emite en los datos estructurados.",
   },
   knowsAbout: {
     kind: "textList",
@@ -206,7 +224,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "short-text",
     visible: "none",
-    doc: "Solo ciudad o región, y solo si Zavala la aprueba en C. Nunca un domicilio (P-BBW-78). No se emite.",
+    doc: "La base pública: solo ciudad o región (D-BBW-86), nunca un domicilio (P-BBW-78). Su frase visible es la de D-BBW-88, en la sección «Quién» (S3b). No se emite.",
   },
   sameAs: {
     kind: "linkList",
@@ -216,7 +234,7 @@ export const ENTITY_FIELDS = {
     translatable: false,
     cms: "multi-reference",
     visible: "href",
-    doc: "Las llaves de $.links que son perfiles de la propia persona (Person.sameAs). Las demás llaves son otras entidades o referencias.",
+    doc: "Las llaves de $.links que son perfiles de la propia persona (Person.sameAs). Solo las visibles en la página (D-BBW-86: GitHub sale mientras no se enlace). Las demás llaves son otras entidades o referencias.",
   },
   relations: {
     kind: "relationList",
@@ -237,6 +255,7 @@ export function fieldSpec(key: EntityFieldKey): EntityFieldSpec {
 
 /**
  * EL MÍNIMO para que la portada se declare `ProfilePage` (Google, «ProfilePage structured data», act. 2026-09-08: `mainEntity` con `name`
- * obligatorio; recomendados `description`, `sameAs`, `image`). Se activa cuando TODOS estén `aprobado` (y, por R7g, visibles). Hoy no.
+ * obligatorio; recomendados `description`, `sameAs`, `image`). Se activa cuando TODOS se EMITAN (aprobados y visibles). Hoy no: `description`
+ * está aprobada y no es visible hasta la sección «Quién» (S3b).
  */
 export const PROFILE_PAGE_MINIMUM = ["name", "description", "sameAs"] as const satisfies readonly EntityFieldKey[];

@@ -2,7 +2,8 @@ import { site, type Locale } from "@/config/site";
 import { PAGE_TYPES, type StructuredDataKind } from "@/config/page-types";
 import { pageEntry, pageUrl, type PageId } from "@/config/pages";
 import { identity, type LinkKey } from "@/content/site";
-import { entityList, entityText, isEmitted, isProfilePageReady, type Credential } from "@/content/entity";
+import { entityList, entityText, isEmittedOn, isProfilePageReadyOn, visibilityContext, type Credential, type VisibilityContext } from "@/content/entity";
+import { getGlobal } from "@/content";
 import type { PageDocument } from "@/content/schema";
 import { media } from "@/media";
 
@@ -17,10 +18,12 @@ import { media } from "@/media";
  * hechos que la página no dice.
  *
  * LA ENTIDAD, DESDE S2 (P-BBW-95): los campos del `Person` salen del BLOQUE DE ENTIDAD de `content/site.json` (`src/content/entity.ts`, descrito
- * en `entity-fields.ts`), y la regla de arriba se vuelve mecánica: un campo se emite solo si está `aprobado` (y R7g para el build si no es
- * visible en la página), o si ya se emitía antes de S2 y sigue `heredado` (`description`, que toma la `meta.description` de la portada; `sameAs`).
- * Lo `pendiente` no se emite: ni `knowsAbout`, ni `hasCredential`, ni `image` salen hasta que la sesión C apruebe su valor y S3 lo haga visible.
- * `ProfilePage` (`mainEntity` → la `Person`) se añade al grafo cuando el mínimo de la entidad está aprobado (`PROFILE_PAGE_MINIMUM`); hoy no.
+ * en `entity-fields.ts`), y la regla de arriba se vuelve mecánica: un campo se emite solo si está `aprobado` Y ES VISIBLE en la página que
+ * emite el grafo —visibilidad decidida al construir desde la capa de contenido (`visibilityContext`: el cuerpo de la página + el documento
+ * global; S3) y confirmada por R7g sobre el HTML—, o si ya se emitía antes de S2 y sigue `heredado`. Lo `pendiente` no se emite. Lo aprobado y
+ * todavía sin sección (`description`, `alternateName`…) tampoco: entra el día que una sección lo escriba, sin tocar este archivo.
+ * `ProfilePage` (`mainEntity` → la `Person`) se añade al grafo cuando el mínimo de la entidad se emite (`PROFILE_PAGE_MINIMUM`); hoy no:
+ * `description` está aprobada y espera la sección «Quién» (S3b).
  *
  * EL SUJETO DEL SITIO ES UNA `Person`, NO UNA `Organization` (D-BBW-58). La biblia estratégica v2 §2 convierte este sitio en la práctica
  * profesional de una persona y «Brand Brain Foundry» en el nombre del MÉTODO. Declarar una organización con el nombre de una persona sería
@@ -69,26 +72,28 @@ import { media } from "@/media";
 /** Lo que un constructor recibe: el locale, la página y su documento ya resuelto por el puerto de contenido. */
 type GraphContext = { locale: Locale; id: PageId; page: PageDocument };
 
-/** Un nodo `Person` conforme al bloque de entidad: las propiedades entran en el orden de siempre y solo si la entidad las emite. */
-function personNode(personId: string, home: string, page: PageDocument): Record<string, unknown> {
+/** Un nodo `Person` conforme al bloque de entidad: las propiedades entran en el orden de siempre y solo si la entidad las emite en esta página. */
+function personNode(personId: string, home: string, page: PageDocument, ctx: VisibilityContext): Record<string, unknown> {
   const node: Record<string, unknown> = {
     "@type": "Person",
     "@id": personId,
     // la cadena del nombre, completa y sin variantes, desde la fuente única (D-BBW-58). Es la MISMA que el pie muestra en su línea legal.
     name: identity.brand,
-    url: home,
   };
+  // la única variante admitida del nombre (D-BBW-85): entra cuando esté escrita en la página (el logotipo no es texto; S3b)
+  if (isEmittedOn("alternateName", ctx)) node.alternateName = entityText("alternateName");
+  node.url = home;
   // el CARGO (D-BBW-61), de la misma constante que compone la línea del pie: lo declarado y lo visible son la misma cadena por construcción
-  if (isEmitted("role")) node.jobTitle = identity.role;
+  if (isEmittedOn("role", ctx)) node.jobTitle = identity.role;
   // el buzón oficial (D-BBW-13(a), reapuntado por D-BBW-58); la página lo lleva literal en el `href` del enlace de contacto
-  if (isEmitted("email")) node.email = identity.email;
-  // los PERFILES personales, por su llave de rol en la fuente única (desde S2, declarados en `entity.sameAs`)
-  if (isEmitted("sameAs")) node.sameAs = entityList<LinkKey>("sameAs").map((k) => identity.links[k]);
-  // la descripción: propia cuando esté aprobada; mientras esté heredada, la `meta.description` de la portada (como antes de S2)
-  if (isEmitted("description")) node.description = entityText("description") ?? page.meta.description;
-  // lo NUEVO de S2, que no sale hasta que la sesión C lo apruebe y S3 lo haga visible
-  if (isEmitted("knowsAbout")) node.knowsAbout = entityList<string>("knowsAbout");
-  if (isEmitted("credentials")) {
+  if (isEmittedOn("email", ctx)) node.email = identity.email;
+  // los PERFILES personales, por su llave de rol en la fuente única (desde S2, declarados en `entity.sameAs`; D-BBW-86: solo los enlazados)
+  if (isEmittedOn("sameAs", ctx)) node.sameAs = entityList<LinkKey>("sameAs").map((k) => identity.links[k]);
+  // la frase definitoria (D-BBW-81/82/84): propia; si volviera a heredarse, la `meta.description` de la portada (como antes de S2)
+  if (isEmittedOn("description", ctx)) node.description = entityText("description") ?? page.meta.description;
+  // lo que entra cuando una sección lo escriba (S3b)
+  if (isEmittedOn("knowsAbout", ctx)) node.knowsAbout = entityList<string>("knowsAbout");
+  if (isEmittedOn("credentials", ctx)) {
     node.hasCredential = entityList<Credential>("credentials").map((c) => ({
       "@type": "EducationalOccupationalCredential",
       name: c.name,
@@ -96,7 +101,7 @@ function personNode(personId: string, home: string, page: PageDocument): Record<
       url: identity.links[c.link as LinkKey],
     }));
   }
-  if (isEmitted("image")) {
+  if (isEmittedOn("image", ctx)) {
     const id = entityText("image") as keyof typeof media | undefined;
     if (id && id in media) node.image = `${site.url}${media[id].src}`;
   }
@@ -112,9 +117,11 @@ function entityGraph({ locale, page }: GraphContext): object {
   const home = pageUrl(locale, "home");
   const personId = `${site.url}/#person`;
   const websiteId = `${site.url}/#website`;
+  // lo que ESTA página muestra, según el contenido: decide qué campos aprobados se emiten (S3)
+  const ctx = visibilityContext(page, getGlobal(locale));
 
   const graph: object[] = [
-    personNode(personId, home, page),
+    personNode(personId, home, page, ctx),
     {
       "@type": "WebSite",
       "@id": websiteId,
@@ -125,7 +132,7 @@ function entityGraph({ locale, page }: GraphContext): object {
       publisher: { "@id": personId },
     },
   ];
-  if (isProfilePageReady()) {
+  if (isProfilePageReadyOn(ctx)) {
     // Google, «ProfilePage structured data» (act. 2026-09-08): `mainEntity` obligatorio; la página es el perfil de la persona que publica el sitio
     graph.push({ "@type": "ProfilePage", "@id": `${site.url}/#profile`, url: home, mainEntity: { "@id": personId } });
   }

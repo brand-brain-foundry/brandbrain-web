@@ -3,16 +3,16 @@ id: BBW-SEO
 title: "Sistema de posicionamiento por capas — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.1
+version: 1.2
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-11-07
 updated: 2026-11-07
-verified_against_code: 2026-11-07@feat/posicionamiento-s2 (v1.1, S2 «piel», P-BBW-95: content/site.json `$.entity` · content/site.schema.json (generado) · src/content/{entity-fields,entity,site-schema,site,substitutions,index}.ts · src/seo/jsonld.ts · scripts/content/export-schema.ts · scripts/lint/{check-seo,check-content}.ts · package.json `content:schema`) · 2026-11-07@feat/posicionamiento-s1 (v1.0, S1 «huesos y músculos», P-BBW-94: src/config/{pages,page-types}.ts · src/seo/{metadata,jsonld}.ts · src/seo/WithStructuredData.tsx · src/app/[locale]/**/page.tsx · src/app/{sitemap,robots}.ts · src/components/organisms/{Footer,Header} · src/analytics/port.ts · src/content/{index,schema}.ts · scripts/lint/{check-seo,check-content}.ts · package.json `build`)
+verified_against_code: 2026-11-07@feat/posicionamiento-s3 (v1.2, S3 «contenido de la entidad y portada», D-BBW-81…88: content/site.json `$.entity` con valores · content/es/pages/home.json `meta.title` = `{{category}}` · src/config/{pages,page-types}.ts (`titleLengthException`, `pageTitleException`, mayúscula por fórmula en `home`) · src/content/{entity-fields,entity}.ts (`alternateName`, `visibilityContext`, `isEmittedOn`, `missingInText`, `entityEmissionReport`) · src/seo/jsonld.ts · scripts/lint/check-seo.ts) · 2026-11-07@feat/posicionamiento-s2 (v1.1, S2 «piel», P-BBW-95: content/site.json `$.entity` · content/site.schema.json (generado) · src/content/{entity-fields,entity,site-schema,site,substitutions,index}.ts · src/seo/jsonld.ts · scripts/content/export-schema.ts · scripts/lint/{check-seo,check-content}.ts · package.json `content:schema`) · 2026-11-07@feat/posicionamiento-s1 (v1.0, S1 «huesos y músculos», P-BBW-94: src/config/{pages,page-types}.ts · src/seo/{metadata,jsonld}.ts · src/seo/WithStructuredData.tsx · src/app/[locale]/**/page.tsx · src/app/{sitemap,robots}.ts · src/components/organisms/{Footer,Header} · src/analytics/port.ts · src/content/{index,schema}.ts · scripts/lint/{check-seo,check-content}.ts · package.json `build`)
 supersedes: []
 superseded_by: null
 related: [BBW-CONTENT-MODEL, BBW-DEPLOY-CONTRACT, BBW-PORTS, BBW-MEDIA-CONTRACT, P-BBW-95, P-BBW-94, P-BBW-80, D-BBW-07, D-BBW-09, D-BBW-12, D-BBW-15, D-BBW-44, D-BBW-55, D-BBW-58, D-BBW-78]
-summary: "Todo lo que hace encontrable y citable el sitio (buscadores y agentes de IA: SEO, GEO, LLMO, AEO) se construye por capas: un registro único de páginas con su tipo; tipos de página que declaran por fórmula qué se indexa, cómo se titula, qué datos estructurados lleva y qué entra en el mapa del sitio; constructores únicos de metadatos y de datos estructurados; y una guardia (R7) sobre el sitio compilado que falla si una página no cumple su tipo. Ninguna página escribe a mano sus metadatos ni su ruta. v1.0 (S1): huesos y músculos. v1.1 (S2, P-BBW-95): la piel — el bloque de entidad en content/site.json con estado por campo (aprobado · heredado · pendiente), descrito una vez (entity-fields.ts) y de ahí su validación, su esquema exportable (content/site.schema.json, regenerado por pnpm content:schema y vigilado por R1), las sustituciones de entidad bloqueadas ({{category}}, {{motto}}), la emisión condicionada en el Person (solo aprobado y visible; lo heredado solo si ya se emitía), ProfilePage prevista y la guardia R7g vista fallar. Nada de lo emitido cambia; los textos llegan en S3."
+summary: "Todo lo que hace encontrable y citable el sitio (buscadores y agentes de IA: SEO, GEO, LLMO, AEO) se construye por capas: un registro único de páginas con su tipo; tipos de página que declaran por fórmula qué se indexa, cómo se titula, qué datos estructurados lleva y qué entra en el mapa del sitio; constructores únicos de metadatos y de datos estructurados; y una guardia (R7) sobre el sitio compilado que falla si una página no cumple su tipo. Ninguna página escribe a mano sus metadatos ni su ruta. v1.0 (S1): huesos y músculos. v1.1 (S2, P-BBW-95): la piel — el bloque de entidad en content/site.json con estado por campo (aprobado · heredado · pendiente), descrito una vez (entity-fields.ts) y de ahí su validación, su esquema exportable (content/site.schema.json, regenerado por pnpm content:schema y vigilado por R1), las sustituciones de entidad bloqueadas ({{category}}, {{motto}}), la emisión condicionada en el Person (solo aprobado y visible; lo heredado solo si ya se emitía), ProfilePage prevista y la guardia R7g vista fallar. Nada de lo emitido cambia; los textos llegan en S3. v1.2 (S3, D-BBW-81…88): los valores de la entidad entran (10 aprobados de 14; `alternateName` nuevo); la portada referencia la categoría (`{{category}}`) y la fórmula del tipo pone la mayúscula; la excepción del título (61) se registra una vez en el registro de páginas y R7c la lee; la emisión se decide al construir como «aprobado Y visible según la capa de contenido» y R7g la confirma sobre el HTML (lo aprobado sin sección no se emite y se informa); el texto visible es el cuerpo."
 tags: [seo, geo, posicionamiento, registro, tipos-de-pagina, metadatos, json-ld, sitemap, robots, guardia, brandbrain-web]
 ---
 
@@ -29,7 +29,7 @@ tags: [seo, geo, posicionamiento, registro, tipos-de-pagina, metadatos, json-ld,
 |---|---|---|---|
 | **Huesos** | Estructura agnóstica: registro único de páginas, ruta por función única, constructores únicos de metadatos y datos estructurados, mapa del sitio / `robots.txt` / pie / medición derivados del registro | `src/config/pages.ts` · `src/seo/` · `src/app/{sitemap,robots}.ts` | ✅ S1 |
 | **Músculos** | Reglas por TIPO de página: indexable, fórmula del título, rangos, imagen de compartir, datos estructurados, medición. Una página hereda; no decide | `src/config/page-types.ts` | ✅ S1 |
-| **Piel** | La entidad (quién, cargo, categoría, frase madre, descripción, materias, credenciales, imagen, perfiles, relaciones): una sola fuente para el texto visible, los metadatos y el grafo, **cada campo con su estado** (`aprobado` · `heredado` · `pendiente`) | `content/site.json` `$.entity` (D-BBW-78; descrito en `src/content/entity-fields.ts`, leído por `entity.ts`; esquema exportado `content/site.schema.json`) | ✅ S2 (P-BBW-95): estructura, estados y guardia; **los valores** entran en S3 tras la sesión C |
+| **Piel** | La entidad (quién, cargo, categoría, frase madre, descripción, materias, credenciales, imagen, perfiles, relaciones): una sola fuente para el texto visible, los metadatos y el grafo, **cada campo con su estado** (`aprobado` · `heredado` · `pendiente`) | `content/site.json` `$.entity` (D-BBW-78; descrito en `src/content/entity-fields.ts`, leído por `entity.ts`; esquema exportado `content/site.schema.json`) | ✅ S2 (P-BBW-95): estructura, estados y guardia · ✅ S3 (D-BBW-81…88): **los valores** (10 aprobados de 14); lo aprobado sin sección (descripción, frase madre, ubicación, variante del nombre) espera la sección «Quién» (S3b) |
 | **Custom** | Los textos de cada página | `content/<locale>/pages/<id>.json` (`meta` + `sections`) | ✅ (copy: fase de contenido) |
 
 **Reglas que mandan:** una fuente por dato y variantes por fórmula (I-1, I-3); HTML completo sin JavaScript (I-4, D-BBW-09); datos sensibles
@@ -77,7 +77,7 @@ derivado cambia.
 
 | Tipo | `indexable` | `measured` | `share` | `structuredData` | `<title>` | Quién |
 |---|---|---|---|---|---|---|
-| `home` | sí | sí | sí | `entity` (`Person` + `WebSite`) | `{marca} · {título propio}` | la portada |
+| `home` | sí | sí | sí | `entity` (`Person` + `WebSite`) | `{marca} · {Título propio}` (mayúscula inicial por fórmula, S3) | la portada |
 | `legal` | sí | sí | sí | `none` | `{título propio} · {marca}` | privacidad, cookies |
 | `legal-restricted` | **no** | **no** | **no** | `none` | `{título propio} · {marca}` | aviso legal (datos de identificación, P-BBW-80 §0.1) |
 
@@ -87,7 +87,18 @@ derivan el `<meta robots>` `noindex, noarchive`, la ausencia en el mapa del siti
 
 **Fórmula del título.** El documento lleva el título PROPIO (`meta.title`); escribir `{{brand}}` en él rompe la compilación (modelo v3.9).
 Google recomienda el nombre del sitio «al principio o al final de cada `<title>`, separado con un delimitador» (Search Central, «Influencing
-your title links», act. 2025-12-10): la portada lo lleva delante, las demás detrás, con el punto medio del sistema.
+your title links», act. 2025-12-10): la portada lo lleva delante, las demás detrás, con el punto medio del sistema. **S3 (D-BBW-81, D-BBW-87):**
+el título propio de la portada es la **categoría referenciada** (`"title": "{{category}}"`, modelo v3.11), que se escribe en minúscula y sin
+poseerla; la **mayúscula inicial la pone la fórmula del tipo `home`** (`sentenceCase`, una variante por fórmula, I-3), nunca el contenido. La
+cadena de la categoría vive una vez (`$.entity.category`).
+
+**Excepción al rango del título (D-BBW-87).** Una página puede registrar en `src/config/pages.ts` una `titleLengthException` con **longitud
+exacta + razón + decisión** (la forma de D-BBW-16 llevada a esta capa). R7c la lee (`pageTitleException`); la guardia no escribe ningún número, y
+**una excepción es un valor, no un rango más ancho**: si el título cambia de longitud deja de coincidir y R7c vuelve a romper. Hoy una:
+
+| Página | Longitud | Razón | Decisión |
+|---|---|---|---|
+| `home` | 61 | el título propio es la repetición exacta de la categoría (D-BBW-81) tras la marca; no se acorta | D-BBW-87 |
 
 **Rangos — criterio propio, dicho porque no hay cifra oficial.** Google declara que no hay límite de longitud ni para el `<title>` (misma
 página) ni para la descripción («Control your snippets», act. 2026-04-20): ambos «se truncan según haga falta, normalmente para caber en el
@@ -105,14 +116,22 @@ No se emite: `keywords` (Google: sin efecto, special-tags act. 2025-12-10); `og:
 `hreflang`/`alternates.languages` (D-BBW-15: nada declara una versión inglesa hasta que exista copy); `lastmod` en el sitemap (la fecha
 de compilación no es la del contenido); `alumniOf`, `ProfessionalService`, `BreadcrumbList`, `FAQPage` (P-BBW-53: entran con su sección).
 
-**La entidad en el `Person` (S2, P-BBW-95).** Cada propiedad del `Person` tiene un campo en el bloque de entidad (`content/site.json` `$.entity`,
-descrito en `src/content/entity-fields.ts`) y sale según su ESTADO: `aprobado` → se emite, y R7g para el build si no es visible en la página
-(texto literal, `href`, `mailto:` o `src`, según el campo); `heredado` → NO se emite, salvo lo que ya se emitía antes de S2 (`description`, que
-toma la `meta.description` de la portada, y `sameAs`), que R7g informa si no es visible y la sesión C resuelve; `pendiente` → no se emite nunca
-(ni `knowsAbout`, ni `hasCredential`, ni `image`: entran al aprobarse y hacerse visibles en S3). Una propiedad sin campo en la entidad rompe R7g.
-`ProfilePage` (`mainEntity` → la `Person`; Google, act. 2026-09-08) se añade al grafo cuando `name`, `description` y `sameAs` estén aprobados
-(`PROFILE_PAGE_MINIMUM`); hoy no, y R7g rechaza una `ProfilePage` sin ese mínimo. Verificado en S2 F4: con el mínimo aprobado en una copia, el
-build emite `Person` + `WebSite` + `ProfilePage` y pasa; con GitHub aprobado y no visible, R7g para el build.
+**La entidad en el `Person` (S2, P-BBW-95; S3).** Cada propiedad del `Person` tiene un campo en el bloque de entidad (`content/site.json` `$.entity`,
+descrito en `src/content/entity-fields.ts`) y sale según su ESTADO **y su visibilidad**: `aprobado` → se emite **solo si es visible en la página
+que emite el grafo**, visibilidad que el constructor decide al construir desde la **capa de contenido** (`visibilityContext`: los textos del cuerpo
+de la página y del documento global, que es todo lo que los componentes pintan, y las llaves de enlace que esos documentos referencian; `meta` y
+`<title>` no cuentan) y que R7g **confirma sobre el HTML servido** (texto literal, `href`, `mailto:` o `src`, según el campo). Un valor que es
+subcadena de otro valor de la entidad (`alternateName` dentro de `name`) solo cuenta fuera de las apariciones de ese otro (`missingInText`).
+Lo aprobado y todavía sin sección **no se emite y no es un error**: el informe de la entidad lo imprime con su motivo (S3 F9), y entra el día que
+una sección lo escriba, sin tocar código. `heredado` → NO se emite, salvo lo que ya se emitía antes de S2 (hoy ningún campo está heredado);
+`pendiente` → no se emite nunca. Una propiedad sin campo en la entidad rompe R7g. `ProfilePage` (`mainEntity` → la `Person`; Google, act.
+2026-09-08) se añade al grafo cuando `name`, `description` y `sameAs` **se emiten** (`PROFILE_PAGE_MINIMUM`, aprobados y visibles); hoy no:
+`description` está aprobada y espera la sección «Quién» (S3b). S2 lo verificó con el mínimo aprobado en una copia; S3 lo vio fallar con la
+descripción aprobada y no visible (arnés `s3/r7-ver-fallar-s3.cjs`).
+
+**Hoy se emite (S3):** `name`, `jobTitle`, `email`, `sameAs` (solo LinkedIn, D-BBW-86). **Aprobados y no visibles (no se emiten):** `description`,
+`alternateName`. **Aprobados sin propiedad (no se emiten por diseño):** `category`, `motto`, `descriptionLong`, `location`. **Pendientes:**
+`knowsAbout`, `credentials`, `image`, `relations`.
 
 ## §6 — Guardia R7 (`scripts/lint/check-seo.ts`, `pnpm lint:seo`)
 
@@ -124,16 +143,19 @@ verde · 1 incumplimiento (nombra regla, fichero y detalle) · 2 error del tool 
 |---|---|
 | R7a | Toda página servida está en el registro para un locale publicado, y viceversa (fuera: la defensa de `/`, `404`, `_not-found`) |
 | R7b | Toda página: `lang` = locale; un `<h1>`; `<title>` = fórmula del tipo; `description` = documento; canónica = dominio + ruta; OG completo y coherente; la marca en el `<title>` |
-| R7c | Indexable: título y descripción en su rango; sin `noindex`; en el sitemap; `og:image` + tarjeta grande si `share` (y sin imagen si no) |
+| R7c | Indexable: título y descripción en su rango —o el título con la longitud EXACTA de la excepción registrada en `pages.ts` (S3, D-BBW-87)—; sin `noindex`; en el sitemap; `og:image` + tarjeta grande si `share` (y sin imagen si no) |
 | R7d | Oculta: `noindex` + `noarchive`; regla en `_headers`; fuera del sitemap; sin datos estructurados; sin imagen; `Disallow` para **cada** agente de `AI_AGENTS` |
-| R7e | Datos estructurados = los del tipo (0/1); JSON válido; `@context` schema.org; tipos esperados; `Person.name` y `jobTitle` literales en el texto visible; `url` = portada |
+| R7e | Datos estructurados = los del tipo (0/1); JSON válido; `@context` schema.org; tipos esperados; `Person.name` y `jobTitle` literales en el texto visible (el CUERPO: la cabecera no cuenta, S3); `url` = portada |
 | R7f | `sitemap.xml` = indexables × locales en el orden del registro; `robots.txt` con `*` Allow, un grupo por agente, Disallow = ocultas, `Sitemap:` canónico |
-| **R7g** | **La entidad (S2):** (a) ninguna propiedad del `Person` sin campo en la entidad; lo `pendiente` no sale; lo `aprobado` sale y es visible (texto, `href`, `mailto:`, `src`); lo `heredado` solo si ya se emitía antes de S2 (y se informa si no es visible); `hasCredential` con la dirección de su llave; `ProfilePage` solo con el mínimo aprobado y apuntando a la `Person`. (b) Ninguna sustitución sin resolver (`{{…}}`) en el HTML servido. (c) Informe de completitud (aprobados · heredados · pendientes · ProfilePage): se imprime, no falla |
+| **R7g** | **La entidad (S2, S3):** (a) ninguna propiedad del `Person` sin campo en la entidad; lo `pendiente` no sale; lo `aprobado` sale **solo si es visible según la capa de contenido** (la misma pregunta que el constructor) **y entonces tiene que verse en el HTML** (texto, `href`, `mailto:`, `src`; regla de subcadena); lo `heredado` solo si ya se emitía antes de S2; `hasCredential` con la dirección de su llave; `ProfilePage` solo con el mínimo emitido y apuntando a la `Person`. (b) Ninguna sustitución sin resolver (`{{…}}`) en el HTML servido. (c) Informe de la entidad: completitud (aprobados · heredados · pendientes) y emisión por página (qué se emite, qué está aprobado y no visible y por qué, `ProfilePage`): se imprime, no falla |
 
-**Vista fallar** regla a regla (31 mutaciones sobre una copia de `out/`, S1 F4; **39 con las 8 de R7g, S2 F5**): arnés `r7-ver-fallar.cjs` y tabla en el hub,
-`repos/brandbrain-web/outputs/2026-11/s1/` (S2: `s2/r7-ver-fallar-s2.cjs`, `s2/f5-*.md`; la validación del bloque vista fallar en 17 mutaciones en memoria,
-`s2/entidad-ver-fallar.ts`; R5 y R1 sobre el árbol, `s2/f5-contenido-ver-fallar.md`). Volcado normalizado antes/después (`dump-seo.cjs`) y comparación del HTML crudo con los hashes de
-compilación normalizados (`diff-html.cjs`) en la misma carpeta: son el instrumento de «diferencia cero» para cualquier despacho que toque esta capa.
+**Vista fallar** regla a regla (31 mutaciones sobre una copia de `out/`, S1 F4; **39 con las 8 de R7g, S2 F5**; **9 más de S3**: excepción del título como valor
+exacto, título sin la mayúscula de la fórmula, descripción y variante del nombre aprobadas pero no visibles, GitHub en `sameAs`, `ProfilePage` sin el
+mínimo emitido, cargo emitido y no pintado, nombre solo en la cabecera): arneses y tablas en el hub, `repos/brandbrain-web/outputs/2026-11/s1/`
+(`r7-ver-fallar.cjs`), `s2/` (`r7-ver-fallar-s2.cjs`, `entidad-ver-fallar.ts`) y `s3/` (`r7-ver-fallar-s3.cjs`, `entidad-ver-fallar-s3.ts`; de las 39 de S2,
+la mutación «`Person.description` heredada ausente» ya no aplica porque ningún campo está heredado). Volcado normalizado antes/después (`dump-seo.cjs`) y
+comparación del HTML crudo con los hashes de compilación normalizados (`diff-html.cjs`) en `s1/`: son el instrumento de «diferencia cero» (o de
+«diferencias exactamente las esperadas», S3 F7) para cualquier despacho que toque esta capa.
 
 ## §7 — Correspondencia con un gestor de contenido
 
@@ -150,7 +172,8 @@ sin ejecutar nada. Un gestor sobre git (PORTS.md, puerto de contenido) escribir�
 
 ## §8 — Lo que esta capa no cubre todavía
 
-- **Los valores de la entidad** (categoría, frase madre, descripción, materias, credenciales, imagen, relaciones): S3, tras la sesión C. La estructura y los estados están (S2); hoy `Person.description` sigue llevando la `meta.description` de la portada (`heredado`) y `sameAs` emite GitHub sin que la página lo enlace (`heredado`, informado por R7g).
+- **Lo aprobado que espera su sección (S3b):** la frase definitoria (`description`), la descripción larga, la ubicación y las materias quieren la sección «Quién»; la frase madre quiere un lugar visible que decide Zavala; `alternateName` quiere la variante escrita (el logotipo no es texto). Con la sección, `description` se emite y `ProfilePage` se activa sin tocar código. Siguen pendientes `knowsAbout` (las 8 materias de PERFIL-CZC §4.2 están propuestas, no aprobadas: el modelo no admite «pendiente con valor»), `credentials` (nombre visible junto al sello), `image` (retrato) y `relations` (tipo para Pura kaSaka).
+- **Residuales de S3:** `$.links.github` queda registrado sin consumidor (D-BBW-86 lo saca de `sameAs`; el enlace no se retira sin decisión); el sello del pie enlaza `credly` desde el componente y no desde el contenido, así que la visibilidad por contenido no lo vería cuando `credentials` se apruebe (S3b: `footer.cert` referencia la entidad y la llave); la descripción de la portada repite la categoría con mayúscula inicial como copy (no hay sustitución con mayúscula; una variante derivada `{{Category}}` sería la forma I-1 si Zavala la quiere).
 - **Migrar los demás documentos al patrón declarativo** (global, páginas): estimado en el output de S2 §8, despacho propio.
 - **`_headers` y `_redirects` se verifican, no se generan**: generarlos exigiría un paso de build propio y toca el contrato de despliegue; R6 + R7d los vigilan.
 - **Locales:** todo está multiplicado por `publishedLocales`; EN entra con su copy (D-BBW-15) y, entonces, `hreflang` con su decisión (P-BBW-54).

@@ -44,7 +44,7 @@
   letter-spacing: var(--bbf-type-legal-tracking-mixed);
   text-shadow: var(--bbf-type-legal-shadow);
   /* D-BBW-68 CERRADA · la línea legal se queda en CAJA MIXTA, mostrando la ortografía real de la cadena de contenido
-     (`© 2026 Christian Zavala Cubas · Director creativo de sistemas de marca`). **Aquí no hay ninguna `text-transform`**, y esto
+     (`© {{year}} {{brand}} · {{role}}`, resuelta desde la fuente única; el cargo cambió en S3, D-BBW-82). **Aquí no hay ninguna `text-transform`**, y esto
      importa decirlo: no se ha quitado en este turno porque ya no estaba — salió en D-BBW-68 y lo que se ve es el contenido tal cual.
      Lo que SÍ cambia ahora es la consecuencia que aquella decisión dejó pendiente (P-BBW-59): el interletrado del rol baja de ×6 a ×1,
      porque el ×6 era para caja alta. D-BBW-71.

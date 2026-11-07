@@ -3,9 +3,19 @@
  * bajo `$.entity`. Este módulo hace cumplir la descripción (validación por clase y por estado) y responde las tres preguntas que el resto del
  * sistema hace a la entidad: ¿qué valor tiene este campo?, ¿se emite en los datos estructurados?, ¿está completa?
  *
- * REGLA DE EMISIÓN (despacho S2 §0.2.2, la de Google y la de `jsonld.ts`): un campo entra en los datos estructurados SOLO si está `aprobado`
- * y es visible en la página que los emite. Lo que YA se emitía antes de S2 y sigue heredado (`emittedWhileInherited`) se sigue emitiendo
- * igual y queda marcado para que la sesión C lo resuelva. Lo `pendiente` no se emite: no se inventa ni se rellena con otro texto.
+ * REGLA DE EMISIÓN (despacho S2 §0.2.2, la de Google y la de `jsonld.ts`; P-BBW-95): un campo entra en los datos estructurados SOLO si está
+ * `aprobado` Y es visible en la página que los emite. Lo que YA se emitía antes de S2 y sigue heredado (`emittedWhileInherited`) se sigue
+ * emitiendo igual. Lo `pendiente` no se emite: no se inventa ni se rellena con otro texto.
+ *
+ * LA VISIBILIDAD SE DECIDE AL CONSTRUIR (S3, despacho §0.4). En S2 «aprobado» bastaba para emitir y R7g rompía el build si lo emitido no era
+ * visible: valía mientras todo lo aprobado estaba en la página. Desde S3 la sesión C aprueba textos que todavía no tienen sección
+ * (`description`, `location`, `motto`…) y la regla de P-BBW-95 se aplica entera: el constructor pregunta a la CAPA DE CONTENIDO si el
+ * valor es visible (`visibilityContext`: los textos del cuerpo de la página que emite y del documento global, que es todo lo que los
+ * componentes pintan —`react/jsx-no-literals`—, y las llaves de enlace que esos documentos referencian), emite solo lo visible, y R7g lo
+ * CONFIRMA sobre el HTML servido (si el contenido dice visible y el HTML no, el build rompe: sería un componente que no pinta lo que lee).
+ * Un campo aprobado y no visible no es un error: es un hecho que el informe de la entidad imprime con su motivo (`entityEmissionReport`), y
+ * que se resuelve escribiendo el texto en una sección, no tocando el estado. La `meta` de la página no cuenta como visible (una `meta` o un
+ * `<title>` no es texto de la página, S2 F8).
  *
  * NO rompe al cargarse a propósito (como `./site.ts`): lo importa también la guardia, y un `throw` en su carga la dejaría sin informe. El
  * PUERTO (`./index.ts`) ejecuta `validateSite` —que incluye `validateEntity`— y falla cerrado.
@@ -25,7 +35,7 @@ import {
   type EntityFieldSpec,
   type EntityStatus,
 } from "./entity-fields";
-import type { Problem } from "./schema";
+import type { GlobalDocument, PageDocument, Problem } from "./schema";
 
 /** Un campo en los datos: su estado y, si es propio, su valor. */
 export type EntityFieldData = { status: EntityStatus; value?: unknown };
@@ -176,27 +186,132 @@ export function entityList<T = unknown>(key: EntityFieldKey): T[] {
   return Array.isArray(v) ? (v as T[]) : [];
 }
 
+// ── Visibilidad por contenido y emisión (S3) ────────────────────────────────────────────────────────────────────────────────────────
+
 /**
- * ¿Se emite este campo en los datos estructurados? Aprobado → sí (la visibilidad la comprueba R7g sobre lo servido; el constructor emite y
- * la guardia para el build si no es visible). Heredado → solo lo que ya se emitía antes de S2. Pendiente → nunca.
+ * Lo que la página que emite los datos estructurados MUESTRA, según la capa de contenido: los textos de su cuerpo y del documento global
+ * (navegación, pie, consentimiento: todo lo que el HTML servido trae literal, D-BBW-09) y las llaves de `$.links` que esos documentos
+ * referencian. Se construye con los documentos YA RESUELTOS por el puerto (sustituciones y referencias hechas), que es lo que los componentes
+ * pintan. Fuera: `meta` (cabecera, no cuerpo) y las llaves estructurales.
  */
-export function isEmitted(key: EntityFieldKey): boolean {
+export type VisibilityContext = {
+  /** el texto del cuerpo, normalizado en espacios, para buscar valores literales */
+  readonly text: string;
+  /** las llaves de `$.links` referenciadas (`link`, `ctaSecondaryLink`…): un perfil o un buzón es visible si su llave está aquí */
+  readonly linkKeys: ReadonlySet<string>;
+  /** todas las cadenas, para los identificadores (medios) */
+  readonly strings: ReadonlySet<string>;
+};
+
+/** Llaves que no son texto visible: identifican, enlazan, referencian o declaran un control (las mismas del puerto y del esquema). */
+const STRUCTURAL_KEYS = new Set(["id", "type", "case", "page", "global", "kind", "path"]);
+const LINK_KEY_RE = /link$/i;
+
+function walk(node: unknown, acc: { texts: string[]; linkKeys: Set<string>; strings: Set<string> }, key?: string): void {
+  if (typeof node === "string") {
+    acc.strings.add(node);
+    if (key !== undefined && LINK_KEY_RE.test(key)) return void acc.linkKeys.add(node);
+    if (key === undefined || !STRUCTURAL_KEYS.has(key)) acc.texts.push(node);
+    return;
+  }
+  if (Array.isArray(node)) return void node.forEach((x) => walk(x, acc, key));
+  if (node && typeof node === "object") for (const [k, v] of Object.entries(node as Record<string, unknown>)) walk(v, acc, k);
+}
+
+export function visibilityContext(page: PageDocument, global: GlobalDocument): VisibilityContext {
+  const acc = { texts: [] as string[], linkKeys: new Set<string>(), strings: new Set<string>() };
+  walk(page.sections, acc);
+  walk(global, acc);
+  return { text: acc.texts.join(" ").replace(/\s+/g, " "), linkKeys: acc.linkKeys, strings: acc.strings };
+}
+
+/**
+ * Qué valores de texto de un campo NO aparecen en un texto dado (vacío = todos aparecen). Un valor que es SUBCADENA de otro valor de la entidad
+ * (`alternateName` «Zavala Cubas» dentro de `name` «Christian Zavala Cubas») solo cuenta como visible FUERA de las apariciones de ese otro
+ * valor: la página que escribe el nombre completo no está escribiendo la variante. Misma función para el contenido (aquí) y para el HTML (R7g).
+ */
+export function missingInText(key: EntityFieldKey, text: string): string[] {
+  const value = entityValue(key);
+  if (value === undefined) return [`sin valor`];
+  const list = Array.isArray(value) ? value.map(String) : [String(value)];
+  const containers = ENTITY_FIELD_KEYS.filter((k) => k !== key && fieldSpec(k).visible === "text")
+    .map((k) => entityValue(k))
+    .flatMap((v) => (Array.isArray(v) ? v.map(String) : typeof v === "string" ? [v] : []));
+  return list.filter((v) => {
+    let haystack = text;
+    for (const c of containers) if (c !== v && c.includes(v)) haystack = haystack.split(c).join(" ");
+    return !haystack.includes(v);
+  });
+}
+
+/**
+ * Qué parte del valor de un campo NO es visible según el contenido (vacío = todo visible), por la clase de comprobación que declara la
+ * descripción: `text` = literal en el cuerpo (`missingInText`); `mailto` = la llave `contact` referenciada; `href` = cada llave referenciada;
+ * `img` = el identificador del medio escrito en el contenido; `none` = nada que comprobar (el campo no se emite).
+ */
+export function notVisibleInContent(key: EntityFieldKey, ctx: VisibilityContext): string[] {
+  const spec = fieldSpec(key);
+  const value = entityValue(key);
+  if (value === undefined) return [`sin valor`];
+  const list = Array.isArray(value) ? value.map(String) : [String(value)];
+  switch (spec.visible) {
+    case "text":
+      return missingInText(key, ctx.text);
+    case "mailto":
+      return ctx.linkKeys.has("contact") ? [] : [`contact`];
+    case "href": {
+      // una lista de llaves (`sameAs`) o de credenciales (`{ link }`): lo que debe estar referenciado es la llave de enlace
+      const keys = spec.kind === "credentialList" ? entityList<Credential>(key).map((c) => c.link) : list;
+      return keys.filter((k) => !ctx.linkKeys.has(k));
+    }
+    case "img":
+      return list.filter((v) => !ctx.strings.has(v));
+    case "none":
+      return [];
+  }
+}
+
+/**
+ * ¿Se emite este campo en los datos estructurados de la página descrita por `ctx`? Aprobado → sí, si es visible según el contenido (R7g lo
+ * confirma sobre el HTML). Heredado → solo lo que ya se emitía antes de S2. Pendiente → nunca.
+ */
+export function isEmittedOn(key: EntityFieldKey, ctx: VisibilityContext): boolean {
   const spec = fieldSpec(key);
   if (!spec.emits) return false;
   const status = entityStatus(key);
-  if (status === "aprobado") return true;
+  if (status === "aprobado") return notVisibleInContent(key, ctx).length === 0;
   if (status === "heredado") return spec.emittedWhileInherited === true;
   return false;
 }
 
-/** La portada se declara `ProfilePage` cuando el mínimo está aprobado (y, por R7g, visible). Hoy no. */
-export function isProfilePageReady(): boolean {
-  return PROFILE_PAGE_MINIMUM.every((k) => isApproved(k));
+/** La portada se declara `ProfilePage` cuando el mínimo se EMITE (aprobado y visible). Hoy no: `description` espera la sección «Quién». */
+export function isProfilePageReadyOn(ctx: VisibilityContext): boolean {
+  return PROFILE_PAGE_MINIMUM.every((k) => isEmittedOn(k, ctx));
 }
 
 /** Los tipos del grafo que la portada emite, en orden alfabético (lo que R7e compara). */
-export function entityGraphTypes(): string[] {
-  return isProfilePageReady() ? ["Person", "ProfilePage", "WebSite"] : ["Person", "WebSite"];
+export function entityGraphTypesOn(ctx: VisibilityContext): string[] {
+  return isProfilePageReadyOn(ctx) ? ["Person", "ProfilePage", "WebSite"] : ["Person", "WebSite"];
+}
+
+/**
+ * EL INFORME DE EMISIÓN (S3 F9): qué campos aprobados se emiten, cuáles no y por qué. No falla nada: un campo aprobado que espera su
+ * sección es un hecho, no un error. Lo imprime la guardia al final del build.
+ */
+export function entityEmissionReport(ctx: VisibilityContext): { emitted: EntityFieldKey[]; approvedNotVisible: { key: EntityFieldKey; why: string }[]; approvedNotEmitting: EntityFieldKey[] } {
+  const emitted: EntityFieldKey[] = [];
+  const approvedNotVisible: { key: EntityFieldKey; why: string }[] = [];
+  const approvedNotEmitting: EntityFieldKey[] = [];
+  for (const key of ENTITY_FIELD_KEYS) {
+    const spec = fieldSpec(key);
+    if (isEmittedOn(key, ctx)) { emitted.push(key); continue; }
+    if (entityStatus(key) !== "aprobado") continue;
+    if (!spec.emits) { approvedNotEmitting.push(key); continue; }
+    const missing = notVisibleInContent(key, ctx);
+    const how = spec.visible === "text" ? "no aparece en el texto del cuerpo" : spec.visible === "img" ? "ningún contenido referencia el medio" : "ningún contenido referencia la llave de enlace";
+    approvedNotVisible.push({ key, why: `${how}: ${missing.map((m) => `«${m.length > 60 ? m.slice(0, 57) + "…" : m}»`).join(", ")}` });
+  }
+  return { emitted, approvedNotVisible, approvedNotEmitting };
 }
 
 /** Las sustituciones de entidad: llave → valor si el campo está aprobado, `null` si está BLOQUEADA (pendiente o heredado). */
@@ -210,7 +325,10 @@ export function entitySubstitutions(): Record<string, string | null> {
   return out;
 }
 
-/** El informe de completitud (R7g (c) y la guardia de contenido): cuenta por estado y lista lo que no está aprobado. No falla nada. */
+/**
+ * El informe de completitud (R7g (c) y la guardia de contenido): cuenta por estado y lista lo que no está aprobado. No falla nada.
+ * Si `ProfilePage` está activa depende de la página (visibilidad): lo dice el informe de emisión de la guardia R7, no esta línea.
+ */
 export function entityCompleteness(): { aprobados: number; heredados: number; pendientes: number; byStatus: Record<EntityStatus, EntityFieldKey[]>; line: string } {
   const byStatus: Record<EntityStatus, EntityFieldKey[]> = { aprobado: [], heredado: [], pendiente: [] };
   for (const key of ENTITY_FIELD_KEYS) byStatus[entityStatus(key)].push(key);
@@ -219,7 +337,6 @@ export function entityCompleteness(): { aprobados: number; heredados: number; pe
   const pendientes = byStatus.pendiente.length;
   const line =
     `[entidad] ${ENTITY_FIELD_KEYS.length} campo(s): ${aprobados} aprobado(s) [${byStatus.aprobado.join(", ")}] · ` +
-    `${heredados} heredado(s) [${byStatus.heredado.join(", ")}] · ${pendientes} pendiente(s) [${byStatus.pendiente.join(", ")}]` +
-    ` · ProfilePage: ${isProfilePageReady() ? "activa" : `no (mínimo: ${PROFILE_PAGE_MINIMUM.join(", ")})`}`;
+    `${heredados} heredado(s) [${byStatus.heredado.join(", ")}] · ${pendientes} pendiente(s) [${byStatus.pendiente.join(", ")}]`;
   return { aprobados, heredados, pendientes, byStatus, line };
 }

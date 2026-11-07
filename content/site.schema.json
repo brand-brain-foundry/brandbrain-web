@@ -65,6 +65,7 @@
       "additionalProperties": false,
       "required": [
         "name",
+        "alternateName",
         "role",
         "email",
         "category",
@@ -102,6 +103,82 @@
               "description": "aprobado: decidido por Zavala · heredado: existe pero viene de otro sitio · pendiente: declarado y vacío."
             }
           }
+        },
+        "alternateName": {
+          "type": "object",
+          "description": "La ÚNICA variante admitida del nombre (D-BBW-85, enmienda de D-BBW-58): la marca y el logotipo. Person.alternateName; se emite solo cuando aparece escrita en la página. Ninguna otra abreviatura ni inicial tiene campo.",
+          "additionalProperties": false,
+          "required": [
+            "status"
+          ],
+          "x-kind": "text",
+          "x-cms": "short-text",
+          "x-translatable": false,
+          "x-emits": "Person.alternateName",
+          "x-source": "$.entity.alternateName.value",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "aprobado",
+                "heredado",
+                "pendiente"
+              ],
+              "description": "aprobado: decidido por Zavala · heredado: existe pero viene de otro sitio · pendiente: declarado y vacío."
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^(?![\\s\\S]*<\\/?[a-zA-Z!])",
+              "description": "Texto plano, no vacío, sin HTML."
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "pendiente"
+                  }
+                }
+              },
+              "then": {
+                "not": {
+                  "required": [
+                    "value"
+                  ]
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "aprobado"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "value"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "heredado"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "value"
+                ]
+              }
+            }
+          ]
         },
         "role": {
           "type": "object",
@@ -153,7 +230,7 @@
         },
         "category": {
           "type": "object",
-          "description": "La categoría: qué se construye, en minúscula y sin poseerla (biblia v5 §5). El copy la referencia por {{category}}; vacía hasta la sesión C.",
+          "description": "La categoría: qué se construye, en minúscula y sin poseerla (D-BBW-81). El copy la referencia por {{category}}: hoy, el título propio de la portada (la fórmula del tipo pone la mayúscula). No se emite como propiedad: es copy, no un hecho del Person.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -229,7 +306,7 @@
         },
         "motto": {
           "type": "object",
-          "description": "La frase madre (biblia v5 §6). El copy la referencia por {{motto}}; vacía hasta la sesión C.",
+          "description": "La frase madre (D-BBW-83). El copy la referencia por {{motto}}; su lugar visible en la página es decisión de Zavala (S3b). No se emite como propiedad.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -305,7 +382,7 @@
         },
         "description": {
           "type": "object",
-          "description": "Descripción corta de la persona (Person.description). Mientras esté heredada, los datos estructurados siguen emitiendo la meta.description de la portada, como antes de S2.",
+          "description": "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Se emite cuando una sección la escriba («Quién», S3b). Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -384,7 +461,7 @@
         },
         "descriptionLong": {
           "type": "object",
-          "description": "Descripción larga de la persona, si hace falta (sección «Quién», biblia v5 §16). No se emite en los datos estructurados.",
+          "description": "Descripción larga de la persona, en primera persona (sección «Quién», PERFIL-CZC §5.3; D-BBW-84, D-BBW-88). No se emite en los datos estructurados.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -732,7 +809,7 @@
         },
         "location": {
           "type": "object",
-          "description": "Solo ciudad o región, y solo si Zavala la aprueba en C. Nunca un domicilio (P-BBW-78). No se emite.",
+          "description": "La base pública: solo ciudad o región (D-BBW-86), nunca un domicilio (P-BBW-78). Su frase visible es la de D-BBW-88, en la sección «Quién» (S3b). No se emite.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -807,7 +884,7 @@
         },
         "sameAs": {
           "type": "object",
-          "description": "Las llaves de $.links que son perfiles de la propia persona (Person.sameAs). Las demás llaves son otras entidades o referencias.",
+          "description": "Las llaves de $.links que son perfiles de la propia persona (Person.sameAs). Solo las visibles en la página (D-BBW-86: GitHub sale mientras no se enlace). Las demás llaves son otras entidades o referencias.",
           "additionalProperties": false,
           "required": [
             "status"
