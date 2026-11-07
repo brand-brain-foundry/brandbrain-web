@@ -12,6 +12,9 @@
  * · SUSTITUCIONES (D-BBW-23, fase 6c): tras validar, el puerto resuelve `{{brand}}` / `{{domain}}` / `{{year}}` desde la fuente única
  *   (./substitutions.ts, conjunto cerrado y declarado). Una no declarada, o cualquier cosa entre llaves que no sea un identificador
  *   declarado (lógica), FALLA el build con la ruta exacta. La guardia check-content.ts lo comprueba además sobre el árbol completo.
+ *   S2 (P-BBW-95): las sustituciones DE ENTIDAD (`{{category}}`, `{{motto}}`) están declaradas pero BLOQUEADAS mientras su campo no esté
+ *   aprobado en `content/site.json`; usarlas bloqueadas FALLA el build con la ruta, nunca se resuelven a un relleno.
+ * · EL BLOQUE DE ENTIDAD (S2, `$.entity` de `content/site.json`) se valida con el documento del sitio, al cargar el puerto (abajo).
  * · EL DOCUMENTO DEL SITIO (D-BBW-78, `content/site.json`: nombre, cargo, buzón y destinos de los enlaces) se valida AQUÍ, al cargar el
  *   puerto, y falla cerrado como todo lo demás: ninguna página sale con la identidad a medias. Se valida en el puerto y no en el módulo
  *   que lo lee porque a ese módulo lo importa también la guardia, y romper en su carga la dejaría sin informe que dar.
@@ -34,7 +37,7 @@ import {
   type SectionType,
 } from "./schema";
 import { siteDocument, validateSite } from "./site";
-import { findUndeclaredSubstitutions, resolveDocument, RESTRICTED_SUBSTITUTION_KEYS } from "./substitutions";
+import { findBlockedEntitySubstitutions, findUndeclaredSubstitutions, resolveDocument, RESTRICTED_SUBSTITUTION_KEYS } from "./substitutions";
 import { getLegalIdentity } from "./legal-identity";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
@@ -143,13 +146,22 @@ function failOn(problems: Problem[], relPath: string): void {
 // FAIL-CLOSED del documento del sitio, al cargar el puerto: es la identidad, y la usan todas las páginas.
 failOn(validateSite(siteDocument), "site.json");
 
-/** Sustituciones: primero se rechaza cualquier `{{…}}` no declarado (con ruta), después se resuelve el documento entero. */
+/** S2: una sustitución de entidad BLOQUEADA (campo pendiente o heredado) rompe el build con la ruta: no se rellena con otro texto. */
+function failOnBlocked(doc: unknown, relPath: string): void {
+  const blocked = findBlockedEntitySubstitutions(doc);
+  if (blocked.length === 0) return;
+  const lines = blocked.map((b) => `  ${b.path}: "${b.token}" (entity.${b.key} no está aprobado)`).join("\n");
+  throw new Error(`[content] content/${relPath}: ${blocked.length} sustitución(es) de entidad BLOQUEADA(S) (S2, P-BBW-95: se desbloquean al aprobar el campo en content/site.json):\n${lines}`);
+}
+
+/** Sustituciones: primero se rechaza cualquier `{{…}}` no declarado (con ruta) o bloqueado, después se resuelve el documento entero. */
 function substitute<T>(doc: T, relPath: string): T {
   const undeclared = findUndeclaredSubstitutions(doc);
   if (undeclared.length > 0) {
     const lines = undeclared.map((u) => `  ${u.path}: sustitución no declarada "${u.token}"`).join("\n");
     throw new Error(`[content] content/${relPath}: ${undeclared.length} sustitución(es) no declarada(s) (D-BBW-23: conjunto cerrado, sin lógica):\n${lines}`);
   }
+  failOnBlocked(doc, relPath);
   return resolveDocument(doc);
 }
 
@@ -177,6 +189,7 @@ function substituteLegal<T>(doc: T, relPath: string): T {
     const lines = undeclared.map((u) => `  ${u.path}: sustitución no declarada "${u.token}"`).join("\n");
     throw new Error(`[content] content/${relPath}: ${undeclared.length} sustitución(es) no declarada(s) (D-BBW-23: conjunto cerrado, sin lógica):\n${lines}`);
   }
+  failOnBlocked(doc, relPath);
   const withGlobal = resolveDocument(doc, "$", new Set<string>(RESTRICTED_SUBSTITUTION_KEYS));
   const legal = getLegalIdentity();
   return resolveLegalDoc(withGlobal, legal);

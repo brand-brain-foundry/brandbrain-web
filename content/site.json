@@ -11,5 +11,20 @@
     "github": "https://github.com/zavala-brander",
     "credly": "https://www.credly.com/badges/10fa2218-eacc-41bc-bf78-273b8f6248ca/public_url",
     "aepd": "https://www.aepd.es"
+  },
+  "entity": {
+    "name": { "status": "aprobado" },
+    "role": { "status": "aprobado" },
+    "email": { "status": "aprobado" },
+    "category": { "status": "pendiente" },
+    "motto": { "status": "pendiente" },
+    "description": { "status": "heredado" },
+    "descriptionLong": { "status": "pendiente" },
+    "knowsAbout": { "status": "pendiente" },
+    "credentials": { "status": "pendiente" },
+    "image": { "status": "pendiente" },
+    "location": { "status": "pendiente" },
+    "sameAs": { "status": "heredado", "value": ["linkedin", "github"] },
+    "relations": { "status": "pendiente" }
   }
 }

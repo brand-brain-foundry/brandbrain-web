@@ -19,6 +19,7 @@
     "lint:rig": "tsx scripts/lint/check-brand-mark-rig.ts",
     "lint:scatter": "tsx scripts/lint/check-glyph-scatter.ts",
     "lint:seo": "tsx scripts/lint/check-seo.ts",
+    "content:schema": "tsx scripts/content/export-schema.ts",
     "media:build": "tsx scripts/media/build.ts",
     "preview": "pnpm build && tsx scripts/preview/serve.ts",
     "preview:serve": "tsx scripts/preview/serve.ts",

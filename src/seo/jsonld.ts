@@ -1,8 +1,10 @@
 import { site, type Locale } from "@/config/site";
 import { PAGE_TYPES, type StructuredDataKind } from "@/config/page-types";
 import { pageEntry, pageUrl, type PageId } from "@/config/pages";
-import { identity } from "@/content/site";
+import { identity, type LinkKey } from "@/content/site";
+import { entityList, entityText, isEmitted, isProfilePageReady, type Credential } from "@/content/entity";
 import type { PageDocument } from "@/content/schema";
+import { media } from "@/media";
 
 /**
  * DATOS ESTRUCTURADOS (fase 7; enmendados por D-BBW-58 y D-BBW-60; CONSTRUCTOR ÚNICO POR TIPO desde S1, P-BBW-94 §0.2.4: qué grafo emite una
@@ -14,6 +16,12 @@ import type { PageDocument } from "@/content/schema";
  * REGLA QUE MANDA (despacho fase 7 §F3, reafirmada por el de la enmienda §F3): los datos estructurados DESCRIBEN la página; no añaden
  * hechos que la página no dice.
  *
+ * LA ENTIDAD, DESDE S2 (P-BBW-95): los campos del `Person` salen del BLOQUE DE ENTIDAD de `content/site.json` (`src/content/entity.ts`, descrito
+ * en `entity-fields.ts`), y la regla de arriba se vuelve mecánica: un campo se emite solo si está `aprobado` (y R7g para el build si no es
+ * visible en la página), o si ya se emitía antes de S2 y sigue `heredado` (`description`, que toma la `meta.description` de la portada; `sameAs`).
+ * Lo `pendiente` no se emite: ni `knowsAbout`, ni `hasCredential`, ni `image` salen hasta que la sesión C apruebe su valor y S3 lo haga visible.
+ * `ProfilePage` (`mainEntity` → la `Person`) se añade al grafo cuando el mínimo de la entidad está aprobado (`PROFILE_PAGE_MINIMUM`); hoy no.
+ *
  * EL SUJETO DEL SITIO ES UNA `Person`, NO UNA `Organization` (D-BBW-58). La biblia estratégica v2 §2 convierte este sitio en la práctica
  * profesional de una persona y «Brand Brain Foundry» en el nombre del MÉTODO. Declarar una organización con el nombre de una persona sería
  * el dato falso que la regla prohíbe, así que el tipo cambia. Lo que eso arrastra, dicho entero porque no es una sustitución cosmética:
@@ -22,7 +30,7 @@ import type { PageDocument } from "@/content/schema";
  *   el resultado enriquecido de logo de Google es explícitamente de organización. El dibujo de marca NO desaparece del sitio —sigue siendo
  *   el icono de la cabecera, el favicon, el icono de Apple y los iconos del manifiesto, todos por el puerto de medios (D-BBW-21)—, deja de
  *   estar DECLARADO como logo de una entidad que ya no se declara. No se sustituye por `image`: `image` en una `Person` es una imagen DE la
- *   persona, y en esta página no hay ninguna.
+ *   persona, y en esta página no hay ninguna (S2: el campo `image` de la entidad existe, pendiente; entra cuando haya una y sea visible).
  * · `jobTitle` SÍ entra (D-BBW-61), y entra por la razón que la regla exige: **el cargo volvió a ser visible**. La línea del pie lo dice
  *   ahora en voz alta, y la cadena que declara este campo es literalmente la misma que el pie compone, porque las dos salen de `identity.role`.
  *   Ésta es la regla funcionando en la dirección buena: el turno anterior lo dejó fuera porque la página había dejado de decirlo, y entra
@@ -45,9 +53,11 @@ import type { PageDocument } from "@/content/schema";
  *   «Perfil de GitHub», deliberadamente sin atribuir. Con el sujeto convertido en persona, la afirmación que `sameAs` hace es más fácil de
  *   sostener, no menos: los destinos son literalmente perfiles personales (`/in/zavalacubas/`), y desde D-BBW-60 el pie que los contiene
  *   lleva el nombre de esa persona en su línea legal. **El límite se estrecha pero no desaparece**: sigue sin haber, en el texto, una frase
- *   que diga «estos perfiles son míos». Queda dicho, como antes, porque es un límite y no un descuido.
+ *   que diga «estos perfiles son míos». Queda dicho, como antes, porque es un límite y no un descuido. **S2:** las llaves de `sameAs` viven
+ *   ahora en `entity.sameAs` (estado `heredado`: se emiten como antes); R7g informa que GitHub ya no es visible en la página (salió del pie
+ *   el 2026-11-02) y lo deja para la sesión C, que decide si aprobarlo y hacerlo visible o retirarlo.
  * · `identity.links.agency`, `identity.links.studio` y `identity.links.works` tampoco entran en `sameAs`: son OTRAS entidades (la agencia hermana y un portafolio), no este
- *   sujeto con otra dirección.
+ *   sujeto con otra dirección. S2 les da sitio en `entity.relations` (pendiente).
  * · `aggregateRating`, `review`, `priceRange`, `telephone`, `birthDate`, `address`: no existen en la página. No se emiten.
  *
  * LÍMITE CONOCIDO de `WebSite` (verificado en vivo): el nombre de sitio de Google NO se admite a nivel de subdirectorio —
@@ -59,44 +69,67 @@ import type { PageDocument } from "@/content/schema";
 /** Lo que un constructor recibe: el locale, la página y su documento ya resuelto por el puerto de contenido. */
 type GraphContext = { locale: Locale; id: PageId; page: PageDocument };
 
+/** Un nodo `Person` conforme al bloque de entidad: las propiedades entran en el orden de siempre y solo si la entidad las emite. */
+function personNode(personId: string, home: string, page: PageDocument): Record<string, unknown> {
+  const node: Record<string, unknown> = {
+    "@type": "Person",
+    "@id": personId,
+    // la cadena del nombre, completa y sin variantes, desde la fuente única (D-BBW-58). Es la MISMA que el pie muestra en su línea legal.
+    name: identity.brand,
+    url: home,
+  };
+  // el CARGO (D-BBW-61), de la misma constante que compone la línea del pie: lo declarado y lo visible son la misma cadena por construcción
+  if (isEmitted("role")) node.jobTitle = identity.role;
+  // el buzón oficial (D-BBW-13(a), reapuntado por D-BBW-58); la página lo lleva literal en el `href` del enlace de contacto
+  if (isEmitted("email")) node.email = identity.email;
+  // los PERFILES personales, por su llave de rol en la fuente única (desde S2, declarados en `entity.sameAs`)
+  if (isEmitted("sameAs")) node.sameAs = entityList<LinkKey>("sameAs").map((k) => identity.links[k]);
+  // la descripción: propia cuando esté aprobada; mientras esté heredada, la `meta.description` de la portada (como antes de S2)
+  if (isEmitted("description")) node.description = entityText("description") ?? page.meta.description;
+  // lo NUEVO de S2, que no sale hasta que la sesión C lo apruebe y S3 lo haga visible
+  if (isEmitted("knowsAbout")) node.knowsAbout = entityList<string>("knowsAbout");
+  if (isEmitted("credentials")) {
+    node.hasCredential = entityList<Credential>("credentials").map((c) => ({
+      "@type": "EducationalOccupationalCredential",
+      name: c.name,
+      ...(c.issuer ? { recognizedBy: { "@type": "Organization", name: c.issuer } } : {}),
+      url: identity.links[c.link as LinkKey],
+    }));
+  }
+  if (isEmitted("image")) {
+    const id = entityText("image") as keyof typeof media | undefined;
+    if (id && id in media) node.image = `${site.url}${media[id].src}`;
+  }
+  return node;
+}
+
 /**
- * EL GRAFO DE LA ENTIDAD (`Person` + `WebSite`): lo emite la portada. `url` de los dos nodos es la PORTADA del locale (la dirección de la
- * persona y del sitio), no la página que lo emita: si otro tipo de página lo emitiera algún día, seguiría apuntando a la portada.
+ * EL GRAFO DE LA ENTIDAD (`Person` + `WebSite`, y `ProfilePage` cuando la entidad tenga el mínimo aprobado): lo emite la portada. `url` de
+ * `Person` y `WebSite` es la PORTADA del locale (la dirección de la persona y del sitio), no la página que lo emita: si otro tipo de página lo
+ * emitiera algún día, seguiría apuntando a la portada.
  */
 function entityGraph({ locale, page }: GraphContext): object {
   const home = pageUrl(locale, "home");
   const personId = `${site.url}/#person`;
   const websiteId = `${site.url}/#website`;
 
-  return {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Person",
-        "@id": personId,
-        // la cadena del nombre, completa y sin variantes, desde la fuente única (D-BBW-58). Es la MISMA que el pie muestra en su línea legal.
-        name: identity.brand,
-        url: home,
-        // el CARGO (D-BBW-61), de la misma constante que compone la línea del pie: lo declarado y lo visible son la misma cadena por construcción
-        jobTitle: identity.role,
-        // el buzón oficial (D-BBW-13(a), reapuntado por D-BBW-58); la página lo lleva literal en el `href` del enlace de contacto
-        email: identity.email,
-        // los PERFILES personales, por su llave de rol en la fuente única. `agency` y `works` NO entran: son OTRAS entidades.
-        sameAs: [identity.links.linkedin, identity.links.github],
-        // la descripción de la página (hoy la `meta.description`; la piel de la entidad —S2— le dará una fuente propia)
-        description: page.meta.description,
-      },
-      {
-        "@type": "WebSite",
-        "@id": websiteId,
-        name: identity.brand,
-        url: home,
-        inLanguage: locale,
-        // el sitio lo publica la persona: es su práctica profesional, no la web de una organización (D-BBW-58)
-        publisher: { "@id": personId },
-      },
-    ],
-  };
+  const graph: object[] = [
+    personNode(personId, home, page),
+    {
+      "@type": "WebSite",
+      "@id": websiteId,
+      name: identity.brand,
+      url: home,
+      inLanguage: locale,
+      // el sitio lo publica la persona: es su práctica profesional, no la web de una organización (D-BBW-58)
+      publisher: { "@id": personId },
+    },
+  ];
+  if (isProfilePageReady()) {
+    // Google, «ProfilePage structured data» (act. 2026-09-08): `mainEntity` obligatorio; la página es el perfil de la persona que publica el sitio
+    graph.push({ "@type": "ProfilePage", "@id": `${site.url}/#profile`, url: home, mainEntity: { "@id": personId } });
+  }
+  return { "@context": "https://schema.org", "@graph": graph };
 }
 
 /** Un constructor por tipo de grafo. Un `StructuredDataKind` nuevo sin entrada aquí rompe el typecheck: nunca se omite en silencio. */

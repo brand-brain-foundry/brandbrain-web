@@ -3,12 +3,12 @@ id: BBW-DEPLOY-CONTRACT
 title: "Contrato de puerto de despliegue — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.4
+version: 1.7
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-15
-updated: 2026-09-19
-verified_against_code: 2026-09-19@feat/fase8a-publicacion-de-prueba (v1.3: §7 corregido contra el proveedor REAL — nombre de proyecto ocupado por un tercero y bloqueo de indexación —, §5 enmendado por D-BBW-44, `public/_headers` en el repo y declarado en `src/media/registry.ts`; `pnpm check && pnpm build` en verde. v1.4: el paso 1 del panel anotado contra el panel REAL del día)
+updated: 2026-11-07
+verified_against_code: 2026-11-07@feat/posicionamiento-s2 (v1.7: §8.1 registra dos redirecciones EJECUTADAS por Zavala el 2026-11-07 (`bbf-brandbrain-web.pages.dev` → apex, `www` → apex) y la ofuscación de correo apagada; registro de hechos, no cambio de código) · 2026-09-19@feat/fase8a-publicacion-de-prueba (v1.3: §7 corregido contra el proveedor REAL — nombre de proyecto ocupado por un tercero y bloqueo de indexación —, §5 enmendado por D-BBW-44, `public/_headers` en el repo y declarado en `src/media/registry.ts`; `pnpm check && pnpm build` en verde. v1.4: el paso 1 del panel anotado contra el panel REAL del día)
 supersedes: []
 superseded_by: null
 related: [D-BBW-02, D-BBW-03, D-BBW-04, D-BBW-05, D-BBW-07, D-BBW-09, D-BBW-10, D-BBW-11, D-BBW-12, D-BBW-26, D-BBW-43, D-BBW-44, BBW-PORTS]
@@ -191,6 +191,17 @@ entero es propiedad del dominio, no del código (§3). Por eso el manifiesto se 
 
 ### 8.1 · El mapa
 
+**Ejecutadas el 2026-11-07 por Zavala en el panel (S2 F0, registro de hechos; verificadas por cabeceras con `curl -sI`: 301 y `location` correcta; L-112: el aviso legal solo por cabeceras):**
+
+| Origen | Destino | Tipo | Qué se conserva del camino | Por qué |
+|---|---|---|---|---|
+| `bbf-brandbrain-web.pages.dev` (la dirección del proyecto) | `https://zavalacubas.com` | **Bulk Redirects, 301**, **sin «include subdomains»** (las previsualizaciones por rama `<rama>.bbf-brandbrain-web.pages.dev` siguen sirviendo, con su `noindex` de §8 arriba) | ruta y consulta | cierra la copia de producción fuera de la zona (P-BBW-91: el aviso legal se servía allí sin el desafío WAF). Medido: `…/es/aviso-legal/` → `HTTP/2 301`, `location: https://zavalacubas.com/es/aviso-legal/` |
+| `www.zavalacubas.com` | `https://zavalacubas.com` | **Redirect Rule, 301**, un salto | ruta y consulta | P-BBW-88: `www` servía el sitio entero sin redirigir al apex. Completa el mapa de D-BBW-59 para el canónico |
+
+**Ofuscación de correo de Cloudflare («Email Address Obfuscation»): APAGADA el 2026-11-07** (P-BBW-87; comprobado: 0 apariciones de `email-protection` en `/es/privacidad/`). Producción vuelve a ser el build byte a byte para el dato de contacto (I-4, D-BBW-09).
+
+**Pendientes de ejecutar (cutover, D-BBW-59):**
+
 | Origen | Destino | Tipo | Qué se conserva del camino |
 |---|---|---|---|
 | `brandbrainfoundry.com` (apex) | `https://zavalacubas.com/` | **301 permanente**, **un solo salto**, ya cifrado | **El camino, cuando lo haya.** `…/algo` → `https://zavalacubas.com/algo`. La raíz va a la raíz. |
@@ -271,4 +282,4 @@ solo casa con anfitriones de la forma `<algo>.pages.dev`. **`zavalacubas.com` no
 obligatoria el día del cutover: `curl -sI https://zavalacubas.com/es/ | grep -i x-robots-tag` no debe devolver **nada**.
 
 ---
-*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 + D-BBW-55 + D-BBW-58/59 + D-BBW-78 · `docs/system/DEPLOY_CONTRACT.md` · v1.6 · 2026-11-05 §7.1 (v1.5: 2026-09-21 · v1.4: 2026-09-19 · v1.3: 2026-09-19 · v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*
+*D-BBW-02..07 + D-BBW-09/10/11/12 + D-BBW-26 + D-BBW-43/44 + D-BBW-55 + D-BBW-58/59 + D-BBW-78 · `docs/system/DEPLOY_CONTRACT.md` · v1.7 · 2026-11-07 §8.1 (redirecciones ejecutadas y ofuscación apagada, S2 F0) · v1.6 · 2026-11-05 §7.1 (v1.5: 2026-09-21 · v1.4: 2026-09-19 · v1.3: 2026-09-19 · v1.2: 2026-09-17 · v1.1: 2026-09-16 · v1.0: 2026-09-15)*

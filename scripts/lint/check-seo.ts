@@ -25,6 +25,12 @@
  *   R7f · MAPA DEL SITIO Y ROBOTS: `sitemap.xml` = exactamente las páginas indexables × locales publicados, en el orden del registro;
  *         `robots.txt` con `User-Agent: *` + `Allow: /`, un grupo por agente de IA declarado y `Disallow` = exactamente las rutas ocultas;
  *         `Sitemap:` apunta al dominio canónico.
+ *   R7g · LA ENTIDAD (S2, P-BBW-95; el despacho la llamó «R7f», letra ya ocupada por el mapa del sitio). Sobre el `Person` servido y el
+ *         bloque de entidad de `content/site.json`: (a) ningún campo sale en los datos estructurados sin estar `aprobado` y VISIBLE en la
+ *         página (texto literal, `href`, `mailto:` o `src` según el campo); lo `pendiente` no sale; lo `heredado` solo si ya se emitía antes
+ *         de S2, y entonces se informa si no es visible; ninguna propiedad del `Person` que no tenga campo en la entidad; `ProfilePage` solo
+ *         con el mínimo aprobado. (b) Ninguna sustitución queda sin resolver en el HTML servido (`{{…}}`): una de entidad bloqueada que
+ *         llegara a lo servido se vería aquí. (c) INFORME DE COMPLETITUD de la entidad (aprobados · heredados · pendientes): se imprime, no falla.
  * Uso: `pnpm lint:seo [--out <dir>]` · al final de `pnpm build`. No corre en el pre-commit porque necesita el sitio compilado (14 s).
  */
 import * as fs from 'fs';
@@ -36,6 +42,8 @@ import { AI_AGENTS } from '../../src/app/robots';
 import { identity } from '../../src/content/site';
 import { getPage } from '../../src/content';
 import { media } from '../../src/media';
+import { ENTITY_FIELD_KEYS, fieldSpec, type EntityFieldKey } from '../../src/content/entity-fields';
+import { entityCompleteness, entityGraphTypes, entityStatus, entityValue, isEmitted, isProfilePageReady, type Credential } from '../../src/content/entity';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -45,6 +53,8 @@ const OUT = argOut > 0 ? path.resolve(process.argv[argOut + 1]) : path.join(REPO
 type Fail = { rule: string; where: string; detail: string };
 const fails: Fail[] = [];
 const fail = (rule: string, where: string, detail: string) => fails.push({ rule, where, detail });
+/** R7g (c): lo heredado que se emite sin ser visible, para el informe (no falla: lo resuelve la sesión C). */
+const inheritedNotVisible: string[] = [];
 
 function die(msg: string): never {
   console.error(`[seo-gate] FAIL-CLOSED: ${msg}`);
@@ -249,7 +259,7 @@ for (const e of expected) {
         if (g['@context'] !== 'https://schema.org') fail('R7e', where, `@context "${String(g['@context'])}" ≠ https://schema.org`);
         const nodes = Array.isArray(g['@graph']) ? (g['@graph'] as Record<string, unknown>[]) : [];
         const types = nodes.map((n) => String(n['@type'])).sort();
-        const want = kind === 'entity' ? ['Person', 'WebSite'] : [];
+        const want = kind === 'entity' ? entityGraphTypes() : [];
         if (types.join(',') !== want.join(',')) fail('R7e', where, `tipos del grafo [${types.join(', ')}] ≠ [${want.join(', ')}]`);
         const person = nodes.find((n) => n['@type'] === 'Person');
         if (person) {
@@ -264,9 +274,83 @@ for (const e of expected) {
         const website = nodes.find((n) => n['@type'] === 'WebSite');
         if (website && website.url !== pageUrl(e.locale, 'home')) fail('R7e', where, `WebSite.url ≠ la portada del locale`);
         if (website && website.name !== identity.brand) fail('R7e', where, `WebSite.name ≠ la marca`);
+        // R7g (a) — la entidad: cada propiedad del Person contra el estado de su campo y su visibilidad
+        if (person) checkEntityEmission(person, nodes, html, h, where);
       }
     }
   }
+
+  // R7g (b) — ninguna sustitución sin resolver en lo servido
+  const unresolved = html.match(/\{\{\s*[A-Za-z][A-Za-z0-9]*\s*\}\}/g);
+  if (unresolved) fail('R7g', where, `sustitución sin resolver en el HTML servido: ${[...new Set(unresolved)].join(', ')} (una de entidad bloqueada nunca llega aquí: el puerto rompe el build)`);
+}
+
+/**
+ * R7g (a). Visibilidad por clase de comprobación declarada en la descripción de la entidad: `text` = literal en el texto visible; `mailto` =
+ * `href="mailto:<valor>"`; `href` = cada dirección como `href`; `img` = la imagen como `src`. Devuelve qué NO es visible (vacío = todo visible).
+ */
+function notVisible(key: EntityFieldKey, emitted: unknown, html: string, h: Head): string[] {
+  const spec = fieldSpec(key);
+  const missing: string[] = [];
+  const hasHref = (url: string) => html.includes(`href="${url}"`);
+  switch (spec.visible) {
+    case 'text': {
+      const values = Array.isArray(emitted) ? emitted.map(String) : [String(emitted)];
+      for (const v of values) if (!h.text.includes(v)) missing.push(v);
+      break;
+    }
+    case 'mailto':
+      if (!hasHref(`mailto:${String(emitted)}`)) missing.push(`mailto:${String(emitted)}`);
+      break;
+    case 'href': {
+      const urls = Array.isArray(emitted) ? emitted.map((x) => (typeof x === 'string' ? x : String((x as { url?: unknown }).url))) : [String(emitted)];
+      for (const u of urls) if (!hasHref(u)) missing.push(u);
+      break;
+    }
+    case 'img': {
+      const src = String(emitted).replace(site.url, '');
+      if (!html.includes(`src="${src}"`)) missing.push(src);
+      break;
+    }
+    case 'none':
+      break;
+  }
+  return missing;
+}
+
+function checkEntityEmission(person: Record<string, unknown>, nodes: Record<string, unknown>[], html: string, h: Head, where: string): void {
+  const FIXED = new Set(['@type', '@id', 'url']);
+  const byProperty = new Map<string, EntityFieldKey>();
+  for (const key of ENTITY_FIELD_KEYS) { const p = fieldSpec(key).emits; if (p) byProperty.set(p, key); }
+  for (const prop of Object.keys(person)) {
+    if (!FIXED.has(prop) && !byProperty.has(prop)) fail('R7g', where, `Person.${prop} no corresponde a ningún campo de la entidad (src/content/entity-fields.ts): no se emite lo que la entidad no describe`);
+  }
+  for (const [prop, key] of byProperty) {
+    const status = entityStatus(key);
+    const present = person[prop] !== undefined;
+    const emitted = isEmitted(key);
+    if (!emitted && present) {
+      fail('R7g', where, `Person.${prop} emitido con el campo entity.${key} en estado "${status}": solo sale lo aprobado${fieldSpec(key).emittedWhileInherited ? '' : ' (y no se emitía antes de S2)'}`);
+      continue;
+    }
+    if (emitted && !present) { fail('R7g', where, `entity.${key} está "${status}" y se emite, pero Person.${prop} no está en lo servido`); continue; }
+    if (!present) continue;
+    const missing = notVisible(key, person[prop], html, h);
+    if (missing.length === 0) continue;
+    if (status === 'aprobado') fail('R7g', where, `Person.${prop} (entity.${key}, aprobado) no es visible en la página: ${missing.join(', ')} (los datos estructurados describen la página, no la amplían)`);
+    else inheritedNotVisible.push(`entity.${key} (Person.${prop}, heredado): no visible ${missing.join(', ')}`);
+  }
+  // credenciales emitidas: su dirección es la de la llave declarada
+  if (Array.isArray(person.hasCredential)) {
+    const declared = (entityValue('credentials') as Credential[] | undefined) ?? [];
+    for (const c of person.hasCredential as { url?: unknown }[]) {
+      if (!declared.some((d) => identity.links[d.link as keyof typeof identity.links] === c.url)) fail('R7g', where, `hasCredential con url "${String(c.url)}" que no es la de ninguna credencial declarada en la entidad`);
+    }
+  }
+  // ProfilePage: solo con el mínimo aprobado, y apuntando a la persona
+  const profile = nodes.find((n) => n['@type'] === 'ProfilePage');
+  if (profile && !isProfilePageReady()) fail('R7g', where, 'ProfilePage emitida sin el mínimo de la entidad aprobado');
+  if (profile && (profile.mainEntity as { '@id'?: unknown } | undefined)?.['@id'] !== person['@id']) fail('R7g', where, 'ProfilePage.mainEntity no apunta a la Person del grafo');
 }
 
 function pageEntryType(id: PageId): string {
@@ -295,9 +379,13 @@ const sitemapLine = robotsText.match(/^Sitemap:\s*(.+)$/im)?.[1]?.trim();
 if (sitemapLine !== `${site.url}/sitemap.xml`) fail('R7f', 'out/robots.txt', `Sitemap: "${sitemapLine}" ≠ ${site.url}/sitemap.xml`);
 
 // ── Informe ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// R7g (c) — completitud de la entidad: se imprime siempre (pase o falle la guardia), no falla
+const completeness = entityCompleteness();
+console.log(completeness.line);
+for (const line of inheritedNotVisible) console.log(`[entidad] heredado y emitido sin ser visible (lo resuelve la sesión C): ${line}`);
 if (fails.length === 0) {
   const indexable = expected.filter((e) => pageRules(e.id).indexable).length;
-  console.log(`[seo-gate] OK — ${checkedPages} página(s) servida(s) = ${PAGES.length} registrada(s) × ${publishedLocales.length} locale(s); ${indexable} indexable(s) en el mapa del sitio, ${expected.length - indexable} oculta(s) con noindex + cabecera + Disallow para ${AI_AGENTS.length} agentes; datos estructurados coherentes con el texto visible.`);
+  console.log(`[seo-gate] OK — ${checkedPages} página(s) servida(s) = ${PAGES.length} registrada(s) × ${publishedLocales.length} locale(s); ${indexable} indexable(s) en el mapa del sitio, ${expected.length - indexable} oculta(s) con noindex + cabecera + Disallow para ${AI_AGENTS.length} agentes; datos estructurados coherentes con el texto visible y con la entidad.`);
   process.exit(0);
 }
 console.error(`[seo-gate] ${fails.length} problema(s) en ${path.relative(REPO_ROOT, OUT) || OUT} — el sitio compilado no cumple su registro (R7, docs/system/SEO.md).`);

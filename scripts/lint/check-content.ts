@@ -8,10 +8,14 @@
  *
  * Qué comprueba (exit 1 si falla, exit 2 si el tool rompe — fail-closed en .githooks/pre-commit):
  *   R1 · Todo directorio bajo content/ es un locale PUBLICADO (D-BBW-15: crear content/en/ es declarar EN; sin "en" en
- *        publishedLocales es error). Todo locale publicado tiene directorio. El ÚNICO archivo admitido en la raíz de content/ es
+ *        publishedLocales es error). Todo locale publicado tiene directorio. Los ÚNICOS archivos admitidos en la raíz de content/ son
  *        `site.json` (D-BBW-78: la identidad editable y los destinos de los enlaces, que no se traducen y por eso no viven en un
- *        locale); tiene que estar, y cualquier otro archivo suelto en la raíz es estructura sin modelo. Se valida contra su esquema
- *        estricto (src/content/site.ts): llave desconocida, texto vacío, HTML, correo mal formado o destino no absoluto fallan aquí.
+ *        locale; desde S2 también el BLOQUE DE ENTIDAD, P-BBW-95) y `site.schema.json` (S2: el esquema exportable de ese documento,
+ *        GENERADO por `pnpm content:schema` desde la descripción declarativa; aquí se comprueba que el fichero versionado coincide
+ *        carácter a carácter con lo que la descripción produce — editado a mano o desactualizado = error que pide regenerarlo). Tienen
+ *        que estar, y cualquier otro archivo suelto en la raíz es estructura sin modelo. `site.json` se valida contra su esquema estricto
+ *        (src/content/site.ts + entity.ts): llave desconocida, texto vacío, HTML, correo mal formado, destino no absoluto, campo de
+ *        entidad con estado o valor incoherentes, o un valor escrito dos veces, fallan aquí.
  *   R2 · Cada locale contiene exactamente: `global.json` + una carpeta por colección del esquema (`pages/`). Cualquier otra
  *        entrada = colección sin esquema = estructura sin modelo → error.
  *   R3 · `global.json` cumple GlobalDocument; cada `pages/*.json` cumple PageDocument; `pages/home.json` existe (la landing).
@@ -20,8 +24,10 @@
  *   R4 · Solo `.json` dentro de las colecciones.
  *   R5 · SUSTITUCIONES (D-BBW-23, fase 6c): todo `{{…}}` de cualquier texto es un identificador DECLARADO en src/content/substitutions.ts
  *        (`{{brand}}`, `{{domain}}`, `{{year}}`…). Uno no declarado, o cualquier expresión entre llaves (lógica), falla con la ruta exacta.
+ *        S2 (P-BBW-95): una sustitución DE ENTIDAD BLOQUEADA (`{{category}}`, `{{motto}}` con su campo no aprobado) también falla con la ruta.
  *        Informa cuántas sustituciones declaradas usa el contenido.
- * Informa además cuántos textos hay y cuántos son marcadores `[[PENDIENTE: …]]` (copy pendiente), sin interpretarlos (D-DOC-06).
+ * Informa además cuántos textos hay y cuántos son marcadores `[[PENDIENTE: …]]` (copy pendiente), sin interpretarlos (D-DOC-06), y la
+ * COMPLETITUD de la entidad (cuántos campos aprobados, heredados y pendientes; S2): se imprime, no falla.
  * Uso: `pnpm lint:content` · `pnpm guard` · pre-commit.
  */
 import * as fs from 'fs';
@@ -38,8 +44,11 @@ import {
   validatePage,
   type Problem,
 } from '../../src/content/schema';
-import { findUndeclaredSubstitutions, substitutions, RESTRICTED_SUBSTITUTION_KEYS, isRestrictedSubstitutionKey } from '../../src/content/substitutions';
-import { validateSite } from '../../src/content/site';
+import { findBlockedEntitySubstitutions, findUndeclaredSubstitutions, substitutions, RESTRICTED_SUBSTITUTION_KEYS, isRestrictedSubstitutionKey } from '../../src/content/substitutions';
+import { validateSite, WRITTEN_LINK_KEYS } from '../../src/content/site';
+import { entityCompleteness } from '../../src/content/entity';
+import { renderSiteSchema } from '../../src/content/site-schema';
+import { media } from '../../src/media/generated';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -89,6 +98,9 @@ function report(abs: string, problems: Problem[], doc: unknown): void {
       : `${u.path}: sustitución no declarada "${u.token}" (declaradas: ${Object.keys(substitutions).join(', ')}; sin lógica, D-BBW-23)`;
     fails.push({ rule: 'R5', where: rel(abs), detail });
   }
+  for (const b of findBlockedEntitySubstitutions(doc)) {
+    fails.push({ rule: 'R5', where: rel(abs), detail: `${b.path}: sustitución de entidad BLOQUEADA "${b.token}" (entity.${b.key} no está aprobado en content/site.json; S2, P-BBW-95)` });
+  }
   for (const t of all) substituted += (t.match(DECLARED_RE) ?? []).length;
 }
 
@@ -97,10 +109,12 @@ if (!fs.existsSync(CONTENT_ROOT) || !fs.statSync(CONTENT_ROOT).isDirectory()) {
   process.exit(2);
 }
 
-// R1 — locales + el documento del sitio
+// R1 — locales + el documento del sitio + su esquema exportado (S2)
 const SITE_DOCUMENT = 'site.json';
+const SITE_SCHEMA = 'site.schema.json';
 const published = publishedLocales as readonly string[];
 let hasSite = false;
+let hasSchema = false;
 for (const entry of fs.readdirSync(CONTENT_ROOT, { withFileTypes: true })) {
   if (!entry.isDirectory()) {
     if (entry.isFile() && entry.name === SITE_DOCUMENT) {
@@ -110,14 +124,26 @@ for (const entry of fs.readdirSync(CONTENT_ROOT, { withFileTypes: true })) {
       if (doc !== undefined) report(abs, validateSite(doc), doc);
       continue;
     }
-    fails.push({ rule: 'R1', where: rel(path.join(CONTENT_ROOT, entry.name)), detail: `en la raíz de content/ solo se admiten directorios de locale y el documento del sitio (${SITE_DOCUMENT})` });
+    if (entry.isFile() && entry.name === SITE_SCHEMA) {
+      hasSchema = true;
+      const abs = path.join(CONTENT_ROOT, entry.name);
+      const expected = renderSiteSchema(WRITTEN_LINK_KEYS, Object.keys(media));
+      let actual = '';
+      try { actual = fs.readFileSync(abs, 'utf8'); } catch { fails.push({ rule: 'R1', where: rel(abs), detail: 'no se puede leer' }); continue; }
+      if (actual !== expected) {
+        fails.push({ rule: 'R1', where: rel(abs), detail: `el esquema versionado NO coincide con la descripción declarativa (src/content/{entity-fields,site-schema}.ts, llaves de $.links, medios): no se edita a mano; regenerar con \`pnpm content:schema\`` });
+      }
+      continue;
+    }
+    fails.push({ rule: 'R1', where: rel(path.join(CONTENT_ROOT, entry.name)), detail: `en la raíz de content/ solo se admiten directorios de locale, el documento del sitio (${SITE_DOCUMENT}) y su esquema generado (${SITE_SCHEMA})` });
     continue;
   }
   if (!published.includes(entry.name)) {
     fails.push({ rule: 'R1', where: `content/${entry.name}/`, detail: `locale NO publicado (D-BBW-15): crear content/${entry.name}/ declara ese idioma; añadir "${entry.name}" a publishedLocales en src/config/site.ts o retirar el directorio` });
   }
 }
-if (!hasSite) fails.push({ rule: 'R1', where: `content/${SITE_DOCUMENT}`, detail: 'falta el documento del sitio (nombre, cargo, buzón y destinos de los enlaces)' });
+if (!hasSite) fails.push({ rule: 'R1', where: `content/${SITE_DOCUMENT}`, detail: 'falta el documento del sitio (nombre, cargo, buzón, destinos de los enlaces y bloque de entidad)' });
+if (!hasSchema) fails.push({ rule: 'R1', where: `content/${SITE_SCHEMA}`, detail: 'falta el esquema exportado del documento del sitio (S2): generar con `pnpm content:schema`' });
 for (const locale of published) {
   const localeDir = path.join(CONTENT_ROOT, locale);
   if (!fs.existsSync(localeDir)) {
@@ -199,7 +225,8 @@ for (const locale of published) {
 }
 
 if (fails.length === 0) {
-  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s) + el documento del sitio; ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente), ${substituted} sustitución(es) declarada(s) en uso.`);
+  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s) + el documento del sitio y su esquema; ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente), ${substituted} sustitución(es) declarada(s) en uso.`);
+  console.log(entityCompleteness().line);
   process.exit(0);
 }
 console.error(`[content-gate] ${fails.length} problema(s) en content/ — build roto.`);
