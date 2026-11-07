@@ -41,12 +41,12 @@
             },
             {
               "p": [
-                "Para qué. Para servir la web y protegerla frente a abusos, y para responder a quien me escribe."
+                "Para qué. Para servir la web, protegerla frente a abusos y conocer, en cifras agregadas, cuánto se visita, y para responder a quien me escribe."
               ]
             },
             {
               "p": [
-                "Base legal. Para servir y proteger la web, mi interés legítimo en ofrecer un sitio disponible y seguro (art. 6.1.f del RGPD). Para responder, la aplicación de medidas precontractuales a petición de quien escribe (art. 6.1.b) o, si no hay relación profesional en juego, mi interés legítimo en atender la correspondencia (art. 6.1.f)."
+                "Base legal. Para servir y proteger la web y conocer su tráfico en cifras agregadas, mi interés legítimo en ofrecer un sitio disponible y seguro y en saber cuánto se usa (art. 6.1.f del RGPD). Para responder, la aplicación de medidas precontractuales a petición de quien escribe (art. 6.1.b) o, si no hay relación profesional en juego, mi interés legítimo en atender la correspondencia (art. 6.1.f)."
               ]
             },
             {
@@ -200,7 +200,7 @@
           ]
         }
       ],
-      "updated": "2026-11-06"
+      "updated": "2026-11-07"
     }
   ]
 }
