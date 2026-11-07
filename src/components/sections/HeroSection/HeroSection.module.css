@@ -119,10 +119,13 @@
   }
 }
 
-/* ── EL CUERPO (2026-11-02): titular, dos párrafos y dos llamadas a la acción, todo por rol ───────────────────────────────────────────
-   Las piezas entran escalonadas con los cuatro retardos que tenía el bloque (los del claim y el del encabezado, en el mismo orden).
+/* ── EL CUERPO (2026-11-02): titular, el párrafo y dos llamadas a la acción, todo por rol ─────────────────────────────────────────────
+   Las piezas entran escalonadas con los retardos que tenía el bloque (los del claim y el del encabezado, en el mismo orden).
    La medida de las líneas es la del bloque: `--bbf-lockup-target`, el ancho objetivo que ya fijaba el encabezado. Separaciones de la escala:
-   titular → texto `space-7`, entre párrafos `space-4`, texto → botones `space-11` (F0 §2.2). */
+   titular → texto `space-7`, texto → botones `space-4` + `space-11` (F0 §2.2; el `space-4` era el aire entre párrafos y es también el
+   margen inferior del último, así que la distancia texto → botones no cambia).
+   S3b (D-BBW-89): el cuerpo es UN párrafo; sale el segundo con su retardo (`claim-3`, que queda sin consumidor en la capa semántica:
+   reportado, no retirado aquí porque esa capa tiene turno propio, como P-BBW-50). */
 .heading {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-1);
 
@@ -139,6 +142,8 @@
 }
 
 .body {
+  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-2);
+
   margin: 0 0 var(--bbf-space-4);
   max-width: var(--bbf-lockup-target);
   color: var(--bbf-text-on-base-secondary);
@@ -149,14 +154,6 @@
   letter-spacing: var(--bbf-type-body-tracking);
   text-shadow: var(--bbf-type-body-shadow);
   text-wrap: pretty;
-}
-
-.bodyFirst {
-  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-2);
-}
-
-.bodySecond {
-  --bbf-enter-delay: var(--bbf-motion-enter-delay-claim-3);
 }
 
 /* La zona de texto no recibe el puntero (deja pasar al fondo); las llamadas a la acción sí. En la vista de una zona se apilan a todo el

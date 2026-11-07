@@ -7,9 +7,8 @@
     {
       "type": "hero",
       "id": "hero",
-      "heading": "Diseño sistemas de IA que aplican el criterio de tu marca.",
-      "paragraph1": "Tu equipo ya la usa para escribir, diseñar y responder. Produce rápido y con buen acabado, pero lo que entrega podría ser de cualquiera.",
-      "paragraph2": "Ahí está mi trabajo. Primero rediseñamos cómo se trabaja: qué decisiones le dejamos a la IA, cómo las recuperamos si hace falta y quién más debería participar en decidirlo. Después escribo el criterio de tu marca y diseño agentes que deciden con él.",
+      "heading": "Diseño sistemas de IA que deciden con el criterio de tu marca.",
+      "paragraph": "Tu equipo ya usa IA. Lo que entrega podría ser de cualquiera. Empiezo antes de la herramienta: rediseño cómo se trabaja y escribo el criterio de tu marca para que los agentes decidan con él.",
       "ctaPrimary": "Hablemos",
       "ctaSecondary": "Perfil en LinkedIn",
       "ctaSecondaryLink": "linkedin"

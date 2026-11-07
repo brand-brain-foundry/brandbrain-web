@@ -246,18 +246,18 @@ export type ConsentDocument = {
 // ── Página ──────────────────────────────────────────────────────────────────────────────────────────────
 /**
  * Sección de portada. 2026-11-02 (orden de Zavala), cambio NO aditivo, modelo v3.3: el CLAIM de tres líneas sale y entra el CUERPO de la
- * home nueva sobre el héroe oscuro: el titular (`<h1>`), dos párrafos y dos llamadas a la acción. Cada texto su llave, nombrada por rol.
+ * home nueva sobre el héroe oscuro: el titular (`<h1>`), el cuerpo y dos llamadas a la acción. Cada texto su llave, nombrada por rol.
  * El destino de la llamada primaria es el contacto (derivado del buzón); el de la secundaria, una llave de `content/site.json`.
+ * S3b (D-BBW-89, 2026-11-07), cambio NO aditivo, modelo v3.12: el cuerpo es UN párrafo (`paragraph`); `paragraph1`/`paragraph2` salen y un
+ * documento que las traiga rompe la compilación nombrando la llave.
  */
 export type HeroSection = {
   type: "hero";
   id: string;
   /** el encabezado de la página: el único `<h1>` */
   heading: string;
-  /** primer párrafo del cuerpo; sus líneas marcan los carriles del campo de puntos */
-  paragraph1: string;
-  /** segundo párrafo del cuerpo */
-  paragraph2: string;
+  /** el párrafo del cuerpo (uno solo); sus líneas marcan los carriles del campo de puntos */
+  paragraph: string;
   /** etiqueta de la llamada primaria (→ contacto) */
   ctaPrimary: string;
   /** etiqueta de la llamada secundaria */
@@ -296,7 +296,7 @@ const EMAIL_IN_TEXT_RE = /\S+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
-  hero: ["type", "id", "heading", "paragraph1", "paragraph2", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
+  hero: ["type", "id", "heading", "paragraph", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
   legal: ["type", "id", "heading", "intro", "blocks", "updated"],
 };
 /** llaves ADMITIDAS (no obligatorias) por tipo de sección: hoy solo la acción de la página legal (v3.8). */
