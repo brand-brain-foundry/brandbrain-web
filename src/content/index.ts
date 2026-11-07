@@ -20,6 +20,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { publishedLocales, type Locale } from "../config/site";
+import { isPageId, pageRoute } from "../config/pages";
 import {
   GLOBAL_DOCUMENT,
   collections,
@@ -75,7 +76,9 @@ function resolveRefs<T>(doc: T, locale: Locale, global: GlobalDocument, pageLabe
       const slug = r.page as string;
       const label = pageLabels[slug];
       if (!label) throw new Error(`[content] ${path}: referencia a página desconocida "${slug}" (¿falta en global.legal.pages?)`);
-      return { text: label, path: `/${locale}/${slug}/` } as unknown as T;
+      if (!isPageId(slug)) throw new Error(`[content] ${path}: la página "${slug}" no está en el registro (src/config/pages.ts)`);
+      // la ruta la da el registro (S1, P-BBW-94): ningún archivo de contenido ni este puerto escribe una URL
+      return { text: label, path: pageRoute(locale, slug) } as unknown as T;
     }
     const out: Record<string, unknown> = {};
     const SKIP = new Set(["id", "type", "link", "case", "kind"]);

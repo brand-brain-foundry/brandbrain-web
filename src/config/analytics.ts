@@ -10,7 +10,7 @@
  * Zavala entregó el token (despacho L3 §GATE 2, 2026-11-06). El token aquí es lo único que activa el adaptador de Cloudflare;
  * el banner y la preferencia funcionan igual con o sin él. Volver a `null` es la vía prevista para retirar la medición.
  *
- * Qué páginas se miden NO se decide aquí: sale del registro de páginas (`src/config/pages.ts`, campo `measured`), para que una
+ * Qué páginas se miden NO se decide aquí: sale del tipo de cada página (`src/config/page-types.ts`, regla `measured`, heredada por el registro `src/config/pages.ts`), para que una
  * ruta excluida (hoy el aviso legal, requisito 6 del despacho) no se escriba a mano en ningún otro sitio.
  */
 export const ANALYTICS_TOKEN: string | null = "3536993f9a3540d3859b40e8a9e7dd95";

@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/config/site";
-import { SITEMAP_LEGAL_SLUGS, legalPageRoute } from "@/config/pages";
-import { homeUrl } from "@/seo/jsonld";
+import { pagesWhere, pageUrl } from "@/config/pages";
 
 /**
  * MAPA DEL SITIO — generado en la compilación (ruta de metadatos de Next: el export estático lo emite como `out/sitemap.xml`).
  *
- * · Solo LOCALES PUBLICADOS (D-BBW-15): hoy una sola entrada, `/es/`. Nada declara una versión inglesa mientras no exista, así que tampoco
- *   hay `xhtml:link` de idioma alterno. Añadir "en" a `publishedLocales` añade su fila aquí sin tocar este archivo.
+ * · Solo LOCALES PUBLICADOS (D-BBW-15) y solo las páginas cuyo TIPO es indexable (registro `src/config/pages.ts` × `page-types.ts`,
+ *   P-BBW-94): una página oculta no entra; una página nueva entra con su fila del registro sin tocar este archivo. Nada declara una
+ *   versión inglesa mientras no exista, así que tampoco hay `xhtml:link` de idioma alterno. Añadir "en" a `publishedLocales` añade sus filas.
  * · Las URL son las CANÓNICAS, con la barra final que emite el build (`trailingSlash: true`) y las mismas que declara `alternates.canonical`.
  * · La raíz `/` NO entra: es la defensa de D-BBW-07 y redirige 301 al locale por defecto. Un mapa del sitio lista destinos finales.
  * · SIN `lastModified`, `changeFrequency` ni `priority`: las dos últimas Google las ignora, y la fecha que este build puede dar es la de la
@@ -21,10 +21,7 @@ import { homeUrl } from "@/seo/jsonld";
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return [
-    ...site.publishedLocales.map((locale) => ({ url: homeUrl(locale) })),
-    ...site.publishedLocales.flatMap((locale) =>
-      SITEMAP_LEGAL_SLUGS.map((slug) => ({ url: `${site.url}${legalPageRoute(locale, slug)}` }))
-    ),
-  ];
+  return site.publishedLocales.flatMap((locale) =>
+    pagesWhere((rules) => rules.indexable).map((page) => ({ url: pageUrl(locale, page.id) }))
+  );
 }

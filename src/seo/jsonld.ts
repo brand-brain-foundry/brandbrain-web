@@ -1,8 +1,13 @@
 import { site, type Locale } from "@/config/site";
+import { PAGE_TYPES, type StructuredDataKind } from "@/config/page-types";
+import { pageEntry, pageUrl, type PageId } from "@/config/pages";
 import { identity } from "@/content/site";
+import type { PageDocument } from "@/content/schema";
 
 /**
- * DATOS ESTRUCTURADOS (fase 7; enmendados por D-BBW-58 y D-BBW-60). Se DERIVAN de la fuente única (`src/config/site.ts` para lo técnico, `content/site.json` para lo editable, D-BBW-78) y del documento de
+ * DATOS ESTRUCTURADOS (fase 7; enmendados por D-BBW-58 y D-BBW-60; CONSTRUCTOR ÚNICO POR TIPO desde S1, P-BBW-94 §0.2.4: qué grafo emite una
+ * página lo declara su TIPO en `src/config/page-types.ts` y lo construye el mapa `GRAPH_BUILDERS` de abajo; un tipo de grafo sin constructor
+ * rompe el typecheck, como `SECTION_RENDERERS`. Mismo resultado que antes en la portada: el cambio es de estructura, no de contenido). Se DERIVAN de la fuente única (`src/config/site.ts` para lo técnico, `content/site.json` para lo editable, D-BBW-78) y del documento de
  * la página; ningún dominio, buzón ni nombre se escribe literal aquí (criterio transversal 1). Salen como un solo
  * `<script type="application/ld+json">` con un `@graph`.
  *
@@ -51,13 +56,15 @@ import { identity } from "@/content/site";
  * característica de nombre de sitio queda fuera de alcance mientras `/` redirija. El tipo se emite igualmente: es válido, lo leen los
  * agentes de IA y declara idioma y editor. Cerrarlo exigiría servir el español sin prefijo, que D-BBW-07 descartó por firma.
  */
-/** URL canónica de la portada de un locale publicado. Misma forma que emite el build (`trailingSlash: true`). */
-export function homeUrl(locale: Locale): string {
-  return `${site.url}/${locale}/`;
-}
+/** Lo que un constructor recibe: el locale, la página y su documento ya resuelto por el puerto de contenido. */
+type GraphContext = { locale: Locale; id: PageId; page: PageDocument };
 
-export function homeGraph(locale: Locale, description: string): object {
-  const home = homeUrl(locale);
+/**
+ * EL GRAFO DE LA ENTIDAD (`Person` + `WebSite`): lo emite la portada. `url` de los dos nodos es la PORTADA del locale (la dirección de la
+ * persona y del sitio), no la página que lo emita: si otro tipo de página lo emitiera algún día, seguiría apuntando a la portada.
+ */
+function entityGraph({ locale, page }: GraphContext): object {
+  const home = pageUrl(locale, "home");
   const personId = `${site.url}/#person`;
   const websiteId = `${site.url}/#website`;
 
@@ -76,7 +83,8 @@ export function homeGraph(locale: Locale, description: string): object {
         email: identity.email,
         // los PERFILES personales, por su llave de rol en la fuente única. `agency` y `works` NO entran: son OTRAS entidades.
         sameAs: [identity.links.linkedin, identity.links.github],
-        description,
+        // la descripción de la página (hoy la `meta.description`; la piel de la entidad —S2— le dará una fuente propia)
+        description: page.meta.description,
       },
       {
         "@type": "WebSite",
@@ -89,4 +97,16 @@ export function homeGraph(locale: Locale, description: string): object {
       },
     ],
   };
+}
+
+/** Un constructor por tipo de grafo. Un `StructuredDataKind` nuevo sin entrada aquí rompe el typecheck: nunca se omite en silencio. */
+const GRAPH_BUILDERS: Record<StructuredDataKind, (ctx: GraphContext) => object | null> = {
+  entity: entityGraph,
+  none: () => null,
+};
+
+/** Los datos estructurados de una página según su tipo, o `null` si su tipo no emite ninguno. */
+export function structuredData(locale: Locale, id: PageId, page: PageDocument): object | null {
+  const kind = PAGE_TYPES[pageEntry(id).type].structuredData;
+  return GRAPH_BUILDERS[kind]({ locale, id, page });
 }

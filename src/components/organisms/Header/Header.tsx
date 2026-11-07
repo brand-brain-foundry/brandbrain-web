@@ -1,4 +1,5 @@
 import { type Locale } from "@/config/site";
+import { pageRoute } from "@/config/pages";
 import { identity } from "@/content/site";
 import type { GlobalDocument, LinkItem } from "@/content/schema";
 import { iconFor } from "@/media";
@@ -37,7 +38,7 @@ export function Header({ locale, global }: { locale: Locale; global: GlobalDocum
   const social = resolveLinks(global.footer.social);
   return (
     <header className={styles.header} data-component="bbf-header">
-      <BrandMark href={`/${locale}/`} name={identity.brand} />
+      <BrandMark href={pageRoute(locale, "home")} name={identity.brand} />
       <nav className={styles.nav}>
         <div className={styles.inline}>
           <LinkList items={nav} typeRole="label" enter scatter />

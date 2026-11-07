@@ -9,13 +9,13 @@
  * que la pondría en todas las páginas y antes de consentir; memo §1.3). ALTERNATIVA PREVISTA: la NULA, que no hace nada; es la
  * que rige mientras `ANALYTICS_TOKEN` sea `null` (`src/config/analytics.ts`).
  *
- * QUÉ SE MIDE lo decide el registro de páginas (`src/config/pages.ts`, `measured`), no el adaptador: `shouldMeasure(pathname)`
+ * QUÉ SE MIDE lo decide el tipo de cada página (`src/config/page-types.ts`, `measured`, por el registro `src/config/pages.ts`), no el adaptador: `shouldMeasure(pathname)`
  * es la única puerta y la calcula desde el registro y los locales publicados. El aviso legal queda fuera (requisito 6).
  *
  * El puerto NUNCA carga nada por su cuenta: quien llama es el cableado del consentimiento, y solo tras «Aceptar».
  */
 import { ANALYTICS_TOKEN } from "../config/analytics";
-import { LEGAL_PAGES, legalPageRoute } from "../config/pages";
+import { pagesWhere, pageRoute } from "../config/pages";
 import { site } from "../config/site";
 import { createCloudflareAdapter } from "./adapters/cloudflare";
 import { nullAdapter } from "./adapters/null";
@@ -32,7 +32,7 @@ export type AnalyticsAdapter = {
 /** Rutas que NO se miden: las páginas con `measured: false` × los locales publicados. Calculadas, nunca escritas. */
 const UNMEASURED_PATHS: ReadonlySet<string> = new Set(
   site.publishedLocales.flatMap((locale) =>
-    LEGAL_PAGES.filter((p) => !p.measured).map((p) => legalPageRoute(locale, p.slug)),
+    pagesWhere((rules) => !rules.measured).map((p) => pageRoute(locale, p.id)),
   ),
 );
 

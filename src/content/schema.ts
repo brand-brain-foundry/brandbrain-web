@@ -272,7 +272,11 @@ export type SectionType = Section["type"];
 
 export type PageDocument = {
   meta: {
-    /** título del documento (pestaña y buscadores); lo consume la capa semántica (fase 7) */
+    /**
+     * título PROPIO de la página (v3.9, S1 · P-BBW-94): SIN la marca. El `<title>` lo compone la fórmula del tipo de página
+     * (`src/config/page-types.ts`: la portada «marca · título», las demás «título · marca») desde la fuente única. Escribir
+     * `{{brand}}` aquí rompe la compilación: la marca la pone la fórmula, una vez.
+     */
     title: string;
     /** descripción para buscadores */
     description: string;
@@ -609,6 +613,9 @@ export function validatePage(v: unknown): Problem[] {
   if (isRecord(v.meta)) {
     checkKeys(v.meta, ["title", "description"], "$.meta", problems);
     checkText(v.meta.title, "$.meta.title", problems);
+    if (typeof v.meta.title === "string" && /\{\{\s*brand\s*\}\}/.test(v.meta.title)) {
+      problems.push({ path: "$.meta.title", message: "el título propio no lleva la marca: la añade la fórmula del tipo de página (src/config/page-types.ts)" });
+    }
     checkText(v.meta.description, "$.meta.description", problems);
   } else if ("meta" in v) problems.push({ path: "$.meta", message: "debe ser un objeto" });
   if (Array.isArray(v.sections)) {
