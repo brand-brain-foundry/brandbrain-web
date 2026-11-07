@@ -28,6 +28,7 @@
  */
 import document from "../../content/site.json";
 import type { Problem } from "./schema";
+import { validateEntity, type EntityBlock } from "./entity";
 
 /** La forma del documento del sitio. Las llaves de `links` NO están fijadas aquí: las pone el archivo, y de ahí sale `LinkKey`. */
 export type SiteDocument = {
@@ -45,6 +46,12 @@ export type SiteDocument = {
   legalForm: string;
   /** a dónde apunta la web fuera de sí misma, nombrado por ROL y nunca por lo que muestra. */
   links: Record<string, string>;
+  /**
+   * EL BLOQUE DE ENTIDAD (S2 · P-BBW-95): lo que hace citable a la persona, un campo por hecho, cada uno con su ESTADO (aprobado · heredado ·
+   * pendiente). Los campos que ya vivían arriba (`brand`, `role`, `email`) se REFERENCIAN desde el bloque y no se copian (I-1). Descripción
+   * declarativa en `./entity-fields.ts`; validación en `./entity.ts`; esquema exportado en `content/site.schema.json`.
+   */
+  entity: EntityBlock;
 };
 
 const HTML_RE = /<\/?[a-zA-Z!]/;
@@ -70,7 +77,7 @@ function checkText(v: unknown, path: string, problems: Problem[]): void {
 export function validateSite(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  const allowed = ["brand", "role", "email", "legalForm", "links"];
+  const allowed = ["brand", "role", "email", "legalForm", "links", "entity"];
   for (const k of Object.keys(v)) {
     if (!allowed.includes(k)) problems.push({ path: `$.${k}`, message: `llave desconocida (el modelo no la admite)` });
   }
@@ -93,6 +100,8 @@ export function validateSite(v: unknown): Problem[] {
       problems.push({ path: `$.links.${k}`, message: `"${String(url)}" no es una dirección absoluta y cifrada (https://…)` });
     }
   }
+  // S2: el bloque de entidad, contra su descripción (estados, clases, referencias a $.links y al puerto de medios, fuente única)
+  problems.push(...validateEntity(v.entity, Object.keys(v.links).filter((k) => k !== "contact"), { brand: v.brand, role: v.role, email: v.email }));
   return problems;
 }
 
@@ -115,6 +124,9 @@ export const identity = {
 export type LinkKey = keyof typeof identity.links;
 
 const LINK_KEYS: readonly string[] = Object.keys(identity.links);
+
+/** Las llaves ESCRITAS en el documento (sin la derivada `contact`): lo que la entidad y el esquema exportado pueden referenciar. */
+export const WRITTEN_LINK_KEYS: readonly string[] = Object.keys(document.links);
 
 export function isLinkKey(value: string): value is LinkKey {
   return LINK_KEYS.includes(value);

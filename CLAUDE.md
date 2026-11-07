@@ -42,7 +42,9 @@ Los contratos se leen bajo demanda según el índice; cada despacho nombra en su
   enlaces por llave de `site.links`; marcadores `[[PENDIENTE: …]]` hasta que haya copy. Cero literales en componentes. Solo locales
   publicados: crear `content/en/` = declarar EN (D-BBW-15, la guardia lo bloquea). Sustituciones (fase 6c, D-BBW-23): solo `{{brand}}`,
   `{{domain}}`, `{{year}}` del registro `src/content/substitutions.ts`, resueltas al compilar; una no declarada o lógica entre llaves rompe
-  el build. `docs/system/CONTENT_MODEL.md`.
+  el build. **Entidad (S2, P-BBW-95):** `content/site.json` `$.entity`, un campo por hecho con estado (`aprobado`/`heredado`/`pendiente`), descrita
+  una vez en `src/content/entity-fields.ts` (de ahí validación, `content/site.schema.json` generado por `pnpm content:schema` y las sustituciones
+  `{{category}}`/`{{motto}}`, bloqueadas hasta aprobarse); un campo entra en los datos estructurados solo aprobado y visible (R7g). `docs/system/CONTENT_MODEL.md`.
 - **Medios (fase 6c, D-BBW-21, `docs/system/MEDIA.md`):** maestro en `media/masters/` (se edita) → derivados por `pnpm media:build` en `public/` y
   `src/media/generated.ts` (se versionan, NUNCA se editan; la guardia `check-media.ts` compara hashes con el lock). Un componente consume
   `src/media` (`media.<id>`, `<Icon name>`) y nunca escribe una ruta ni una dimensión. Un maestro no se dibuja: se trae del diseño o se espera.

@@ -15,6 +15,7 @@
 import { site } from "../config/site";
 import { CONSENT_MONTHS, CONSENT_STORAGE_KEY } from "../config/consent";
 import { identity } from "./site";
+import { entitySubstitutions } from "./entity";
 
 /** El registro: llave → valor. Solo texto plano. */
 export const substitutions = {
@@ -49,6 +50,27 @@ export const substitutions = {
 export type SubstitutionKey = keyof typeof substitutions;
 
 /**
+ * SUSTITUCIONES DE ENTIDAD (S2 · P-BBW-95, §0.2.3): `{{category}}`, `{{motto}}` y las que la descripción de la entidad declare
+ * (`src/content/entity-fields.ts`, `substitution`). Están REGISTRADAS desde hoy, para que en S3 la categoría y la frase madre se escriban una
+ * vez en `content/site.json` y el copy las referencie; pero están BLOQUEADAS (valor `null`) mientras su campo no esté `aprobado`: usar una
+ * bloqueada rompe la compilación (puerto) y la guardia (R5), con la ruta exacta. Nunca se resuelven a un texto de relleno.
+ */
+export const entitySubstitutionRegistry: Readonly<Record<string, string | null>> = entitySubstitutions();
+
+export function isEntitySubstitutionKey(v: string): boolean {
+  return Object.prototype.hasOwnProperty.call(entitySubstitutionRegistry, v);
+}
+
+export function isBlockedEntitySubstitution(v: string): boolean {
+  return isEntitySubstitutionKey(v) && entitySubstitutionRegistry[v] === null;
+}
+
+/** Todas las llaves declaradas (globales + de entidad), para los mensajes. */
+export function declaredSubstitutionKeys(): string[] {
+  return [...Object.keys(substitutions), ...Object.keys(entitySubstitutionRegistry)];
+}
+
+/**
  * Sustituciones RESTRINGIDAS: válidas ÚNICAMENTE en `content/es/pages/aviso-legal.json`.
  * Para cualquier otro documento son un error (la guardia y el puerto las rechazan).
  * Sus valores vienen de `src/content/legal-identity.ts` al compilar (P-BBW-78).
@@ -67,6 +89,28 @@ const IDENT_RE = /^\s*([A-Za-z][A-Za-z0-9]*)\s*$/;
 
 export function isSubstitutionKey(v: string): v is SubstitutionKey {
   return Object.prototype.hasOwnProperty.call(substitutions, v);
+}
+
+export type BlockedSubstitution = { path: string; token: string; key: string };
+
+/**
+ * Lista cada sustitución de entidad BLOQUEADA que use un documento (con su ruta). Una bloqueada es «declarada» para `findUndeclaredSubstitutions`
+ * (no es un identificador desconocido), pero no tiene valor: el puerto rompe el build y la guardia R5 la informa con este mismo recorrido.
+ */
+export function findBlockedEntitySubstitutions(doc: unknown, path = "$", acc: BlockedSubstitution[] = []): BlockedSubstitution[] {
+  if (typeof doc === "string") {
+    for (const m of doc.matchAll(ANY_BRACES_RE)) {
+      const ident = IDENT_RE.exec(m[1]);
+      if (ident && isBlockedEntitySubstitution(ident[1])) acc.push({ path, token: m[0], key: ident[1] });
+    }
+  } else if (Array.isArray(doc)) {
+    doc.forEach((x, i) => findBlockedEntitySubstitutions(x, `${path}[${i}]`, acc));
+  } else if (doc && typeof doc === "object") {
+    for (const [k, v] of Object.entries(doc as Record<string, unknown>)) {
+      if (!STRUCTURAL_KEYS.has(k)) findBlockedEntitySubstitutions(v, `${path}.${k}`, acc);
+    }
+  }
+  return acc;
 }
 
 export type UndeclaredSubstitution = { path: string; token: string };
@@ -89,7 +133,7 @@ export function findUndeclaredSubstitutions(
       const ident = IDENT_RE.exec(m[1]);
       if (!ident) { acc.push({ path, token: m[0] }); continue; }
       const key = ident[1];
-      if (isSubstitutionKey(key) || allowedExtraKeys.includes(key)) continue;
+      if (isSubstitutionKey(key) || isEntitySubstitutionKey(key) || allowedExtraKeys.includes(key)) continue;
       acc.push({ path, token: m[0] });
     }
   } else if (Array.isArray(doc)) {
@@ -109,9 +153,16 @@ export function findUndeclaredSubstitutions(
 export function resolveText(text: string, path: string, skipKeys?: ReadonlySet<string>): string {
   return text.replace(ANY_BRACES_RE, (whole, inner: string) => {
     const ident = IDENT_RE.exec(inner);
+    if (ident && isEntitySubstitutionKey(ident[1])) {
+      const value = entitySubstitutionRegistry[ident[1]];
+      if (value === null) {
+        throw new Error(`${path}: sustitución de entidad BLOQUEADA "${whole}": el campo de la entidad no está aprobado en content/site.json (S2, P-BBW-95; no se rellena con otro texto)`);
+      }
+      return value;
+    }
     if (!ident || !isSubstitutionKey(ident[1])) {
       if (skipKeys?.has(ident?.[1] ?? "")) return whole; // deja el token para la segunda pasada
-      throw new Error(`${path}: sustitución no declarada "${whole}" (declaradas: ${Object.keys(substitutions).join(", ")}; sin lógica, D-BBW-23)`);
+      throw new Error(`${path}: sustitución no declarada "${whole}" (declaradas: ${declaredSubstitutionKeys().join(", ")}; sin lógica, D-BBW-23)`);
     }
     return substitutions[ident[1]];
   });
