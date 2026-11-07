@@ -1,11 +1,11 @@
 import { site, type Locale } from "@/config/site";
 import { PAGE_TYPES, type StructuredDataKind } from "@/config/page-types";
-import { pageEntry, pageUrl, type PageId } from "@/config/pages";
+import { pageEntry, pageRules, pageUrl, type PageId } from "@/config/pages";
 import { identity, type LinkKey } from "@/content/site";
-import { entityList, entityText, isEmittedOn, isProfilePageReadyOn, visibilityContext, type Credential, type VisibilityContext } from "@/content/entity";
-import { getGlobal } from "@/content";
+import { entityList, entityText, entityValue, isEmittedOn, isProfilePageReadyOn, visibilityContext, type Credential, type Place, type VisibilityContext } from "@/content/entity";
+import { getGlobal, requireSection } from "@/content";
 import type { PageDocument } from "@/content/schema";
-import { media } from "@/media";
+import { mediaMembers } from "@/media";
 
 /**
  * DATOS ESTRUCTURADOS (fase 7; enmendados por D-BBW-58 y D-BBW-60; CONSTRUCTOR ÚNICO POR TIPO desde S1, P-BBW-94 §0.2.4: qué grafo emite una
@@ -13,6 +13,14 @@ import { media } from "@/media";
  * rompe el typecheck, como `SECTION_RENDERERS`. Mismo resultado que antes en la portada: el cambio es de estructura, no de contenido). Se DERIVAN de la fuente única (`src/config/site.ts` para lo técnico, `content/site.json` para lo editable, D-BBW-78) y del documento de
  * la página; ningún dominio, buzón ni nombre se escribe literal aquí (criterio transversal 1). Salen como un solo
  * `<script type="application/ld+json">` con un `@graph`.
+ *
+ * S3c · LA PERSONA SE DECLARA UNA VEZ (D-BBW-90; insumo CONTENIDO-PERFIL-WEB v1.0 §6): la página de perfil (tipo `profile`) emite `ProfilePage`
+ * con el `Person` COMPLETO; la portada (tipo `website`) emite el `WebSite`, cuyo `publisher` apunta a la persona por su `@id`; ninguna otra
+ * página la declara (R7h lo comprueba sobre todo el sitio servido). `Person.url` es la dirección canónica de la persona: la de la página de
+ * perfil (§0.3.2 del despacho), no la portada, que redirige. `image` = los tres recortes del retrato; `workLocation` = localidad y país
+ * (nunca `homeLocation` ni una dirección completa: §0.3.4, P-BBW-78); `dateCreated`/`dateModified` = las fechas que la página escribe en su
+ * contenido, nunca la hora de la compilación. Lo que el párrafo de abajo dice del `Person` en la portada es historia: desde S3c vale para la
+ * página de perfil.
  *
  * REGLA QUE MANDA (despacho fase 7 §F3, reafirmada por el de la enmienda §F3): los datos estructurados DESCRIBEN la página; no añaden
  * hechos que la página no dice.
@@ -72,76 +80,98 @@ import { media } from "@/media";
 /** Lo que un constructor recibe: el locale, la página y su documento ya resuelto por el puerto de contenido. */
 type GraphContext = { locale: Locale; id: PageId; page: PageDocument };
 
-/** Un nodo `Person` conforme al bloque de entidad: las propiedades entran en el orden de siempre y solo si la entidad las emite en esta página. */
-function personNode(personId: string, home: string, page: PageDocument, ctx: VisibilityContext): Record<string, unknown> {
+const PERSON_ID = `${site.url}/#person`;
+const WEBSITE_ID = `${site.url}/#website`;
+
+/**
+ * El `Person` COMPLETO conforme al bloque de entidad: cada propiedad entra solo si la entidad la emite en esta página (aprobada Y visible), en el
+ * orden del insumo §6. `url` = la dirección canónica de la persona (la página de perfil que lo emite).
+ */
+function personNode(url: string, ctx: VisibilityContext): Record<string, unknown> {
   const node: Record<string, unknown> = {
     "@type": "Person",
-    "@id": personId,
-    // la cadena del nombre, completa y sin variantes, desde la fuente única (D-BBW-58). Es la MISMA que el pie muestra en su línea legal.
+    "@id": PERSON_ID,
+    // la cadena del nombre, completa y sin variantes, desde la fuente única (D-BBW-58): la misma que el <h1> de la página y el pie
     name: identity.brand,
   };
-  // la única variante admitida del nombre (D-BBW-85): entra cuando esté escrita en la página (el logotipo no es texto; S3b)
+  // la única variante admitida (D-BBW-85): solo si está ESCRITA en la página fuera del nombre completo (hoy no: despacho S3c §6)
   if (isEmittedOn("alternateName", ctx)) node.alternateName = entityText("alternateName");
-  node.url = home;
-  // el CARGO (D-BBW-61), de la misma constante que compone la línea del pie: lo declarado y lo visible son la misma cadena por construcción
+  // el CARGO (D-BBW-61): la misma constante que la línea bajo el <h1> y el pie
   if (isEmittedOn("role", ctx)) node.jobTitle = identity.role;
-  // el buzón oficial (D-BBW-13(a), reapuntado por D-BBW-58); la página lo lleva literal en el `href` del enlace de contacto
+  // la frase definitoria (D-BBW-81/82/84): la entrada de la página la cita de la entidad
+  if (isEmittedOn("description", ctx)) node.description = entityText("description");
+  node.url = url;
+  // el retrato: TODOS los recortes del conjunto que la entidad referencia (1:1, 4:3, 16:9), en direcciones absolutas y rastreables
+  if (isEmittedOn("image", ctx)) {
+    const urls = mediaMembers(String(entityValue("image"))).map((m) => `${site.url}${m.src}`);
+    if (urls.length > 0) node.image = urls.length === 1 ? urls[0] : urls;
+  }
+  // el buzón, con la forma que el sitio emite desde S2: la dirección, sin `mailto:` (§0.3.3)
   if (isEmittedOn("email", ctx)) node.email = identity.email;
-  // los PERFILES personales, por su llave de rol en la fuente única (desde S2, declarados en `entity.sameAs`; D-BBW-86: solo los enlazados)
-  if (isEmittedOn("sameAs", ctx)) node.sameAs = entityList<LinkKey>("sameAs").map((k) => identity.links[k]);
-  // la frase definitoria (D-BBW-81/82/84): propia; si volviera a heredarse, la `meta.description` de la portada (como antes de S2)
-  if (isEmittedOn("description", ctx)) node.description = entityText("description") ?? page.meta.description;
-  // lo que entra cuando una sección lo escriba (S3b)
+  // dónde trabaja (§0.3.4): localidad y país, nunca una dirección completa (P-BBW-78)
+  if (isEmittedOn("location", ctx)) {
+    const place = entityValue("location") as Place;
+    node.workLocation = { "@type": "Place", address: { "@type": "PostalAddress", addressLocality: place.locality, addressCountry: place.country } };
+  }
   if (isEmittedOn("knowsAbout", ctx)) node.knowsAbout = entityList<string>("knowsAbout");
   if (isEmittedOn("credentials", ctx)) {
-    node.hasCredential = entityList<Credential>("credentials").map((c) => ({
+    const credentials = entityList<Credential>("credentials").map((c) => ({
       "@type": "EducationalOccupationalCredential",
       name: c.name,
+      ...(c.category ? { credentialCategory: c.category } : {}),
       ...(c.issuer ? { recognizedBy: { "@type": "Organization", name: c.issuer } } : {}),
       url: identity.links[c.link as LinkKey],
     }));
+    node.hasCredential = credentials.length === 1 ? credentials[0] : credentials;
   }
-  if (isEmittedOn("image", ctx)) {
-    const id = entityText("image") as keyof typeof media | undefined;
-    if (id && id in media) node.image = `${site.url}${media[id].src}`;
-  }
+  // los PERFILES personales enlazados en la página (D-BBW-86)
+  if (isEmittedOn("sameAs", ctx)) node.sameAs = entityList<LinkKey>("sameAs").map((k) => identity.links[k]);
   return node;
 }
 
-/**
- * EL GRAFO DE LA ENTIDAD (`Person` + `WebSite`, y `ProfilePage` cuando la entidad tenga el mínimo aprobado): lo emite la portada. `url` de
- * `Person` y `WebSite` es la PORTADA del locale (la dirección de la persona y del sitio), no la página que lo emita: si otro tipo de página lo
- * emitiera algún día, seguiría apuntando a la portada.
- */
-function entityGraph({ locale, page }: GraphContext): object {
+/** LA PORTADA: el sitio. Su editor es la persona, por referencia (`@id`): la persona no se declara aquí (insumo §6.3). */
+function websiteGraph({ locale }: GraphContext): object {
   const home = pageUrl(locale, "home");
-  const personId = `${site.url}/#person`;
-  const websiteId = `${site.url}/#website`;
-  // lo que ESTA página muestra, según el contenido: decide qué campos aprobados se emiten (S3)
-  const ctx = visibilityContext(page, getGlobal(locale));
+  return {
+    "@context": "https://schema.org",
+    "@graph": [{ "@type": "WebSite", "@id": WEBSITE_ID, name: identity.brand, url: home, inLanguage: locale, publisher: { "@id": PERSON_ID } }],
+  };
+}
 
-  const graph: object[] = [
-    personNode(personId, home, page, ctx),
-    {
-      "@type": "WebSite",
-      "@id": websiteId,
-      name: identity.brand,
-      url: home,
-      inLanguage: locale,
-      // el sitio lo publica la persona: es su práctica profesional, no la web de una organización (D-BBW-58)
-      publisher: { "@id": personId },
-    },
-  ];
-  if (isProfilePageReadyOn(ctx)) {
-    // Google, «ProfilePage structured data» (act. 2026-09-08): `mainEntity` obligatorio; la página es el perfil de la persona que publica el sitio
-    graph.push({ "@type": "ProfilePage", "@id": `${site.url}/#profile`, url: home, mainEntity: { "@id": personId } });
-  }
-  return { "@context": "https://schema.org", "@graph": graph };
+/**
+ * LA PÁGINA DE PERFIL: `ProfilePage` con el `Person` completo como `mainEntity` (Google, «ProfilePage structured data», act. 2026-09-08), o el
+ * `Person` solo si la entidad no emite todavía el mínimo (`PROFILE_PAGE_MINIMUM`) en esta página.
+ */
+function profileGraph({ locale, id, page }: GraphContext): object {
+  const url = pageUrl(locale, id);
+  const ctx = visibilityContext(page, getGlobal(locale));
+  const person = personNode(url, ctx);
+  if (!isProfilePageReadyOn(ctx)) return { "@context": "https://schema.org", "@graph": [person] };
+  const section = requireSection(page, "profile", `pages/${id} (${locale})`);
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": `${url}#profilepage`,
+        url,
+        // el nombre de la página es su <title>: la misma fórmula del tipo, sobre el mismo título propio
+        name: pageRules(id).title(page.meta.title, identity.brand),
+        inLanguage: locale,
+        isPartOf: { "@id": WEBSITE_ID },
+        // las fechas que la página escribe en su contenido (las edita una persona); nunca la hora de la compilación (R7h)
+        dateCreated: section.published,
+        dateModified: section.updated,
+        mainEntity: person,
+      },
+    ],
+  };
 }
 
 /** Un constructor por tipo de grafo. Un `StructuredDataKind` nuevo sin entrada aquí rompe el typecheck: nunca se omite en silencio. */
 const GRAPH_BUILDERS: Record<StructuredDataKind, (ctx: GraphContext) => object | null> = {
-  entity: entityGraph,
+  website: websiteGraph,
+  profile: profileGraph,
   none: () => null,
 };
 

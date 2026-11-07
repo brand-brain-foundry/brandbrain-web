@@ -29,7 +29,7 @@ export default async function PrivacidadPage({
   return (
     <WithStructuredData locale={locale} id={PAGE} page={page}>
       <main id={MAIN_ID} data-component="bbf-main">
-        {page.sections.map((section) => renderSection(section, where))}
+        {page.sections.map((section) => renderSection(section, where, locale))}
       </main>
     </WithStructuredData>
   );

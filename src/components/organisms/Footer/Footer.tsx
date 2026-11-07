@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import type { Locale } from "@/config/site";
 import { FOOTER_PAGES, pageRoute } from "@/config/pages";
-import type { GlobalDocument } from "@/content/schema";
+import type { GlobalDocument, Span } from "@/content/schema";
 import { LinkList } from "@/components/molecules/LinkList";
 import { resolveLinks } from "@/components/organisms/Header";
 import { identity } from "@/content/site";
@@ -27,11 +27,27 @@ import styles from "./Footer.module.css";
  * al principio de la página de Cookies (`ConsentConfigure`, BEHAVIOR §13). La fila legal queda en sus tres páginas: «Aviso legal · Privacidad · Cookies»,
  * que ya no parte en dos líneas en el teléfono; la reserva del inicio pierde la línea que esa fila partida había pedido (semantic/viewport.css).
  */
+/**
+ * S3c (D-BBW-94): la línea legal llega en TRAMOS; el nombre es un enlace interno a la página de perfil (`{ text, page }` en el contenido,
+ * `{ text, path }` aquí). Mismo color y tipo que la línea (hereda), con el hover de color del sistema (`data-hover="text"`), sin desarme.
+ */
+function renderLegalSpan(span: Span, key: number) {
+  if (typeof span === "string") return span;
+  if ("path" in span) {
+    return (
+      <Link key={key} href={span.path} className={styles.legalName} data-hover="text">
+        {span.text}
+      </Link>
+    );
+  }
+  return null; // `{ page }`, `{ global }` y `{ text, page }` los resuelve el puerto; `{ text, link }` no se usa en la línea legal
+}
+
 export function Footer({ global, locale }: { global: GlobalDocument; locale: Locale }) {
   return (
     <footer className={styles.footer} data-component="bbf-footer">
       <p className={styles.legal} data-enter="">
-        {global.footer.legal}
+        {global.footer.legal.map((span, i) => renderLegalSpan(span, i))}
       </p>
       <nav className={styles.legalLinks} data-enter="" aria-label="Páginas legales">
         {FOOTER_PAGES.map((page, i) => (
@@ -45,7 +61,7 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
       </nav>
       <div className={styles.end}>
         <div className={styles.social} data-enter="">
-          <LinkList items={resolveLinks(global.footer.social)} typeRole="legal" iconSize="sm" />
+          <LinkList items={resolveLinks(global.footer.social, locale)} typeRole="legal" iconSize="sm" />
         </div>
         {/* EL SELLO (2026-11-02): enlace a la credencial verificable de Credly (`links.credly`, fuente única). Enlace simple, sin el guion
             de inserción de Credly (JS de terceros + iframe: I-4, I-5). Nombre accesible = su texto; la imagen va con `alt=""`.
@@ -56,8 +72,9 @@ export function Footer({ global, locale }: { global: GlobalDocument; locale: Loc
             del consentimiento lo observa y le pone `data-bar-covered` SOLO MIENTRAS LA BARRA LO TAPA, aunque sea en parte; entero por encima de
             la barra, aparece aunque ella siga abierta. El CSS de aquí solo lee esa marca. El HTML servido lo trae visible (I-4).
             SIN `data-scatter` (S11): un efecto por pieza; el sello ya tiene el suyo (elevación y halo). M3 (P-BBW-84): su COLOR de hover es el del
-            sistema (`data-hover="text"`, el mismo rol que todo lo menta), no una regla propia. */}
-        <a className={styles.cert} href={identity.links.credly} target="_blank" rel="noopener noreferrer" data-enter="" data-hover="text" {...{ [BAR_AVOID_ATTR]: "" }}>
+            sistema (`data-hover="text"`, el mismo rol que todo lo menta), no una regla propia.
+            S3c (§0.3.5): el destino sale del CONTENIDO (`footer.cert.link`), no se cablea aquí; el aspecto no cambia. */}
+        <a className={styles.cert} href={identity.links[global.footer.cert.link]} target="_blank" rel="noopener noreferrer" data-enter="" data-hover="text" {...{ [BAR_AVOID_ATTR]: "" }}>
           <span className={styles.certBody}>
             <img
               className={styles.certBadge}

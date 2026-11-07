@@ -39,6 +39,8 @@ import {
 import { siteDocument, validateSite } from "./site";
 import { findBlockedEntitySubstitutions, findUndeclaredSubstitutions, resolveDocument, RESTRICTED_SUBSTITUTION_KEYS } from "./substitutions";
 import { getLegalIdentity } from "./legal-identity";
+import { entityStatus, entityValue } from "./entity";
+import { ENTITY_FIELDS, type EntityFieldKey } from "./entity-fields";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
 
@@ -66,6 +68,9 @@ function globalText(global: GlobalDocument, keyPath: string, where: string): str
  * Resuelve las REFERENCIAS de un documento antes de entregarlo (I-1: una sola fuente para cada texto):
  *   · `{ page: slug }`  → `{ text: label, path: "/${locale}/${slug}/" }` (P-BBW-80). Un slug sin etiqueta rompe el build.
  *   · `{ global: ruta }` → la cadena del documento global en esa ruta (P-BBW-82). Una ruta sin texto rompe el build.
+ *   · `{ entity: campo }` → el VALOR del campo de la entidad (`content/site.json` `$.entity`; S3c): un texto, una lista o las credenciales.
+ *     Solo un campo APROBADO: uno pendiente o heredado rompe el build con la ruta (no se rellena con otro texto, como las sustituciones).
+ *   · `{ text, page: id }` → `{ text, path }` (S3c): enlace interno con texto propio. La referencia pura `{ page }` es la de UNA llave.
  * Un tramo `{ global }` se convierte en una cadena suelta dentro de la lista de tramos: el componente lo pinta como texto normal. También vale
  * fuera de una lista: la etiqueta de una acción legal (`action.label`, v3.8) llega al componente como cadena. `kind` es estructural: no se recorre.
  */
@@ -75,7 +80,19 @@ function resolveRefs<T>(doc: T, locale: Locale, global: GlobalDocument, pageLabe
     if ('global' in r && typeof r.global === 'string' && Object.keys(r).length === 1) {
       return globalText(global, r.global, path) as unknown as T;
     }
-    if ('page' in r && typeof r.page === 'string' && !('text' in r) && !('link' in r) && !('path' in r)) {
+    if ('entity' in r && typeof r.entity === 'string' && Object.keys(r).length === 1) {
+      const key = r.entity;
+      if (!(key in ENTITY_FIELDS)) throw new Error(`[content] ${path}: "${key}" no es un campo de la entidad (src/content/entity-fields.ts)`);
+      const status = entityStatus(key as EntityFieldKey);
+      if (status !== 'aprobado') throw new Error(`[content] ${path}: la referencia a entity.${key} está BLOQUEADA (estado "${status}"): solo se cita lo aprobado en content/site.json (S3c)`);
+      return entityValue(key as EntityFieldKey) as T;
+    }
+    if ('page' in r && 'text' in r && typeof r.page === 'string' && Object.keys(r).length === 2) {
+      const id = r.page;
+      if (!isPageId(id)) throw new Error(`[content] ${path}: la página "${id}" no está en el registro (src/config/pages.ts)`);
+      return { text: resolveRefs(r.text, locale, global, pageLabels, `${path}.text`), path: pageRoute(locale, id) } as unknown as T;
+    }
+    if ('page' in r && typeof r.page === 'string' && Object.keys(r).length === 1) {
       const slug = r.page as string;
       const label = pageLabels[slug];
       if (!label) throw new Error(`[content] ${path}: referencia a página desconocida "${slug}" (¿falta en global.legal.pages?)`);

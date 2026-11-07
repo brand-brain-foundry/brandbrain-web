@@ -26,6 +26,9 @@
  *        (`{{brand}}`, `{{domain}}`, `{{year}}`…). Uno no declarado, o cualquier expresión entre llaves (lógica), falla con la ruta exacta.
  *        S2 (P-BBW-95): una sustitución DE ENTIDAD BLOQUEADA (`{{category}}`, `{{motto}}` con su campo no aprobado) también falla con la ruta.
  *        Informa cuántas sustituciones declaradas usa el contenido.
+ *   R8 · ETIQUETA ÚNICA DE UN DESTINO (S3c, D-BBW-95): cada etiqueta de `linkLabels` («LinkedIn») se ESCRIBE una sola vez, en `global.json`.
+ *        Falla (a) cualquier otro texto del locale igual a ella y (b) cualquier enlace a ese destino (`link: <llave>`, o la llamada secundaria del
+ *        héroe con `ctaSecondaryLink: <llave>`) cuya etiqueta sea un texto escrito en vez de la cita `{ global: "linkLabels.<llave>" }`.
  * Informa además cuántos textos hay y cuántos son marcadores `[[PENDIENTE: …]]` (copy pendiente), sin interpretarlos (D-DOC-06), y la
  * COMPLETITUD de la entidad (cuántos campos aprobados, heredados y pendientes; S2): se imprime, no falla.
  * Uso: `pnpm lint:content` · `pnpm guard` · pre-commit.
@@ -48,7 +51,7 @@ import { findBlockedEntitySubstitutions, findUndeclaredSubstitutions, substituti
 import { validateSite, WRITTEN_LINK_KEYS } from '../../src/content/site';
 import { entityCompleteness } from '../../src/content/entity';
 import { renderSiteSchema } from '../../src/content/site-schema';
-import { media } from '../../src/media/generated';
+import { MEDIA_IDENTIFIERS } from '../../src/media';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -127,7 +130,7 @@ for (const entry of fs.readdirSync(CONTENT_ROOT, { withFileTypes: true })) {
     if (entry.isFile() && entry.name === SITE_SCHEMA) {
       hasSchema = true;
       const abs = path.join(CONTENT_ROOT, entry.name);
-      const expected = renderSiteSchema(WRITTEN_LINK_KEYS, Object.keys(media));
+      const expected = renderSiteSchema(WRITTEN_LINK_KEYS, MEDIA_IDENTIFIERS);
       let actual = '';
       try { actual = fs.readFileSync(abs, 'utf8'); } catch { fails.push({ rule: 'R1', where: rel(abs), detail: 'no se puede leer' }); continue; }
       if (actual !== expected) {
@@ -224,8 +227,48 @@ for (const locale of published) {
   }
 }
 
+// R8 — la etiqueta única de un destino, escrita una vez (S3c)
+let labelsChecked = 0;
+for (const locale of published) {
+  const localeDir = path.join(CONTENT_ROOT, locale);
+  const globalAbs = path.join(localeDir, `${GLOBAL_DOCUMENT}.json`);
+  const global = fs.existsSync(globalAbs) ? (readJson(globalAbs) as Record<string, unknown> | undefined) : undefined;
+  const labels = (global && typeof global.linkLabels === 'object' && global.linkLabels) ? (global.linkLabels as Record<string, unknown>) : {};
+  const docsToScan: { abs: string; doc: unknown }[] = global ? [{ abs: globalAbs, doc: global }] : [];
+  const pagesDir = path.join(localeDir, collections.pages);
+  if (fs.existsSync(pagesDir)) {
+    for (const f of fs.readdirSync(pagesDir)) if (f.endsWith('.json')) { const abs = path.join(pagesDir, f); docsToScan.push({ abs, doc: readJson(abs) }); }
+  }
+  const values = new Map<string, string>(Object.entries(labels).filter(([, v]) => typeof v === 'string').map(([k, v]) => [v as string, k]));
+  labelsChecked += values.size;
+  const isCitation = (v: unknown, key: string) => !!v && typeof v === 'object' && (v as Record<string, unknown>).global === `linkLabels.${key}`;
+  for (const { abs, doc } of docsToScan) {
+    const walk = (v: unknown, p: string) => {
+      if (typeof v === 'string') {
+        if (values.has(v.trim()) && !(abs === globalAbs && p.startsWith('$.linkLabels.'))) {
+          fails.push({ rule: 'R8', where: rel(abs), detail: `${p}: la etiqueta "${v.trim()}" se escribe otra vez; vive una sola vez en global.json → linkLabels.${values.get(v.trim())} (citarla con { "global": "linkLabels.${values.get(v.trim())}" })` });
+        }
+        return;
+      }
+      if (Array.isArray(v)) return v.forEach((x, i) => walk(x, `${p}[${i}]`));
+      if (!v || typeof v !== 'object') return;
+      const o = v as Record<string, unknown>;
+      const target = typeof o.link === 'string' ? o.link : typeof o.ctaSecondaryLink === 'string' ? o.ctaSecondaryLink : undefined;
+      if (target && target in labels) {
+        for (const slot of typeof o.link === 'string' ? ['label', 'text'] : ['ctaSecondary']) {
+          if (slot in o && !isCitation(o[slot], target)) {
+            fails.push({ rule: 'R8', where: rel(abs), detail: `${p}.${slot}: un enlace a "${target}" escribe su propia etiqueta; tiene que citar la única: { "global": "linkLabels.${target}" }` });
+          }
+        }
+      }
+      for (const [k, x] of Object.entries(o)) walk(x, `${p}.${k}`);
+    };
+    walk(doc, '$');
+  }
+}
+
 if (fails.length === 0) {
-  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s) + el documento del sitio y su esquema; ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente), ${substituted} sustitución(es) declarada(s) en uso.`);
+  console.log(`[content-gate] OK — ${published.length} locale(s) publicado(s) + el documento del sitio y su esquema; ${docs} documento(s) válidos contra el esquema; ${texts} texto(s), ${pending} marcador(es) [[PENDIENTE]] (copy pendiente), ${substituted} sustitución(es) declarada(s) en uso; ${labelsChecked} etiqueta(s) única(s) de destino escritas una vez (R8).`);
   console.log(entityCompleteness().line);
   process.exit(0);
 }

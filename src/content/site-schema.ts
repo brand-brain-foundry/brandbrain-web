@@ -10,7 +10,7 @@
  * Las llaves de enlace y los identificadores de medios se ENUMERAN desde los datos reales: así el esquema es exacto hoy y, cuando cambie una
  * llave, la guardia pide regenerarlo (una línea), en vez de admitir cualquier cadena.
  */
-import { ENTITY_FIELDS, ENTITY_FIELD_KEYS, ENTITY_STATUSES, PROFILE_PAGE_MINIMUM, RELATION_KINDS, type EntityFieldSpec } from "./entity-fields";
+import { CREDENTIAL_CATEGORIES, ENTITY_FIELDS, ENTITY_FIELD_KEYS, ENTITY_STATUSES, PROFILE_PAGE_MINIMUM, RELATION_KINDS, type EntityFieldSpec } from "./entity-fields";
 
 type Json = Record<string, unknown>;
 
@@ -30,11 +30,19 @@ function valueSchema(spec: EntityFieldSpec, linkKeys: readonly string[], mediaId
           type: "object",
           additionalProperties: false,
           required: ["name", "link"],
-          properties: { name: TEXT, issuer: TEXT, link },
+          properties: { name: TEXT, issuer: TEXT, category: { type: "string", enum: [...CREDENTIAL_CATEGORIES] }, link },
         },
       };
     case "media":
-      return { type: "string", enum: [...mediaIds], description: "Un identificador del puerto de medios (src/media), nunca una ruta." };
+      return { type: "string", enum: [...mediaIds], description: "Un identificador del puerto de medios (src/media: derivado o conjunto de recortes), nunca una ruta." };
+    case "place":
+      return {
+        type: "object",
+        additionalProperties: false,
+        required: ["locality", "country"],
+        properties: { locality: TEXT, country: { type: "string", pattern: "^[A-Z]{2}$", description: "Código de país ISO 3166-1 alfa-2." } },
+        description: "Un lugar público: localidad y país. Nunca una dirección.",
+      };
     case "linkList":
       return { type: "array", items: link };
     case "relationList":

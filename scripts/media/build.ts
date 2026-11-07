@@ -42,6 +42,7 @@ import {
   derivatives,
   inlineIcons,
   masters,
+  mediaSets,
   rigs,
   type Derivative,
   type DerivativeId,
@@ -248,6 +249,8 @@ function profileLabel(p: Profile): string {
       return `poster ${p.format} ${p.width}×${p.height} q ${p.quality} fotograma 0 ≤ ${p.budgetBytes} B`;
     case 'png-resize':
       return `png-resize ${p.size}×${p.size}`;
+    case 'jpeg-crop':
+      return `jpeg-crop ${p.aspect[0]}:${p.aspect[1]} ancho ${p.width} ancla-y ${p.anchorY} q ${p.quality} ≥ ${p.minPixels} px`;
   }
 }
 
@@ -328,6 +331,32 @@ async function main(): Promise<void> {
       notes.push(`${d.path}: ${out.bytes.length} B = ${pct} % del presupuesto ${p.budgetBytes} B${out.streams ? ` · ${out.streams}` : ''}`);
       continue;
     }
+    if (p.kind === 'jpeg-crop') {
+      // S3c (D-BBW-91): la caja más grande de proporción `aspect` dentro del maestro, centrada en x, colocada en y por `anchorY`; escalada a
+      // `width` sin ampliar; JPEG sin metadatos (sharp no copia EXIF/IPTC/ICC salvo que se pida: el derivado sale en sRGB y sin datos de origen).
+      const rm = raster(d.master);
+      const meta = await sharp(rm.bytes).metadata();
+      const W = meta.width ?? 0;
+      const H = meta.height ?? 0;
+      const [aw, ah] = p.aspect;
+      let cw = W;
+      let ch = Math.round((W * ah) / aw);
+      if (ch > H) { ch = H; cw = Math.round((H * aw) / ah); }
+      const left = Math.round((W - cw) / 2);
+      const top = Math.round(p.anchorY * (H - ch));
+      if (p.width > cw) throw new Error(`[media] ${d.path}: el ancho del perfil (${p.width}) amplía el maestro (${cw} px de caja): un derivado nunca amplía`);
+      const outW = p.width;
+      const outH = Math.round((p.width * ah) / aw);
+      if (outW * outH < p.minPixels) throw new Error(`[media] ${d.path}: ${outW}×${outH} = ${outW * outH} píxeles, por debajo del mínimo del uso (${p.minPixels})`);
+      const jpg = await sharp(rm.bytes)
+        .extract({ left, top, width: cw, height: ch })
+        .resize(outW, outH, { fit: 'fill', kernel: 'lanczos3' })
+        .jpeg({ quality: p.quality, mozjpeg: true, chromaSubsampling: '4:4:4' })
+        .toBuffer();
+      outputs.set(id, { bytes: jpg, width: outW, height: outH });
+      notes.push(`${d.path}: caja ${cw}×${ch} en (${left}, ${top}) del maestro ${W}×${H} → ${outW}×${outH} = ${outW * outH} px (≥ ${p.minPixels})`);
+      continue;
+    }
     if (p.kind === 'png-resize') {
       const rm = raster(d.master);
       const png = await sharp(rm.bytes).resize(p.size, p.size, { fit: 'cover', kernel: 'lanczos3' }).png({ compressionLevel: 9, adaptiveFiltering: false, palette: false, effort: 10 }).toBuffer();
@@ -379,6 +408,15 @@ async function main(): Promise<void> {
     }
   }
 
+  // S3c: cada conjunto de medios nombra derivados que existen y salen del maestro que declara
+  for (const [setId, set] of Object.entries(mediaSets)) {
+    for (const m of set.members) {
+      const dd = derivatives[m as DerivativeId];
+      if (!dd) throw new Error(`[media] conjunto "${setId}": el miembro "${m}" no es un derivado del registro`);
+      if (dd.master !== set.master) throw new Error(`[media] conjunto "${setId}": el miembro "${m}" sale del maestro "${dd.master}", no de "${set.master}"`);
+    }
+  }
+
   // escritura de derivados + lock
   for (const id of ordered) {
     const d = derivatives[id];
@@ -415,7 +453,9 @@ async function main(): Promise<void> {
                 ? pk.format === 'jpeg'
                   ? 'image/jpeg'
                   : 'image/webp'
-                : 'image/png';
+                : pk.kind === 'jpeg-crop'
+                  ? 'image/jpeg'
+                  : 'image/png';
     const fields = [`src: "/${d.path}"`, `type: "${type}"`];
     if (out.width && out.height) fields.push(`width: ${out.width}`, `height: ${out.height}`, `sizes: "${out.width}x${out.height}"`);
     if (d.profile.kind === 'ico') fields.push(`sizes: "${d.profile.sizes.map((s) => `${s}x${s}`).join(' ')}"`);
@@ -460,6 +500,11 @@ async function main(): Promise<void> {
     '',
     'export const inlineIcons = {',
     ...iconEntries,
+    '} as const;',
+    '',
+    '/** Conjuntos de medios (S3c): un identificador → los derivados del mismo maestro, en orden (declarados en `mediaSets` del registro). */',
+    'export const mediaSets = {',
+    ...Object.entries(mediaSets).map(([setId, set]) => `  ${setId}: [${set.members.map((m) => `"${m}"`).join(', ')}],`),
     '} as const;',
     '',
     '/** Rigs (M1c): anatomía derivada de un maestro vectorial (perfil `rig` del registro); la consume el motor S9 al arrancar. */',

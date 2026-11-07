@@ -3,12 +3,12 @@ id: BBW-MEDIA-CONTRACT
 title: "Contrato del puerto de medios — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.4
+version: 1.5
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-17
-updated: 2026-11-06
-verified_against_code: 2026-11-06@fix/m1d-imagotipo-identico (v1.4: rig derivado con línea central exacta, M1d) · 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
+updated: 2026-11-07
+verified_against_code: 2026-11-07@feat/posicionamiento-s3c (v1.5: maestro raster `portrait.jpg`, perfil `jpeg-crop`, conjunto `mediaSets.portrait` generado en src/media/generated.ts; scripts/media/build.ts · src/media/{registry,index,generated}.ts) · 2026-11-06@fix/m1d-imagotipo-identico (v1.4: rig derivado con línea central exacta, M1d) · 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-21, D-BBW-24, D-BBW-02, D-BBW-03, D-BBW-09]
@@ -148,6 +148,16 @@ llevar `<script>`: el guion no lo evalúa y los derivados raster no lo conservan
 contextos en los que el navegador no ejecuta scripts). El manifiesto de procedencia C2PA del icono se conserva en maestro y derivado SVG
 como metadato inerte.
 
+## §10 — El retrato y los conjuntos de recortes (S3c, D-BBW-91 · 2026-11-07)
+
+| | |
+|---|---|
+| Maestro | `media/masters/portrait.jpg` — el retrato entregado por Zavala con el despacho S3c (JPEG sRGB 600×600, 222 544 B; EXIF solo con la resolución, IPTC vacío: sin datos de ubicación). Vive UNA vez: la entidad (`$.entity.image`) lo referencia por su conjunto y un lote futuro del campo de imágenes (serie R, P-BBW-98) lo referenciará también |
+| Perfil `jpeg-crop` | La caja más grande de la proporción `aspect` dentro del maestro, centrada en x y colocada en y por `anchorY` (y = anchorY × (alto − alto de la caja)), escalada a `width` **sin ampliar nunca** el maestro, JPEG `quality` (mozjpeg, 4:4:4) sin metadatos; el guion rompe si el área queda bajo `minPixels` |
+| Derivados | `portrait-600x600.jpg` (1:1) · `portrait-600x450.jpg` (4:3) · `portrait-600x338.jpg` (16:9); `anchorY` 0,15 (medido: deja la cara entera en los tres), q 90, ≥ 50 000 píxeles (Google, ProfilePage) |
+| Conjunto | `mediaSets.portrait` = los tres, en orden, declarado en el registro y **escrito en `generated.ts`** (los consumidores lo leen de allí: `src/media/index.ts` lo importan componentes cliente y el registro no debe viajar al navegador — medido en S3c: importarlo metía el registro entero en el fragmento compartido). `MEDIA_IDENTIFIERS` = derivados + conjuntos (lo que la entidad puede referenciar); `mediaMembers(id)` = los derivados que nombra |
+| Uso | La página de perfil muestra el PRIMERO en un `<img>` real (Google no indexa imágenes de CSS) con sus dimensiones intrínsecas; `Person.image` emite los tres |
+
 ## §9 — Rig del imagotipo vivo (perfil `rig` → `src/media/generated.ts`, M1c · 2026-11-06)
 
 El rig del imagotipo vivo (S9) **es un derivado, no un maestro** (M1c corrige a M1 §0.1 y a la v1.3 de este contrato): se deriva del maestro
@@ -169,4 +179,4 @@ regenerar rompe R1 (hash) y R10c.
 **Cómo se modifica:** nunca a mano. Cambia el maestro o el perfil → `pnpm media:build` → `pnpm lint:rig`.
 
 ---
-*BBW-MEDIA-CONTRACT v1.4 · `docs/system/MEDIA.md` · 2026-11-06 (v1.4: §9 el rig pasa de maestro de configuración a derivado del perfil `rig`, sellado en el lock; M1c, `DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`) · v1.3: 2026-11-05 (M1) · v1.2: 2026-09-29 (`DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`) · v1.1 fase 6d: D-BBW-24 · nace en la fase 6c (D-BBW-21)*
+*BBW-MEDIA-CONTRACT v1.5 · `docs/system/MEDIA.md` · 2026-11-07 (v1.5: §10 retrato, perfil `jpeg-crop` y conjuntos de recortes; S3c) · 2026-11-06 (v1.4: §9 el rig pasa de maestro de configuración a derivado del perfil `rig`, sellado en el lock; M1c, `DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`) · v1.3: 2026-11-05 (M1) · v1.2: 2026-09-29 (`DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`) · v1.1 fase 6d: D-BBW-24 · nace en la fase 6c (D-BBW-21)*

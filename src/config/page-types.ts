@@ -31,8 +31,12 @@
  * contrato (`docs/system/SEO.md`), no la guardia.
  */
 
-/** Qué grafo de datos estructurados emite un tipo (constructores en `src/seo/jsonld.ts`; un tipo sin constructor rompe el typecheck). */
-export type StructuredDataKind = "entity" | "none";
+/**
+ * Qué grafo de datos estructurados emite un tipo (constructores en `src/seo/jsonld.ts`; un tipo sin constructor rompe el typecheck).
+ * S3c (D-BBW-90): la persona se declara UNA vez en todo el sitio, en la página de perfil (`profile`: `ProfilePage` → `Person` completo); la
+ * portada declara el sitio (`website`: `WebSite`, con `publisher` → la persona por su `@id`); las demás páginas no emiten nada propio.
+ */
+export type StructuredDataKind = "website" | "profile" | "none";
 
 export type PageTypeRules = {
   /** si la página existe para buscadores y agentes: de aquí se derivan robots, sitemap, Disallow y la verificación de `_headers` */
@@ -61,13 +65,27 @@ const DESCRIPTION_LENGTH = [50, 160] as const;
 const sentenceCase = (s: string): string => s.charAt(0).toLocaleUpperCase("es") + s.slice(1);
 
 export const PAGE_TYPES = {
-  /** la portada: la página de la persona; emite el grafo de la entidad (`Person` + `WebSite`) y lleva la marca delante del título */
+  /** la portada: declara el sitio (`WebSite`, editor = la persona por referencia) y lleva la marca delante del título */
   home: {
     indexable: true,
     measured: true,
     share: true,
-    structuredData: "entity",
+    structuredData: "website",
     title: (own, brand) => `${brand}${TITLE_SEPARATOR}${sentenceCase(own)}`,
+    titleLength: TITLE_LENGTH,
+    descriptionLength: DESCRIPTION_LENGTH,
+  },
+  /**
+   * LA PÁGINA DE PERFIL (S3c, D-BBW-90): la única página centrada en la persona (Google, «ProfilePage structured data»: una persona afiliada al
+   * sitio, como una página «Sobre mí»). Emite `ProfilePage` con el `Person` COMPLETO, y es la única que lo declara (R7h). Indexable, en el mapa
+   * del sitio, con imagen de compartir; el título propio va delante y la marca detrás, como las páginas de texto.
+   */
+  profile: {
+    indexable: true,
+    measured: true,
+    share: true,
+    structuredData: "profile",
+    title: (own, brand) => `${own}${TITLE_SEPARATOR}${brand}`,
     titleLength: TITLE_LENGTH,
     descriptionLength: DESCRIPTION_LENGTH,
   },

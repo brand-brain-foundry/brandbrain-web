@@ -3,12 +3,12 @@ id: BBW-SEO
 title: "Sistema de posicionamiento por capas — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.2
+version: 1.3
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-11-07
 updated: 2026-11-07
-verified_against_code: 2026-11-07@feat/posicionamiento-s3 (v1.2, S3 «contenido de la entidad y portada», D-BBW-81…88: content/site.json `$.entity` con valores · content/es/pages/home.json `meta.title` = `{{category}}` · src/config/{pages,page-types}.ts (`titleLengthException`, `pageTitleException`, mayúscula por fórmula en `home`) · src/content/{entity-fields,entity}.ts (`alternateName`, `visibilityContext`, `isEmittedOn`, `missingInText`, `entityEmissionReport`) · src/seo/jsonld.ts · scripts/lint/check-seo.ts) · 2026-11-07@feat/posicionamiento-s2 (v1.1, S2 «piel», P-BBW-95: content/site.json `$.entity` · content/site.schema.json (generado) · src/content/{entity-fields,entity,site-schema,site,substitutions,index}.ts · src/seo/jsonld.ts · scripts/content/export-schema.ts · scripts/lint/{check-seo,check-content}.ts · package.json `content:schema`) · 2026-11-07@feat/posicionamiento-s1 (v1.0, S1 «huesos y músculos», P-BBW-94: src/config/{pages,page-types}.ts · src/seo/{metadata,jsonld}.ts · src/seo/WithStructuredData.tsx · src/app/[locale]/**/page.tsx · src/app/{sitemap,robots}.ts · src/components/organisms/{Footer,Header} · src/analytics/port.ts · src/content/{index,schema}.ts · scripts/lint/{check-seo,check-content}.ts · package.json `build`)
+verified_against_code: 2026-11-07@feat/posicionamiento-s3c (v1.3, S3c «página de perfil», D-BBW-90…95: tipo `profile` y fila `quien` en src/config/{page-types,pages}.ts · `StructuredDataKind` = website | profile | none · src/seo/jsonld.ts (`websiteGraph`, `profileGraph`, `personNode` en el orden del insumo) · src/content/{entity-fields,entity,schema,index}.ts (`place`, `fundada`, `category` de credencial, `{ entity }`, `ProfileSection`) · src/media/{registry,index,generated}.ts (`portrait`, `jpeg-crop`, `mediaSets`) · scripts/lint/{check-seo (R7h),check-content (R8)}.ts) · 2026-11-07@feat/posicionamiento-s3 (v1.2, S3 «contenido de la entidad y portada», D-BBW-81…88: content/site.json `$.entity` con valores · content/es/pages/home.json `meta.title` = `{{category}}` · src/config/{pages,page-types}.ts (`titleLengthException`, `pageTitleException`, mayúscula por fórmula en `home`) · src/content/{entity-fields,entity}.ts (`alternateName`, `visibilityContext`, `isEmittedOn`, `missingInText`, `entityEmissionReport`) · src/seo/jsonld.ts · scripts/lint/check-seo.ts) · 2026-11-07@feat/posicionamiento-s2 (v1.1, S2 «piel», P-BBW-95: content/site.json `$.entity` · content/site.schema.json (generado) · src/content/{entity-fields,entity,site-schema,site,substitutions,index}.ts · src/seo/jsonld.ts · scripts/content/export-schema.ts · scripts/lint/{check-seo,check-content}.ts · package.json `content:schema`) · 2026-11-07@feat/posicionamiento-s1 (v1.0, S1 «huesos y músculos», P-BBW-94: src/config/{pages,page-types}.ts · src/seo/{metadata,jsonld}.ts · src/seo/WithStructuredData.tsx · src/app/[locale]/**/page.tsx · src/app/{sitemap,robots}.ts · src/components/organisms/{Footer,Header} · src/analytics/port.ts · src/content/{index,schema}.ts · scripts/lint/{check-seo,check-content}.ts · package.json `build`)
 supersedes: []
 superseded_by: null
 related: [BBW-CONTENT-MODEL, BBW-DEPLOY-CONTRACT, BBW-PORTS, BBW-MEDIA-CONTRACT, P-BBW-95, P-BBW-94, P-BBW-80, D-BBW-07, D-BBW-09, D-BBW-12, D-BBW-15, D-BBW-44, D-BBW-55, D-BBW-58, D-BBW-78]
@@ -77,7 +77,8 @@ derivado cambia.
 
 | Tipo | `indexable` | `measured` | `share` | `structuredData` | `<title>` | Quién |
 |---|---|---|---|---|---|---|
-| `home` | sí | sí | sí | `entity` (`Person` + `WebSite`) | `{marca} · {Título propio}` (mayúscula inicial por fórmula, S3) | la portada |
+| `home` | sí | sí | sí | `website` (`WebSite`, `publisher` → `{"@id": …/#person}`; S3c) | `{marca} · {Título propio}` (mayúscula inicial por fórmula, S3) | la portada |
+| `profile` | sí | sí | sí | `profile` (`ProfilePage` → `Person` COMPLETO; S3c) | `{título propio} · {marca}` | la página de perfil `/es/quien/` (exactamente una: `PROFILE_PAGE`) |
 | `legal` | sí | sí | sí | `none` | `{título propio} · {marca}` | privacidad, cookies |
 | `legal-restricted` | **no** | **no** | **no** | `none` | `{título propio} · {marca}` | aviso legal (datos de identificación, P-BBW-80 §0.1) |
 
@@ -129,9 +130,19 @@ una sección lo escriba, sin tocar código. `heredado` → NO se emite, salvo lo
 `description` está aprobada y espera la sección «Quién» (S3b). S2 lo verificó con el mínimo aprobado en una copia; S3 lo vio fallar con la
 descripción aprobada y no visible (arnés `s3/r7-ver-fallar-s3.cjs`).
 
-**Hoy se emite (S3):** `name`, `jobTitle`, `email`, `sameAs` (solo LinkedIn, D-BBW-86). **Aprobados y no visibles (no se emiten):** `description`,
-`alternateName`. **Aprobados sin propiedad (no se emiten por diseño):** `category`, `motto`, `descriptionLong`, `location`. **Pendientes:**
-`knowsAbout`, `credentials`, `image`, `relations`.
+**S3c — LA PERSONA, UNA VEZ (D-BBW-90; insumo CONTENIDO-PERFIL-WEB v1.0 §6).** El `Person` completo lo declara SOLO la página de perfil
+(`ProfilePage` → `mainEntity`); la portada declara el `WebSite` con `publisher` = la referencia `{"@id": "…/#person"}` y nada más; las páginas
+legales no emiten nada. Orden del nodo: `name, alternateName, jobTitle, description, url, image, email, workLocation, knowsAbout, hasCredential,
+sameAs`. Ajustes de §0.3 del despacho: `Person.url` = la canónica de la página de perfil (la portada redirige); `email` sin `mailto:` (la forma
+de siempre); **`workLocation`** (no `homeLocation`: el texto visible dice dónde trabaja) con `Place` → `PostalAddress` de solo localidad y país,
+nunca una dirección (P-BBW-78, D-BBW-93). `image` = los TRES recortes del retrato (1:1, 4:3, 16:9 de 600 px de ancho, ≥ 50 000 píxeles cada uno;
+`mediaSets.portrait`), en direcciones absolutas; la página muestra el 1:1 en un `<img>` real. `hasCredential` = un objeto (una credencial) con
+`credentialCategory` y `recognizedBy`. `ProfilePage` lleva `name` (= su `<title>`), `inLanguage`, `isPartOf` → `WebSite`, y `dateCreated` /
+`dateModified` = las fechas que la sección escribe en el contenido (`published`/`updated`), nunca la hora de la compilación.
+
+**Hoy se emite (S3c, en `/es/quien/`):** `name`, `jobTitle`, `description`, `image`, `email`, `workLocation`, `knowsAbout`, `hasCredential`, `sameAs`.
+**Aprobado y no visible (no se emite):** `alternateName` (la página no muestra la variante: despacho S3c §6). **Aprobados sin propiedad:**
+`category`, `motto`, `descriptionLong`, `relations` (los nodos de organización son la fase 2 del insumo, §6.2). **Pendientes:** ninguno.
 
 ## §6 — Guardia R7 (`scripts/lint/check-seo.ts`, `pnpm lint:seo`)
 
@@ -145,9 +156,16 @@ verde · 1 incumplimiento (nombra regla, fichero y detalle) · 2 error del tool 
 | R7b | Toda página: `lang` = locale; un `<h1>`; `<title>` = fórmula del tipo; `description` = documento; canónica = dominio + ruta; OG completo y coherente; la marca en el `<title>` |
 | R7c | Indexable: título y descripción en su rango —o el título con la longitud EXACTA de la excepción registrada en `pages.ts` (S3, D-BBW-87)—; sin `noindex`; en el sitemap; `og:image` + tarjeta grande si `share` (y sin imagen si no) |
 | R7d | Oculta: `noindex` + `noarchive`; regla en `_headers`; fuera del sitemap; sin datos estructurados; sin imagen; `Disallow` para **cada** agente de `AI_AGENTS` |
-| R7e | Datos estructurados = los del tipo (0/1); JSON válido; `@context` schema.org; tipos esperados; `Person.name` y `jobTitle` literales en el texto visible (el CUERPO: la cabecera no cuenta, S3); `url` = portada |
+| R7e | Datos estructurados = los del tipo (0/1); JSON válido; `@context` schema.org; tipos esperados; `Person.name` y `jobTitle` literales en el texto visible (el CUERPO: la cabecera no cuenta, S3); `Person.url` = la canónica de la página de perfil y `@id` = `…/#person` (S3c); `WebSite` en la portada con `url` = portada |
 | R7f | `sitemap.xml` = indexables × locales en el orden del registro; `robots.txt` con `*` Allow, un grupo por agente, Disallow = ocultas, `Sitemap:` canónico |
 | **R7g** | **La entidad (S2, S3):** (a) ninguna propiedad del `Person` sin campo en la entidad; lo `pendiente` no sale; lo `aprobado` sale **solo si es visible según la capa de contenido** (la misma pregunta que el constructor) **y entonces tiene que verse en el HTML** (texto, `href`, `mailto:`, `src`; regla de subcadena); lo `heredado` solo si ya se emitía antes de S2; `hasCredential` con la dirección de su llave; `ProfilePage` solo con el mínimo emitido y apuntando a la `Person`. (b) Ninguna sustitución sin resolver (`{{…}}`) en el HTML servido. (c) Informe de la entidad: completitud (aprobados · heredados · pendientes) y emisión por página (qué se emite, qué está aprobado y no visible y por qué, `ProfilePage`): se imprime, no falla |
+
+| **R7h** | **La persona, una vez (S3c):** (a) en todo el sitio servido, un solo documento declara un `Person` (a cualquier profundidad del JSON-LD) y es la página `profile`; `WebSite.publisher` es solo la referencia por `@id`; (b) `dateCreated`/`dateModified` = las fechas del contenido; (c) cada dirección de `Person.image` es un archivo publicado en `out/`, recorte del conjunto que la entidad referencia y ≥ 50 000 píxeles, y al menos una es el `src` de un `<img>` |
+
+**S3c:** 9 mutaciones más de R7 (materia fuera del cuerpo, recorte no publicado, retrato sin `<img>`, `dateModified` con la hora de compilar,
+`dateCreated` distinta, segundo `Person` en la portada, `Person.url` = portada, localidad distinta, variante emitida) + 1 de R7h (a) con un `Person`
+anidado en otra página, y 8 de contenido (R8 etiqueta única ×2, destino doble, página desconocida, referencia de clase equivocada, referencia a un
+campo no aprobado, fechas invertidas, ubicación con dirección): arnés `repos/brandbrain-web/outputs/2026-11/s3c/arnes/r7-ver-fallar-s3c.cjs`.
 
 **Vista fallar** regla a regla (31 mutaciones sobre una copia de `out/`, S1 F4; **39 con las 8 de R7g, S2 F5**; **9 más de S3**: excepción del título como valor
 exacto, título sin la mayúscula de la fórmula, descripción y variante del nombre aprobadas pero no visibles, GitHub en `sameAs`, `ProfilePage` sin el

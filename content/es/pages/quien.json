@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "title": "Perfil profesional",
+    "description": "{{brand}} es estratega de sistemas de IA para marcas. Rediseña cómo trabaja cada empresa para que sus agentes decidan con el criterio de la marca."
+  },
+  "sections": [
+    {
+      "type": "profile",
+      "id": "quien",
+      "heading": "{{brand}}",
+      "role": "{{role}}",
+      "lead": { "entity": "description" },
+      "portrait": { "media": { "entity": "image" }, "alt": "{{brand}}" },
+      "approach": { "heading": "Cómo trabajo", "text": { "entity": "descriptionLong" } },
+      "specialties": { "heading": "Especialidades", "items": { "entity": "knowsAbout" } },
+      "projects": {
+        "heading": "Proyectos",
+        "items": [
+          { "id": "agency", "name": "Sivar Brains", "text": "plataforma multimarca que diseñé y construí, un proyecto conjunto con Sivar Films.", "link": "agency" },
+          { "id": "studio", "name": "Pura kaSaka", "text": "estudio de animación que fundé; cuenta historias para marcas en redes y sitios web.", "link": "studio" },
+          { "id": "works", "name": "Trabajo anterior", "text": "identidades y campañas de mi etapa de diseño de marca.", "link": "works" }
+        ]
+      },
+      "credentials": { "heading": "Certificación", "linkLabel": "Ver insignia", "items": { "entity": "credentials" } },
+      "contact": {
+        "heading": "Contacto",
+        "links": [
+          { "id": "email", "label": "{{email}}", "link": "contact" },
+          { "id": "linkedin", "label": { "global": "linkLabels.linkedin" }, "link": "linkedin" }
+        ]
+      },
+      "closing": "{{motto}}",
+      "published": "2026-11-07",
+      "updated": "2026-11-07"
+    }
+  ]
+}

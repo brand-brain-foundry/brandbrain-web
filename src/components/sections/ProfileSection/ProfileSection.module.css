@@ -1,0 +1,69 @@
+/**
+ * ProfileSection — lo PROPIO de la página de perfil (S3c, D-BBW-90). La columna, los encabezados, el cuerpo, las listas y los enlaces en prosa
+ * son los de la sección legal (`../LegalSection/LegalSection.module.css`, reutilizada por el componente: una maqueta de texto, una hoja).
+ * Solo consume tokens `var(--bbf-*)`: ningún color, tamaño ni espacio escritos a mano.
+ */
+
+/* ── LA LÍNEA DEL CARGO, bajo el <h1> ───────────────────── */
+.role {
+  margin-block: calc(-1 * var(--bbf-space-6)) var(--bbf-space-8);
+  color: var(--bbf-text-on-base-secondary);
+  font-family: var(--bbf-type-subheading-family);
+  font-size: var(--bbf-type-subheading-size);
+  font-weight: var(--bbf-type-subheading-weight);
+  line-height: var(--bbf-type-subheading-leading);
+  letter-spacing: var(--bbf-type-subheading-tracking);
+}
+
+/* ── EL RETRATO ─────────────────────────────────────────── */
+/* Cuadrado al lado del rol `--bbf-profile-portrait-size`; nunca más ancho que la columna. Las dimensiones intrínsecas viajan en el <img>
+   (sin salto de composición); aquí solo el tamaño de presentación. */
+.portrait {
+  display: block;
+  width: var(--bbf-profile-portrait-size);
+  max-width: 100%;
+  height: auto;
+  margin-block-end: var(--bbf-space-8);
+}
+
+/* ── PROYECTOS: el nombre enlazado y sus dos puntos ─────── */
+/* Los dos puntos son puntuación de la lista, no copy: los pone el sistema tras el nombre (como el «·» del pie). */
+.projectName {
+  font-weight: var(--bbf-type-button-weight);
+}
+
+.projectName::after {
+  content: ":";
+}
+
+/* ── CREDENCIAL: «nombre · emisor» ──────────────────────── */
+.credentialIssuer::before {
+  content: " · ";
+  white-space: pre;
+}
+
+/* ── CONTACTO: enlaces en una fila que parte ────────────── */
+.contactLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bbf-space-2) var(--bbf-space-6);
+  padding: 0;
+  margin-block-end: var(--bbf-space-3);
+  list-style: none;
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-body-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-body-tracking);
+}
+
+/* ── EL CIERRE: la frase madre ──────────────────────────── */
+.closing {
+  margin-block-start: var(--bbf-space-10);
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-subheading-family);
+  font-size: var(--bbf-type-subheading-size);
+  font-weight: var(--bbf-type-subheading-weight);
+  line-height: var(--bbf-type-subheading-leading);
+  letter-spacing: var(--bbf-type-subheading-tracking);
+}

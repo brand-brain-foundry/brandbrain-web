@@ -9,13 +9,13 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { renderSiteSchema } from '../../src/content/site-schema';
 import { WRITTEN_LINK_KEYS } from '../../src/content/site';
-import { media } from '../../src/media/generated';
+import { MEDIA_IDENTIFIERS } from '../../src/media';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 export const SCHEMA_PATH = path.join(REPO_ROOT, 'content', 'site.schema.json');
 
-const text = renderSiteSchema(WRITTEN_LINK_KEYS, Object.keys(media));
+const text = renderSiteSchema(WRITTEN_LINK_KEYS, MEDIA_IDENTIFIERS);
 const before = fs.existsSync(SCHEMA_PATH) ? fs.readFileSync(SCHEMA_PATH, 'utf8') : null;
 fs.writeFileSync(SCHEMA_PATH, text);
 console.log(`[content:schema] ${before === text ? 'sin cambios' : before === null ? 'creado' : 'actualizado'}: content/site.schema.json (${text.length} caracteres)`);

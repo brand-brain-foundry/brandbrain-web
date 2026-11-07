@@ -1,5 +1,6 @@
 import { type Locale } from "@/config/site";
 import { pageRoute } from "@/config/pages";
+import { hrefOf } from "@/components/link-target";
 import { identity } from "@/content/site";
 import type { GlobalDocument, LinkItem } from "@/content/schema";
 import { iconFor } from "@/media";
@@ -14,12 +15,13 @@ import styles from "./Header.module.css";
  * perfil con el `id` del enlace, viaja con él (el organismo resuelve; el átomo solo pinta).
  * D-BBW-78 · LA PALABRA DEL CASO la reparte AQUÍ el organismo: el elemento de contenido solo declara `case: true` y la palabra llega de
  * `nav.caseLabel`, que la guarda una sola vez. Una lista sin palabra (los perfiles del pie) no reparte nada.
+ * S3c (D-BBW-94): un elemento con destino INTERNO (`page`, una página del registro) recibe su ruta de `pageRoute`; ningún contenido escribe una ruta.
  */
-export function resolveLinks(items: LinkItem[], caseLabel?: string): ResolvedLink[] {
+export function resolveLinks(items: LinkItem[], locale: Locale, caseLabel?: string): ResolvedLink[] {
   return items.map((item) => ({
     id: item.id,
     label: item.label,
-    href: identity.links[item.link],
+    href: hrefOf(item, locale),
     icon: iconFor(item.id),
     badge: item.case ? caseLabel : undefined,
   }));
@@ -34,8 +36,8 @@ export function resolveLinks(items: LinkItem[], caseLabel?: string): ResolvedLin
  * `scatter` y la guardia R11b lo comprueba contra su lista declarada. Todo lo demás del sitio tiene solo el hover de color.
  */
 export function Header({ locale, global }: { locale: Locale; global: GlobalDocument }) {
-  const nav = resolveLinks(global.nav.items, global.nav.caseLabel);
-  const social = resolveLinks(global.footer.social);
+  const nav = resolveLinks(global.nav.items, locale, global.nav.caseLabel);
+  const social = resolveLinks(global.footer.social, locale);
   return (
     <header className={styles.header} data-component="bbf-header">
       <BrandMark href={pageRoute(locale, "home")} name={identity.brand} />

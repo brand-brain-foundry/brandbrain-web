@@ -10,7 +10,7 @@
       "heading": "Diseño sistemas de IA que deciden con el criterio de tu marca.",
       "paragraph": "Tu equipo ya usa IA. Lo que entrega podría ser de cualquiera. Empiezo antes de la herramienta: rediseño cómo se trabaja y escribo el criterio de tu marca para que los agentes decidan con él.",
       "ctaPrimary": "Hablemos",
-      "ctaSecondary": "Perfil en LinkedIn",
+      "ctaSecondary": { "global": "linkLabels.linkedin" },
       "ctaSecondaryLink": "linkedin"
     }
   ]
