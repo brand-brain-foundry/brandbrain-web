@@ -150,20 +150,20 @@
       "width": 1200
     },
     "portraitDisc1x": {
-      "height": 252,
+      "height": 240,
       "master": "portrait",
-      "path": "public/portrait-252x252.jpg",
-      "profile": "jpeg-crop 1:1 ancho 252 foco-y 0.42 q 82 ≥ 50000 px",
-      "sha256": "22f0751893a71063e04dc29daa81c7da2fc167a9cd8fb3207dc9ef706883955a",
-      "width": 252
+      "path": "public/portrait-240x240.jpg",
+      "profile": "jpeg-crop 1:1 ancho 240 foco-y 0.42 q 82 ≥ 50000 px",
+      "sha256": "48a3755bf9d96483eab64a884124da382e2999ad76c9f1dd153282364ce01388",
+      "width": 240
     },
     "portraitDisc2x": {
-      "height": 504,
+      "height": 480,
       "master": "portrait",
-      "path": "public/portrait-504x504.jpg",
-      "profile": "jpeg-crop 1:1 ancho 504 foco-y 0.42 q 82 ≥ 50000 px",
-      "sha256": "bb601065f962aba985707f6917cf04f2b9380597691288eddd552ab418fe06db",
-      "width": 504
+      "path": "public/portrait-480x480.jpg",
+      "profile": "jpeg-crop 1:1 ancho 480 foco-y 0.42 q 82 ≥ 50000 px",
+      "sha256": "fe056230ba3267b74ee06e5f0a026b9cfdbdccc730d80ec457ac408bb4f1e1e8",
+      "width": 480
     },
     "share": {
       "height": 630,
@@ -176,7 +176,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "d8a60b7a7616d5c14d7c6d2e0bf758aac55bb7daee183c68252adcdf66399a8c"
+    "sha256": "7ae42e3ba92ab4002655ffa62eb1759624db9cdaea4519e5c1f035e4456cbe7e"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {

@@ -319,12 +319,13 @@
   text-transform: uppercase;
 }
 
-/* ── EL CIERRE B (D-BBW-103/104): retrato en círculo + frase madre a escala de titular + botones; dos columnas o apilado (rol de vista) ── */
+/* ── EL CIERRE (D-BBW-103/104, enmendado por D-BBW-111 en P2b): una columna apilada, retrato en círculo → frase madre a escala de titular →
+   botones; centrada en la vista amplia y alineada al inicio en una zona (un rol de vista) ── */
 .closing {
-  display: grid;
-  grid-template-columns: var(--bbf-profile-close-columns);
-  align-items: center;
-  gap: var(--bbf-space-10) var(--bbf-space-16);
+  display: flex;
+  flex-direction: column;
+  align-items: var(--bbf-profile-close-align);
+  gap: var(--bbf-space-10);
   padding-block-start: var(--bbf-space-12);
 }
 
@@ -341,8 +342,9 @@
 .closingBody {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: var(--bbf-profile-close-align);
   gap: var(--bbf-space-10);
+  text-align: var(--bbf-profile-close-align);
 }
 
 .statement {
@@ -365,6 +367,7 @@
 .buttons {
   display: flex;
   flex-wrap: wrap;
+  justify-content: var(--bbf-profile-close-align);
   gap: var(--bbf-space-4);
 }
 
