@@ -108,6 +108,9 @@
   --bbf-motion-reveal-shift: calc(var(--bbf-motion-enter-shift) * 2);
   --bbf-motion-reveal-stagger: var(--bbf-stagger-1);
   --bbf-motion-reveal-play-state: running;
+  /* P4 del perfil · VÍDEO DE LAS FICHAS (S14, D-BBW-102): el módulo (`src/behavior/card-video.ts`) LEE el estado de juego antes de cada
+     reproducción; con movimiento reducido no arranca ninguna ficha y queda el póster (I-9), sin descargar el vídeo. */
+  --bbf-motion-card-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -121,5 +124,6 @@
     --bbf-motion-hover-lift: 0px;
     --bbf-motion-scatter-play-state: paused;
     --bbf-motion-reveal-play-state: paused;
+    --bbf-motion-card-play-state: paused;
   }
 }

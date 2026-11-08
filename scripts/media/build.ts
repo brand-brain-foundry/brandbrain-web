@@ -43,6 +43,7 @@ import {
   inlineIcons,
   masters,
   mediaSets,
+  mediaClips,
   rigs,
   fieldBatches,
   fieldBatchPath,
@@ -51,6 +52,7 @@ import {
   type DerivativeId,
   type MasterId,
   type Profile,
+  type VideoCrop,
 } from '../../src/media/registry';
 import { REPO_ROOT, sha256, stableJson, type LockFile } from './lock';
 import { resolveColorToken, resolveLengthToken } from './tokens';
@@ -147,8 +149,31 @@ function runFfmpeg(args: string[], ext: string): Buffer {
 /** Argumentos comunes de salida: sin audio (D-BBW-24), sin metadatos ni marcas de tiempo (bitexact), mismo cadencia y GOP de 2 s (48 @ 24 fps). */
 const VIDEO_COMMON = ['-an', '-sn', '-dn', '-map_metadata', '-1', '-map_chapters', '-1', '-fflags', '+bitexact', '-flags:v', '+bitexact', '-pix_fmt', 'yuv420p', '-g', '48'];
 
+/** Dimensiones de la pista de vídeo de un maestro (ffprobe). */
+function videoSize(abs: string): { w: number; h: number } {
+  const out = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', abs], { encoding: 'utf8' }).trim();
+  const [w, h] = out.split(',').map(Number);
+  if (!w || !h) throw new Error(`[media] no se pudieron leer las dimensiones de ${abs}: "${out}"`);
+  return { w, h };
+}
+
+/**
+ * Filtro de vídeo de un perfil `video`/`poster` (P4 del perfil): con `crop: "center"`, primero la caja más grande de la proporción del perfil
+ * que cabe en el maestro, centrada (dimensiones pares, calculadas aquí: el filtro recibe números, no expresiones), y después el escalado
+ * Lanczos a `width`×`height`. Sin recorte, solo el escalado (el comportamiento de la fase 6d).
+ */
+function videoFilter(master: VideoMaster, p: { width: number; height: number; crop?: VideoCrop }): string {
+  const scale = `scale=${p.width}:${p.height}:flags=lanczos`;
+  if (!p.crop) return scale;
+  const { w, h } = videoSize(master.abs);
+  const even = (n: number) => Math.floor(n / 2) * 2;
+  const cw = even(Math.min(w, (h * p.width) / p.height));
+  const ch = even(Math.min(h, (w * p.height) / p.width));
+  return `crop=${cw}:${ch}:${even((w - cw) / 2)}:${even((h - ch) / 2)},${scale}`;
+}
+
 function encodeVideo(master: VideoMaster, p: Extract<Profile, { kind: 'video' }>): { bytes: Buffer; ext: string } {
-  const scale = ['-vf', `scale=${p.width}:${p.height}:flags=lanczos`];
+  const scale = ['-vf', videoFilter(master, p)];
   if (p.codec === 'h264') {
     // respaldo universal: libx264, CRF fijo, preset slow, perfil High 4.0, un hilo, moov al principio (arranque sin esperar al final del archivo)
     const args = ['-i', master.abs, ...VIDEO_COMMON, ...scale, '-c:v', 'libx264', '-preset', 'slow', '-crf', String(p.quality), '-profile:v', 'high', '-level', '4.0', '-threads', '1', '-movflags', '+faststart', '-f', 'mp4'];
@@ -161,7 +186,7 @@ function encodeVideo(master: VideoMaster, p: Extract<Profile, { kind: 'video' }>
 
 /** Póster = el PRIMER FOTOGRAMA EXACTO del maestro (fotograma 0, sin pérdida vía PNG) codificado por sharp al formato y calidad del perfil. */
 async function encodePoster(master: VideoMaster, p: Extract<Profile, { kind: 'poster' }>): Promise<Buffer> {
-  const png = runFfmpeg(['-i', master.abs, '-map', '0:v:0', '-frames:v', '1', '-vf', `select=eq(n\\,0),scale=${p.width}:${p.height}:flags=lanczos`, '-c:v', 'png', '-f', 'image2'], 'png');
+  const png = runFfmpeg(['-i', master.abs, '-map', '0:v:0', '-frames:v', '1', '-vf', `select=eq(n\\,0),${videoFilter(master, p)}`, '-c:v', 'png', '-f', 'image2'], 'png');
   const img = sharp(png).withMetadata({}).removeAlpha();
   return p.format === 'jpeg' ? img.jpeg({ quality: p.quality, mozjpeg: true, chromaSubsampling: '4:2:0' }).toBuffer() : img.webp({ quality: p.quality, effort: 6 }).toBuffer();
 }
@@ -296,9 +321,9 @@ function profileLabel(p: Profile): string {
     case 'manifest':
       return `manifest ${p.icons.join(',')}`;
     case 'video':
-      return `video ${p.codec} ${p.width}×${p.height} crf ${p.quality} sin audio ≤ ${p.budgetBytes} B`;
+      return `video ${p.codec} ${p.width}×${p.height}${p.crop ? ` recorte ${p.crop}` : ''} crf ${p.quality} sin audio ≤ ${p.budgetBytes} B`;
     case 'poster':
-      return `poster ${p.format} ${p.width}×${p.height} q ${p.quality} fotograma 0 ≤ ${p.budgetBytes} B`;
+      return `poster ${p.format} ${p.width}×${p.height}${p.crop ? ` recorte ${p.crop}` : ''} q ${p.quality} fotograma 0 ≤ ${p.budgetBytes} B`;
     case 'png-resize':
       return `png-resize ${p.size}×${p.size}`;
     case 'jpeg-crop':
@@ -481,6 +506,18 @@ async function main(): Promise<void> {
     }
   }
 
+  // P4 del perfil: cada clip nombra un vídeo y un póster que existen, salen del maestro que declara y son de su perfil; mismo recorte y tamaño
+  for (const [clipId, clip] of Object.entries(mediaClips)) {
+    const v = derivatives[clip.video as DerivativeId];
+    const po = derivatives[clip.poster as DerivativeId];
+    if (!v || v.profile.kind !== 'video') throw new Error(`[media] clip "${clipId}": "${clip.video}" no es un derivado de perfil video`);
+    if (!po || po.profile.kind !== 'poster') throw new Error(`[media] clip "${clipId}": "${clip.poster}" no es un derivado de perfil poster`);
+    if (v.master !== clip.master || po.master !== clip.master) throw new Error(`[media] clip "${clipId}": vídeo y póster deben salir del maestro "${clip.master}"`);
+    if (v.profile.width !== po.profile.width || v.profile.height !== po.profile.height || v.profile.crop !== po.profile.crop) {
+      throw new Error(`[media] clip "${clipId}": vídeo y póster con tamaño o recorte distintos (el póster tiene que ser el fotograma 0 del vídeo servido)`);
+    }
+  }
+
   // S12 (R2 del perfil): lotes del campo — un derivado cuadrado por medio de la carpeta del uso, sellado con su maestro y su punto focal
   const batchOut: { m: BatchMember; path: string; bytes: Buffer; budgetBytes: number; streams?: string }[] = [];
   for (const m of batchRead.members) {
@@ -596,6 +633,11 @@ async function main(): Promise<void> {
     '/** Conjuntos de medios (S3c): un identificador → los derivados del mismo maestro, en orden (declarados en `mediaSets` del registro). */',
     'export const mediaSets = {',
     ...Object.entries(mediaSets).map(([setId, set]) => `  ${setId}: [${set.members.map((m) => `"${m}"`).join(', ')}],`),
+    '} as const;',
+    '',
+    '/** Clips (P4 del perfil): un identificador → el vídeo y su póster (fotograma 0), derivados del mismo maestro (`mediaClips` del registro). */',
+    'export const mediaClips = {',
+    ...Object.entries(mediaClips).map(([clipId, clip]) => `  ${clipId}: { video: "${clip.video}", poster: "${clip.poster}" },`),
     '} as const;',
     '',
     '/** Lotes del campo (S12, R2 del perfil): por uso, los medios de `media/masters/campo/<uso>/` en orden de nombre, recortados al cuadrado',

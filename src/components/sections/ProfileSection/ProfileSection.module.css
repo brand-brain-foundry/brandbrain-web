@@ -270,7 +270,7 @@
   text-decoration: none;
 }
 
-/* la ventana del vídeo (P4): mientras tanto, la superficie tenue de las pastillas */
+/* la ventana del vídeo (P4): la superficie tenue de las pastillas queda debajo mientras llega el póster (o si la ficha no tiene clip) */
 .cardWindow {
   display: block;
   margin-block-end: var(--bbf-space-3);
@@ -278,6 +278,14 @@
   border-radius: var(--bbf-radius-card);
   background: var(--bbf-surface-chip);
   overflow: hidden;
+}
+
+/* el clip llena la ventana: vídeo y póster ya salen del puerto en 4:3 (recorte del perfil), así que `cover` no recorta nada más */
+.cardVideo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .cardName {
