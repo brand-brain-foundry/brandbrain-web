@@ -1,4 +1,7 @@
 {
+  "batches": {
+    "perfil": {}
+  },
   "derivatives": {
     "appleTouchIcon": {
       "height": 180,
@@ -103,7 +106,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "217329e82bfa7175865772575e3f756fa7dc02ed49917d2c958a5cafa45ce453"
+    "sha256": "ddcd19eb08867bacaa4aa33bf6610d509ff1bc54999c7ba03814cf07e766f8c9"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {

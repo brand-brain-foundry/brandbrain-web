@@ -227,6 +227,54 @@ export const mediaSets = {
 } as const satisfies Record<string, { master: MasterId; members: readonly DerivativeId[] }>;
 export type MediaSetId = keyof typeof mediaSets;
 
+/**
+ * LOTES DEL CAMPO (S12, R2 del perfil · 2026-11-08; P-BBW-98 §3.2, D-BBW-96). Un LOTE es la carpeta de un USO, `media/masters/campo/<uso>/`:
+ * cada archivo de la carpeta es un maestro del lote y NADIE escribe la lista (se lee del disco en orden de nombre). Lo que sí se declara aquí
+ * es el uso (que exista el lote) y el perfil común; el punto focal de cada medio lo declara el CONTENIDO (`content/site.json` → `$.fieldMedia.
+ * <uso>.<nombre>`, por defecto el centro). El guion recorta cada maestro al CUADRADO más grande que cabe centrado en su punto focal (una sola
+ * proporción para todos: cualquier medio sirve en cualquier caja de la capa) y lo escala a `side`; imagen → JPEG; vídeo → H.264 sin audio,
+ * a lo sumo `maxSeconds`. Escribe `fieldBatches.<uso>` en `src/media/generated.ts` (orden de nombre) y sella maestro, derivado y punto focal en
+ * el lock (`batches`). Una carpeta ausente o vacía = lote vacío = el campo de hoy, sin una línea de la capa.
+ * Nombre del archivo: minúsculas, dígitos y guiones (`zavala-1.jpg`); es el que se ve en el lock y el que cita el punto focal.
+ * CLASE (D-DOC-13): la forma (carpeta por uso, recorte común, sello) = estático · `side`, calidades y presupuestos = plantilla (medidos en R2) ·
+ * qué usos y qué medios = dinámico.
+ */
+export const FIELD_BATCHES_DIR = "media/masters/campo";
+export type FieldBatchProfile = {
+  kind: "field-batch";
+  /** lado del cuadrado servido, px: el tope de la capa a 2× en la ventana más grande que se mide (1920×1080 → 199,8 px CSS) cabe en él */
+  side: number;
+  /** JPEG de las imágenes (mozjpeg, 4:4:4, sin metadatos) y su presupuesto por archivo */
+  imageQuality: number;
+  imageBudgetBytes: number;
+  /** H.264 de los vídeos (los mismos parámetros que el perfil `video`), duración máxima y presupuesto por archivo */
+  videoQuality: number;
+  videoMaxSeconds: number;
+  videoBudgetBytes: number;
+};
+export const FIELD_BATCH_PROFILE: FieldBatchProfile = {
+  kind: "field-batch",
+  side: 480,
+  imageQuality: 82,
+  imageBudgetBytes: 80_000,
+  videoQuality: 23,
+  videoMaxSeconds: 8,
+  videoBudgetBytes: 600_000,
+};
+/** Extensiones admitidas en la carpeta de un lote, por clase. Otra extensión rompe el guion y la guardia (nada entra sin perfil). */
+export const FIELD_BATCH_EXTENSIONS = { image: [".jpg", ".jpeg", ".png", ".webp"], video: [".mp4", ".mov", ".webm"] } as const;
+/** Nombre admitido para un maestro de lote (sin la extensión). */
+export const FIELD_BATCH_NAME_RE = /^[a-z0-9][a-z0-9-]*$/;
+/** Los usos declarados. La carpeta `media/masters/campo/<uso>/` puede no existir todavía: lote vacío (R3 sube el lote real del perfil). */
+export const fieldBatches = {
+  perfil: { role: "capa de medios del campo S8 en la sección 1 del perfil (D-BBW-96, R2/R3)" },
+} as const satisfies Record<string, { role: string }>;
+export type FieldBatchId = keyof typeof fieldBatches;
+/** Ruta pública del derivado de un medio de lote: por rol (campo · uso) y dimensión; el nombre del maestro distingue los miembros. */
+export function fieldBatchPath(batch: string, name: string, kind: "image" | "video", side: number): string {
+  return `campo-${batch}-${name}-${side}x${side}.${kind === "image" ? "jpg" : "mp4"}`;
+}
+
 export const inlineIcons = {
   brandIcon: { master: "brandIcon", paint: "fill", use: "ornament" },
   linkedin: { master: "iconLinkedin", paint: "fill", use: "profile" },

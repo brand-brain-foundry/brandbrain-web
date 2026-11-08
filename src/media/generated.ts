@@ -39,6 +39,12 @@ export const mediaSets = {
   portrait: ["portrait1x1", "portrait4x3", "portrait16x9"],
 } as const;
 
+/** Lotes del campo (S12, R2 del perfil): por uso, los medios de `media/masters/campo/<uso>/` en orden de nombre, recortados al cuadrado
+ *  por su punto focal (`content/site.json` → `$.fieldMedia`). Lote vacío = `[]` = el campo de hoy. Lo consume la capa de medios del campo. */
+export const fieldBatches = {
+  perfil: [],
+} as const satisfies Record<string, readonly { id: string; kind: "image" | "video"; src: string; type: string; side: number }[]>;
+
 /** Rigs (M1c): anatomía derivada de un maestro vectorial (perfil `rig` del registro); la consume el motor S9 al arrancar. */
 export const rigs = {
   brandIconRig: { "schema": "brand-icon-rig/v3", "step": 0.5, "k": 72, "n": 4726, "l": 2362.946, "tentacles": [

@@ -108,6 +108,11 @@
   --bbf-stage-anchor-x-single: 50%;
   --bbf-hero-text-zone-split: 0.52;
   --bbf-hero-text-zone-single: 1;
+  /* ── CUÁNTAS ZONAS TIENE CADA VISTA (R2 del perfil, 2026-11-08) ── el hecho estructural de D-BBW-47 escrito como número: dos en la vista
+     amplia, una en la colapsada. Hoy lo lee un solo rol, el TOPE de los medios del campo (semantic/composition.css): un medio no pasa de la
+     mitad del alcance visible de SU zona a lo largo del lado corto de la ventana, y en la vista de dos zonas cada zona tiene la mitad. */
+  --bbf-stage-zones-split: 2;
+  --bbf-stage-zones-single: 1;
 
   /* ── bloque de texto (unidades del contenedor del héroe) ── */
   --bbf-lockup-offset-slope: 14cqh;

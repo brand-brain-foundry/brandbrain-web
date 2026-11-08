@@ -52,6 +52,7 @@
  */
 import { isLinkKey, type LinkKey } from "./site";
 import { isPageId } from "../config/pages";
+import { FIELD_BATCH_IDS } from "../media";
 import { ENTITY_FIELDS, fieldSpec, type EntityFieldKey, type EntityFieldKind } from "./entity-fields";
 
 /** Colecciones con un documento por slug (`content/<locale>/<colección>/<slug>.json`). */
@@ -292,6 +293,9 @@ export type HeroSection = {
   ctaSecondary: string;
   /** llave del destino de la llamada secundaria; el destino vive en content/site.json, nunca aquí */
   ctaSecondaryLink: LinkKey;
+  /** OPCIONAL (S12, R2 del perfil, v3.15): el USO cuyo lote del campo lleva esta sección (`media/masters/campo/<uso>/` por el puerto de medios).
+   *  Sin la llave, o con el lote vacío, el campo es el de siempre. */
+  fieldMedia?: string;
 };
 
 /**
@@ -384,7 +388,7 @@ const SECTION_KEYS: Record<SectionType, readonly string[]> = {
 };
 /** llaves ADMITIDAS (no obligatorias) por tipo de sección: hoy solo la acción de la página legal (v3.8). */
 const SECTION_OPTIONAL_KEYS: Record<SectionType, readonly string[]> = {
-  hero: [],
+  hero: ["fieldMedia"],
   legal: ["action"],
   profile: [],
 };
@@ -844,6 +848,9 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     return;
   }
   if (type === "profile") return checkProfileSection(v, path, problems);
+  if ("fieldMedia" in v && (typeof v.fieldMedia !== "string" || !FIELD_BATCH_IDS.includes(v.fieldMedia))) {
+    problems.push({ path: `${path}.fieldMedia`, message: `"${String(v.fieldMedia)}" no es un uso con lote del campo (declarados en src/media/registry.ts → fieldBatches: ${FIELD_BATCH_IDS.join(", ")})` });
+  }
   for (const k of keys) {
     if (k === "type" || k === "id") continue;
     if (k === "ctaPrimary" || k === "ctaSecondary") {
