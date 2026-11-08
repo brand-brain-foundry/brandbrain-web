@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { createBackdrop, type Backdrop } from "@/behavior/backdrop-shader";
+import { createBackdrop, readHueTurn, type Backdrop } from "@/behavior/backdrop-shader";
 import styles from "./HeroBackdrop.module.css";
 
 /**
@@ -18,6 +18,8 @@ import styles from "./HeroBackdrop.module.css";
  * · QUIETO con movimiento reducido y con la pestaña oculta (D-BBW-31): el bucle se cancela y queda la superficie base (el lienzo se oculta);
  *   la preferencia se lee por el ROL `--bbf-motion-glow-play-state` (semantic/motion.css), no repitiendo la consulta.
  * · Cada cambio de estado avisa con `bbf:backdrop` (detalle: estado, tamaños, reloj de arranque): es lo que el arnés lee.
+ * · VARIANTE DE COLOR (R1, D-BBW-96): el giro de tono lo declara la PÁGINA (registro → `data-backdrop` → rol `--bbf-backdrop-hue-turn`) y lo
+ *   lee el módulo en el propio lienzo al montar (`readHueTurn`); este componente no elige ningún color. Giro 0 = el inicio, programa intacto.
  * · Decorativo para las tecnologías de asistencia (`aria-hidden`); no recibe eventos. Cero texto, cero valores.
  */
 export function HeroBackdrop() {
@@ -38,8 +40,9 @@ export function HeroBackdrop() {
     const t0 = win.performance.now();
     const clock = () => (win.performance.now() - t0) / 1000;
 
+    const hueTurn = readHueTurn(canvas);
     const emit = (state: "running" | "stopped" | "unsupported" | "lost") =>
-      canvas.dispatchEvent(new CustomEvent("bbf:backdrop", { detail: { state, t0, ...(gpu?.size ?? {}) } }));
+      canvas.dispatchEvent(new CustomEvent("bbf:backdrop", { detail: { state, t0, hueTurn, ...(gpu?.size ?? {}) } }));
 
     const measure = () => {
       if (!gpu) return;
@@ -73,7 +76,7 @@ export function HeroBackdrop() {
       else start();
     };
 
-    gpu = createBackdrop(canvas);
+    gpu = createBackdrop(canvas, hueTurn);
     if (!gpu) {
       // respaldo (D-BBW-33): sin contexto gráfico queda la superficie base del contenedor; nada más que hacer
       canvas.hidden = true;

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { isLocale } from "@/config/site";
-import type { PageId } from "@/config/pages";
+import { pageBackdrop, type PageId } from "@/config/pages";
 import { getPage } from "@/content";
 import { pageMetadataFor } from "@/seo/metadata";
 import { WithStructuredData } from "@/seo/WithStructuredData";
@@ -28,7 +28,8 @@ export default async function PerfilPage({
   const where = `pages/${PAGE} (${locale})`;
   return (
     <WithStructuredData locale={locale} id={PAGE} page={page}>
-      <main id={MAIN_ID} data-component="bbf-main">
+      {/* R1 (D-BBW-96): la variante de color del fondo sale del registro; la hereda el fondo de cualquier sección de la página */}
+      <main id={MAIN_ID} data-component="bbf-main" data-backdrop={pageBackdrop(PAGE)}>
         {page.sections.map((section) => renderSection(section, where, locale))}
       </main>
     </WithStructuredData>

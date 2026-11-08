@@ -98,6 +98,8 @@ el título propio de la portada es la **categoría referenciada** (`"title": "{{
 poseerla; la **mayúscula inicial la pone la fórmula del tipo `home`** (`sentenceCase`, una variante por fórmula, I-3), nunca el contenido. La
 cadena de la categoría vive una vez (`$.entity.category`).
 
+**Variante de color del fondo (R1, D-BBW-96).** La fila puede declarar `backdrop` (un nombre de `src/config/backdrops.ts`); no es posicionamiento: el contrato es BEHAVIOR §4.1 y la guardia R12.
+
 **Excepción al rango del título (D-BBW-87).** Una página puede registrar en `src/config/pages.ts` una `titleLengthException` con **longitud
 exacta + razón + decisión** (la forma de D-BBW-16 llevada a esta capa). R7c la lee (`pageTitleException`); la guardia no escribe ningún número, y
 **una excepción es un valor, no un rango más ancho**: si el título cambia de longitud deja de coincidir y R7c vuelve a romper. Hoy una:
