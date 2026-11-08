@@ -59,8 +59,8 @@ export const masters = {
    * EL RETRATO (S3c, D-BBW-91; maestro nuevo en P1, D-BBW-103). Foto de la persona entregada por Zavala (`zavala-1`, 1792×2400, en blanco y
    * negro sobre fondo blanco). El archivo conserva el nombre del ROL (`portrait.jpg`, MEDIA.md §1: los maestros se nombran por rol, nunca por
    * versión ni por contenido); de dónde viene lo dice `origin`. Vive UNA vez aquí;
-   * la entidad (`$.entity.image`) lo referencia por su CONJUNTO de recortes (`mediaSets.portrait`) y un lote futuro del campo de imágenes
-   * (serie R) lo referenciará también, sin duplicarlo.
+   * la entidad (`$.entity.image`) lo referencia por su CONJUNTO de recortes (`mediaSets.portrait`) y el lote `perfil` del campo (R3) lo
+   * referencia también, sin duplicarlo: `media/masters/campo/perfil/zavala-1.jpg` es un enlace simbólico a este archivo (MEDIA.md §11).
    */
   portrait: {
     file: "portrait.jpg",

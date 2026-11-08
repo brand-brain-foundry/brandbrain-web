@@ -5,7 +5,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { FIELD_BATCHES_DIR, FIELD_BATCH_EXTENSIONS, FIELD_BATCH_NAME_RE, fieldBatches, type FieldBatchId } from '../../src/media/registry';
+import { FIELD_BATCHES_DIR, FIELD_BATCH_EXTENSIONS, FIELD_BATCH_NAME_RE, MASTERS_DIR, fieldBatches, masters, type FieldBatchId } from '../../src/media/registry';
 import { fieldMediaFocus } from '../../src/content/site';
 import { REPO_ROOT } from './lock';
 
@@ -35,6 +35,14 @@ export function readBatches(): { members: BatchMember[]; problems: string[] } {
       if (!FIELD_BATCH_NAME_RE.test(name)) { problems.push(`${where}: nombre inválido (minúsculas, dígitos y guiones: es el que cita el punto focal)`); continue; }
       if (seen.has(name)) { problems.push(`${where}: nombre repetido con otra extensión (el nombre identifica al medio)`); continue; }
       seen.add(name);
+      // REFERENCIA (R3 del perfil, I-1): un miembro puede ser un ENLACE SIMBÓLICO a un maestro ya declarado en el registro (el retrato `zavala-1`
+      // → `portrait.jpg`), para no duplicarlo. Solo vale si resuelve a uno de esos maestros; roto o hacia otro sitio rompe (R10).
+      if (fs.lstatSync(path.join(dir, file)).isSymbolicLink()) {
+        const allowed = Object.values(masters).map((m) => path.join(REPO_ROOT, MASTERS_DIR, m.file));
+        let real = '';
+        try { real = fs.realpathSync(path.join(dir, file)); } catch { /* enlace roto */ }
+        if (!allowed.some((a) => fs.existsSync(a) && fs.realpathSync(a) === real)) { problems.push(`${where}: enlace que no resuelve a un maestro declarado en src/media/registry.ts (masters): un miembro por referencia solo apunta a un maestro existente`); continue; }
+      }
       const f = fieldMediaFocus[batch]?.[name];
       members.push({ batch, name, file, abs: path.join(dir, file), kind, focus: f ? { x: f.x, y: f.y } : { x: 0.5, y: 0.5 } });
     }
