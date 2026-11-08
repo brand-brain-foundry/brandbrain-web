@@ -32,9 +32,11 @@ const stepNumber = (i: number) => String(i + 1).padStart(2, "0");
  *   4. PROYECTOS (D-BBW-102): tres fichas estrechas, ventana 4:3 de radio moderado y el texto DEBAJO. En la ventana, el CLIP que cita el
  *      contenido (P4: `<video preload="none" poster>` por el puerto, `mediaClip`): en reposo el póster, sin descargar el vídeo; cuándo se mueve lo
  *      decide S14 (`src/behavior/card-video.ts`, BEHAVIOR.md §17). Sin clip, la superficie tenue.
- *   5. EL CIERRE B (D-BBW-103/104): retrato en círculo (`<img>` real con `alt`; el recorte 1:1 servido al tamaño mostrado por `srcset`, 1× y
- *      2×; el de 1200 queda de `src` porque `Person.image` lo cita y R7g lo busca), la frase madre a escala de titular con la segunda parte en
- *      acento (dos tramos EN LÍNEA: el `innerText` no se parte) y los botones de contacto sin título.
+ *   5. EL CIERRE (D-BBW-103/104, enmendado por D-BBW-111 en P2b y en P2c): la frase madre a escala de titular con la segunda parte en acento
+ *      (dos tramos EN LÍNEA: el `innerText` no se parte) y debajo los botones de contacto sin título. El retrato es un AVATAR dentro del botón
+ *      del correo, a la izquierda del texto (P2c: `Person.image` corresponde a una imagen visible): `<img>` real con `alt=""` (el nombre
+ *      accesible del enlace es su texto, como el sello del pie), el recorte 1:1 servido al tamaño mostrado por `srcset`, 1× y 2×; el de 1200
+ *      queda de `src` porque `Person.image` lo cita y R7g lo busca.
  * Todo el texto llega resuelto del contenido; los de la persona CITADOS de la entidad. Las apariciones (una vez, por tiempo) y la línea de tiempo
  * las mueve `ProfileMotion` (S13, BEHAVIOR.md §16) sobre un HTML completo: sin JavaScript todo está visible y quieto.
  * Los enlaces se MARCAN con su tipo de piel (`data-hover`, hover de color del sistema); ninguno se desarma (S11: solo cabecera y héroe del inicio).
@@ -142,19 +144,6 @@ export function ProfileSection({ section, locale }: { section: ProfileSectionTyp
         </section>
 
         <section className={styles.closing} aria-labelledby={`${id}-closing`} data-component="bbf-profile-closing">
-          {portrait && (
-            <img
-              className={styles.portrait}
-              src={portrait.src}
-              srcSet={`${media.portraitDisc1x.src} 1x, ${media.portraitDisc2x.src} 2x`}
-              width={media.portraitDisc1x.width}
-              height={media.portraitDisc1x.height}
-              alt={section.portrait.alt}
-              loading="lazy"
-              decoding="async"
-              data-reveal=""
-            />
-          )}
           <div className={styles.closingBody}>
             <h2 id={`${id}-closing`} className={styles.statement} data-reveal="">
               <span>{closing[0]}</span> <span className={styles.emphasis}>{closing[1]}</span>
@@ -162,17 +151,33 @@ export function ProfileSection({ section, locale }: { section: ProfileSectionTyp
             <div className={styles.buttons} data-reveal="">
               {section.contact.links.map((item, i) => {
                 const href = hrefOf(item, locale);
+                // el avatar va en el botón del CORREO (P2c), sea cual sea su orden: lo reconoce su destino, no su posición
+                const avatar = portrait && href.startsWith("mailto:");
                 // el primero (el correo) es el primario relleno; los demás, de contorno: la pareja de botones del héroe del inicio
-                const className = `${styles.button} ${i === 0 ? styles.buttonPrimary : styles.buttonSecondary}`;
+                const className = `${styles.button} ${i === 0 ? styles.buttonPrimary : styles.buttonSecondary}${avatar ? ` ${styles.buttonAvatar}` : ""}`;
                 const skin = i === 0 ? "fill" : "outline";
                 const arrow = <Icon name={item.page === undefined && /^https?:\/\//.test(href) ? "arrowUpRight" : "arrowRight"} className={styles.buttonArrow} />;
+                const lead = avatar && (
+                  <img
+                    className={styles.avatar}
+                    src={portrait.src}
+                    srcSet={`${media.portraitDisc1x.src} 1x, ${media.portraitDisc2x.src} 2x`}
+                    width={media.portraitDisc1x.width}
+                    height={media.portraitDisc1x.height}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                );
                 return item.page !== undefined ? (
                   <Link key={item.id} href={href} className={className} data-hover={skin}>
+                    {lead}
                     {item.label}
                     {arrow}
                   </Link>
                 ) : (
                   <a key={item.id} href={href} className={className} data-hover={skin} {...outbound(href)}>
+                    {lead}
                     {item.label}
                     {arrow}
                   </a>

@@ -344,8 +344,9 @@ export type ProfileSection = {
   lead: string;
   /** OPCIONAL (P2, como `HeroSection.fieldMedia`): el uso cuyo lote del campo lleva la apertura; sin la llave o con lote vacío, el campo de siempre */
   fieldMedia?: string;
-  /** el retrato: `media` = el identificador del puerto de medios citado de `$.entity.image`; `alt` = su texto alternativo */
-  portrait: { media: string; alt: string };
+  /** el retrato: `media` = el identificador del puerto de medios citado de `$.entity.image`; desde P2c el avatar del botón del correo, con `alt=""` (va dentro
+   *  del enlace junto a su texto, que es el nombre accesible: la regla del sello del pie); sin texto alternativo en el contenido */
+  portrait: { media: string };
   /** «Cómo trabajo» (P1): entrada, tarjetas y trayectoria; la fuente de la que se deriva `descriptionLong` */
   approach: ProfileApproach;
   /** «Especialidades»: encabezado, las materias (`{ entity: "knowsAbout" }`) y la llave del destino común de las pastillas (P2: `linkedinSkills`) */
@@ -710,10 +711,9 @@ function checkProfileSection(v: Record<string, unknown>, path: string, problems:
   checkFieldMedia(v, path, problems);
   checkEntityRef(v.lead, `${path}.lead`, ["text"], problems);
   if (isRecord(v.portrait)) {
-    checkKeys(v.portrait, ["media", "alt"], `${path}.portrait`, problems);
+    checkKeys(v.portrait, ["media"], `${path}.portrait`, problems);
     checkEntityRef(v.portrait.media, `${path}.portrait.media`, ["media"], problems);
-    checkText(v.portrait.alt, `${path}.portrait.alt`, problems);
-  } else problems.push({ path: `${path}.portrait`, message: `debe ser un objeto { media, alt }` });
+  } else problems.push({ path: `${path}.portrait`, message: `debe ser un objeto { media }` });
   if (checkHeaded(v.approach, `${path}.approach`, ["heading", "intro", "steps", "background"], problems)) checkApproach(v.approach, `${path}.approach`, problems);
   if (checkHeaded(v.specialties, `${path}.specialties`, ["heading", "items", "link"], problems)) {
     checkEntityRef(v.specialties.items, `${path}.specialties.items`, ["textList"], problems);

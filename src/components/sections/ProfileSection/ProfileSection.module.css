@@ -308,24 +308,13 @@
   text-transform: uppercase;
 }
 
-/* ── EL CIERRE (D-BBW-103/104, enmendado por D-BBW-111 en P2b): una columna apilada, retrato en círculo → frase madre a escala de titular →
-   botones; centrada en la vista amplia y alineada al inicio en una zona (un rol de vista) ── */
+/* ── EL CIERRE (D-BBW-103/104, enmendado por D-BBW-111 en P2b y en P2c): una columna apilada, frase madre a escala de titular → botones;
+   centrada en la vista amplia y alineada al inicio en una zona (un rol de vista). El retrato es el avatar del botón del correo (P2c) ── */
 .closing {
   display: flex;
   flex-direction: column;
   align-items: var(--bbf-profile-close-align);
-  gap: var(--bbf-space-10);
   padding-block-start: var(--bbf-space-12);
-}
-
-.portrait {
-  display: block;
-  width: var(--bbf-profile-portrait-size);
-  max-width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  border-radius: var(--bbf-radius-full);
-  object-fit: cover;
 }
 
 .closingBody {
@@ -388,6 +377,21 @@
 .buttonSecondary {
   background: transparent;
   color: var(--bbf-text-on-base);
+}
+
+/* P2c: el avatar llena la ALTURA INTERIOR del botón (el rol lo deriva: alto − contorno arriba y abajo) y queda CONCÉNTRICO con el extremo
+   redondeado de la píldora; por eso ese lado no lleva relleno: el contorno ya es el margen */
+.buttonAvatar {
+  padding-inline-start: 0;
+}
+
+.avatar {
+  display: block;
+  flex: none;
+  width: var(--bbf-profile-portrait-size);
+  height: var(--bbf-profile-portrait-size);
+  border-radius: var(--bbf-radius-full);
+  object-fit: cover;
 }
 
 .buttonArrow {

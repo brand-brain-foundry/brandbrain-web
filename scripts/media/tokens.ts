@@ -160,12 +160,12 @@ export function resolveColorToken(token: string): ResolvedColor {
 }
 
 /**
- * LONGITUDES (P2b-216, D-BBW-111): resuelve un ROL de longitud en px (p. ej. `--bbf-profile-portrait-size`) leyendo la escala de espacio y la
- * capa de vista, sustituyendo `var()` y evaluando `calc()`. Así el lado de un derivado que se MUESTRA a un tamaño de token sale de ese token y
+ * LONGITUDES (P2b-216, D-BBW-111): resuelve un ROL de longitud en px (p. ej. `--bbf-profile-portrait-size`) leyendo la escala de espacio, la de
+ * línea (P2c: el avatar resta el contorno del botón) y la capa de vista, sustituyendo `var()` y evaluando `calc()`. Así el lado de un derivado que se MUESTRA a un tamaño de token sale de ese token y
  * no se escribe a mano. Alcance: solo `px` y números; otra unidad = error. El rol debe declararse UNA vez (si una vista lo redefine dentro de un
  * `@media`, el derivado no tiene un único tamaño y el guion lo rechaza en vez de elegir uno).
  */
-const LENGTH_FILES = ['src/styles/tokens/primitives/spacing.css', 'src/styles/tokens/semantic/viewport.css'];
+const LENGTH_FILES = ['src/styles/tokens/primitives/spacing.css', 'src/styles/tokens/primitives/line.css', 'src/styles/tokens/semantic/viewport.css'];
 export function resolveLengthToken(token: string): number {
   let count = 0;
   for (const rel of LENGTH_FILES) {

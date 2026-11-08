@@ -180,9 +180,10 @@ const PORTRAIT_CROP = (aspect: readonly [number, number]) =>
   ({ kind: "jpeg-crop", aspect, width: 1200, focusY: 0.42, quality: 90, minPixels: 50_000 }) as const;
 
 /**
- * EL RETRATO DEL CIERRE (P2, D2 del perfil; P2b, D-BBW-111): el MISMO recorte 1:1 (mismo maestro, mismo punto focal), servido al tamaño al que
- * se MUESTRA. El círculo mide `--bbf-profile-portrait-size` (3 × `space-18` = 216 px CSS desde P2b-216, elección de Zavala; era 240 en P2b y
- * 252 en P2) y la densidad de píxel se ACOTA a 2: dos derivados, 1× y 2× (216 y 432 px), en el `srcset` del `<img>`. Perfil propio `jpeg-disc`
+ * EL AVATAR DEL BOTÓN DEL CORREO (P2, D2 del perfil; P2b, D-BBW-111; P2c, enmienda de D-BBW-111): el MISMO recorte 1:1 (mismo maestro, mismo
+ * punto focal), servido al tamaño al que se MUESTRA. El círculo mide `--bbf-profile-portrait-size` (desde P2c la altura interior del botón del
+ * correo, 46 px CSS; fue el retrato de encima de la frase: 216 en P2b-216, 240 en P2b, 252 en P2) y la densidad de píxel se ACOTA a 2: dos
+ * derivados, 1× y 2× (46 y 92 px), en el `srcset` del `<img>`. Perfil propio `jpeg-disc`
  * (no `jpeg-crop`): el suelo de 50 000 px es de Google para las imágenes de los datos estructurados y este disco no está en ellos; el suyo es
  * cubrir su caja. El de 1200 (157 KB) queda como `src` y como miembro de `Person.image`; el navegador que entiende `srcset` no lo descarga.
  * `quality` 82: la de los medios del campo.
@@ -239,11 +240,11 @@ const _derivativesConst = {
      ya se hacía con `heroLoopRegistro`: el pez puede volver con regenerar sus derivados, sin buscar el archivo en el historial. */
   /* EL RETRATO (S3c, D-BBW-91; P1, D-BBW-103): tres recortes del mismo maestro, 1:1, 4:3 y 16:9 (Google, ProfilePage: «16x9, 4x3 y 1x1»,
      ≥ 50 000 píxeles cada uno), de 1200 de ancho. El 1:1 sostiene el retrato circular del cierre (P2). `focusY` 0,42 = el centro de la cara (medido: frente a barbilla entera en los tres; el 16:9 recorta el pelo, que no cabe en un 16:9 de un maestro vertical). */
-  portrait1x1: { master: "portrait", path: "portrait-1200x1200.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil, el círculo del cierre y Person.image)" },
+  portrait1x1: { master: "portrait", path: "portrait-1200x1200.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil, `src` del avatar del botón del correo y Person.image)" },
   portrait4x3: { master: "portrait", path: "portrait-1200x900.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
   portrait16x9: { master: "portrait", path: "portrait-1200x675.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
-  portraitDisc1x: { master: "portrait", path: "portrait-216x216.jpg", profile: PORTRAIT_DISC(1), role: "retrato del cierre en círculo, 1× (P2; 216 desde P2b-216)" },
-  portraitDisc2x: { master: "portrait", path: "portrait-432x432.jpg", profile: PORTRAIT_DISC(2), role: "retrato del cierre en círculo, 2× (P2; 432 desde P2b-216)" },
+  portraitDisc1x: { master: "portrait", path: "portrait-46x46.jpg", profile: PORTRAIT_DISC(1), role: "avatar del botón del correo, 1× (P2c; era el retrato del cierre)" },
+  portraitDisc2x: { master: "portrait", path: "portrait-92x92.jpg", profile: PORTRAIT_DISC(2), role: "avatar del botón del correo, 2× (P2c; era el retrato del cierre)" },
   /* LAS FICHAS DE PROYECTOS (P4 del perfil, D-BBW-102): vídeo y póster de cada fragmento, recortados a la ventana 4:3 de la ficha. */
   cardAgencyVideo: { master: "cardAgency", path: "card-agency-640x480.mp4", profile: CARD_VIDEO, role: "vídeo de la ficha «agency» (perfil, Proyectos)" },
   cardAgencyPoster: { master: "cardAgency", path: "card-agency-poster-640x480.jpg", profile: CARD_POSTER, role: "póster de la ficha «agency»: fotograma 0 del fragmento" },
