@@ -147,6 +147,12 @@ export function validateEntity(v: unknown, linkKeys: readonly string[], siteValu
       continue;
     }
     const hasValue = "value" in field && !isEmpty(field.value);
+    if (spec.source.kind === "derived") {
+      // P1 (D-BBW-109): el valor se CALCULA desde el contenido (el puerto); escribirlo aquí sería el texto dos veces y se desincronizaría
+      if ("value" in field) problems.push({ path: `${p}.value`, message: `el valor se DERIVA por fórmula (${spec.source.rule}: «Cómo trabajo» de la página de perfil) y no se escribe a mano: cambiar una tarjeta cambia el valor; escribirlo aquí rompe la fuente única (I-1)` });
+      if (status === "heredado") problems.push({ path: `${p}.status`, message: `un campo derivado no puede estar heredado: su fuente es el contenido del sitio` });
+      continue;
+    }
     if (spec.source.kind === "site") {
       if ("value" in field) problems.push({ path: `${p}.value`, message: `el valor vive en $.${spec.source.key} y aquí solo se referencia: escribirlo dos veces rompe la fuente única (I-1)` });
       if (status === "aprobado" && isEmpty(siteValues[spec.source.key])) problems.push({ path: p, message: `aprobado pero $.${spec.source.key} está vacío` });
@@ -187,6 +193,8 @@ export function isApproved(key: EntityFieldKey): boolean {
 export function entityValue(key: EntityFieldKey): unknown {
   const spec = fieldSpec(key);
   if (spec.source.kind === "site") return (document as Record<string, unknown>)[spec.source.key];
+  // un campo derivado no tiene valor en el documento: lo calcula el puerto (`getDerivedEntityText`, servidor). Aquí, `undefined`.
+  if (spec.source.kind === "derived") return undefined;
   const v = entity[key].value;
   return isEmpty(v) ? undefined : v;
 }
@@ -285,8 +293,14 @@ export function notVisibleInContent(key: EntityFieldKey, ctx: VisibilityContext)
       return ctx.linkKeys.has("contact") ? [] : [`contact`];
     case "href": {
       // una lista de llaves (`sameAs`) o de credenciales (`{ link }`): lo que debe estar referenciado es la llave de enlace
-      const keys = spec.kind === "credentialList" ? entityList<Credential>(key).map((c) => c.link) : list;
-      return keys.filter((k) => !ctx.linkKeys.has(k));
+      if (spec.kind !== "credentialList") return list.filter((k) => !ctx.linkKeys.has(k));
+      // P1 (D-BBW-109): desde que sale el bloque «Certificación», la credencial se lee en una frase escrita en la página; además de su enlace,
+      // su NOMBRE y su EMISOR tienen que aparecer literales en el cuerpo (si la entidad cambia y la frase no, `hasCredential` deja de emitirse)
+      const credentials = entityList<Credential>(key);
+      return [
+        ...credentials.map((c) => c.link).filter((k) => !ctx.linkKeys.has(k)),
+        ...credentials.flatMap((c) => [c.name, c.issuer]).filter((t): t is string => typeof t === "string" && !ctx.text.includes(t)),
+      ];
     }
     case "img":
       // el identificador (derivado o conjunto) escrito en el contenido de la página, y con derivados publicados (S3c)

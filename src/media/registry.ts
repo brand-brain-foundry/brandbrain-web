@@ -56,15 +56,16 @@ export const masters = {
     origin: "handoff de la home nueva (handoff-diseno/assets/gc-foundational.png), copiado byte a byte el 2026-11-01; traído a esta rama desde 3a62247 el 2026-11-02",
   },
   /**
-   * EL RETRATO (S3c, D-BBW-91). Foto de la persona entregada por Zavala con el despacho de la página de perfil (insumo
-   * `retrato-zavala-cubas-600.jpg`): JPEG sRGB 600×600, sin datos de ubicación (EXIF solo con la resolución; IPTC vacío). Vive UNA vez aquí;
-   * la entidad (`$.entity.image`) lo referencia por su CONJUNTO de recortes (`mediaSets.portrait`) y un lote futuro del campo de imágenes
-   * (serie R) lo referenciará también, sin duplicarlo.
+   * EL RETRATO (S3c, D-BBW-91; maestro nuevo en P1, D-BBW-103). Foto de la persona entregada por Zavala (`zavala-1`, 1792×2400, en blanco y
+   * negro sobre fondo blanco). El archivo conserva el nombre del ROL (`portrait.jpg`, MEDIA.md §1: los maestros se nombran por rol, nunca por
+   * versión ni por contenido); de dónde viene lo dice `origin`. Vive UNA vez aquí;
+   * la entidad (`$.entity.image`) lo referencia por su CONJUNTO de recortes (`mediaSets.portrait`) y el lote `perfil` del campo (R3) lo
+   * referencia también, sin duplicarlo: `media/masters/campo/perfil/zavala-1.jpg` es un enlace simbólico a este archivo (MEDIA.md §11).
    */
   portrait: {
     file: "portrait.jpg",
     kind: "raster",
-    origin: "insumo de DESPACHO-BBW-2026-11-07-S3c-pagina-de-perfil (retrato-zavala-cubas-600.jpg, 222 544 B, 600×600), copiado byte a byte el 2026-11-07",
+    origin: "zavala-1.jpg de la carpeta de la capa del perfil en Drive, descargado por Zavala a media-entrantes/perfil/capa/ («zavala-1 2.jpg», 1 893 711 B, JPEG sRGB 1792×2400, sin GPS) y copiado byte a byte el 2026-11-08 (DESPACHO-BBW-2026-11-08-P1, D-BBW-103). Sustituye al retrato de 600×600 de S3c, que sale en el mismo commit (I-6)",
   },
   toggleArmTop: { file: "toggle-arm-top.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo superior del conmutador 34×6), 2026-09-17" },
   toggleArmBottom: { file: "toggle-arm-bottom.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo inferior del conmutador 34×6), 2026-09-17" },
@@ -91,6 +92,28 @@ export const masters = {
     kind: "video",
     origin: "diseño inventariado (N0 §2.1, assets/fish-loop.mp4 ≡ uploads/Crystal_fish_with_human_eye_20260915110026.mp4); dejado por Zavala en public/bb-landing-hero.mp4 el 2026-09-17 y movido a media/masters/hero-loop.mp4 el mismo día; renombrado a hero-loop-registro.mp4 el 2026-09-29 al entrar el maestro nuevo. Ya comprimido, con audio: maestro de registro (D-BBW-24), conservado sin derivados",
   },
+  /**
+   * LAS FICHAS DE PROYECTOS (P4 del perfil, D-BBW-102). Cada maestro es un FRAGMENTO de 8 s de un vídeo de Zavala, con el tramo que vio en P0
+   * (decisión 10 de P0): empieza en el fotograma que hace de póster (MEDIA §3, el póster es el fotograma 0 exacto). Cortado una vez con ffmpeg
+   * 9.0.2 por búsqueda exacta (`-i <fuente> -ss <entrada> -t 8`, el primer fotograma con marca ≥ la entrada), sin audio ni metadatos, H.264
+   * CRF 16 preset slow 4:2:0 a la resolución y la cadencia de la fuente: un maestro de calidad holgada para derivados de 640×480, muy por
+   * debajo del límite de 100 MB de GitHub. Nombre por ROL (la llave de enlace de la ficha: `agency`/`studio`/`works`), nunca por contenido.
+   */
+  cardAgency: {
+    file: "card-agency.mp4",
+    kind: "video",
+    origin: "fragmento 8,5–16,5 s (fotogramas 255–494 a 30 fps) de «sivar_brains 2.mp4» (carpeta de proyectos del perfil en Drive → media-entrantes/perfil/proyectos/, 39,5 MB, sha256 1813a989…dcae4, H.264 1920×1080 30 fps + AAC, 30 s); cortado el 2026-11-08 (DESPACHO-BBW-2026-11-08-P4-perfil-fichas-con-video): 1920×1080 30 fps 240 fotogramas, sin audio, CRF 16",
+  },
+  cardStudio: {
+    file: "card-studio.mp4",
+    kind: "video",
+    origin: "fragmento 0–8 s (fotogramas 0–191 a 24 fps) de «pura_kasaka 2.mp4» (carpeta de proyectos del perfil en Drive → media-entrantes/perfil/proyectos/, 81,6 MB, sha256 888dad11…aed63, H.264 1280×720 24 fps + AAC, 93 s); cortado el 2026-11-08 (DESPACHO-BBW-2026-11-08-P4-perfil-fichas-con-video): 1280×720 24 fps 192 fotogramas, sin audio, CRF 16",
+  },
+  cardWorks: {
+    file: "card-works.mp4",
+    kind: "video",
+    origin: "fragmento 1,5–9,5 s (fotogramas 36–227 a 23,976 fps; el fotograma 0 de la fuente es negro) de «trayectoria.mp4» (carpeta de proyectos del perfil en Drive → media-entrantes/perfil/proyectos/, 603,5 MB, sha256 10dbec4a…0c5, H.264 1920×1080 23,976 fps + AAC, 60 s); cortado el 2026-11-08 (DESPACHO-BBW-2026-11-08-P4-perfil-fichas-con-video): 1920×1080 23,976 fps 192 fotogramas, sin audio, CRF 16",
+  },
 } as const satisfies Record<string, Master>;
 export type MasterId = keyof typeof masters;
 
@@ -112,12 +135,17 @@ export type MasterId = keyof typeof masters;
  *             `budgetBytes` = presupuesto de peso del perfil, comprobado por la guardia (R6).
  *   poster  · el PRIMER FOTOGRAMA EXACTO del maestro (para que el bucle arranque sin salto) como imagen raster `format` a `quality`,
  *             con su presupuesto. Es lo que se ve mientras el vídeo carga y lo que se sirve con movimiento reducido.
+ *   crop    · (P4 del perfil, opcional en `video` y `poster`) `"center"`: antes de escalar, la caja más grande de la PROPORCIÓN DEL PERFIL
+ *             (`width`:`height`) que cabe en el maestro, centrada (16:9 → 4:3 quita 1/8 a cada lado). Sin la llave, se escala tal cual (el
+ *             maestro ya tiene la proporción del perfil). Vídeo y póster del mismo uso llevan el mismo recorte: el póster sigue siendo el
+ *             fotograma 0 del vídeo servido.
  */
 export type VideoCodec = "h264" | "av1";
+export type VideoCrop = "center";
 export type Profile =
   | { kind: "svg-copy" }
-  | { kind: "video"; codec: VideoCodec; width: number; height: number; quality: number; budgetBytes: number }
-  | { kind: "poster"; width: number; height: number; format: "jpeg" | "webp"; quality: number; budgetBytes: number }
+  | { kind: "video"; codec: VideoCodec; width: number; height: number; quality: number; budgetBytes: number; crop?: VideoCrop }
+  | { kind: "poster"; width: number; height: number; format: "jpeg" | "webp"; quality: number; budgetBytes: number; crop?: VideoCrop }
   | { kind: "png"; size: number; background: "transparent" | "surface"; padding: number; safeZone?: true }
   | { kind: "ico"; sizes: readonly number[] }
   | { kind: "share"; width: number; height: number; iconHeight: number }
@@ -125,18 +153,53 @@ export type Profile =
   /** Redimensiona un maestro raster (PNG/JPEG) a `size`×`size` con su transparencia. Herramienta: sharp. */
   | { kind: "png-resize"; size: number }
   /**
-   * RECORTE POR FÓRMULA de un maestro raster (S3c, D-BBW-91): la caja más grande de proporción `aspect` que cabe en el maestro, centrada en
-   * horizontal y colocada en vertical por `anchorY` (y = anchorY × (alto del maestro − alto de la caja); 0 = arriba, 1 = abajo), escalada a
+   * RECORTE POR FÓRMULA de un maestro raster (S3c, D-BBW-91; punto focal desde P1, D-BBW-103): la caja más grande de proporción `aspect` que
+   * cabe en el maestro, centrada en horizontal y CENTRADA EN VERTICAL SOBRE EL PUNTO FOCAL `focusY` (fracción del alto del maestro: y = focusY ×
+   * alto − alto de la caja / 2, acotada a [0, alto − alto de la caja]), escalada a
    * `width` de ancho (alto = round(width × aspect[1] / aspect[0])) sin AMPLIAR nunca el maestro, y codificada en JPEG `quality` sin metadatos.
    * `minPixels`: el área mínima que el uso exige (Google, ProfilePage: ≥ 50 000 píxeles por recorte); el guion rompe si no se alcanza.
    */
-  | { kind: "jpeg-crop"; aspect: readonly [number, number]; width: number; anchorY: number; quality: number; minPixels: number };
+  | { kind: "jpeg-crop"; aspect: readonly [number, number]; width: number; focusY: number; quality: number; minPixels: number }
+  /**
+   * DISCO DE MUESTRA (P2b-216, D-BBW-111): el MISMO recorte 1:1 por punto focal que `jpeg-crop`, pero para una imagen que solo se MUESTRA y
+   * que NINGÚN dato estructurado declara. Su suelo no es el de Google (≥ 50 000 px, que gobierna `Person.image`), sino el de la pantalla: el
+   * lado es EXACTAMENTE el del rol `sizeToken` (resuelto de los tokens, nunca escrito a mano) × `density`, de modo que cubre su caja a esa
+   * densidad sin que el navegador amplíe. Menos que eso se vería borroso; más es descarga que no se ve. Nunca amplía el maestro.
+   * Fuera de su uso, la guardia lo rechaza (R11 de `check-media.ts`): no puede ser miembro de un conjunto ni lo puede referenciar la entidad.
+   */
+  | { kind: "jpeg-disc"; sizeToken: string; density: 1 | 2; focusY: number; quality: number };
 
 export type Derivative = { master: MasterId; path: string; profile: Profile; role: string };
 
-/** El perfil de los recortes del retrato: una fórmula, tres proporciones (S3c). */
+/**
+ * El perfil de los recortes del retrato: una fórmula, tres proporciones (S3c). P1 (D-BBW-103): maestro `zavala-1` de 1792×2400, recortes de
+ * 1200 de ancho (el máximo pedido; ninguno amplía: la caja más estrecha mide 1792) y el PUNTO FOCAL en el centro de la cara, medido sobre el
+ * maestro (`focusY`), en vez de un ancla única: con un maestro vertical, un ancla común cortaba el pelo en el 1:1 o la barbilla en el 16:9.
+ */
 const PORTRAIT_CROP = (aspect: readonly [number, number]) =>
-  ({ kind: "jpeg-crop", aspect, width: 600, anchorY: 0.15, quality: 90, minPixels: 50_000 }) as const;
+  ({ kind: "jpeg-crop", aspect, width: 1200, focusY: 0.42, quality: 90, minPixels: 50_000 }) as const;
+
+/**
+ * EL AVATAR DEL BOTÓN DEL CORREO (P2, D2 del perfil; P2b, D-BBW-111; P2c, enmienda de D-BBW-111): el MISMO recorte 1:1 (mismo maestro, mismo
+ * punto focal), servido al tamaño al que se MUESTRA. El círculo mide `--bbf-profile-portrait-size` (desde P2c la altura interior del botón del
+ * correo, 46 px CSS; fue el retrato de encima de la frase: 216 en P2b-216, 240 en P2b, 252 en P2) y la densidad de píxel se ACOTA a 2: dos
+ * derivados, 1× y 2× (46 y 92 px), en el `srcset` del `<img>`. Perfil propio `jpeg-disc`
+ * (no `jpeg-crop`): el suelo de 50 000 px es de Google para las imágenes de los datos estructurados y este disco no está en ellos; el suyo es
+ * cubrir su caja. El de 1200 (157 KB) queda como `src` y como miembro de `Person.image`; el navegador que entiende `srcset` no lo descarga.
+ * `quality` 82: la de los medios del campo.
+ */
+const PORTRAIT_DISC = (density: 1 | 2) =>
+  ({ kind: "jpeg-disc", sizeToken: "--bbf-profile-portrait-size", density, focusY: 0.42, quality: 82 }) as const;
+
+/**
+ * LAS FICHAS DE PROYECTOS (P4 del perfil, D-BBW-102). La ventana de la ficha es 4:3 y mide como mucho `--bbf-profile-card-max`
+ * (0,9 × `space-85` = 306 px CSS); a densidad 2 pide 612 × 459 px → el peldaño 4:3 inmediato por encima, 640 × 480 (el navegador nunca amplía).
+ * El mismo derivado en el teléfono: la ficha tiene el mismo tope a cualquier ancho. H.264 CRF 23 (el valor por defecto de x264, como el vídeo
+ * del héroe); póster JPEG q 80 (el de sharp, como el del héroe). Presupuestos (R6): vídeo ≤ 900 000 B (carga diferida: no cuenta en el peso
+ * inicial; ninguno se descarga hasta que la ficha se reproduce), póster ≤ 60 000 B (sí cuenta: el navegador lo pide al pintar la ficha).
+ */
+const CARD_VIDEO = { kind: "video", codec: "h264", width: 640, height: 480, quality: 23, budgetBytes: 900_000, crop: "center" } as const;
+const CARD_POSTER = { kind: "poster", width: 640, height: 480, format: "jpeg", quality: 80, budgetBytes: 60_000, crop: "center" } as const;
 
 /**
  * CONJUNTO VIGENTE de iconos y manifiesto (industria verificada en vivo 2026-09-17: evilmartians.com "How to favicon", web.dev
@@ -175,11 +238,20 @@ const _derivativesConst = {
   /* 2026-11-02 (orden de Zavala): el pez sale del héroe y el campo de puntos ocupa su escenario. Salen los tres derivados del vídeo
      (720p, 360p y póster) con su único consumidor, `HeroMedia`. Los DOS MAESTROS se conservan declarados y sellados, sin derivados, como
      ya se hacía con `heroLoopRegistro`: el pez puede volver con regenerar sus derivados, sin buscar el archivo en el historial. */
-  /* EL RETRATO (S3c, D-BBW-91): tres recortes del mismo maestro, 1:1, 4:3 y 16:9 (Google, ProfilePage: «16x9, 4x3 y 1x1», ≥ 50 000 píxeles
-     cada uno). Ancho = el del maestro (600: no se amplía). `anchorY` 0,15 deja la cara entera en los tres (medido sobre el maestro). */
-  portrait1x1: { master: "portrait", path: "portrait-600x600.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil y de Person.image)" },
-  portrait4x3: { master: "portrait", path: "portrait-600x450.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
-  portrait16x9: { master: "portrait", path: "portrait-600x338.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
+  /* EL RETRATO (S3c, D-BBW-91; P1, D-BBW-103): tres recortes del mismo maestro, 1:1, 4:3 y 16:9 (Google, ProfilePage: «16x9, 4x3 y 1x1»,
+     ≥ 50 000 píxeles cada uno), de 1200 de ancho. El 1:1 sostiene el retrato circular del cierre (P2). `focusY` 0,42 = el centro de la cara (medido: frente a barbilla entera en los tres; el 16:9 recorta el pelo, que no cabe en un 16:9 de un maestro vertical). */
+  portrait1x1: { master: "portrait", path: "portrait-1200x1200.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil, `src` del avatar del botón del correo y Person.image)" },
+  portrait4x3: { master: "portrait", path: "portrait-1200x900.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
+  portrait16x9: { master: "portrait", path: "portrait-1200x675.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
+  portraitDisc1x: { master: "portrait", path: "portrait-46x46.jpg", profile: PORTRAIT_DISC(1), role: "avatar del botón del correo, 1× (P2c; era el retrato del cierre)" },
+  portraitDisc2x: { master: "portrait", path: "portrait-92x92.jpg", profile: PORTRAIT_DISC(2), role: "avatar del botón del correo, 2× (P2c; era el retrato del cierre)" },
+  /* LAS FICHAS DE PROYECTOS (P4 del perfil, D-BBW-102): vídeo y póster de cada fragmento, recortados a la ventana 4:3 de la ficha. */
+  cardAgencyVideo: { master: "cardAgency", path: "card-agency-640x480.mp4", profile: CARD_VIDEO, role: "vídeo de la ficha «agency» (perfil, Proyectos)" },
+  cardAgencyPoster: { master: "cardAgency", path: "card-agency-poster-640x480.jpg", profile: CARD_POSTER, role: "póster de la ficha «agency»: fotograma 0 del fragmento" },
+  cardStudioVideo: { master: "cardStudio", path: "card-studio-640x480.mp4", profile: CARD_VIDEO, role: "vídeo de la ficha «studio» (perfil, Proyectos)" },
+  cardStudioPoster: { master: "cardStudio", path: "card-studio-poster-640x480.jpg", profile: CARD_POSTER, role: "póster de la ficha «studio»: fotograma 0 del fragmento" },
+  cardWorksVideo: { master: "cardWorks", path: "card-works-640x480.mp4", profile: CARD_VIDEO, role: "vídeo de la ficha «works» (perfil, Proyectos)" },
+  cardWorksPoster: { master: "cardWorks", path: "card-works-poster-640x480.jpg", profile: CARD_POSTER, role: "póster de la ficha «works»: fotograma 0 del fragmento" },
   gcFoundational72: { master: "gcFoundational", path: "gc-foundational-72.png", profile: { kind: "png-resize", size: 72 }, role: "sello del pie, 72 px (1×)" },
   gcFoundational144: { master: "gcFoundational", path: "gc-foundational-144.png", profile: { kind: "png-resize", size: 144 }, role: "sello del pie, 144 px (2×, pantalla de alta densidad)" },
 } as const satisfies Record<string, Derivative>;
@@ -220,6 +292,66 @@ export const mediaSets = {
   portrait: { master: "portrait", members: ["portrait1x1", "portrait4x3", "portrait16x9"] },
 } as const satisfies Record<string, { master: MasterId; members: readonly DerivativeId[] }>;
 export type MediaSetId = keyof typeof mediaSets;
+
+/**
+ * CLIPS (P4 del perfil, D-BBW-102): un identificador que nombra el VÍDEO y su PÓSTER, derivados del MISMO maestro. Lo cita el contenido (la
+ * ficha de un proyecto: `projects.items[].media`) y el componente lo pinta como `<video poster>` por el puerto (`mediaClip(id)`). El guion
+ * comprueba que ambos existen, salen del maestro declarado y son de su perfil (`video` y `poster`), y los escribe en `generated.ts`.
+ */
+export const mediaClips = {
+  cardAgency: { master: "cardAgency", video: "cardAgencyVideo", poster: "cardAgencyPoster" },
+  cardStudio: { master: "cardStudio", video: "cardStudioVideo", poster: "cardStudioPoster" },
+  cardWorks: { master: "cardWorks", video: "cardWorksVideo", poster: "cardWorksPoster" },
+} as const satisfies Record<string, { master: MasterId; video: DerivativeId; poster: DerivativeId }>;
+export type MediaClipId = keyof typeof mediaClips;
+
+/**
+ * LOTES DEL CAMPO (S12, R2 del perfil · 2026-11-08; P-BBW-98 §3.2, D-BBW-96). Un LOTE es la carpeta de un USO, `media/masters/campo/<uso>/`:
+ * cada archivo de la carpeta es un maestro del lote y NADIE escribe la lista (se lee del disco en orden de nombre). Lo que sí se declara aquí
+ * es el uso (que exista el lote) y el perfil común; el punto focal de cada medio lo declara el CONTENIDO (`content/site.json` → `$.fieldMedia.
+ * <uso>.<nombre>`, por defecto el centro). El guion recorta cada maestro al CUADRADO más grande que cabe centrado en su punto focal (una sola
+ * proporción para todos: cualquier medio sirve en cualquier caja de la capa) y lo escala a `side`; imagen → JPEG; vídeo → H.264 sin audio,
+ * a lo sumo `maxSeconds`. Escribe `fieldBatches.<uso>` en `src/media/generated.ts` (orden de nombre) y sella maestro, derivado y punto focal en
+ * el lock (`batches`). Una carpeta ausente o vacía = lote vacío = el campo de hoy, sin una línea de la capa.
+ * Nombre del archivo: minúsculas, dígitos y guiones (`zavala-1.jpg`); es el que se ve en el lock y el que cita el punto focal.
+ * CLASE (D-DOC-13): la forma (carpeta por uso, recorte común, sello) = estático · `side`, calidades y presupuestos = plantilla (medidos en R2) ·
+ * qué usos y qué medios = dinámico.
+ */
+export const FIELD_BATCHES_DIR = "media/masters/campo";
+export type FieldBatchProfile = {
+  kind: "field-batch";
+  /** lado del cuadrado servido, px: el tope de la capa a 2× en la ventana más grande que se mide (1920×1080 → 199,8 px CSS) cabe en él */
+  side: number;
+  /** JPEG de las imágenes (mozjpeg, 4:4:4, sin metadatos) y su presupuesto por archivo */
+  imageQuality: number;
+  imageBudgetBytes: number;
+  /** H.264 de los vídeos (los mismos parámetros que el perfil `video`), duración máxima y presupuesto por archivo */
+  videoQuality: number;
+  videoMaxSeconds: number;
+  videoBudgetBytes: number;
+};
+export const FIELD_BATCH_PROFILE: FieldBatchProfile = {
+  kind: "field-batch",
+  side: 480,
+  imageQuality: 82,
+  imageBudgetBytes: 80_000,
+  videoQuality: 23,
+  videoMaxSeconds: 8,
+  videoBudgetBytes: 600_000,
+};
+/** Extensiones admitidas en la carpeta de un lote, por clase. Otra extensión rompe el guion y la guardia (nada entra sin perfil). */
+export const FIELD_BATCH_EXTENSIONS = { image: [".jpg", ".jpeg", ".png", ".webp"], video: [".mp4", ".mov", ".webm"] } as const;
+/** Nombre admitido para un maestro de lote (sin la extensión). */
+export const FIELD_BATCH_NAME_RE = /^[a-z0-9][a-z0-9-]*$/;
+/** Los usos declarados. La carpeta `media/masters/campo/<uso>/` puede no existir todavía: lote vacío (R3 sube el lote real del perfil). */
+export const fieldBatches = {
+  perfil: { role: "capa de medios del campo S8 en la sección 1 del perfil (D-BBW-96, R2/R3)" },
+} as const satisfies Record<string, { role: string }>;
+export type FieldBatchId = keyof typeof fieldBatches;
+/** Ruta pública del derivado de un medio de lote: por rol (campo · uso) y dimensión; el nombre del maestro distingue los miembros. */
+export function fieldBatchPath(batch: string, name: string, kind: "image" | "video", side: number): string {
+  return `campo-${batch}-${name}-${side}x${side}.${kind === "image" ? "jpg" : "mp4"}`;
+}
 
 export const inlineIcons = {
   brandIcon: { master: "brandIcon", paint: "fill", use: "ornament" },

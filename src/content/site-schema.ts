@@ -78,6 +78,15 @@ function fieldSchema(key: string, spec: EntityFieldSpec, linkKeys: readonly stri
       properties: { status: { ...status, enum: ENTITY_STATUSES.filter((s) => s !== "pendiente") } },
     };
   }
+  if (spec.source.kind === "derived") {
+    return {
+      ...base,
+      "x-source": `derived:${spec.source.rule}`,
+      "x-derived-from": "pages/<página de perfil>.sections[profile].approach (intro + steps[].text + background.text)",
+      readOnly: true,
+      properties: { status: { ...status, enum: ENTITY_STATUSES.filter((s) => s !== "heredado") } },
+    };
+  }
   const value = valueSchema(spec, linkKeys, mediaIds);
   const conditions: Json[] = [
     { if: { properties: { status: { const: "pendiente" } } }, then: { not: { required: ["value"] } } },
@@ -117,6 +126,24 @@ export function buildSiteSchema(linkKeys: readonly string[], mediaIds: readonly 
         propertyNames: { pattern: "^[a-z][a-zA-Z0-9]*$", not: { const: "contact" } },
         additionalProperties: { type: "string", pattern: "^https://[^\\s]+$" },
         "x-cms": "repeater",
+      },
+      fieldMedia: {
+        type: "object",
+        description:
+          "OPCIONAL (S12, modelo v3.15). Puntos focales de los medios de los lotes del campo: { uso: { nombre del medio: { x, y } } }, fracciones del ancho y del alto del maestro. " +
+          "El guion de medios recorta cada medio al cuadrado mayor centrado en ese punto; sin entrada, el centro. Uso y nombre = la carpeta media/masters/campo/<uso>/ y el archivo sin extensión.",
+        propertyNames: { pattern: "^[a-z][a-z0-9-]*$" },
+        additionalProperties: {
+          type: "object",
+          propertyNames: { pattern: "^[a-z0-9][a-z0-9-]*$" },
+          additionalProperties: {
+            type: "object",
+            additionalProperties: false,
+            required: ["x", "y"],
+            properties: { x: { type: "number", minimum: 0, maximum: 1 }, y: { type: "number", minimum: 0, maximum: 1 } },
+          },
+        },
+        "x-cms": "media-focus",
       },
       entity: {
         type: "object",

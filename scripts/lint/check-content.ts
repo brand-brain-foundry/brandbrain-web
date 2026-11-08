@@ -26,6 +26,8 @@
  *        (`{{brand}}`, `{{domain}}`, `{{year}}`…). Uno no declarado, o cualquier expresión entre llaves (lógica), falla con la ruta exacta.
  *        S2 (P-BBW-95): una sustitución DE ENTIDAD BLOQUEADA (`{{category}}`, `{{motto}}` con su campo no aprobado) también falla con la ruta.
  *        Informa cuántas sustituciones declaradas usa el contenido.
+ *        P1 (D-BBW-107): cada RUTA RETIRADA (`RETIRED_ROUTES`) tiene su 301 de un salto a la ruta vigente de su sustituta, sin prefijo
+ *        (`/quien`) y por cada locale publicado con y sin barra (`/es/quien`, `/es/quien/`); y su slug no vuelve a usarlo ninguna página.
  *   R8 · ETIQUETA ÚNICA DE UN DESTINO (S3c, D-BBW-95): cada etiqueta de `linkLabels` («LinkedIn») se ESCRIBE una sola vez, en `global.json`.
  *        Falla (a) cualquier otro texto del locale igual a ella y (b) cualquier enlace a ese destino (`link: <llave>`, o la llamada secundaria del
  *        héroe con `ctaSecondaryLink: <llave>`) cuya etiqueta sea un texto escrito en vez de la cita `{ global: "linkLabels.<llave>" }`.
@@ -37,7 +39,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { publishedLocales, site } from '../../src/config/site';
-import { PAGES, pageRoute, pageRules } from '../../src/config/pages';
+import { PAGES, RETIRED_ROUTES, pageRoute, pageRules } from '../../src/config/pages';
 import {
   GLOBAL_DOCUMENT,
   collections,
@@ -223,6 +225,23 @@ for (const locale of published) {
     });
     if (!hasRedirect) {
       fails.push({ rule: 'R6', where: 'public/_redirects', detail: `falta la redirección "/${page.slug} → ${target}" (§0.3.6, P-BBW-80; D-BBW-55)` });
+    }
+  }
+  // P1 (D-BBW-107): las rutas retiradas — un 301 de UN salto a la ruta vigente de la sustituta, sin prefijo y con cada locale publicado
+  const redirectLines = redirectsText.split('\n').map((l) => l.trim().split(/\s+/)).filter((parts) => parts[0]?.startsWith('/'));
+  for (const retired of RETIRED_ROUTES) {
+    if ((PAGES as readonly { slug: string }[]).some((p) => p.slug === retired.slug)) {
+      fails.push({ rule: 'R6', where: 'src/config/pages.ts', detail: `el slug retirado "${retired.slug}" (${retired.decision}) vuelve a ser el de una página: una ruta retirada no se reutiliza (los enlaces de fuera apuntan a la sustituta)` });
+    }
+    const expected: [string, string][] = [[`/${retired.slug}`, pageRoute(site.defaultLocale, retired.replacedBy)]];
+    for (const locale of publishedLocales) {
+      const to = pageRoute(locale, retired.replacedBy);
+      expected.push([`/${locale}/${retired.slug}`, to], [`/${locale}/${retired.slug}/`, to]);
+    }
+    for (const [from, to] of expected) {
+      const line = redirectLines.find((parts) => parts[0] === from);
+      if (!line) fails.push({ rule: 'R6', where: 'public/_redirects', detail: `falta el 301 de la ruta retirada "${from} → ${to}" (${retired.decision})` });
+      else if (line[1] !== to || line[2] !== '301') fails.push({ rule: 'R6', where: 'public/_redirects', detail: `la ruta retirada "${from}" va a "${line[1]}" con ${line[2] ?? 'sin código'}: tiene que ser un 301 de UN salto a "${to}" (${retired.decision})` });
     }
   }
 }

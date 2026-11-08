@@ -3,12 +3,12 @@ id: BBW-SEO
 title: "Sistema de posicionamiento por capas — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.3
+version: 1.4
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-11-07
-updated: 2026-11-07
-verified_against_code: 2026-11-07@feat/posicionamiento-s3c (v1.3, S3c «página de perfil», D-BBW-90…95: tipo `profile` y fila `quien` en src/config/{page-types,pages}.ts · `StructuredDataKind` = website | profile | none · src/seo/jsonld.ts (`websiteGraph`, `profileGraph`, `personNode` en el orden del insumo) · src/content/{entity-fields,entity,schema,index}.ts (`place`, `fundada`, `category` de credencial, `{ entity }`, `ProfileSection`) · src/media/{registry,index,generated}.ts (`portrait`, `jpeg-crop`, `mediaSets`) · scripts/lint/{check-seo (R7h),check-content (R8)}.ts) · 2026-11-07@feat/posicionamiento-s3 (v1.2, S3 «contenido de la entidad y portada», D-BBW-81…88: content/site.json `$.entity` con valores · content/es/pages/home.json `meta.title` = `{{category}}` · src/config/{pages,page-types}.ts (`titleLengthException`, `pageTitleException`, mayúscula por fórmula en `home`) · src/content/{entity-fields,entity}.ts (`alternateName`, `visibilityContext`, `isEmittedOn`, `missingInText`, `entityEmissionReport`) · src/seo/jsonld.ts · scripts/lint/check-seo.ts) · 2026-11-07@feat/posicionamiento-s2 (v1.1, S2 «piel», P-BBW-95: content/site.json `$.entity` · content/site.schema.json (generado) · src/content/{entity-fields,entity,site-schema,site,substitutions,index}.ts · src/seo/jsonld.ts · scripts/content/export-schema.ts · scripts/lint/{check-seo,check-content}.ts · package.json `content:schema`) · 2026-11-07@feat/posicionamiento-s1 (v1.0, S1 «huesos y músculos», P-BBW-94: src/config/{pages,page-types}.ts · src/seo/{metadata,jsonld}.ts · src/seo/WithStructuredData.tsx · src/app/[locale]/**/page.tsx · src/app/{sitemap,robots}.ts · src/components/organisms/{Footer,Header} · src/analytics/port.ts · src/content/{index,schema}.ts · scripts/lint/{check-seo,check-content}.ts · package.json `build`)
+updated: 2026-11-08
+verified_against_code: 2026-11-08@feat/perfil-p1 (v1.4, P1 «contenido y rutas del perfil», D-BBW-107/109: la página de perfil pasa a `perfil` (`/es/perfil/`) y `quien` a `RETIRED_ROUTES` en src/config/pages.ts, con R6 de rutas retiradas en scripts/lint/check-content.ts · `hasCredential` exige nombre y emisor visibles en src/content/entity.ts y en R7g de scripts/lint/check-seo.ts · `Person.image` = recortes de 1200 del maestro nuevo) · 2026-11-07@feat/posicionamiento-s3c (v1.3, S3c «página de perfil», D-BBW-90…95: tipo `profile` y fila `quien` en src/config/{page-types,pages}.ts · `StructuredDataKind` = website | profile | none · src/seo/jsonld.ts (`websiteGraph`, `profileGraph`, `personNode` en el orden del insumo) · src/content/{entity-fields,entity,schema,index}.ts (`place`, `fundada`, `category` de credencial, `{ entity }`, `ProfileSection`) · src/media/{registry,index,generated}.ts (`portrait`, `jpeg-crop`, `mediaSets`) · scripts/lint/{check-seo (R7h),check-content (R8)}.ts) · 2026-11-07@feat/posicionamiento-s3 (v1.2, S3 «contenido de la entidad y portada», D-BBW-81…88: content/site.json `$.entity` con valores · content/es/pages/home.json `meta.title` = `{{category}}` · src/config/{pages,page-types}.ts (`titleLengthException`, `pageTitleException`, mayúscula por fórmula en `home`) · src/content/{entity-fields,entity}.ts (`alternateName`, `visibilityContext`, `isEmittedOn`, `missingInText`, `entityEmissionReport`) · src/seo/jsonld.ts · scripts/lint/check-seo.ts) · 2026-11-07@feat/posicionamiento-s2 (v1.1, S2 «piel», P-BBW-95: content/site.json `$.entity` · content/site.schema.json (generado) · src/content/{entity-fields,entity,site-schema,site,substitutions,index}.ts · src/seo/jsonld.ts · scripts/content/export-schema.ts · scripts/lint/{check-seo,check-content}.ts · package.json `content:schema`) · 2026-11-07@feat/posicionamiento-s1 (v1.0, S1 «huesos y músculos», P-BBW-94: src/config/{pages,page-types}.ts · src/seo/{metadata,jsonld}.ts · src/seo/WithStructuredData.tsx · src/app/[locale]/**/page.tsx · src/app/{sitemap,robots}.ts · src/components/organisms/{Footer,Header} · src/analytics/port.ts · src/content/{index,schema}.ts · scripts/lint/{check-seo,check-content}.ts · package.json `build`)
 supersedes: []
 superseded_by: null
 related: [BBW-CONTENT-MODEL, BBW-DEPLOY-CONTRACT, BBW-PORTS, BBW-MEDIA-CONTRACT, P-BBW-95, P-BBW-94, P-BBW-80, D-BBW-07, D-BBW-09, D-BBW-12, D-BBW-15, D-BBW-44, D-BBW-55, D-BBW-58, D-BBW-78]
@@ -70,6 +70,11 @@ con las tres líneas de §2 («Página»); (4) su redirección sin prefijo en `p
 más**. Lo que se olvida, rompe: sin fila → el `page.tsx` no compila (`PageId`); sin documento → el build falla (puerto de contenido);
 sin `page.tsx` → R7a; sin redirección o cabecera → R6; descripción fuera de rango → R7c.
 
+**Cambiar la ruta de una página (P1, D-BBW-107):** su slug nuevo en `PAGES` y el viejo en `RETIRED_ROUTES` (`slug`, `replacedBy`, `decision`),
+con un 301 de UN salto a la ruta vigente sin prefijo y por cada locale publicado, con y sin barra (`/quien`, `/es/quien`, `/es/quien/` →
+`/es/perfil/`). R6 exige esas líneas (y el código 301, y el destino final, nunca otra ruta retirada) y prohíbe que una página vuelva a usar
+el slug; R7a rompe si `out/` sirve algo en la ruta retirada. La canónica, el mapa del sitio, `Person.url` y `ProfilePage.url` se derivan solos.
+
 **Añadir un tipo** = una entrada en `PAGE_TYPES` (y, si emite un grafo nuevo, su constructor en `GRAPH_BUILDERS`). Ningún constructor ni
 derivado cambia.
 
@@ -78,7 +83,7 @@ derivado cambia.
 | Tipo | `indexable` | `measured` | `share` | `structuredData` | `<title>` | Quién |
 |---|---|---|---|---|---|---|
 | `home` | sí | sí | sí | `website` (`WebSite`, `publisher` → `{"@id": …/#person}`; S3c) | `{marca} · {Título propio}` (mayúscula inicial por fórmula, S3) | la portada |
-| `profile` | sí | sí | sí | `profile` (`ProfilePage` → `Person` COMPLETO; S3c) | `{título propio} · {marca}` | la página de perfil `/es/quien/` (exactamente una: `PROFILE_PAGE`) |
+| `profile` | sí | sí | sí | `profile` (`ProfilePage` → `Person` COMPLETO; S3c) | `{título propio} · {marca}` | la página de perfil `/es/perfil/` (exactamente una: `PROFILE_PAGE`; `/es/quien/` retirada con 301, P1) |
 | `legal` | sí | sí | sí | `none` | `{título propio} · {marca}` | privacidad, cookies |
 | `legal-restricted` | **no** | **no** | **no** | `none` | `{título propio} · {marca}` | aviso legal (datos de identificación, P-BBW-80 §0.1) |
 
@@ -92,6 +97,8 @@ your title links», act. 2025-12-10): la portada lo lleva delante, las demás de
 el título propio de la portada es la **categoría referenciada** (`"title": "{{category}}"`, modelo v3.11), que se escribe en minúscula y sin
 poseerla; la **mayúscula inicial la pone la fórmula del tipo `home`** (`sentenceCase`, una variante por fórmula, I-3), nunca el contenido. La
 cadena de la categoría vive una vez (`$.entity.category`).
+
+**Variante de color del fondo (R1, D-BBW-96).** La fila puede declarar `backdrop` (un nombre de `src/config/backdrops.ts`); no es posicionamiento: el contrato es BEHAVIOR §4.1 y la guardia R12.
 
 **Excepción al rango del título (D-BBW-87).** Una página puede registrar en `src/config/pages.ts` una `titleLengthException` con **longitud
 exacta + razón + decisión** (la forma de D-BBW-16 llevada a esta capa). R7c la lee (`pageTitleException`); la guardia no escribe ningún número, y
@@ -140,7 +147,7 @@ nunca una dirección (P-BBW-78, D-BBW-93). `image` = los TRES recortes del retra
 `credentialCategory` y `recognizedBy`. `ProfilePage` lleva `name` (= su `<title>`), `inLanguage`, `isPartOf` → `WebSite`, y `dateCreated` /
 `dateModified` = las fechas que la sección escribe en el contenido (`published`/`updated`), nunca la hora de la compilación.
 
-**Hoy se emite (S3c, en `/es/quien/`):** `name`, `jobTitle`, `description`, `image`, `email`, `workLocation`, `knowsAbout`, `hasCredential`, `sameAs`.
+**Hoy se emite (S3c; desde P1 en `/es/perfil/`):** `name`, `jobTitle`, `description`, `image`, `email`, `workLocation`, `knowsAbout`, `hasCredential`, `sameAs`.
 **Aprobado y no visible (no se emite):** `alternateName` (la página no muestra la variante: despacho S3c §6). **Aprobados sin propiedad:**
 `category`, `motto`, `descriptionLong`, `relations` (los nodos de organización son la fase 2 del insumo, §6.2). **Pendientes:** ninguno.
 

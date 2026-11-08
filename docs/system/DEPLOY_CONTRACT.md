@@ -3,12 +3,12 @@ id: BBW-DEPLOY-CONTRACT
 title: "Contrato de puerto de despliegue — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.7
+version: 1.8
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-15
-updated: 2026-11-07
-verified_against_code: 2026-11-07@feat/posicionamiento-s2 (v1.7: §8.1 registra dos redirecciones EJECUTADAS por Zavala el 2026-11-07 (`bbf-brandbrain-web.pages.dev` → apex, `www` → apex) y la ofuscación de correo apagada; registro de hechos, no cambio de código) · 2026-09-19@feat/fase8a-publicacion-de-prueba (v1.3: §7 corregido contra el proveedor REAL — nombre de proyecto ocupado por un tercero y bloqueo de indexación —, §5 enmendado por D-BBW-44, `public/_headers` en el repo y declarado en `src/media/registry.ts`; `pnpm check && pnpm build` en verde. v1.4: el paso 1 del panel anotado contra el panel REAL del día)
+updated: 2026-11-08
+verified_against_code: 2026-11-08@feat/perfil-p1 (v1.8: §8 rutas retiradas del sitio en public/_redirects — /quien, /es/quien, /es/quien/ → /es/perfil/, 301 un salto; R6) · 2026-11-07@feat/posicionamiento-s2 (v1.7: §8.1 registra dos redirecciones EJECUTADAS por Zavala el 2026-11-07 (`bbf-brandbrain-web.pages.dev` → apex, `www` → apex) y la ofuscación de correo apagada; registro de hechos, no cambio de código) · 2026-09-19@feat/fase8a-publicacion-de-prueba (v1.3: §7 corregido contra el proveedor REAL — nombre de proyecto ocupado por un tercero y bloqueo de indexación —, §5 enmendado por D-BBW-44, `public/_headers` en el repo y declarado en `src/media/registry.ts`; `pnpm check && pnpm build` en verde. v1.4: el paso 1 del panel anotado contra el panel REAL del día)
 supersedes: []
 superseded_by: null
 related: [D-BBW-02, D-BBW-03, D-BBW-04, D-BBW-05, D-BBW-07, D-BBW-09, D-BBW-10, D-BBW-11, D-BBW-12, D-BBW-26, D-BBW-43, D-BBW-44, BBW-PORTS]
@@ -197,6 +197,12 @@ entero es propiedad del dominio, no del código (§3). Por eso el manifiesto se 
 |---|---|---|---|---|
 | `bbf-brandbrain-web.pages.dev` (la dirección del proyecto) | `https://zavalacubas.com` | **Bulk Redirects, 301**, **sin «include subdomains»** (las previsualizaciones por rama `<rama>.bbf-brandbrain-web.pages.dev` siguen sirviendo, con su `noindex` de §8 arriba) | ruta y consulta | cierra la copia de producción fuera de la zona (P-BBW-91: el aviso legal se servía allí sin el desafío WAF). Medido: `…/es/aviso-legal/` → `HTTP/2 301`, `location: https://zavalacubas.com/es/aviso-legal/` |
 | `www.zavalacubas.com` | `https://zavalacubas.com` | **Redirect Rule, 301**, un salto | ruta y consulta | P-BBW-88: `www` servía el sitio entero sin redirigir al apex. Completa el mapa de D-BBW-59 para el canónico |
+
+**Rutas retiradas del sitio (P1, D-BBW-107, 2026-11-08) — en `public/_redirects`, NO en el panel.** Una ruta que deja de servirse dentro del
+canónico es política del SITIO (como `/` → `/es/`, D-BBW-55), así que viaja versionada con el código: `/quien`, `/es/quien` y `/es/quien/` →
+**`/es/perfil/`, 301, un salto** (registro `RETIRED_ROUTES` en `src/config/pages.ts`; R6 de `check-content.ts` exige las tres líneas, el 301 y el
+destino final). El borde la aplica a todo anfitrión que sirva el proyecto, previsualizaciones incluidas. Lo que no hace: no toca el mapa de
+dominios de abajo (una petición a otro dominio con la ruta vieja da dos saltos: el del dominio y éste; ninguno de esos dominios está ejecutado).
 
 **Ofuscación de correo de Cloudflare («Email Address Obfuscation»): APAGADA el 2026-11-07** (P-BBW-87; comprobado: 0 apariciones de `email-protection` en `/es/privacidad/`). Producción vuelve a ser el build byte a byte para el dato de contacto (I-4, D-BBW-09).
 

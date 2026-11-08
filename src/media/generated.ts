@@ -17,9 +17,17 @@ export const media = {
   icon512: { src: "/icon-512.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   icon512Maskable: { src: "/icon-512-maskable.png", type: "image/png", width: 512, height: 512, sizes: "512x512" },
   share: { src: "/share-1200x630.png", type: "image/png", width: 1200, height: 630, sizes: "1200x630" },
-  portrait1x1: { src: "/portrait-600x600.jpg", type: "image/jpeg", width: 600, height: 600, sizes: "600x600" },
-  portrait4x3: { src: "/portrait-600x450.jpg", type: "image/jpeg", width: 600, height: 450, sizes: "600x450" },
-  portrait16x9: { src: "/portrait-600x338.jpg", type: "image/jpeg", width: 600, height: 338, sizes: "600x338" },
+  portrait1x1: { src: "/portrait-1200x1200.jpg", type: "image/jpeg", width: 1200, height: 1200, sizes: "1200x1200" },
+  portrait4x3: { src: "/portrait-1200x900.jpg", type: "image/jpeg", width: 1200, height: 900, sizes: "1200x900" },
+  portrait16x9: { src: "/portrait-1200x675.jpg", type: "image/jpeg", width: 1200, height: 675, sizes: "1200x675" },
+  portraitDisc1x: { src: "/portrait-46x46.jpg", type: "image/jpeg", width: 46, height: 46, sizes: "46x46" },
+  portraitDisc2x: { src: "/portrait-92x92.jpg", type: "image/jpeg", width: 92, height: 92, sizes: "92x92" },
+  cardAgencyVideo: { src: "/card-agency-640x480.mp4", type: "video/mp4", width: 640, height: 480, sizes: "640x480" },
+  cardAgencyPoster: { src: "/card-agency-poster-640x480.jpg", type: "image/jpeg", width: 640, height: 480, sizes: "640x480" },
+  cardStudioVideo: { src: "/card-studio-640x480.mp4", type: "video/mp4", width: 640, height: 480, sizes: "640x480" },
+  cardStudioPoster: { src: "/card-studio-poster-640x480.jpg", type: "image/jpeg", width: 640, height: 480, sizes: "640x480" },
+  cardWorksVideo: { src: "/card-works-640x480.mp4", type: "video/mp4", width: 640, height: 480, sizes: "640x480" },
+  cardWorksPoster: { src: "/card-works-poster-640x480.jpg", type: "image/jpeg", width: 640, height: 480, sizes: "640x480" },
   gcFoundational72: { src: "/gc-foundational-72.png", type: "image/png", width: 72, height: 72, sizes: "72x72" },
   gcFoundational144: { src: "/gc-foundational-144.png", type: "image/png", width: 144, height: 144, sizes: "144x144" },
   manifest: { src: "/manifest.webmanifest", type: "application/manifest+json" },
@@ -38,6 +46,24 @@ export const inlineIcons = {
 export const mediaSets = {
   portrait: ["portrait1x1", "portrait4x3", "portrait16x9"],
 } as const;
+
+/** Clips (P4 del perfil): un identificador → el vídeo y su póster (fotograma 0), derivados del mismo maestro (`mediaClips` del registro). */
+export const mediaClips = {
+  cardAgency: { video: "cardAgencyVideo", poster: "cardAgencyPoster" },
+  cardStudio: { video: "cardStudioVideo", poster: "cardStudioPoster" },
+  cardWorks: { video: "cardWorksVideo", poster: "cardWorksPoster" },
+} as const;
+
+/** Lotes del campo (S12, R2 del perfil): por uso, los medios de `media/masters/campo/<uso>/` en orden de nombre, recortados al cuadrado
+ *  por su punto focal (`content/site.json` → `$.fieldMedia`). Lote vacío = `[]` = el campo de hoy. Lo consume la capa de medios del campo. */
+export const fieldBatches = {
+  perfil: [
+    { id: "christian-3", kind: "image", src: "/campo-perfil-christian-3-480x480.jpg", type: "image/jpeg", side: 480 },
+    { id: "crystal-fish-with-human-eye", kind: "video", src: "/campo-perfil-crystal-fish-with-human-eye-480x480.mp4", type: "video/mp4", side: 480 },
+    { id: "sc", kind: "image", src: "/campo-perfil-sc-480x480.jpg", type: "image/jpeg", side: 480 },
+    { id: "zavala-1", kind: "image", src: "/campo-perfil-zavala-1-480x480.jpg", type: "image/jpeg", side: 480 },
+  ],
+} as const satisfies Record<string, readonly { id: string; kind: "image" | "video"; src: string; type: string; side: number }[]>;
 
 /** Rigs (M1c): anatomía derivada de un maestro vectorial (perfil `rig` del registro); la consume el motor S9 al arrancar. */
 export const rigs = {

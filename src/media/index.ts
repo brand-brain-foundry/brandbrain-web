@@ -6,7 +6,7 @@
 export { media, surfaceColor, inlineIcons, rigs } from "./generated";
 export { mediaSets } from "./generated";
 // los conjuntos llegan GENERADOS (no del registro): este índice lo importan componentes cliente y el registro no debe viajar al navegador
-import { inlineIcons as icons, media as derived, mediaSets as sets } from "./generated";
+import { inlineIcons as icons, media as derived, mediaSets as sets, mediaClips as clips, fieldBatches as batches } from "./generated";
 
 /** Los identificadores que la entidad puede referenciar: los derivados y los conjuntos de recortes (S3c). */
 export const MEDIA_IDENTIFIERS: readonly string[] = [...Object.keys(derived), ...Object.keys(sets)];
@@ -18,7 +18,30 @@ export function mediaMembers(id: string): { src: string; width?: number; height?
   return [];
 }
 
+/** Un clip (P4 del perfil): el vídeo y su póster (fotograma 0), con la ruta, el tipo y las dimensiones intrínsecas de cada uno. */
+export type MediaClip = {
+  readonly video: { readonly src: string; readonly type: string; readonly width: number; readonly height: number };
+  readonly poster: { readonly src: string; readonly width: number; readonly height: number };
+};
+/** Los clips que un documento de contenido puede citar (`projects.items[].media`). */
+export const MEDIA_CLIP_IDS: readonly string[] = Object.keys(clips);
+/** El clip de un identificador; `undefined` si no existe. */
+export function mediaClip(id: string): MediaClip | undefined {
+  if (!Object.prototype.hasOwnProperty.call(clips, id)) return undefined;
+  const c = clips[id as keyof typeof clips];
+  return { video: derived[c.video], poster: derived[c.poster] };
+}
+
 export type InlineIconName = keyof typeof icons;
+
+/** Un medio de un lote del campo (S12): cuadrado de `side` px, ya recortado por su punto focal; imagen o vídeo sin audio. */
+export type FieldMediaItem = { readonly id: string; readonly kind: "image" | "video"; readonly src: string; readonly type: string; readonly side: number };
+/** Los usos que tienen lote declarado (`fieldBatches` del registro): lo que un documento de contenido puede citar en `fieldMedia`. */
+export const FIELD_BATCH_IDS: readonly string[] = Object.keys(batches);
+/** Los medios del lote de un uso, en orden de nombre; `[]` si el lote está vacío o el uso no existe (lote vacío = el campo de hoy). */
+export function fieldBatch(id: string): readonly FieldMediaItem[] {
+  return Object.prototype.hasOwnProperty.call(batches, id) ? (batches[id as keyof typeof batches] as readonly FieldMediaItem[]) : [];
+}
 
 /** Icono de perfil para un `id` del contenido (`footer.social[].id`): si existe un icono de perfil con ese nombre, se usa; si no, el enlace es texto. */
 export function iconFor(id: string): InlineIconName | undefined {

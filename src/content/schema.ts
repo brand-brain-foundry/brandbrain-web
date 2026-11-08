@@ -42,9 +42,23 @@
  *     secundaria del héroe) puede ser una cita del global `{ global: ruta }`: así la etiqueta de un destino se escribe una vez (`linkLabels.<llave>`).
  *   · `footer.legal` pasa de texto a TRAMOS (`Span[]`) para que el nombre enlace a la página de perfil con `{ text, page }`; `footer.cert` gana
  *     `link` (la credencial del sello, leída del contenido y no cableada en el componente); nace `linkLabels` en lo global.
+ * P1 · perfil, contenido y rutas (D-BBW-107…109, v3.14 del modelo, cambio NO aditivo):
+ *   · «Cómo trabajo» pasa a ser la FUENTE: `approach` = `{ heading, intro, steps[{ id, title, text }], background{ title, text } }`, cada texto en
+ *     TRAMOS (`ProfileSpan[]`: texto, `{ text, link }` o `{ text, page }`, el mecanismo del pie); `approach.text` (la cita de `descriptionLong`)
+ *     SALE. `$.entity.descriptionLong` se DERIVA de estas piezas por fórmula (`deriveApproachText`, I-1): escribir su `value` a mano rompe.
+ *   · el bloque `credentials` («Certificación», «Ver insignia») SALE: la credencial se lee en la línea de la trayectoria, enlazada.
+ *   · `closing` pasa de texto a `{ text, emphasisFrom }`: la frase madre sigue citada una vez (`{{motto}}`) y `emphasisFrom` dice desde qué
+ *     palabra va el énfasis (D-BBW-104). Es una decisión EDITORIAL (qué se subraya), como `case`; cómo se pinta lo decide el sistema.
+ * P2 · perfil, maqueta (D-BBW-96…109, v3.16 del modelo, cambio NO aditivo):
+ *   · la apertura de la página es el HÉROE DEL INICIO reutilizado: `heading` pasa a ser el CARGO (`{{role}}`, el único `<h1>`) y `lead` su
+ *     párrafo (la frase definitoria, que nombra a la persona); la llave `role` SALE (era la línea del cargo bajo el nombre, I-6).
+ *   · `fieldMedia` (el uso del lote del campo, como en `hero`) entra como llave admitida de `profile`.
+ *   · `contact` pierde `heading`: los botones del cierre no llevan título (D2 del perfil); queda `{ links }`.
+ *   · `specialties` gana `link`: la llave del destino común de las pastillas (`linkedinSkills`), como `ctaSecondaryLink` en el héroe.
  */
 import { isLinkKey, type LinkKey } from "./site";
 import { isPageId } from "../config/pages";
+import { FIELD_BATCH_IDS, MEDIA_CLIP_IDS } from "../media";
 import { ENTITY_FIELDS, fieldSpec, type EntityFieldKey, type EntityFieldKind } from "./entity-fields";
 
 /** Colecciones con un documento por slug (`content/<locale>/<colección>/<slug>.json`). */
@@ -285,12 +299,35 @@ export type HeroSection = {
   ctaSecondary: string;
   /** llave del destino de la llamada secundaria; el destino vive en content/site.json, nunca aquí */
   ctaSecondaryLink: LinkKey;
+  /** OPCIONAL (S12, R2 del perfil, v3.15): el USO cuyo lote del campo lleva esta sección (`media/masters/campo/<uso>/` por el puerto de medios).
+   *  Sin la llave, o con el lote vacío, el campo es el de siempre. */
+  fieldMedia?: string;
 };
 
+/**
+ * Un tramo de los textos de «Cómo trabajo» (P1, v3.14): texto, enlace externo por llave `{ text, link }` o enlace interno por página
+ * `{ text, page }` (el puerto lo entrega como `{ text, path }`). Sin citas del global ni de la entidad y sin sustituciones de entidad: de estos
+ * tramos se DERIVA `descriptionLong`, que es dato de la entidad y tiene que leerse igual sin el documento global.
+ */
+export type ProfileSpan = string | { text: string; link: LinkKey } | { text: string; page: string } | { text: string; path: string };
+/** Una tarjeta de «Cómo trabajo»: identificador estable, título y su texto en tramos. El número de la tarjeta lo pone el sistema (orden). */
+export type ProfileStep = { id: string; title: string; text: ProfileSpan[] };
+/** «Cómo trabajo» (P1): la entrada sin título, las tarjetas en orden y la trayectoria («De dónde vengo»). Fuente de `descriptionLong`. */
+export type ProfileApproach = {
+  heading: string;
+  intro: ProfileSpan[];
+  steps: ProfileStep[];
+  background: { title: string; text: ProfileSpan[] };
+};
+/** El cierre (P1, D-BBW-104): la frase madre (`{{motto}}`) y la palabra desde la que va el énfasis (aparece una sola vez en la frase). */
+export type ProfileClosing = { text: string; emphasisFrom: string };
+
 /** Un proyecto de la página de perfil: nombre (enlazado), su línea y la llave del destino. */
-export type ProfileProject = { id: string; name: string; text: string; link: LinkKey };
-/** Una credencial tal como llega al componente (resuelta desde `$.entity.credentials`). */
-export type ProfileCredential = { name: string; issuer?: string; category?: string; link: LinkKey };
+/**
+ * Un proyecto de la página de perfil. `media` (OPCIONAL, P4 del perfil · D-BBW-102): el CLIP del puerto de medios (vídeo + póster, `mediaClips`
+ * del registro) que llena la ventana 4:3 de la ficha; sin la llave, la ventana queda en la superficie tenue.
+ */
+export type ProfileProject = { id: string; name: string; text: string; link: LinkKey; media?: string };
 
 /**
  * LA PÁGINA DE PERFIL (S3c, D-BBW-90; insumo CONTENIDO-PERFIL-WEB v1.0 §3). Los textos de la persona REFERENCIAN la entidad en el documento
@@ -301,26 +338,25 @@ export type ProfileCredential = { name: string; issuer?: string; category?: stri
 export type ProfileSection = {
   type: "profile";
   id: string;
-  /** el `<h1>`: el nombre (`{{brand}}`) */
+  /** el `<h1>` de la apertura (el héroe del inicio reutilizado, P2): el cargo (`{{role}}`) */
   heading: string;
-  /** la línea bajo el `<h1>`: el cargo (`{{role}}`) */
-  role: string;
-  /** la frase definitoria (`{ entity: "description" }`) */
+  /** el párrafo de la apertura: la frase definitoria (`{ entity: "description" }`), que nombra a la persona; línea de referencia del campo */
   lead: string;
-  /** el retrato: `media` = el identificador del puerto de medios citado de `$.entity.image`; `alt` = su texto alternativo */
-  portrait: { media: string; alt: string };
-  /** «Cómo trabajo»: encabezado y la descripción larga (`{ entity: "descriptionLong" }`) */
-  approach: { heading: string; text: string };
-  /** «Especialidades»: encabezado y las materias (`{ entity: "knowsAbout" }`) */
-  specialties: { heading: string; items: string[] };
+  /** OPCIONAL (P2, como `HeroSection.fieldMedia`): el uso cuyo lote del campo lleva la apertura; sin la llave o con lote vacío, el campo de siempre */
+  fieldMedia?: string;
+  /** el retrato: `media` = el identificador del puerto de medios citado de `$.entity.image`; desde P2c el avatar del botón del correo, con `alt=""` (va dentro
+   *  del enlace junto a su texto, que es el nombre accesible: la regla del sello del pie); sin texto alternativo en el contenido */
+  portrait: { media: string };
+  /** «Cómo trabajo» (P1): entrada, tarjetas y trayectoria; la fuente de la que se deriva `descriptionLong` */
+  approach: ProfileApproach;
+  /** «Especialidades»: encabezado, las materias (`{ entity: "knowsAbout" }`) y la llave del destino común de las pastillas (P2: `linkedinSkills`) */
+  specialties: { heading: string; items: string[]; link: LinkKey };
   /** «Proyectos»: encabezado y los proyectos */
   projects: { heading: string; items: ProfileProject[] };
-  /** «Certificación»: encabezado, la etiqueta del enlace a la credencial y las credenciales (`{ entity: "credentials" }`) */
-  credentials: { heading: string; linkLabel: string; items: ProfileCredential[] };
-  /** «Contacto»: encabezado y los enlaces (el correo y los perfiles) */
-  contact: { heading: string; links: LinkItem[] };
-  /** el cierre de la página: la frase madre (`{{motto}}`) */
-  closing: string;
+  /** los botones de contacto del cierre (el correo y los perfiles), sin título (P2) */
+  contact: { links: LinkItem[] };
+  /** el cierre de la página: la frase madre (`{{motto}}`) y desde qué palabra va el énfasis */
+  closing: ProfileClosing;
   /** fecha de publicación de la página (AAAA-MM-DD) → `dateCreated` */
   published: string;
   /** fecha de la última edición humana del perfil (AAAA-MM-DD) → `dateModified` */
@@ -359,13 +395,13 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
   hero: ["type", "id", "heading", "paragraph", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
   legal: ["type", "id", "heading", "intro", "blocks", "updated"],
-  profile: ["type", "id", "heading", "role", "lead", "portrait", "approach", "specialties", "projects", "credentials", "contact", "closing", "published", "updated"],
+  profile: ["type", "id", "heading", "lead", "portrait", "approach", "specialties", "projects", "contact", "closing", "published", "updated"],
 };
 /** llaves ADMITIDAS (no obligatorias) por tipo de sección: hoy solo la acción de la página legal (v3.8). */
 const SECTION_OPTIONAL_KEYS: Record<SectionType, readonly string[]> = {
-  hero: [],
+  hero: ["fieldMedia"],
   legal: ["action"],
-  profile: [],
+  profile: ["fieldMedia"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -594,18 +630,95 @@ function checkHeaded(v: unknown, path: string, keys: readonly string[], problems
   return true;
 }
 
+const EMPHASIS_WORD_RE = /^[^\s{}]+$/u;
+const ENTITY_SUBSTITUTION_RE = /\{\{\s*(category|motto)\s*\}\}/;
+
+/**
+ * Los tramos de «Cómo trabajo» (P1): texto, `{ text, link }` o `{ text, page }`. Ni citas (`{ global }`, `{ page }` sola, `{ entity }`) ni
+ * sustituciones de entidad: de aquí se deriva un dato de la entidad (`descriptionLong`) y la derivación no puede depender de otro documento.
+ */
+function checkProfileSpans(v: unknown, path: string, problems: Problem[]): void {
+  if (!Array.isArray(v) || v.length === 0) return void problems.push({ path, message: `debe ser una lista no vacía de tramos (texto, { text, link } o { text, page })` });
+  v.forEach((span, i) => {
+    const p = `${path}[${i}]`;
+    const text = typeof span === "string" ? span : isRecord(span) ? span.text : undefined;
+    if (isRecord(span) && !(("link" in span || "page" in span) && "text" in span && Object.keys(span).length === 2)) {
+      return void problems.push({ path: p, message: `un tramo de «Cómo trabajo» es texto, { text, link } o { text, page }: de él se deriva descriptionLong, que no puede citar otro documento` });
+    }
+    checkSpan(span, p, problems);
+    if (typeof text === "string" && ENTITY_SUBSTITUTION_RE.test(text)) problems.push({ path: p, message: `una sustitución de entidad no cabe aquí: descriptionLong se deriva de este texto y sería la entidad citándose a sí misma` });
+  });
+}
+
+/** «Cómo trabajo» (P1): entrada, tarjetas `{ id, title, text }` (al menos una) y trayectoria `{ title, text }`. */
+function checkApproach(v: Record<string, unknown>, path: string, problems: Problem[]): void {
+  checkProfileSpans(v.intro, `${path}.intro`, problems);
+  if (!Array.isArray(v.steps) || v.steps.length === 0) problems.push({ path: `${path}.steps`, message: `debe ser una lista no vacía de tarjetas { id, title, text }` });
+  else {
+    const seen = new Set<string>();
+    v.steps.forEach((step, i) => {
+      const p = `${path}.steps[${i}]`;
+      if (!isRecord(step)) return void problems.push({ path: p, message: `debe ser un objeto { id, title, text }` });
+      checkKeys(step, ["id", "title", "text"], p, problems);
+      checkId(step.id, `${p}.id`, seen, problems);
+      checkText(step.title, `${p}.title`, problems);
+      checkProfileSpans(step.text, `${p}.text`, problems);
+    });
+  }
+  if (isRecord(v.background)) {
+    checkKeys(v.background, ["title", "text"], `${path}.background`, problems);
+    checkText(v.background.title, `${path}.background.title`, problems);
+    checkProfileSpans(v.background.text, `${path}.background.text`, problems);
+  } else problems.push({ path: `${path}.background`, message: `debe ser un objeto { title, text } (la trayectoria)` });
+}
+
+/**
+ * LA FÓRMULA DE `descriptionLong` (P1, D-BBW-109; I-1): el texto de la entrada, el de cada tarjeta en su orden y el de la trayectoria, cada
+ * pieza con sus tramos unidos tal cual y las piezas separadas por un espacio. Los TÍTULOS no entran (son rótulos de la página, no frases de la
+ * descripción). Una función pura: el puerto la aplica al documento ya sustituido y la guardia la imprime; nadie escribe el resultado.
+ */
+export function deriveApproachText(approach: Pick<ProfileApproach, "intro" | "steps" | "background">): string {
+  const join = (spans: readonly ProfileSpan[]) => spans.map((s) => (typeof s === "string" ? s : s.text)).join("");
+  return [join(approach.intro), ...approach.steps.map((s) => join(s.text)), join(approach.background.text)]
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0)
+    .join(" ");
+}
+
+/**
+ * El CORTE del énfasis (D-BBW-104): la frase partida en la primera aparición de `word` como palabra entera. Devuelve `[antes, desde]` sin los
+ * espacios del borde, o `null` si la palabra no está una y solo una vez (el puerto rompe el build con la ruta). Pura: el componente la usa.
+ */
+export function splitEmphasis(text: string, word: string): [string, string] | null {
+  const tokens = text.split(/(\s+)/);
+  const hits = tokens.reduce<number[]>((acc, t, i) => (t === word ? [...acc, i] : acc), []);
+  if (hits.length !== 1) return null;
+  const before = tokens.slice(0, hits[0]).join("").trim();
+  const from = tokens.slice(hits[0]).join("").trim();
+  return before.length > 0 ? [before, from] : null;
+}
+
+/** `fieldMedia` (opcional en `hero` y `profile`): un uso con lote declarado en el registro de medios. */
+function checkFieldMedia(v: Record<string, unknown>, path: string, problems: Problem[]): void {
+  if ("fieldMedia" in v && (typeof v.fieldMedia !== "string" || !FIELD_BATCH_IDS.includes(v.fieldMedia))) {
+    problems.push({ path: `${path}.fieldMedia`, message: `"${String(v.fieldMedia)}" no es un uso con lote del campo (declarados en src/media/registry.ts → fieldBatches: ${FIELD_BATCH_IDS.join(", ")})` });
+  }
+}
+
 /** La sección de la página de perfil, tal como se ESCRIBE (con referencias a la entidad sin resolver). */
 function checkProfileSection(v: Record<string, unknown>, path: string, problems: Problem[]): void {
   checkText(v.heading, `${path}.heading`, problems);
-  checkText(v.role, `${path}.role`, problems);
+  checkFieldMedia(v, path, problems);
   checkEntityRef(v.lead, `${path}.lead`, ["text"], problems);
   if (isRecord(v.portrait)) {
-    checkKeys(v.portrait, ["media", "alt"], `${path}.portrait`, problems);
+    checkKeys(v.portrait, ["media"], `${path}.portrait`, problems);
     checkEntityRef(v.portrait.media, `${path}.portrait.media`, ["media"], problems);
-    checkText(v.portrait.alt, `${path}.portrait.alt`, problems);
-  } else problems.push({ path: `${path}.portrait`, message: `debe ser un objeto { media, alt }` });
-  if (checkHeaded(v.approach, `${path}.approach`, ["heading", "text"], problems)) checkEntityRef(v.approach.text, `${path}.approach.text`, ["text"], problems);
-  if (checkHeaded(v.specialties, `${path}.specialties`, ["heading", "items"], problems)) checkEntityRef(v.specialties.items, `${path}.specialties.items`, ["textList"], problems);
+  } else problems.push({ path: `${path}.portrait`, message: `debe ser un objeto { media }` });
+  if (checkHeaded(v.approach, `${path}.approach`, ["heading", "intro", "steps", "background"], problems)) checkApproach(v.approach, `${path}.approach`, problems);
+  if (checkHeaded(v.specialties, `${path}.specialties`, ["heading", "items", "link"], problems)) {
+    checkEntityRef(v.specialties.items, `${path}.specialties.items`, ["textList"], problems);
+    if (typeof v.specialties.link !== "string" || !isLinkKey(v.specialties.link)) problems.push({ path: `${path}.specialties.link`, message: `"${String(v.specialties.link)}" no es una llave de enlace (content/site.json)` });
+  }
   if (checkHeaded(v.projects, `${path}.projects`, ["heading", "items"], problems)) {
     const items = v.projects.items;
     if (!Array.isArray(items) || items.length === 0) problems.push({ path: `${path}.projects.items`, message: `debe ser una lista no vacía de { id, name, text, link }` });
@@ -614,20 +727,25 @@ function checkProfileSection(v: Record<string, unknown>, path: string, problems:
       items.forEach((it, i) => {
         const p = `${path}.projects.items[${i}]`;
         if (!isRecord(it)) return void problems.push({ path: p, message: `debe ser un objeto { id, name, text, link }` });
-        checkKeys(it, ["id", "name", "text", "link"], p, problems);
+        checkKeys(it, ["id", "name", "text", "link"], p, problems, ["media"]);
         checkId(it.id, `${p}.id`, seen, problems);
         if (typeof it.name === "string") checkSpanString(it.name, `${p}.name`, problems); else problems.push({ path: `${p}.name`, message: `debe ser texto` });
         if (typeof it.text === "string") checkSpanString(it.text, `${p}.text`, problems); else problems.push({ path: `${p}.text`, message: `debe ser texto` });
         if (typeof it.link !== "string" || !isLinkKey(it.link)) problems.push({ path: `${p}.link`, message: `"${String(it.link)}" no es una llave de enlace (content/site.json)` });
+        if ("media" in it && (typeof it.media !== "string" || !MEDIA_CLIP_IDS.includes(it.media))) {
+          problems.push({ path: `${p}.media`, message: `"${String(it.media)}" no es un clip del puerto de medios (declarados en src/media/registry.ts → mediaClips: ${MEDIA_CLIP_IDS.join(", ")})` });
+        }
       });
     }
   }
-  if (checkHeaded(v.credentials, `${path}.credentials`, ["heading", "linkLabel", "items"], problems)) {
-    checkText(v.credentials.linkLabel, `${path}.credentials.linkLabel`, problems);
-    checkEntityRef(v.credentials.items, `${path}.credentials.items`, ["credentialList"], problems);
-  }
-  if (checkHeaded(v.contact, `${path}.contact`, ["heading", "links"], problems)) checkLinkItems(v.contact.links, `${path}.contact.links`, problems);
-  checkText(v.closing, `${path}.closing`, problems);
+  if (checkHeaded(v.contact, `${path}.contact`, ["links"], problems)) checkLinkItems(v.contact.links, `${path}.contact.links`, problems);
+  if (isRecord(v.closing)) {
+    checkKeys(v.closing, ["text", "emphasisFrom"], `${path}.closing`, problems);
+    checkText(v.closing.text, `${path}.closing.text`, problems);
+    if (typeof v.closing.emphasisFrom !== "string" || !EMPHASIS_WORD_RE.test(v.closing.emphasisFrom)) {
+      problems.push({ path: `${path}.closing.emphasisFrom`, message: `debe ser UNA palabra de la frase (sin espacios): desde ella va el énfasis (D-BBW-104)` });
+    }
+  } else problems.push({ path: `${path}.closing`, message: `debe ser un objeto { text, emphasisFrom } (la frase y la palabra desde la que va el énfasis)` });
   for (const k of ["published", "updated"] as const) {
     if (typeof v[k] !== "string" || !DATE_RE.test(v[k] as string)) problems.push({ path: `${path}.${k}`, message: `debe ser una fecha AAAA-MM-DD (la edita una persona; nunca la hora de la compilación)` });
   }
@@ -753,6 +871,7 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     return;
   }
   if (type === "profile") return checkProfileSection(v, path, problems);
+  checkFieldMedia(v, path, problems);
   for (const k of keys) {
     if (k === "type" || k === "id") continue;
     if (k === "ctaPrimary" || k === "ctaSecondary") {

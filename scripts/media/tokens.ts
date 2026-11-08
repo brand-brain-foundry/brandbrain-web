@@ -10,9 +10,9 @@ import { REPO_ROOT } from './lock';
 
 const TOKEN_FILES = ['src/styles/tokens/primitives/colors.css', 'src/styles/tokens/semantic/colors.css'];
 
-function loadDeclarations(): Map<string, string> {
+function loadDeclarations(files: readonly string[] = TOKEN_FILES): Map<string, string> {
   const decls = new Map<string, string>();
-  for (const rel of TOKEN_FILES) {
+  for (const rel of files) {
     const css = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
     for (const m of css.matchAll(/(--bbf-[a-z0-9-]+)\s*:\s*([^;]+);/g)) decls.set(m[1], m[2].trim());
   }
@@ -157,4 +157,23 @@ export function resolveColorToken(token: string): ResolvedColor {
   if (args.length !== 3) throw new Error(`[media] oklch con ${args.length} argumento(s) al resolver "${token}": "${resolved}"`);
   const [L, C, H] = args.map(evalArith);
   return { token, oklch: { L, C, H }, srgb: oklchToSrgbHex(L, C, H) };
+}
+
+/**
+ * LONGITUDES (P2b-216, D-BBW-111): resuelve un ROL de longitud en px (p. ej. `--bbf-profile-portrait-size`) leyendo la escala de espacio, la de
+ * línea (P2c: el avatar resta el contorno del botón) y la capa de vista, sustituyendo `var()` y evaluando `calc()`. Así el lado de un derivado que se MUESTRA a un tamaño de token sale de ese token y
+ * no se escribe a mano. Alcance: solo `px` y números; otra unidad = error. El rol debe declararse UNA vez (si una vista lo redefine dentro de un
+ * `@media`, el derivado no tiene un único tamaño y el guion lo rechaza en vez de elegir uno).
+ */
+const LENGTH_FILES = ['src/styles/tokens/primitives/spacing.css', 'src/styles/tokens/primitives/line.css', 'src/styles/tokens/semantic/viewport.css'];
+export function resolveLengthToken(token: string): number {
+  let count = 0;
+  for (const rel of LENGTH_FILES) {
+    const css = fs.readFileSync(path.join(REPO_ROOT, rel), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    for (const m of css.matchAll(/(--bbf-[a-z0-9-]+)\s*:/g)) if (m[1] === token) count++;
+  }
+  if (count !== 1) throw new Error(`[media] el rol de longitud "${token}" se declara ${count} vez/veces en ${LENGTH_FILES.join(', ')}: debe ser exactamente una`);
+  const decls = loadDeclarations(LENGTH_FILES);
+  const resolved = substitute(decls.get(token)!, decls).replace(/(\d)px\b/g, '$1');
+  return evalArith(resolved);
 }

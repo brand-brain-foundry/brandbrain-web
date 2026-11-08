@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "title": "Perfil profesional",
+    "description": "{{brand}} es estratega de sistemas de IA para marcas. Rediseña cómo trabaja cada empresa para que sus agentes decidan con el criterio de la marca."
+  },
+  "sections": [
+    {
+      "type": "profile",
+      "id": "perfil",
+      "heading": "{{role}}",
+      "lead": { "entity": "description" },
+      "fieldMedia": "perfil",
+      "portrait": { "media": { "entity": "image" } },
+      "approach": {
+        "heading": "Cómo trabajo",
+        "intro": [
+          "Diseño sistemas de IA con criterio de marca. Los agentes de IA ya pueden decidir y actuar con autonomía; lo que casi siempre les falta es saber cómo decide la marca. Por eso mi trabajo empieza antes de cualquier herramienta."
+        ],
+        "steps": [
+          {
+            "id": "rediseno",
+            "title": "Rediseñar el trabajo",
+            "text": [
+              "Primero entiendo la estrategia de la empresa y, con su equipo, rediseñamos cómo se trabaja, porque la IA que se añade a procesos pensados para otra época rara vez da lo que promete."
+            ]
+          },
+          {
+            "id": "decisiones",
+            "title": "Decidir qué decide la IA",
+            "text": [
+              "Ahí se resuelve lo importante: qué decisiones le dejamos a la IA, cómo las recuperamos si hace falta y quién más debería participar en decidirlo."
+            ]
+          },
+          {
+            "id": "criterio",
+            "title": "Escribir el criterio",
+            "text": [
+              "Solo entonces pongo por escrito el criterio de la marca (sus creencias, su voz, sus reglas y lo que sabe) y diseño el contexto y el gobierno con los que trabajan los agentes."
+            ]
+          },
+          {
+            "id": "propiedad",
+            "title": "Un criterio que es de la empresa",
+            "text": [
+              "Ese criterio es de la empresa: si cambia de herramienta o de proveedor, se lo lleva."
+            ]
+          }
+        ],
+        "background": {
+          "title": "De dónde vengo",
+          "text": [
+            "Llegué aquí desde la marca: más de 20 años entre DDB, Ogilvy, Trópico Brand Growers, ",
+            { "text": "Pura kaSaka", "link": "studio" },
+            " y mi trabajo por cuenta propia. Certificado como ",
+            { "text": "Generative AI Leader", "link": "credly" },
+            " por Google Cloud. Trabajo en remoto desde Valencia, con empresas de habla hispana."
+          ]
+        }
+      },
+      "specialties": { "heading": "Especialidades", "items": { "entity": "knowsAbout" }, "link": "linkedinSkills" },
+      "projects": {
+        "heading": "Proyectos",
+        "items": [
+          { "id": "agency", "name": "Sivar Brains", "text": "plataforma multimarca que diseñé y construí, un proyecto conjunto con Sivar Films.", "link": "agency", "media": "cardAgency" },
+          { "id": "studio", "name": "Pura kaSaka", "text": "estudio de animación que fundé; cuenta historias para marcas en redes y sitios web.", "link": "studio", "media": "cardStudio" },
+          { "id": "works", "name": "Trabajo anterior", "text": "identidades y campañas de mi etapa de diseño de marca.", "link": "works", "media": "cardWorks" }
+        ]
+      },
+      "contact": {
+        "links": [
+          { "id": "email", "label": "{{email}}", "link": "contact" },
+          { "id": "linkedin", "label": { "global": "linkLabels.linkedin" }, "link": "linkedin" }
+        ]
+      },
+      "closing": { "text": "{{motto}}", "emphasisFrom": "con" },
+      "published": "2026-11-07",
+      "updated": "2026-11-08"
+    }
+  ]
+}

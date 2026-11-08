@@ -19,14 +19,23 @@
  *        y es otra versión, error.
  *   R6 · PRESUPUESTO DE PESO (fase 6d, D-BBW-24): cada derivado con presupuesto en su perfil (vídeo, póster) pesa ≤ ese presupuesto, medido
  *        sobre el archivo real de public/ (no sobre el lock). Pasarse es una decisión con consecuencias visibles, nunca un hecho consumado.
+ *   LOTES DEL CAMPO (S12, R2 del perfil · 2026-11-08; MEDIA.md §11): las mismas reglas sobre cada medio de `media/masters/campo/<uso>/` —R1 su
+ *        maestro, R2 su derivado, R3 el lock lista exactamente los medios de la carpeta (ni de más ni de menos), R4 su derivado es «declarado»,
+ *        R6 su presupuesto— y dos propias: R9 · el punto focal del contenido (`$.fieldMedia`) es el que se selló (cambiarlo sin regenerar = error)
+ *        y R10 · forma de la carpeta (uso declarado, extensión con perfil, nombre válido, sin puntos focales huérfanos).
+ *   R11 · DISCO DE MUESTRA EN SU USO (P2b-216, D-BBW-111; MEDIA.md §10). Un derivado `jpeg-disc` no cumple el suelo de Google para las imágenes
+ *        de los datos estructurados (≥ 50 000 px) porque no es una de ellas: (a) no puede ser miembro de un conjunto (`mediaSets` los emite
+ *        `Person.image`), (b) ningún campo de `$.entity` de content/site.json puede nombrarlo, y (c) su archivo mide EXACTAMENTE el rol de longitud
+ *        × la densidad (token cambiado sin regenerar = error: el disco quedaría ampliado o descargaría de más).
  * Uso: `pnpm lint:media` · `pnpm guard` · pre-commit.
  */
 import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import sharp from 'sharp';
-import { GENERATED_FILE, LOCK_FILE, MASTERS_DIR, MASTER_PAINT_TOKENS, PUBLIC_DIR, derivatives, masters, publicAllowList, rigs } from '../../src/media/registry';
-import { resolveColorToken } from '../media/tokens';
+import { GENERATED_FILE, LOCK_FILE, MASTERS_DIR, MASTER_PAINT_TOKENS, PUBLIC_DIR, derivatives, masters, mediaSets, publicAllowList, rigs, fieldBatches, fieldBatchPath, FIELD_BATCH_PROFILE } from '../../src/media/registry';
+import { readBatches, focusLabel } from '../media/batches';
+import { resolveColorToken, resolveLengthToken } from '../media/tokens';
 import { REPO_ROOT, readLock, sha256File } from '../media/lock';
 
 type Fail = { rule: string; where: string; detail: string };
@@ -116,8 +125,39 @@ for (const id of Object.keys(lock.rigs ?? {})) {
   else if (lock.generated.sha256 !== h) fails.push({ rule: 'R2', where: GENERATED_FILE, detail: 'módulo generado NO corresponde al lock (editado a mano o registro cambiado sin regenerar): pnpm media:build' });
 }
 
+// LOTES DEL CAMPO (S12) — R10 forma · R1/R2/R3 por medio · R9 punto focal · R6 presupuesto (más abajo, con los demás)
+const batchRead = readBatches();
+for (const p of batchRead.problems) fails.push({ rule: 'R10', where: p.split(':')[0], detail: p.slice(p.indexOf(':') + 1).trim() });
+const batchPaths: string[] = [];
+const batchBudgets: { path: string; budget: number; what: string }[] = [];
+for (const m of batchRead.members) {
+  const rel = fieldBatchPath(m.batch, m.name, m.kind, FIELD_BATCH_PROFILE.side);
+  batchPaths.push(rel);
+  const where = `${m.batch}/${m.file}`;
+  const rec = lock.batches?.[m.batch]?.[m.name];
+  const hm = sha256File(m.abs);
+  if (!rec) {
+    fails.push({ rule: 'R3', where, detail: `medio de lote sin entrada en el lock: pnpm media:build` });
+    continue;
+  }
+  if (rec.master.file !== m.file || rec.master.sha256 !== hm) fails.push({ rule: 'R1', where, detail: `el maestro cambió y su derivado NO se regeneró: pnpm media:build` });
+  if (rec.focus !== focusLabel(m.focus)) fails.push({ rule: 'R9', where, detail: `el punto focal del contenido ($.fieldMedia.${m.batch}.${m.name} = ${focusLabel(m.focus)}) no es el sellado (${rec.focus}): el recorte no corresponde; pnpm media:build` });
+  const hd = sha256File(path.join(REPO_ROOT, PUBLIC_DIR, rel));
+  if (rec.path !== `${PUBLIC_DIR}/${rel}`) fails.push({ rule: 'R3', where, detail: `ruta sellada ${rec.path} ≠ ${PUBLIC_DIR}/${rel}: pnpm media:build` });
+  else if (!hd) fails.push({ rule: 'R2', where: `${PUBLIC_DIR}/${rel}`, detail: 'derivado de lote que no existe: pnpm media:build' });
+  else if (hd !== rec.sha256) fails.push({ rule: 'R2', where: `${PUBLIC_DIR}/${rel}`, detail: 'el derivado de lote NO corresponde al lock (editado a mano o perfil cambiado sin regenerar): pnpm media:build' });
+  batchBudgets.push({ path: rel, budget: m.kind === 'image' ? FIELD_BATCH_PROFILE.imageBudgetBytes : FIELD_BATCH_PROFILE.videoBudgetBytes, what: `${m.batch}/${m.name}` });
+}
+for (const [b, entries] of Object.entries(lock.batches ?? {})) {
+  if (!(b in fieldBatches)) fails.push({ rule: 'R3', where: LOCK_FILE, detail: `lote "${b}" en el lock que ya no está declarado: regenerar` });
+  for (const name of Object.keys(entries)) {
+    if (!batchRead.members.some((m) => m.batch === b && m.name === name)) fails.push({ rule: 'R3', where: LOCK_FILE, detail: `medio "${b}/${name}" en el lock que ya no está en la carpeta: regenerar` });
+  }
+}
+for (const b of Object.keys(fieldBatches)) if (!lock.batches?.[b]) fails.push({ rule: 'R3', where: LOCK_FILE, detail: `lote "${b}" declarado sin entrada en el lock: pnpm media:build` });
+
 // R4 — nada en public/ fuera del puerto
-const declared = new Set<string>([...Object.values(derivatives).map((d) => d.path), ...publicAllowList]);
+const declared = new Set<string>([...Object.values(derivatives).map((d) => d.path), ...batchPaths, ...publicAllowList]);
 const publicAbs = path.join(REPO_ROOT, PUBLIC_DIR);
 const walk = (dir: string, acc: string[]): string[] => {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -166,7 +206,56 @@ for (const [id, d] of Object.entries(derivatives)) {
   if (size > p.budgetBytes) fails.push({ rule: 'R6', where: `${PUBLIC_DIR}/${d.path}`, detail: `${size} B supera el presupuesto del perfil "${id}" (${p.budgetBytes} B, ${((size / p.budgetBytes) * 100).toFixed(0)} %): bajar calidad o resolución es decisión con consecuencias visibles (D-BBW-24), no se acepta en silencio` });
 }
 
+for (const b of batchBudgets) {
+  budgeted++;
+  let size: number | undefined;
+  try {
+    size = fs.statSync(path.join(REPO_ROOT, PUBLIC_DIR, b.path)).size;
+  } catch {
+    continue; // ya falló R2
+  }
+  if (size > b.budget) fails.push({ rule: 'R6', where: `${PUBLIC_DIR}/${b.path}`, detail: `${size} B supera el presupuesto del lote (${b.budget} B) para "${b.what}"` });
+}
+
+// R11 — el disco de muestra, solo en su uso
+/** Lado de un JPEG leído de su marcador SOF (síncrono: la guardia es CJS sin `await` de nivel superior). */
+function jpegSize(b: Buffer): { width?: number; height?: number } {
+  let i = 2;
+  while (i + 9 < b.length && b[i] === 0xff) {
+    const marker = b[i + 1];
+    const len = b.readUInt16BE(i + 2);
+    if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) return { height: b.readUInt16BE(i + 5), width: b.readUInt16BE(i + 7) };
+    i += 2 + len;
+  }
+  return {};
+}
+const discIds = new Set(Object.entries(derivatives).filter(([, d]) => d.profile.kind === 'jpeg-disc').map(([id]) => id));
+for (const [setId, set] of Object.entries(mediaSets))
+  for (const m of set.members as readonly string[])
+    if (discIds.has(m)) fails.push({ rule: 'R11', where: 'src/media/registry.ts', detail: `el conjunto "${setId}" incluye el disco de muestra "${m}" (jpeg-disc): los conjuntos los emiten los datos estructurados (Person.image), cuyo suelo es ≥ 50 000 px; el disco no está hecho para eso` });
+{
+  const SITE_JSON = 'content/site.json';
+  const entity = (JSON.parse(fs.readFileSync(path.join(REPO_ROOT, SITE_JSON), 'utf8')) as { entity?: Record<string, { value?: unknown }> }).entity ?? {};
+  for (const [field, f] of Object.entries(entity)) {
+    const values = Array.isArray(f?.value) ? f.value : [f?.value];
+    for (const v of values)
+      if (typeof v === 'string' && discIds.has(v)) fails.push({ rule: 'R11', where: `${SITE_JSON} $.entity.${field}`, detail: `nombra el disco de muestra "${v}" (jpeg-disc): la entidad alimenta los datos estructurados y el disco no cumple su suelo; referenciar el conjunto o un recorte jpeg-crop` });
+  }
+}
+for (const id of discIds) {
+  const d = derivatives[id as keyof typeof derivatives];
+  const p = d.profile;
+  if (p.kind !== 'jpeg-disc') continue;
+  const abs = path.join(REPO_ROOT, PUBLIC_DIR, d.path);
+  if (!fs.existsSync(abs)) continue; // ya falló R2
+  const side = resolveLengthToken(p.sizeToken) * p.density;
+  const meta = jpegSize(fs.readFileSync(abs));
+  if (meta.width !== side || meta.height !== side) fails.push({ rule: 'R11', where: `${PUBLIC_DIR}/${d.path}`, detail: `mide ${meta.width}×${meta.height} y su uso pide ${side}×${side} (${p.sizeToken} × ${p.density}): el token cambió sin regenerar; pnpm media:build` });
+}
+
 if (fails.length === 0) {
+  console.log(`[media-gate] lotes del campo: ${Object.keys(fieldBatches).map((b) => `${b} = ${batchRead.members.filter((m) => m.batch === b).length} medio(s)`).join(' · ')} (R1/R2/R3/R6/R9/R10 en verde).`);
+  console.log(`[media-gate] disco de muestra (R11): ${discIds.size} derivado(s) jpeg-disc, fuera de los conjuntos y de la entidad, al lado de su rol.`);
   console.log(`[media-gate] OK — ${Object.keys(masters).length} maestro(s) y ${Object.keys(derivatives).length} derivado(s) + ${GENERATED_FILE} en correspondencia con ${LOCK_FILE}; ${present.length} archivo(s) en ${PUBLIC_DIR}/, todos declarados; sharp ${lock.tool.sharp} / vips ${lock.tool.vips}${ffmpegNote}; ${budgeted} derivado(s) con presupuesto de peso, todos dentro; superficie ${lock.surface.token} = ${lock.surface.srgb}.`);
   process.exit(0);
 }

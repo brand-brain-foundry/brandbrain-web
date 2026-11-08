@@ -3,12 +3,12 @@ id: BBW-PORTS
 title: "Registro de puertos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.8
+version: 1.9
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-16
-updated: 2026-11-06
-verified_against_code: 2026-11-06@feat/consentimiento (v1.8: puerto de ANALÍTICA declarado, P-BBW-82 — adaptador Cloudflare Web Analytics con carga manual solo tras consentir, alternativa nula vigente mientras no haya token; src/analytics/; v1.7: puerto de tipografía display RETIRADO — Adobe Fonts eliminado por RGPD art. 5.1.c, ningún componente lo consumía; v1.6: previsualización por rama adelantada en el puerto de despliegue, D-BBW-26, sin actor nuevo; v1.5: vídeo del héroe por el puerto de medios, ffmpeg como herramienta de desarrollo; v1.4: puerto de medios declarado con su adaptador —derivados servidos desde el propio sitio— y su contrato docs/system/MEDIA.md; v1.3: enlaces salientes declarados en site.ts, que NO son puertos; v1.2: puerto de contenido declarado con su adaptador de archivos, src/content; v1.1: puerto de tipografía corregido contra la documentación oficial de Adobe Fonts, leída en vivo 2026-09-16)
+updated: 2026-11-08
+verified_against_code: 2026-11-08@feat/perfil-p1 (v1.9: enlace saliente `links.linkedinSkills` en el host ya declarado www.linkedin.com) · 2026-11-06@feat/consentimiento (v1.8: puerto de ANALÍTICA declarado, P-BBW-82 — adaptador Cloudflare Web Analytics con carga manual solo tras consentir, alternativa nula vigente mientras no haya token; src/analytics/; v1.7: puerto de tipografía display RETIRADO — Adobe Fonts eliminado por RGPD art. 5.1.c, ningún componente lo consumía; v1.6: previsualización por rama adelantada en el puerto de despliegue, D-BBW-26, sin actor nuevo; v1.5: vídeo del héroe por el puerto de medios, ffmpeg como herramienta de desarrollo; v1.4: puerto de medios declarado con su adaptador —derivados servidos desde el propio sitio— y su contrato docs/system/MEDIA.md; v1.3: enlaces salientes declarados en site.ts, que NO son puertos; v1.2: puerto de contenido declarado con su adaptador de archivos, src/content; v1.1: puerto de tipografía corregido contra la documentación oficial de Adobe Fonts, leída en vivo 2026-09-16)
 supersedes: []
 superseded_by: null
 related: [BBW-DEPLOY-CONTRACT, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, BBW-MEDIA-CONTRACT, BBW-BEHAVIOR, D-BBW-10, D-BBW-13, D-BBW-14, D-BBW-21, P-BBW-82]
@@ -41,7 +41,7 @@ tags: [puertos, actores-externos, adaptadores, brandbrain-web]
 `src/config/site.ts` declara `site.links` (fase 6a): destinos a los que la web **enlaza** (`<a href>`), nombrados por rol. Un enlace saliente
 no es un actor externo: la página no le hace ninguna petición en runtime, no depende de que responda y no hay adaptador que cambiar. Por eso
 no tienen fila arriba, pero se listan aquí para que la comprobación del criterio 5(b) (hosts que aparecen en `src/`) siga siendo un
-subconjunto de lo declarado: `sivarbrains.com` (agencia) · `branddesignerpro.com` (trabajos con IA) · `www.linkedin.com` · `github.com` (solo en `sameAs`) ·
+subconjunto de lo declarado: `sivarbrains.com` (agencia) · `branddesignerpro.com` (trabajos con IA) · `www.linkedin.com` (el perfil y, desde P1, `links.linkedinSkills`: su sección de aptitudes) · `github.com` (solo en `sameAs`) ·
 `www.credly.com` (el sello del pie, enlace simple sin el guion de inserción de Credly, 2026-11-02) · `mailto:` al buzón oficial. El contenido (`content/`) nunca escribe una URL: referencia la llave y el puerto de contenido la valida.
 Valores del inventario N0 §2.4, pendientes de confirmación por Zavala (P-BBW-19).
 

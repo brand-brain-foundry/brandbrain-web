@@ -21,8 +21,13 @@
 #
 # ORDEN. La primera regla que casa gana, así que las específicas van antes que las generales.
 
-/quien          /es/quien/          301
+/perfil         /es/perfil/         301
 /aviso-legal    /es/aviso-legal/    301
 /privacidad     /es/privacidad/     301
 /cookies        /es/cookies/        301
+# RUTAS RETIRADAS (P1, D-BBW-107; registro `RETIRED_ROUTES` en src/config/pages.ts, guardia R6): un 301 de UN salto a la ruta vigente,
+# sin prefijo y con cada locale publicado, con y sin barra final. «Quién» pasó a «Perfil».
+/quien          /es/perfil/         301
+/es/quien       /es/perfil/         301
+/es/quien/      /es/perfil/         301
 /    /es/    301

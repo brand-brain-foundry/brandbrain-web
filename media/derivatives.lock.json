@@ -1,4 +1,61 @@
 {
+  "batches": {
+    "perfil": {
+      "christian-3": {
+        "budgetBytes": 80000,
+        "bytes": 31860,
+        "focus": "0.54,0.33",
+        "kind": "image",
+        "master": {
+          "file": "christian-3.jpg",
+          "sha256": "5f86f4bb6d710bb56c49e281420527563ede100065e597e4239a9d7c182a4fe8"
+        },
+        "path": "public/campo-perfil-christian-3-480x480.jpg",
+        "profile": "field-batch 480×480 jpeg q 82",
+        "sha256": "e9396a954fde2700ead150813ee562cf427cbaee15fc4e67c168a5f96a6d006d"
+      },
+      "crystal-fish-with-human-eye": {
+        "budgetBytes": 600000,
+        "bytes": 415675,
+        "focus": "0.41,0.53",
+        "kind": "video",
+        "master": {
+          "file": "crystal-fish-with-human-eye.mp4",
+          "sha256": "51cca5755257a668b59b4467a4ba1067239c44a7073de9da33b22d3ae04b36fd"
+        },
+        "path": "public/campo-perfil-crystal-fish-with-human-eye-480x480.mp4",
+        "profile": "field-batch 480×480 h264 crf 23 ≤ 8 s sin audio",
+        "sha256": "3047938906d7adfabc269e650cc2022355de4a7cb14c0807beaaa393df7fad52",
+        "streams": "video:h264 480x480"
+      },
+      "sc": {
+        "budgetBytes": 80000,
+        "bytes": 28037,
+        "focus": "0.51,0.46",
+        "kind": "image",
+        "master": {
+          "file": "sc.jpg",
+          "sha256": "be813324fe91d08577f4fe7de219c0834251985f7de6e3da04813de6b57546f0"
+        },
+        "path": "public/campo-perfil-sc-480x480.jpg",
+        "profile": "field-batch 480×480 jpeg q 82",
+        "sha256": "549943668745874214248e5e1ee71cec5ad3cd99d2b39722b6ef3e9749994183"
+      },
+      "zavala-1": {
+        "budgetBytes": 80000,
+        "bytes": 18940,
+        "focus": "0.49,0.42",
+        "kind": "image",
+        "master": {
+          "file": "zavala-1.jpg",
+          "sha256": "1b14b1038cabd28356ce2709291f782590f199683abef6c0ce8c0515252785f1"
+        },
+        "path": "public/campo-perfil-zavala-1-480x480.jpg",
+        "profile": "field-batch 480×480 jpeg q 82",
+        "sha256": "fe056230ba3267b74ee06e5f0a026b9cfdbdccc730d80ec457ac408bb4f1e1e8"
+      }
+    }
+  },
   "derivatives": {
     "appleTouchIcon": {
       "height": 180,
@@ -7,6 +64,69 @@
       "profile": "png 180×180 surface padding 0.1111",
       "sha256": "0a72d6c2a8f621b412a4bb4f3f203f131feb91cbb73c1edb74a68c0d052b20aa",
       "width": 180
+    },
+    "cardAgencyPoster": {
+      "budgetBytes": 60000,
+      "bytes": 20440,
+      "height": 480,
+      "master": "cardAgency",
+      "path": "public/card-agency-poster-640x480.jpg",
+      "profile": "poster jpeg 640×480 recorte center q 80 fotograma 0 ≤ 60000 B",
+      "sha256": "2e910792bfa66e6034b058217d7c8338c765ea22e1660004ad4ca59ef0658264",
+      "width": 640
+    },
+    "cardAgencyVideo": {
+      "budgetBytes": 900000,
+      "bytes": 577211,
+      "height": 480,
+      "master": "cardAgency",
+      "path": "public/card-agency-640x480.mp4",
+      "profile": "video h264 640×480 recorte center crf 23 sin audio ≤ 900000 B",
+      "sha256": "1a21bf4760a28adb917a8aa12a7010bdfa11704527b960a0fd5dfe78e960f786",
+      "streams": "video:h264 640x480",
+      "width": 640
+    },
+    "cardStudioPoster": {
+      "budgetBytes": 60000,
+      "bytes": 29889,
+      "height": 480,
+      "master": "cardStudio",
+      "path": "public/card-studio-poster-640x480.jpg",
+      "profile": "poster jpeg 640×480 recorte center q 80 fotograma 0 ≤ 60000 B",
+      "sha256": "13d18c3f6f1eec4e2d783d6aa385a4c0a89abe0f82c6f60d1edfb6008f8e755a",
+      "width": 640
+    },
+    "cardStudioVideo": {
+      "budgetBytes": 900000,
+      "bytes": 717771,
+      "height": 480,
+      "master": "cardStudio",
+      "path": "public/card-studio-640x480.mp4",
+      "profile": "video h264 640×480 recorte center crf 23 sin audio ≤ 900000 B",
+      "sha256": "4e490bc4287f2af16df9316ee982dfad56ef0a17cb55056cb7edb761c89e021d",
+      "streams": "video:h264 640x480",
+      "width": 640
+    },
+    "cardWorksPoster": {
+      "budgetBytes": 60000,
+      "bytes": 22316,
+      "height": 480,
+      "master": "cardWorks",
+      "path": "public/card-works-poster-640x480.jpg",
+      "profile": "poster jpeg 640×480 recorte center q 80 fotograma 0 ≤ 60000 B",
+      "sha256": "9db303e66064f8548f3e85137ff5d35030dfb746be208661181051848362f338",
+      "width": 640
+    },
+    "cardWorksVideo": {
+      "budgetBytes": 900000,
+      "bytes": 615657,
+      "height": 480,
+      "master": "cardWorks",
+      "path": "public/card-works-640x480.mp4",
+      "profile": "video h264 640×480 recorte center crf 23 sin audio ≤ 900000 B",
+      "sha256": "a7746c29649f107f7dde0afec6c46d5c2366a0957faf2c45f404c99f5e5dc5b9",
+      "streams": "video:h264 640x480",
+      "width": 640
     },
     "favicon": {
       "master": "brandIcon",
@@ -69,28 +189,44 @@
       "sha256": "0b0b519b870f218cfda4d995cad0cec01b49667e91e23a4570c8022dfe6f5951"
     },
     "portrait16x9": {
-      "height": 338,
+      "height": 675,
       "master": "portrait",
-      "path": "public/portrait-600x338.jpg",
-      "profile": "jpeg-crop 16:9 ancho 600 ancla-y 0.15 q 90 ≥ 50000 px",
-      "sha256": "82c8d3e318e582138927f5a4fa5443bbfe583a4873ea46398eda1b01436cf0b7",
-      "width": 600
+      "path": "public/portrait-1200x675.jpg",
+      "profile": "jpeg-crop 16:9 ancho 1200 foco-y 0.42 q 90 ≥ 50000 px",
+      "sha256": "73fe94c04d3a0f3f8763ceddc21bf8305c6bb085fef4d6c566b268755ffbbd57",
+      "width": 1200
     },
     "portrait1x1": {
-      "height": 600,
+      "height": 1200,
       "master": "portrait",
-      "path": "public/portrait-600x600.jpg",
-      "profile": "jpeg-crop 1:1 ancho 600 ancla-y 0.15 q 90 ≥ 50000 px",
-      "sha256": "ae37d93c004bf0b77a0eeb17932d7ba97f86d61b88479316276177485bb53859",
-      "width": 600
+      "path": "public/portrait-1200x1200.jpg",
+      "profile": "jpeg-crop 1:1 ancho 1200 foco-y 0.42 q 90 ≥ 50000 px",
+      "sha256": "9280ede0628b1cd3e17701644fa94f3f09dbf2a4d7f49c45334d0ed774c6d3b2",
+      "width": 1200
     },
     "portrait4x3": {
-      "height": 450,
+      "height": 900,
       "master": "portrait",
-      "path": "public/portrait-600x450.jpg",
-      "profile": "jpeg-crop 4:3 ancho 600 ancla-y 0.15 q 90 ≥ 50000 px",
-      "sha256": "630da955d9f128783ff8eee8f4d7bc851eba2190d75d9237b7379288804b1465",
-      "width": 600
+      "path": "public/portrait-1200x900.jpg",
+      "profile": "jpeg-crop 4:3 ancho 1200 foco-y 0.42 q 90 ≥ 50000 px",
+      "sha256": "31c738838e657a07da1ff16d6df4ed410d61fd5861eea1b04ef3671eb33e0ca5",
+      "width": 1200
+    },
+    "portraitDisc1x": {
+      "height": 46,
+      "master": "portrait",
+      "path": "public/portrait-46x46.jpg",
+      "profile": "jpeg-disc 1:1 lado --bbf-profile-portrait-size × 1 foco-y 0.42 q 82",
+      "sha256": "1e1bc7c41e0a8a4eb36141a863c7460f4daac4265ff4677dbd3fb786cbf0dec8",
+      "width": 46
+    },
+    "portraitDisc2x": {
+      "height": 92,
+      "master": "portrait",
+      "path": "public/portrait-92x92.jpg",
+      "profile": "jpeg-disc 1:1 lado --bbf-profile-portrait-size × 2 foco-y 0.42 q 82",
+      "sha256": "0bb190bb8cf80aeef46f2ee960a229feba78c484e4ce0d0704d374e3d37a401d",
+      "width": 92
     },
     "share": {
       "height": 630,
@@ -103,7 +239,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "90ad25d0a4fe6b1479d39a2365ddd39e313574218d68e4837b8bbdebe2f1b2a8"
+    "sha256": "f8d91139a2ab49efa84f2dbfa8ab0f96396e5081b5e2a0609245dffbcec253f0"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -119,6 +255,18 @@
       "file": "brand-icon.svg",
       "paint": "#9299c6",
       "sha256": "8cf6fb57414e3f43e09b32703f3a4b07ed60b063fbcf1638363d0d28a89a6b8b"
+    },
+    "cardAgency": {
+      "file": "card-agency.mp4",
+      "sha256": "b8ff430de5b5b781ee99b96f9671a75c1ba19fcd4afb0f7b9e83c91240e455a1"
+    },
+    "cardStudio": {
+      "file": "card-studio.mp4",
+      "sha256": "0349cbdc7432c36c3d367c815a6a795c231c006b5d40c222a59bbe9f25cff48d"
+    },
+    "cardWorks": {
+      "file": "card-works.mp4",
+      "sha256": "dbe606a1ddfed6a44f8a241cafa357e6f0d3bcd1ae61262e7837641a98129bbc"
     },
     "gcFoundational": {
       "file": "gc-foundational.png",
@@ -138,7 +286,7 @@
     },
     "portrait": {
       "file": "portrait.jpg",
-      "sha256": "127a449cb89537d2a6e0fb7b9d1698050226220fbe1e25f4bf516d463389e921"
+      "sha256": "1b14b1038cabd28356ce2709291f782590f199683abef6c0ce8c0515252785f1"
     },
     "toggleArmBottom": {
       "file": "toggle-arm-bottom.svg",
@@ -161,6 +309,7 @@
     "token": "--bbf-surface-base"
   },
   "tool": {
+    "ffmpeg": "9.0.2",
     "sharp": "0.35.4",
     "vips": "8.18.6"
   }

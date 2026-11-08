@@ -43,15 +43,21 @@ import {
   inlineIcons,
   masters,
   mediaSets,
+  mediaClips,
   rigs,
+  fieldBatches,
+  fieldBatchPath,
+  FIELD_BATCH_PROFILE,
   type Derivative,
   type DerivativeId,
   type MasterId,
   type Profile,
+  type VideoCrop,
 } from '../../src/media/registry';
 import { REPO_ROOT, sha256, stableJson, type LockFile } from './lock';
-import { resolveColorToken } from './tokens';
+import { resolveColorToken, resolveLengthToken } from './tokens';
 import { deriveRig } from './brand-icon-rig';
+import { readBatches, focusLabel, type BatchMember } from './batches';
 
 type SvgMaster = { id: MasterId; file: string; bytes: Buffer; painted: Buffer; paintColor?: string; viewBox: { x: number; y: number; w: number; h: number }; inner: string; paint: 'fill' | 'stroke'; d: string };
 
@@ -143,8 +149,31 @@ function runFfmpeg(args: string[], ext: string): Buffer {
 /** Argumentos comunes de salida: sin audio (D-BBW-24), sin metadatos ni marcas de tiempo (bitexact), mismo cadencia y GOP de 2 s (48 @ 24 fps). */
 const VIDEO_COMMON = ['-an', '-sn', '-dn', '-map_metadata', '-1', '-map_chapters', '-1', '-fflags', '+bitexact', '-flags:v', '+bitexact', '-pix_fmt', 'yuv420p', '-g', '48'];
 
+/** Dimensiones de la pista de vídeo de un maestro (ffprobe). */
+function videoSize(abs: string): { w: number; h: number } {
+  const out = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', abs], { encoding: 'utf8' }).trim();
+  const [w, h] = out.split(',').map(Number);
+  if (!w || !h) throw new Error(`[media] no se pudieron leer las dimensiones de ${abs}: "${out}"`);
+  return { w, h };
+}
+
+/**
+ * Filtro de vídeo de un perfil `video`/`poster` (P4 del perfil): con `crop: "center"`, primero la caja más grande de la proporción del perfil
+ * que cabe en el maestro, centrada (dimensiones pares, calculadas aquí: el filtro recibe números, no expresiones), y después el escalado
+ * Lanczos a `width`×`height`. Sin recorte, solo el escalado (el comportamiento de la fase 6d).
+ */
+function videoFilter(master: VideoMaster, p: { width: number; height: number; crop?: VideoCrop }): string {
+  const scale = `scale=${p.width}:${p.height}:flags=lanczos`;
+  if (!p.crop) return scale;
+  const { w, h } = videoSize(master.abs);
+  const even = (n: number) => Math.floor(n / 2) * 2;
+  const cw = even(Math.min(w, (h * p.width) / p.height));
+  const ch = even(Math.min(h, (w * p.height) / p.width));
+  return `crop=${cw}:${ch}:${even((w - cw) / 2)}:${even((h - ch) / 2)},${scale}`;
+}
+
 function encodeVideo(master: VideoMaster, p: Extract<Profile, { kind: 'video' }>): { bytes: Buffer; ext: string } {
-  const scale = ['-vf', `scale=${p.width}:${p.height}:flags=lanczos`];
+  const scale = ['-vf', videoFilter(master, p)];
   if (p.codec === 'h264') {
     // respaldo universal: libx264, CRF fijo, preset slow, perfil High 4.0, un hilo, moov al principio (arranque sin esperar al final del archivo)
     const args = ['-i', master.abs, ...VIDEO_COMMON, ...scale, '-c:v', 'libx264', '-preset', 'slow', '-crf', String(p.quality), '-profile:v', 'high', '-level', '4.0', '-threads', '1', '-movflags', '+faststart', '-f', 'mp4'];
@@ -157,7 +186,7 @@ function encodeVideo(master: VideoMaster, p: Extract<Profile, { kind: 'video' }>
 
 /** Póster = el PRIMER FOTOGRAMA EXACTO del maestro (fotograma 0, sin pérdida vía PNG) codificado por sharp al formato y calidad del perfil. */
 async function encodePoster(master: VideoMaster, p: Extract<Profile, { kind: 'poster' }>): Promise<Buffer> {
-  const png = runFfmpeg(['-i', master.abs, '-map', '0:v:0', '-frames:v', '1', '-vf', `select=eq(n\\,0),scale=${p.width}:${p.height}:flags=lanczos`, '-c:v', 'png', '-f', 'image2'], 'png');
+  const png = runFfmpeg(['-i', master.abs, '-map', '0:v:0', '-frames:v', '1', '-vf', `select=eq(n\\,0),${videoFilter(master, p)}`, '-c:v', 'png', '-f', 'image2'], 'png');
   const img = sharp(png).withMetadata({}).removeAlpha();
   return p.format === 'jpeg' ? img.jpeg({ quality: p.quality, mozjpeg: true, chromaSubsampling: '4:2:0' }).toBuffer() : img.webp({ quality: p.quality, effort: 6 }).toBuffer();
 }
@@ -231,6 +260,54 @@ function packIco(frames: { size: number; png: Buffer }[]): Buffer {
   return Buffer.concat([header, ...entries, ...frames.map((f) => f.png)]);
 }
 
+/**
+ * S12 (R2 del perfil) · el CUADRADO más grande que cabe en un maestro de `W×H`, centrado en su punto focal (fracciones) y sin salirse.
+ * Un maestro cuyo lado corto no llega a `side` rompe: un derivado nunca amplía.
+ */
+function squareCrop(W: number, H: number, focus: { x: number; y: number }, side: number, where: string) {
+  const c = Math.min(W, H);
+  if (c < side) throw new Error(`[media] ${where}: lado corto ${c} px < ${side} px del perfil del lote: un derivado nunca amplía`);
+  const left = Math.min(W - c, Math.max(0, Math.round(focus.x * W - c / 2)));
+  const top = Math.min(H - c, Math.max(0, Math.round(focus.y * H - c / 2)));
+  return { left, top, c };
+}
+
+/** Dimensiones de la pista de vídeo de un maestro (ffprobe). */
+function probeSize(abs: string): { w: number; h: number } {
+  const out = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', abs], { encoding: 'utf8' }).trim();
+  const [w, h] = out.split(',').map(Number);
+  return { w, h };
+}
+
+/** Un medio de lote → su derivado (S12): imagen → JPEG cuadrado; vídeo → H.264 cuadrado, sin audio, a lo sumo `videoMaxSeconds`. */
+async function encodeBatchMember(m: BatchMember): Promise<{ bytes: Buffer; budgetBytes: number; streams?: string; note: string }> {
+  const P = FIELD_BATCH_PROFILE;
+  const where = `${m.batch}/${m.file}`;
+  if (m.kind === 'image') {
+    const meta = await sharp(m.abs).metadata();
+    const { left, top, c } = squareCrop(meta.width ?? 0, meta.height ?? 0, m.focus, P.side, where);
+    const bytes = await sharp(m.abs)
+      .rotate() // la orientación EXIF se aplica antes de recortar (el foco se declara sobre la imagen tal como se ve)
+      .extract({ left, top, width: c, height: c })
+      .resize(P.side, P.side, { fit: 'fill', kernel: 'lanczos3' })
+      .jpeg({ quality: P.imageQuality, mozjpeg: true, chromaSubsampling: '4:4:4' })
+      .toBuffer();
+    return { bytes, budgetBytes: P.imageBudgetBytes, note: `caja ${c}×${c} en (${left}, ${top}) del maestro ${meta.width}×${meta.height}, foco ${focusLabel(m.focus)}` };
+  }
+  const { w, h } = probeSize(m.abs);
+  const { left, top, c } = squareCrop(w, h, m.focus, P.side, where);
+  const vf = ['-vf', `crop=${c}:${c}:${left}:${top},scale=${P.side}:${P.side}:flags=lanczos`];
+  const args = ['-i', m.abs, '-t', String(P.videoMaxSeconds), ...VIDEO_COMMON, ...vf, '-c:v', 'libx264', '-preset', 'slow', '-crf', String(P.videoQuality), '-profile:v', 'high', '-level', '4.0', '-threads', '1', '-movflags', '+faststart', '-f', 'mp4'];
+  const bytes = runFfmpeg(args, 'mp4');
+  const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bbw-media-')), 'probe.mp4');
+  fs.writeFileSync(tmp, bytes);
+  const streams = probeStreams(tmp);
+  fs.rmSync(path.dirname(tmp), { recursive: true, force: true });
+  if (/audio:/.test(streams)) throw new Error(`[media] ${where}: el derivado conserva una pista de audio (${streams}); la capa del campo no lleva audio (D-BBW-24)`);
+  if (!streams.includes(`${P.side}x${P.side}`)) throw new Error(`[media] ${where}: dimensiones ${streams} ≠ ${P.side}×${P.side}`);
+  return { bytes, budgetBytes: P.videoBudgetBytes, streams, note: `caja ${c}×${c} en (${left}, ${top}) del maestro ${w}×${h}, foco ${focusLabel(m.focus)}, ≤ ${P.videoMaxSeconds} s` };
+}
+
 function profileLabel(p: Profile): string {
   switch (p.kind) {
     case 'svg-copy':
@@ -244,13 +321,15 @@ function profileLabel(p: Profile): string {
     case 'manifest':
       return `manifest ${p.icons.join(',')}`;
     case 'video':
-      return `video ${p.codec} ${p.width}×${p.height} crf ${p.quality} sin audio ≤ ${p.budgetBytes} B`;
+      return `video ${p.codec} ${p.width}×${p.height}${p.crop ? ` recorte ${p.crop}` : ''} crf ${p.quality} sin audio ≤ ${p.budgetBytes} B`;
     case 'poster':
-      return `poster ${p.format} ${p.width}×${p.height} q ${p.quality} fotograma 0 ≤ ${p.budgetBytes} B`;
+      return `poster ${p.format} ${p.width}×${p.height}${p.crop ? ` recorte ${p.crop}` : ''} q ${p.quality} fotograma 0 ≤ ${p.budgetBytes} B`;
     case 'png-resize':
       return `png-resize ${p.size}×${p.size}`;
     case 'jpeg-crop':
-      return `jpeg-crop ${p.aspect[0]}:${p.aspect[1]} ancho ${p.width} ancla-y ${p.anchorY} q ${p.quality} ≥ ${p.minPixels} px`;
+      return `jpeg-crop ${p.aspect[0]}:${p.aspect[1]} ancho ${p.width} foco-y ${p.focusY} q ${p.quality} ≥ ${p.minPixels} px`;
+    case 'jpeg-disc':
+      return `jpeg-disc 1:1 lado ${p.sizeToken} × ${p.density} foco-y ${p.focusY} q ${p.quality}`;
   }
 }
 
@@ -271,7 +350,10 @@ async function main(): Promise<void> {
     if (masters[id].kind !== 'raster') throw new Error(`[media] el maestro "${id}" no es raster: este perfil no lo admite`);
     return loadedRaster.get(id) ?? (loadedRaster.set(id, loadRasterMaster(id)), loadedRaster.get(id)!);
   };
-  const needsFfmpeg = (Object.values(derivatives) as Derivative[]).some((d) => d.profile.kind === 'video' || d.profile.kind === 'poster');
+  const batchRead = readBatches();
+  if (batchRead.problems.length) throw new Error(`[media] lotes del campo:\n  ${batchRead.problems.join('\n  ')}`);
+  const needsFfmpeg =
+    (Object.values(derivatives) as Derivative[]).some((d) => d.profile.kind === 'video' || d.profile.kind === 'poster') || batchRead.members.some((m) => m.kind === 'video');
   const ffmpeg = needsFfmpeg ? ffmpegVersion() : undefined;
 
   const publicDir = path.join(REPO_ROOT, PUBLIC_DIR);
@@ -331,30 +413,36 @@ async function main(): Promise<void> {
       notes.push(`${d.path}: ${out.bytes.length} B = ${pct} % del presupuesto ${p.budgetBytes} B${out.streams ? ` · ${out.streams}` : ''}`);
       continue;
     }
-    if (p.kind === 'jpeg-crop') {
-      // S3c (D-BBW-91): la caja más grande de proporción `aspect` dentro del maestro, centrada en x, colocada en y por `anchorY`; escalada a
+    if (p.kind === 'jpeg-crop' || p.kind === 'jpeg-disc') {
+      // S3c (D-BBW-91; P1, D-BBW-103): la caja más grande de proporción `aspect` dentro del maestro, centrada en x y CENTRADA EN y SOBRE EL
+      // PUNTO FOCAL `focusY` (fracción del alto del maestro), sin salirse del maestro; escalada a
       // `width` sin ampliar; JPEG sin metadatos (sharp no copia EXIF/IPTC/ICC salvo que se pida: el derivado sale en sRGB y sin datos de origen).
+      // `jpeg-disc` (P2b-216, D-BBW-111): la misma caja 1:1; el ancho NO se escribe: sale del rol de longitud × la densidad, y ese es su suelo.
+      const disc = p.kind === 'jpeg-disc';
+      const [aw, ah] = disc ? ([1, 1] as const) : p.aspect;
+      const width = disc ? resolveLengthToken(p.sizeToken) * p.density : p.width;
+      if (!Number.isInteger(width) || width <= 0) throw new Error(`[media] ${d.path}: el lado resuelto (${width}) no es un número entero de píxeles`);
       const rm = raster(d.master);
       const meta = await sharp(rm.bytes).metadata();
       const W = meta.width ?? 0;
       const H = meta.height ?? 0;
-      const [aw, ah] = p.aspect;
       let cw = W;
       let ch = Math.round((W * ah) / aw);
       if (ch > H) { ch = H; cw = Math.round((H * aw) / ah); }
       const left = Math.round((W - cw) / 2);
-      const top = Math.round(p.anchorY * (H - ch));
-      if (p.width > cw) throw new Error(`[media] ${d.path}: el ancho del perfil (${p.width}) amplía el maestro (${cw} px de caja): un derivado nunca amplía`);
-      const outW = p.width;
-      const outH = Math.round((p.width * ah) / aw);
-      if (outW * outH < p.minPixels) throw new Error(`[media] ${d.path}: ${outW}×${outH} = ${outW * outH} píxeles, por debajo del mínimo del uso (${p.minPixels})`);
+      const top = Math.min(H - ch, Math.max(0, Math.round(p.focusY * H - ch / 2)));
+      if (width > cw) throw new Error(`[media] ${d.path}: el ancho del perfil (${width}) amplía el maestro (${cw} px de caja): un derivado nunca amplía`);
+      const outW = width;
+      const outH = Math.round((width * ah) / aw);
+      if (!disc && outW * outH < p.minPixels) throw new Error(`[media] ${d.path}: ${outW}×${outH} = ${outW * outH} píxeles, por debajo del mínimo del uso (${p.minPixels})`);
+      if (disc && !d.path.endsWith(`-${outW}x${outH}.jpg`)) throw new Error(`[media] ${d.path}: el nombre no dice el lado resuelto (${outW}×${outH} = ${p.sizeToken} × ${p.density}); renombrar el derivado en el registro`);
       const jpg = await sharp(rm.bytes)
         .extract({ left, top, width: cw, height: ch })
         .resize(outW, outH, { fit: 'fill', kernel: 'lanczos3' })
         .jpeg({ quality: p.quality, mozjpeg: true, chromaSubsampling: '4:4:4' })
         .toBuffer();
       outputs.set(id, { bytes: jpg, width: outW, height: outH });
-      notes.push(`${d.path}: caja ${cw}×${ch} en (${left}, ${top}) del maestro ${W}×${H} → ${outW}×${outH} = ${outW * outH} px (≥ ${p.minPixels})`);
+      notes.push(`${d.path}: caja ${cw}×${ch} en (${left}, ${top}) del maestro ${W}×${H} → ${outW}×${outH} = ${outW * outH} px (${disc ? `= ${p.sizeToken} × ${p.density}, suelo del disco` : `≥ ${p.minPixels}`})`);
       continue;
     }
     if (p.kind === 'png-resize') {
@@ -414,7 +502,47 @@ async function main(): Promise<void> {
       const dd = derivatives[m as DerivativeId];
       if (!dd) throw new Error(`[media] conjunto "${setId}": el miembro "${m}" no es un derivado del registro`);
       if (dd.master !== set.master) throw new Error(`[media] conjunto "${setId}": el miembro "${m}" sale del maestro "${dd.master}", no de "${set.master}"`);
+      if (dd.profile.kind === 'jpeg-disc') throw new Error(`[media] conjunto "${setId}": el miembro "${m}" es un disco de muestra (jpeg-disc): un conjunto lo emiten los datos estructurados y el disco no cumple su suelo (R11)`);
     }
+  }
+
+  // P4 del perfil: cada clip nombra un vídeo y un póster que existen, salen del maestro que declara y son de su perfil; mismo recorte y tamaño
+  for (const [clipId, clip] of Object.entries(mediaClips)) {
+    const v = derivatives[clip.video as DerivativeId];
+    const po = derivatives[clip.poster as DerivativeId];
+    if (!v || v.profile.kind !== 'video') throw new Error(`[media] clip "${clipId}": "${clip.video}" no es un derivado de perfil video`);
+    if (!po || po.profile.kind !== 'poster') throw new Error(`[media] clip "${clipId}": "${clip.poster}" no es un derivado de perfil poster`);
+    if (v.master !== clip.master || po.master !== clip.master) throw new Error(`[media] clip "${clipId}": vídeo y póster deben salir del maestro "${clip.master}"`);
+    if (v.profile.width !== po.profile.width || v.profile.height !== po.profile.height || v.profile.crop !== po.profile.crop) {
+      throw new Error(`[media] clip "${clipId}": vídeo y póster con tamaño o recorte distintos (el póster tiene que ser el fotograma 0 del vídeo servido)`);
+    }
+  }
+
+  // S12 (R2 del perfil): lotes del campo — un derivado cuadrado por medio de la carpeta del uso, sellado con su maestro y su punto focal
+  const batchOut: { m: BatchMember; path: string; bytes: Buffer; budgetBytes: number; streams?: string }[] = [];
+  for (const m of batchRead.members) {
+    const out = await encodeBatchMember(m);
+    const rel = fieldBatchPath(m.batch, m.name, m.kind, FIELD_BATCH_PROFILE.side);
+    const pct = ((out.bytes.length / out.budgetBytes) * 100).toFixed(0);
+    if (out.bytes.length > out.budgetBytes) throw new Error(`[media] ${rel}: ${out.bytes.length} B supera el presupuesto del lote (${out.budgetBytes} B, ${pct} %)`);
+    batchOut.push({ m, path: rel, bytes: out.bytes, budgetBytes: out.budgetBytes, streams: out.streams });
+    notes.push(`lote ${m.batch} · ${rel}: ${out.note} → ${out.bytes.length} B = ${pct} % del presupuesto${out.streams ? ` · ${out.streams}` : ''}`);
+  }
+  lock.batches = {};
+  for (const b of Object.keys(fieldBatches)) lock.batches[b] = {};
+  for (const o of batchOut) {
+    fs.writeFileSync(path.join(publicDir, o.path), o.bytes);
+    lock.batches[o.m.batch][o.m.name] = {
+      master: { file: o.m.file, sha256: sha256(fs.readFileSync(o.m.abs)) },
+      kind: o.m.kind,
+      focus: focusLabel(o.m.focus),
+      path: `${PUBLIC_DIR}/${o.path}`,
+      profile: `field-batch ${FIELD_BATCH_PROFILE.side}×${FIELD_BATCH_PROFILE.side} ${o.m.kind === 'image' ? `jpeg q ${FIELD_BATCH_PROFILE.imageQuality}` : `h264 crf ${FIELD_BATCH_PROFILE.videoQuality} ≤ ${FIELD_BATCH_PROFILE.videoMaxSeconds} s sin audio`}`,
+      sha256: sha256(o.bytes),
+      bytes: o.bytes.length,
+      budgetBytes: o.budgetBytes,
+      ...(o.streams ? { streams: o.streams } : {}),
+    };
   }
 
   // escritura de derivados + lock
@@ -453,7 +581,7 @@ async function main(): Promise<void> {
                 ? pk.format === 'jpeg'
                   ? 'image/jpeg'
                   : 'image/webp'
-                : pk.kind === 'jpeg-crop'
+                : pk.kind === 'jpeg-crop' || pk.kind === 'jpeg-disc'
                   ? 'image/jpeg'
                   : 'image/png';
     const fields = [`src: "/${d.path}"`, `type: "${type}"`];
@@ -507,6 +635,21 @@ async function main(): Promise<void> {
     ...Object.entries(mediaSets).map(([setId, set]) => `  ${setId}: [${set.members.map((m) => `"${m}"`).join(', ')}],`),
     '} as const;',
     '',
+    '/** Clips (P4 del perfil): un identificador → el vídeo y su póster (fotograma 0), derivados del mismo maestro (`mediaClips` del registro). */',
+    'export const mediaClips = {',
+    ...Object.entries(mediaClips).map(([clipId, clip]) => `  ${clipId}: { video: "${clip.video}", poster: "${clip.poster}" },`),
+    '} as const;',
+    '',
+    '/** Lotes del campo (S12, R2 del perfil): por uso, los medios de `media/masters/campo/<uso>/` en orden de nombre, recortados al cuadrado',
+    ' *  por su punto focal (`content/site.json` → `$.fieldMedia`). Lote vacío = `[]` = el campo de hoy. Lo consume la capa de medios del campo. */',
+    'export const fieldBatches = {',
+    ...Object.keys(fieldBatches).map((b) => {
+      const items = batchOut.filter((o) => o.m.batch === b);
+      if (items.length === 0) return `  ${b}: [],`;
+      return [`  ${b}: [`, ...items.map((o) => `    { id: "${o.m.name}", kind: "${o.m.kind}", src: "/${o.path}", type: "${o.m.kind === 'image' ? 'image/jpeg' : 'video/mp4'}", side: ${FIELD_BATCH_PROFILE.side} },`), '  ],'].join('\n');
+    }),
+    '} as const satisfies Record<string, readonly { id: string; kind: "image" | "video"; src: string; type: string; side: number }[]>;',
+    '',
     '/** Rigs (M1c): anatomía derivada de un maestro vectorial (perfil `rig` del registro); la consume el motor S9 al arrancar. */',
     'export const rigs = {',
     ...rigEntries,
@@ -517,6 +660,7 @@ async function main(): Promise<void> {
   lock.generated = { path: GENERATED_FILE, sha256: sha256(generated) };
   fs.writeFileSync(path.join(REPO_ROOT, LOCK_FILE), stableJson(lock));
 
+  console.log(`[media-build] lotes del campo: ${Object.keys(fieldBatches).map((b) => `${b} = ${batchOut.filter((o) => o.m.batch === b).length} medio(s)`).join(' · ')}`);
   console.log(`[media-build] OK — ${Object.keys(lock.masters).length} maestro(s) → ${ordered.length} derivado(s) en ${PUBLIC_DIR}/ + ${GENERATED_FILE} (${iconEntries.length} vectores inline, ${rigEntries.length} rig(s)); superficie ${SURFACE_TOKEN} = ${surface.srgb} (oklch ${surface.oklch.L} ${surface.oklch.C} ${surface.oklch.H}); sharp ${lock.tool.sharp} / vips ${lock.tool.vips}${lock.tool.ffmpeg ? ` / ffmpeg ${lock.tool.ffmpeg}` : ''}; lock → ${LOCK_FILE}`);
   for (const n of notes) console.log(`  · ${n}`);
 }

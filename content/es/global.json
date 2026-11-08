@@ -5,9 +5,9 @@
     "caseLabel": "Caso",
     "items": [
       {
-        "id": "quien",
-        "label": "Quién",
-        "page": "quien"
+        "id": "perfil",
+        "label": "Perfil",
+        "page": "perfil"
       },
       {
         "id": "agency",
@@ -37,7 +37,7 @@
     "linkedin": "LinkedIn"
   },
   "footer": {
-    "legal": ["© {{year}} ", { "text": "{{brand}}", "page": "quien" }, " · {{role}}"],
+    "legal": ["© {{year}} ", { "text": "{{brand}}", "page": "perfil" }, " · {{role}}"],
     "social": [
       {
         "id": "linkedin",

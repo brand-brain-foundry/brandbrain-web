@@ -100,6 +100,17 @@
   /* S11 (M2, P-BBW-83): el desarme de enlaces y botones se pausa con movimiento reducido (D-BBW-31); el módulo lo LEE por JS y, en `paused`,
      no registra nada: queda el hover de color del sistema (M3, `[data-hover]` en base/document.css), que es el mismo en todos los modos */
   --bbf-motion-scatter-play-state: running;
+  /* P2 del perfil · APARICIONES (D-BBW-96…109; P0b §1.3): un bloque de la página entra UNA vez al llegar a la vista, por tiempo (no ligado
+     al desplazamiento): opacidad + un desplazamiento de dos veces el de la entrada (24 px), 480 ms con la curva de entrada (NN/g ≤ 500 ms;
+     M3 «emphasized decelerate» ≈ 400), escalonado 80 ms por hermano dentro de su grupo. El módulo (`src/behavior/profile-reveal.ts`) LEE
+     el estado de juego: con movimiento reducido no arma nada y todo está visible y quieto desde el primer fotograma. */
+  --bbf-motion-reveal-duration: var(--bbf-duration-2);
+  --bbf-motion-reveal-shift: calc(var(--bbf-motion-enter-shift) * 2);
+  --bbf-motion-reveal-stagger: var(--bbf-stagger-1);
+  --bbf-motion-reveal-play-state: running;
+  /* P4 del perfil · VÍDEO DE LAS FICHAS (S14, D-BBW-102): el módulo (`src/behavior/card-video.ts`) LEE el estado de juego antes de cada
+     reproducción; con movimiento reducido no arranca ninguna ficha y queda el póster (I-9), sin descargar el vídeo. */
+  --bbf-motion-card-play-state: running;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -112,5 +123,7 @@
     --bbf-motion-octopus-play-state: paused;
     --bbf-motion-hover-lift: 0px;
     --bbf-motion-scatter-play-state: paused;
+    --bbf-motion-reveal-play-state: paused;
+    --bbf-motion-card-play-state: paused;
   }
 }

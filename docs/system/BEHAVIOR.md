@@ -3,15 +3,15 @@ id: BBW-BEHAVIOR
 title: "Constantes de algoritmo de los sistemas dinámicos — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.14
+version: 1.18
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-18
-updated: 2026-11-06
-verified_against_code: 2026-11-06@fix/heroe-movil-aire-y-color (v1.14: §11 — los cuatro colores del campo son ROLES DE VISTA (`semantic/viewport.css` elige `--bbf-field-*-split` o `-single`, peldaños en `semantic/colors.css` elegidos por medida: el escenario cae sobre el núcleo negro en dos zonas y sobre la zona clara del sombreador en una); el módulo los relee en cada `layout()` (ya lo hacía) y repinta al cruzar el corte; residual: los aciertos no alcanzan el contraste de escritorio con ningún peldaño) · 2026-11-06@fix/cierre-legal-y-heroe-movil (v1.13: §11 — S8 con consultas SIMULTÁNEAS (P-BBW-86): ranuras derivadas de la zona visible (`windows`, `slotsOf`, `activeQueries`), `SLOTS_MIN` = 2, arranque escalonado al azar con cota (DISSOLVE_START_S − periodo/k)/2, lee `--bbf-stage-mask-mid-share` (`readMidShare`) y la ventana (`readView`); el recorte por el texto solo con el texto AL LADO (`readLine`, `beside`); quietud con todas las ranuras resueltas · v1.12: §13 — «Configurar cookies» sale del pie y es el botón `ConsentConfigure` al principio de la página de Cookies (P-BBW-82 enmienda 1); el cableado sigue escuchando `data-consent-configure` por delegación; sin JavaScript el botón no se muestra (caja reservada, `visibility: hidden`)) · 2026-11-06@fix/sello-segun-solape (v1.11: §13 — el sello se oculta SOLO MIENTRAS LA BARRA LO TAPA: `IntersectionObserver` con la medida de la reserva y umbral `BAR_AVOID_THRESHOLD` = 1 (`barAvoidRootMargin`, `isCoveredByBar` en consent.ts), marcas genéricas `data-bar-avoid` / `data-bar-covered` (`ConsentBar/attr.ts`); sale `data-consent-bar` de `<html>` con su constante (sin lector, I-6); ocultar instantáneo porque no existe rol de salida, reportado) · 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
+updated: 2026-11-08
+verified_against_code: 2026-11-08@feat/perfil-p4 (v1.18: §17 — S14 vídeo de las fichas de proyectos, `src/behavior/card-video.ts`, rol `--bbf-motion-card-play-state`, entrada por `profile-reveal.ts`) · 2026-11-08@feat/perfil-p2 (v1.17: §16 — S13 apariciones y línea de tiempo del perfil, `src/behavior/profile-reveal.ts`, rol `--bbf-motion-reveal-*`; §15/§4 — D-BBW-97 general: S8 y el fondo S1 se detienen fuera de vista con o sin capa) · 2026-11-08@feat/perfil-r2 (v1.16: §15 — S12 capa de medios del campo, `src/behavior/field-media.ts` + gancho `FieldLayer` en `criterio-field.ts` (sin capa el motor es el de siempre), tope `--bbf-field-media-cap`, reserva del texto, fuera de vista se detiene (D-BBW-97), evento `bbf:field-media`; `CriterioField` carga la capa aparte solo con medios) · 2026-11-08@feat/perfil-r1 (v1.15: §4.1 — R1, variante de color del fondo por página, D-BBW-96: `GLSL_FINAL_TURNED`, `readHueTurn`, rol `--bbf-backdrop-hue-turn`, madre `--bbf-color-backdrop-turn-verde`, `src/config/backdrops.ts`, campo `backdrop` del registro, guardia R12 `scripts/lint/check-backdrop.ts`) · 2026-11-06@fix/heroe-movil-aire-y-color (v1.14: §11 — los cuatro colores del campo son ROLES DE VISTA (`semantic/viewport.css` elige `--bbf-field-*-split` o `-single`, peldaños en `semantic/colors.css` elegidos por medida: el escenario cae sobre el núcleo negro en dos zonas y sobre la zona clara del sombreador en una); el módulo los relee en cada `layout()` (ya lo hacía) y repinta al cruzar el corte; residual: los aciertos no alcanzan el contraste de escritorio con ningún peldaño) · 2026-11-06@fix/cierre-legal-y-heroe-movil (v1.13: §11 — S8 con consultas SIMULTÁNEAS (P-BBW-86): ranuras derivadas de la zona visible (`windows`, `slotsOf`, `activeQueries`), `SLOTS_MIN` = 2, arranque escalonado al azar con cota (DISSOLVE_START_S − periodo/k)/2, lee `--bbf-stage-mask-mid-share` (`readMidShare`) y la ventana (`readView`); el recorte por el texto solo con el texto AL LADO (`readLine`, `beside`); quietud con todas las ranuras resueltas · v1.12: §13 — «Configurar cookies» sale del pie y es el botón `ConsentConfigure` al principio de la página de Cookies (P-BBW-82 enmienda 1); el cableado sigue escuchando `data-consent-configure` por delegación; sin JavaScript el botón no se muestra (caja reservada, `visibility: hidden`)) · 2026-11-06@fix/sello-segun-solape (v1.11: §13 — el sello se oculta SOLO MIENTRAS LA BARRA LO TAPA: `IntersectionObserver` con la medida de la reserva y umbral `BAR_AVOID_THRESHOLD` = 1 (`barAvoidRootMargin`, `isCoveredByBar` en consent.ts), marcas genéricas `data-bar-avoid` / `data-bar-covered` (`ConsentBar/attr.ts`); sale `data-consent-bar` de `<html>` con su constante (sin lector, I-6); ocultar instantáneo porque no existe rol de salida, reportado) · 2026-11-06@feat/m2-desarme (v1.10: §14 — S11 rebasado sobre sello y banner; el sello del pie queda FUERA de S11 por decisión de Zavala (un efecto por pieza), exento en R11 por selector nombrado `a.cert`; R11b inventario de hosts en el código; §13 conserva la nota del sello) · 2026-11-06@fix/m1d-imagotipo-identico (v1.8: §12 — conducta, sorteo y anatomía idénticos al prototipo; R10d; criterios del modelo aprobado; M1d) · 2026-11-06@feat/m1-imagotipo-vivo (v1.7: §12 reescrita — S9 porta el motor de referencia aprobado (varilla con marco local), rig v3 derivado al compilar en src/media/generated.ts, deformFrame pura, guardia R10 que ejecuta el motor; v1.6: §12 nueva — S9 imagotipo vivo, Kirchhoff elastic rod simplificado, 6 tentáculos independientes, muelle amortiguado engage ζ=0.7 / release ζ=0.9; motor en src/behavior/brand-mark-octopus.ts; rig externo en media/masters/brand-icon-rig.json verificado por R10; referencia de §13 en el módulo corregida a §12; D-BBW-28/31) (src/behavior/brand-mark-octopus.ts · src/components/atoms/BrandMark/BrandMarkLive.tsx; origen de cada constante en DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo §0.1/§4)
 supersedes: []
 superseded_by: null
-related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-DOC-13]
+related: [BBW-TYPOGRAPHY-WEIGHTS, BBW-DESIGN-EXCEPTIONS, BBW-PLAN-CONSTRUCCION, BBW-MEDIA, D-BBW-24, D-BBW-25, D-BBW-28, D-BBW-29, D-BBW-30, D-BBW-31, D-BBW-33, D-BBW-34, D-BBW-35, D-BBW-36, D-BBW-37, D-BBW-96, D-BBW-105, D-DOC-13]
 summary: "Contrato del hogar de las constantes de algoritmo (D-BBW-30): un módulo declarado por sistema en src/behavior/, sin JSX ni CSS, que lista cada constante con su origen y su clase, y que LEE los tokens que ya existen por getPropertyValue (o por el valor computado donde el navegador los aplica) y jamás los repite. v1.0 (fase 6h, portado P1): S5 modulador de peso (weight-modulator.ts) y S7 ajuste óptico y puntero (optical-fit.ts). v1.1 (fase 6i, portado P2): S1 fondo, el sombreador WebGL2 de cuatro pasadas (backdrop-shader.ts) con su PROCEDENCIA (composición y código propios de Zavala, sin licencia de terceros: Q-BBW-008) y su presupuesto de resolución medido (D-BBW-34); rejilla de escritura del peso en S5 (HAL-BBW-16). v1.2 (fase 6j, portado P3): S2 vídeo, el seguimiento del sujeto (subject-tracking.ts): centroide de luminancia con exponente, suavizado, traslación acotada sobre el zoom, cadena de reintentos; con movimiento reducido el bucle no arranca; la garantía de D-BBW-25 re-medida con una cota sobre la ventana entera de traslación (velo 43 %, sin cambio). v1.3 (fase 6k, portado P4): S3/S4 partículas, el GENERADOR del campo (particle-field.ts, D-BBW-36: se porta el generador con los rangos, los planos y la distribución, no la tirada del export): 21 burbujas en tres planos con tres elementos anidados y dos animaciones con SUS tiempos (ascenso 13,7–28,3 s, oscilación 3,7–7,3 s: el error de la 6e corregido), 31 motas en tres planos con desenfoques distintos, posición horizontal por el promedio de tres muestras, semilla fija reproducible; con movimiento reducido las animaciones no arrancan y con la pestaña oculta se pausan por el mismo rol. v1.6 (M1): S9 imagotipo vivo. v1.7 (M1c): S9 es el porte del motor de referencia aprobado (varilla con marco local, rig v3 derivado del maestro al compilar, guardia que ejecuta el motor)."
 tags: [comportamiento, constantes, algoritmos, tokens, sombreador, seguimiento, video, particulas, procedencia, brandbrain-web]
 ---
@@ -134,7 +134,7 @@ hogar) y son idénticas al original píxel a píxel (output 6i §F3: 0 píxeles 
 | `BUDGET` | dprCap **1,0** (el diseño: 1,5) · chainScale 0,5 · minPx 2 | bb:L288-295 · D-BBW-34 | plantilla (coste-calidad) | presupuesto de resolución, elegido con medida (output 6i §F5): fps con todo animado 106 / 102 / 108 para 1,5 / 1,0 / 0,75 (no discriminan); campo sin grano de 1,0 frente a 1,5: 0,2/255 de media, 1,3/255 en p99,9; grano de 1,0: celda de 2 px de dispositivo (1 px CSS), σ +0,6/255. Criterio declarado antes de medir: campo p99,9 < 3/255 · Δσ grano < 1/255 · celda ≤ 1 px CSS → la más barata que cumple es 1,0 (0,75 pasa el campo pero su celda de 2,7 px se ve) |
 | `CONTEXT` | antialias false · alpha false · low-power | bb:L217 | estático | atributos del contexto |
 
-**Tokens que lee (nunca repite):** ninguno por valor. Reposo y respaldo = la superficie base por CSS del contenedor (`--bbf-surface-base`,
+**Tokens que lee (nunca repite):** uno por valor desde R1: el giro de tono de la página, `--bbf-backdrop-hue-turn` (§4.1). Reposo y respaldo = la superficie base por CSS del contenedor (`--bbf-surface-base`,
 D-BBW-33); quietud por el rol `--bbf-motion-glow-play-state`, leído por el componente (D-BBW-31): con movimiento reducido y con la pestaña
 oculta el bucle se cancela y el lienzo se oculta (queda la superficie base). Sin WebGL2 o con el contexto perdido: lo mismo, y la página sigue.
 
@@ -142,6 +142,32 @@ oculta el bucle se cancela y el lienzo se oculta (queda la superficie base). Sin
 el tamaño sigue al contenedor por `ResizeObserver` y a la ventana por `resize` (el diseño re-medía en cada cuadro, forzando una disposición
 junto al modulador); el reloj continuo se detiene con la pestaña oculta y con movimiento reducido (el diseño seguía). Coste medido con todo
 animado en la máquina de referencia: output 6i §F5 (el diseño vivo: 52,7 fps).
+
+### §4.1 — Variante de color por página (R1, D-BBW-96 · 2026-11-08)
+
+**Qué es:** el fondo admite una variante de color por página: un **giro de tono del color VISTO** en OKLab (claridad y croma intactos),
+aplicado en la pasada final tras el techo de tono y antes del grano. Los doce vec3 (D-BBW-35) no se tocan; girarlos antes del proceso no gira
+el color visto (output R §4, alternativa (d)). Como la claridad no cambia, el contraste del campo no cambia (I-8; medida en el output R1 §5).
+
+**El inicio es idéntico por construcción.** El programa del inicio sigue siendo `GLSL_FINAL`, byte a byte el de antes; el girado es OTRO
+programa (`GLSL_FINAL_TURNED` = `GLSL_FINAL` + dos tramos insertados en anclas únicas: el uniforme `uHue` con `hueRotate`, y la llamada tras el
+techo) que solo se compila si el giro de la página es ≠ 0. Con giro 0 no hay uniforme nuevo, ni rama, ni coste.
+
+| Pieza | Dónde | Qué es |
+|---|---|---|
+| Nombre de la variante | `src/config/backdrops.ts` (`BACKDROP_VARIANTS`) | la lista cerrada de nombres (hoy: `verde`) |
+| Elección por página | `src/config/pages.ts`, campo `backdrop` de la fila (`pageBackdrop(id)`) | ausente = el inicio; la portada no puede declararla (R12b). El perfil: `verde` |
+| Marca en el HTML | `<main data-backdrop="<v>">` de la página | la hereda el fondo de cualquier sección de la página |
+| Madre del giro | `primitives/colors.css` `--bbf-color-backdrop-turn-<v>` | **por fórmula** sobre los tonos primitivos; `verde` = `H_sea − H_deep` = 188,1 − 252,9 = **−64,8°** (el azul visto `deep` va al verde de marca `sea`). La vista previa P0b usó el mismo valor (output R1 §5) |
+| Rol de página | `semantic/colors.css` `--bbf-backdrop-hue-turn` (`@property` `<number>`, inicial 0) + `[data-backdrop="<v>"]` | registrado para que `getComputedStyle` lo dé evaluado |
+| Lectura | `readHueTurn(el)` del módulo, en el propio lienzo al montar | no numérico o ausente = 0 (el fallo seguro es el inicio) |
+| Constantes del giro | `HUE_TURN_GLSL` del módulo | matrices sRGB lineal ⇄ OKLab (Ottosson 2020, dominio público) y curva sRGB (IEC 61966-2-1); clase: estático |
+
+**Partículas:** una página con variante no las lleva (D-BBW-105, D6); R12d lo vigila en lo servido.
+**Guardia R12** (`scripts/lint/check-backdrop.ts`; en `pnpm guard`, y con `--served` al final de `pnpm build`): a) huella sha256 de las cuatro
+fuentes GLSL del inicio y forma del programa girado · b) la portada sin variante · c) cada variante con madre por fórmula y selector, sin huérfanos
+· d) lo servido: inicio sin `data-backdrop`, cada página con variante con su marca exactamente una vez y sin partículas. **Añadir una variante** =
+nombre + madre por fórmula (si no cae en una: DESIGN_EXCEPTIONS) + selector, en el mismo commit; y medir contraste con la regla de `fondo-variante.cjs`.
 
 ## §5 — S2 · Vídeo: seguimiento del sujeto — RETIRADO 2026-11-02
 
@@ -600,6 +626,95 @@ escribe `data-scatter` (vacío) o `scatter` (verdadera) tal cual; un átomo o mo
 fuera de la lista lo fija, si a uno declarado le falta o le sobra un host, o si aparece otra forma. Vista fallar añadiendo `data-scatter=""` a un enlace del
 pie (`FALLO R11b(b): desarme FIJADO fuera de la lista declarada`), quitándolo al botón relleno del héroe (`aparece ×1`) y quitando `data-hover` al átomo
 `Button` (`FALLO R11b(a)`); vista pasar al restaurar (OUTPUT-BBW-2026-11-06-M3 §2).
+
+
+## §15 — S12 · Capa de medios del campo (`src/behavior/field-media.ts`, R2 del perfil · 2026-11-08; D-BBW-96, D-BBW-97)
+
+**Qué hace:** cada CONSULTA de S8 (§11) puede llevar un medio del lote de su sección (foto o vídeo, MEDIA §11). El medio se **arma por bloques**
+tras el cursor del barrido (cada bloque de `BLOCK` × `BLOCK` celdas crece desde su centro en `GROW_S` cuando el cursor lo alcanza, con la demora
+al azar fijo de S8) y se **desarma** con la disolución de la consulta (retrasada por `HOLD` hasta el hueco muerto de su ranura). Se pinta a
+**resolución real**: un trazado con los bloques vivos recorta UN `drawImage` del medio (nítido, sin pixelar; conducta aprobada en P0/P0b).
+Textura mínima derivada de la trama: entre bloques queda la junta del campo (paso − punto) repartida entre las `BLOCK` celdas del bloque.
+**Sin reloj nuevo:** la llama el tick de S8 y usa sus tiempos (`SWEEP_END_S`, `RESULT_END_S`, `DISSOLVE_START_S`, `QUERY_LIFE_S`, `QUERY_EVERY_S`).
+
+**Gancho en el motor (`FieldLayer`, `criterio-field.ts`).** `startCriterioField(canvas, plate, line, layer)`; sin `layer` (lote vacío o sin
+`fieldMedia`) ninguna rama nueva se ejecuta y el `dot` es el de siempre (inicio idéntico, R12c del output R2). **P2:** el observador de vista deja de depender de la capa (el perfil abre con el lote vacío y su sección 1 sale de la vista al leer): S8 se congela fuera de vista siempre, y el fondo S1 (`HeroBackdrop`) también (D-BBW-97). En el inicio el héroe es la página y nunca sale de vista: la conducta es la misma (identidad cuadro a cuadro, output P2). Con capa:
+`reserve(f)` → celdas bajo el texto donde no se pinta nada · `paint(ctx, f, t, qs)` → pinta los medios y devuelve las celdas que tapan (ahí no se
+pinta ningún punto salvo el cursor) · `running(on)` → pausa/reanuda vídeos · `layout(f)` → relee tope y aire. Fuera de vista (IntersectionObserver
+sobre la sección) el bucle se congela como con la pestaña oculta (**D-BBW-97**) y los vídeos se pausan. Con movimiento reducido: el fotograma
+quieto de S8 (con la reserva) y la capa no carga ni un medio.
+
+**Tamaño (ajuste de Zavala de las 11:04).** Caja escaneada = la banda de la consulta, tan alta como ancha, centrada en sus carriles. Lado máximo =
+min(caja, **tope** `--bbf-field-media-cap`) — el tope es un rol de vista: `100svmin × --bbf-stage-mask-mid-share / (2 × --bbf-stage-zones)`
+(semantic/composition.css; zonas 2 en la vista amplia, 1 en la colapsada). Lado = máximo × (1 − `SIZE_SPREAD` × azar fijo); posición al azar fijo
+DENTRO de la caja; si choca con otro medio vivo (con un bloque de aire) o con el texto se prueban hasta `TRIES` posiciones y si no, la consulta sale
+sin medio. Por debajo de `MIN_CELLS` tampoco hay medio. Ciclo del lote: bolsa barajada sin repetir hasta agotarla ni al cruzar de ciclo.
+
+**Reserva del texto (I-8).** Rects de `h1, h2, h3, p, li, a, button` de la sección y de los enlaces de la cabecera (fija), con un aire de
+`--bbf-space-3`; un medio no se arma si los toca y, si el texto llega encima al desplazarse, se desarma en el acto (a media duración).
+
+**Vídeo:** silencioso, en bucle, `playsinline`, `preload="auto"`, precalentado con un `drawImage` a 1×1 al cargar; solo se reproduce mientras un
+medio armado lo usa y el campo corre. **Carga:** el componente importa el módulo APARTE (`import()`), solo si el lote trae medios; el inicio solo
+gana el gancho (+828 B de JS medidos). **Instrumento:** `bbf:field-media` en la placa por cada asignación (`arm`, `skip` con motivo, `forced-out`),
+con caja en px de la placa, tope y paso.
+
+| Constante | Valor | Clase (D-DOC-13) | Origen |
+|---|---|---|---|
+| `BLOCK` | 2 celdas | dinámico (carácter) | P0b `block` 2 |
+| `GROW_S` | 0,24 s | dinámico | P0/P0b `grow`, aprobado (D-BBW-96) |
+| `HOLD` | 1 | dinámico | P0b §0, decisión de Zavala |
+| `MIN_CELLS` | `BAND_BASE` (16) | plantilla | P-BBW-98 §7.3 (derivado de S8) |
+| `SIZE_SPREAD` | 0,4 | dinámico | R2 (ajuste 11:04) |
+| `TRIES` | 4 | plantilla | R2 |
+| `SEED` | `SEED ^ 0x6d1a` | plantilla | P0b |
+| `TEXT_IN_SECTION` / `TEXT_IN_HEADER` | selectores | estático | P0b `TEXT_SEL` |
+
+**Tokens que lee:** `--bbf-field-media-cap`, `--bbf-space-3` (sonda en la placa, en cada `layout()`). **Medido** (output R2 §3): tamaños, contraste
+N = 24, coste y conducta.
+
+
+## §16 — S13 · Apariciones y línea de tiempo del perfil (`src/behavior/profile-reveal.ts`, P2 del perfil · 2026-11-08; D-BBW-99)
+
+**Qué hace:** mejora progresiva sobre un HTML completo. (1) APARICIONES: cada bloque `data-reveal` del cuerpo del perfil que al montar está por
+debajo de la ventana se arma (`data-reveal-armed`: opacidad 0 y `--bbf-motion-reveal-shift` hacia abajo) y entra UNA vez al llegar a la vista
+(`data-reveal-in`), por tiempo (`--bbf-motion-reveal-duration`, curva de entrada), escalonado por `--bbf-motion-reveal-stagger` × índice dentro del
+mismo aviso del observador. Lo visible al montar no se arma. (2) LÍNEA DE TIEMPO: el paso (`data-step`) cuyo borde superior cruzó la línea de
+lectura es el activo (`data-active`), los anteriores `data-passed` (nodo lleno) y `--bbf-timeline-progress` (0…1) lleva el relleno de la línea
+a su nodo por `scaleY` (compositor). Se recalcula solo cuando un paso cruza la línea (observador), nunca por cada desplazamiento.
+**Quietud:** con `--bbf-motion-reveal-play-state: paused` (movimiento reducido) no se arma nada y la línea queda llena; sin JavaScript, igual.
+**Carga:** `ProfileMotion` (organism cliente) solo cablea e importa el módulo APARTE (`import()`, 1,9 KB): el inicio no lo descarga.
+
+| Constante | Valor | Clase | Origen |
+|---|---|---|---|
+| `THRESHOLD` | 0,15 | plantilla | P0b (`threshold` de las apariciones) |
+| `ROOT_MARGIN_BOTTOM` | 0,08 | plantilla | P0b (entra un poco antes del borde) |
+| `STAGGER_CAP` | 5 | plantilla | P0b §1.3 (un grupo entra en ≤ 480 + 5 × 80 ms) |
+| `ACTIVE_LINE` | 0,5 | plantilla | P0b (paso activo en el centro de la ventana) |
+
+**Tokens que lee:** `--bbf-motion-reveal-play-state`. La hoja consume `--bbf-motion-reveal-{duration,shift,stagger}` (semantic/motion.css).
+**Medido** (output P2): conducta 17/17 (sin JS, reducido, fuera de vista, pestaña oculta, línea, rótulo fijo, tres anchos).
+
+## §17 — S14 · Vídeo de las fichas de proyectos (`src/behavior/card-video.ts`, P4 del perfil · 2026-11-08; D-BBW-102, D-BBW-97)
+
+**Qué hace:** cada ficha llega servida con su `<video preload="none" poster>` (MEDIA §12): en reposo, el póster y ningún vídeo descargado. El módulo
+decide cuándo se mueve. **Puntero fino** (rol `--bbf-hover-fine` = 1): reproduce sin sonido y en bucle mientras el puntero está sobre la ficha o la
+ficha tiene el foco; al salir, pausa y vuelta al fotograma 0 (= el póster). **Táctil:** cuando la ficha queda en la franja central (`CENTER_BAND`) de
+la ventana, UNA pasada de `TOUCH_PASS_SECONDS` (≤ 5 s, WCAG 2.2.2) sin bucle y vuelta al póster; una ficha a la vez (la más cercana al centro); no se
+repite mientras siga centrada y se rearma al salir de la franja. **Fuera de vista** (D-BBW-97) y **pestaña oculta:** pausa y póster. La pasada se
+cuenta desde el evento `playing` (la carga no se descuenta del tope). Ningún bucle propio: eventos de puntero y foco, dos `IntersectionObserver`
+(vista y franja) y un temporizador por pasada. El vídeo no toma el foco (`tabindex="-1"`, ventana `aria-hidden`): toda la ficha es el enlace.
+**Quietud (I-9, D-BBW-31):** con `--bbf-motion-card-play-state: paused` (movimiento reducido) no arranca nada y el vídeo no se pide; el rol se LEE
+antes de cada reproducción. Sin JavaScript, póster quieto.
+**Carga:** viaja en el trozo diferido de S13 (`profile-reveal.ts` lo arranca junto a las apariciones): `ProfileMotion`, cliente común a todas las
+páginas, no cambia y el inicio no descarga ninguno de los dos (trozo diferido 1 872 → 4 419 B; 969 → 1 793 B comprimido).
+
+| Constante | Valor | Clase | Origen |
+|---|---|---|---|
+| `TOUCH_PASS_SECONDS` | 5 | estático | WCAG 2.2.2 (lo que empieza solo y dura más de 5 s exige pausa); despacho P4 §1.3 |
+| `CENTER_BAND` | 0,2 | plantilla | P0 (en táctil corre la ficha más centrada) |
+
+**Tokens que lee:** `--bbf-motion-card-play-state`, `--bbf-hover-fine`. La hoja consume `--bbf-radius-card`, `--bbf-surface-chip` (la ventana).
+**Medido** (output P4): ver `OUTPUT-BBW-2026-11-08-P4-perfil-fichas-con-video` §3.
 
 ---
 *BBW-BEHAVIOR v1.12 · `docs/system/BEHAVIOR.md` · 2026-11-06 · v1.12 en M3 (`DESPACHO-BBW-2026-11-06-M3-hover-de-color-variante-sin-desarme-y-seleccion`, P-BBW-84: §14 desarme opt-in por `data-scatter` con el tipo en `data-hover`, hover de color del sistema con roles `--bbf-hover-on-mint`/`--bbf-hover-on-accent` elegidos por contraste medido, `::selection` por rol, R11b lista contraria) · v1.11 en sello según solape (instrucción directa de Zavala, sigue P-BBW-82: §13 el sello se oculta solo mientras la barra lo tapa, `IntersectionObserver` con la medida de la reserva, marcas `data-bar-avoid`/`data-bar-covered`, sale `data-consent-bar`) · v1.10 al rebasar M2 sobre sello y banner (instrucción directa de Zavala: §14 exime el sello por selector nombrado, R11b inventario; §13 conserva la nota del sello) · v1.9 en M2 (`DESPACHO-BBW-2026-11-06-M2-desarme-de-enlaces-y-botones`: S11 desarme de enlaces y botones, P-BBW-83, R11) y en sello y banner (instrucción directa de Zavala, P-BBW-82: el cableado expone `data-consent-bar`; roles `--bbf-motion-hover-lift` y `--bbf-hover-fine`) · v1.8 en M1d (`DESPACHO-BBW-2026-11-06-M1d-imagotipo-identico-al-prototipo`: conducta = prototipo (scroll en todos los dispositivos, toque, hover sin media query, sin despertar al cargar), orden de sorteo, línea central exacta, R10d identidad con el prototipo, criterios del modelo aprobado, coste medido (búfer + `join` sin mejora, no se conserva), R10 en el pre-commit) · v1.7 en M1c (`DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`: S9 porta el motor de referencia aprobado; rig v3 derivado al compilar; guardia R10 que ejecuta el motor; se retiran lienzo, `--bbf-base`, `clamp`, `natAngles`) · v1.6 en M1 (`DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · v1.4 en la fase 6l (`DESPACHO-BBW-2026-09-18-fase6l-P5-entradas-sombras-y-lockup`) · v1.3 en la fase 6k · v1.2 en la fase 6j · v1.1 en la fase 6i · nace en la fase 6h (D-BBW-30)*

@@ -47,6 +47,12 @@
      la máscara sigue fundiendo hasta el borde de la caja, con menos de la mitad de la tinta; lo que de ahí caiga bajo el titular lo juzga la
      medida de contraste bajo el texto (I-8, ≥ 5,65 en el peor píxel), no la construcción. */
   --bbf-stage-reach: calc(var(--bbf-stage-height) * var(--bbf-stage-mask-mid-share) / 2);
+  /* TOPE DE LOS MEDIOS DEL CAMPO (R2 del perfil, 2026-11-08; ajuste de Zavala de las 11:04: en escritorio los medios salían demasiado grandes,
+     se solapaban y formaban siempre la misma línea). El lado de un medio de la capa S12 es el menor entre su caja escaneada y ESTE tope: la
+     mitad del alcance visible de su zona (la parada media de la máscara) a lo largo del lado corto de la ventana pequeña. En la vista de dos
+     zonas cada zona tiene la mitad del lado corto; en la de una, todo. Medido con las madres de hoy: 1440×900 → 166,5 px · 1920×1080 → 199,8 ·
+     390×844 → 144,3 (en el teléfono la caja escaneada ya era menor: no lo encoge). Lo lee el módulo por una sonda (src/behavior/field-media.ts). */
+  --bbf-field-media-cap: calc(100svmin * var(--bbf-stage-mask-mid-share) / (2 * var(--bbf-stage-zones)));
   /* DÓNDE VIVE EL ARTE (D-BBW-47). El escenario deja de estar siempre centrado: en la vista de dos zonas su centro se va al
      medio de la zona derecha. Es el DESTINO lo que cambia, no el algoritmo: el seguimiento del sujeto (behavior/subject-tracking.ts)
      sigue llevando el centroide al centro DE SU ESCENARIO con la misma traslación acotada y la misma holgura, y por eso ni las
@@ -99,4 +105,19 @@
   --bbf-bar-side: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-bar-side-slope), var(--bbf-space-10)));
   --bbf-bar-gap: var(--bbf-space-6);
   --bbf-bar-gap-narrow: clamp(var(--bbf-space-3), var(--bbf-bar-gap-narrow-slope), var(--bbf-space-6));
+
+  /* ── P2 · LA PÁGINA DE PERFIL BAJO SU APERTURA (D-BBW-96…109; medidas de P0b §2/§5, por fórmula) ───────────────────────────────────────
+     · flujo: el ancho de la página bajo el héroe, 3,5 × `space-85` (1190 px), dentro del margen de página.
+     · separación entre secciones: entre `space-24` y `space-40`, 16 % del alto de la ventana pequeña (el ritmo de P0b).
+     · ficha: la anchura máxima de una ficha de proyecto, 0,9 × `space-85` (306 px), y su mínima, 0,75 × `space-85` (255 px): con la
+       rejilla de relleno automático salen tres en fila en escritorio, dos en la tableta y una en el teléfono sin ninguna consulta.
+     · pastilla: la anchura mínima de una pastilla, la misma 0,75 × `space-85`: cuatro por fila en el flujo, dos en la tableta, una en el teléfono.
+     · RADIO DE TARJETA (residual de P0b §5): el sistema solo tenía `full` y `pill`; el radio moderado de la ventana de las fichas es un
+       peldaño de la escala de espaciado (`space-4`, 16 px), no una madre nueva. */
+  --bbf-profile-flow-width: calc(var(--bbf-space-85) * 3.5);
+  --bbf-profile-section-gap: clamp(var(--bbf-space-24), 16svh, var(--bbf-space-40));
+  --bbf-profile-card-max: calc(var(--bbf-space-85) * 0.9);
+  --bbf-profile-card-min: calc(var(--bbf-space-85) * 0.75);
+  --bbf-profile-chip-min: calc(var(--bbf-space-85) * 0.75);
+  --bbf-radius-card: var(--bbf-space-4);
 }
