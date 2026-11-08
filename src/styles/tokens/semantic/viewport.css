@@ -55,6 +55,8 @@
   --bbf-stage-width-cap: var(--bbf-stage-width-cap-split);
   --bbf-hero-text-zone: var(--bbf-hero-text-zone-split);
   --bbf-hero-text-align-block: center;
+  /* cuántas zonas tiene la vista (R2 del perfil): lo consume el tope de los medios del campo, semantic/composition.css */
+  --bbf-stage-zones: var(--bbf-stage-zones-split);
   /* LOS COLORES DEL CAMPO DE PUNTOS S8 POR VISTA (2026-11-06, héroe móvil; decisión de Zavala): el escenario cae sobre el núcleo negro del
      sombreador en dos zonas y sobre su zona clara en una, y los peldaños de cada composición viven en semantic/colors.css con su medida. El
      módulo lee los cuatro roles por una sonda al arrancar y en cada cambio de tamaño de la placa (`layout()`), así que al cruzar el corte repinta
@@ -184,6 +186,7 @@
     --bbf-stage-width-cap: var(--bbf-stage-width-cap-single);
     --bbf-hero-text-zone: var(--bbf-hero-text-zone-single);
     --bbf-hero-text-align-block: flex-end;
+    --bbf-stage-zones: var(--bbf-stage-zones-single);
     --bbf-field-lane: var(--bbf-field-lane-single);
     --bbf-field-lane-live: var(--bbf-field-lane-live-single);
     --bbf-field-read: var(--bbf-field-read-single);

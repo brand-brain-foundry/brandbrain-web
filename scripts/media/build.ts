@@ -44,6 +44,9 @@ import {
   masters,
   mediaSets,
   rigs,
+  fieldBatches,
+  fieldBatchPath,
+  FIELD_BATCH_PROFILE,
   type Derivative,
   type DerivativeId,
   type MasterId,
@@ -52,6 +55,7 @@ import {
 import { REPO_ROOT, sha256, stableJson, type LockFile } from './lock';
 import { resolveColorToken } from './tokens';
 import { deriveRig } from './brand-icon-rig';
+import { readBatches, focusLabel, type BatchMember } from './batches';
 
 type SvgMaster = { id: MasterId; file: string; bytes: Buffer; painted: Buffer; paintColor?: string; viewBox: { x: number; y: number; w: number; h: number }; inner: string; paint: 'fill' | 'stroke'; d: string };
 
@@ -231,6 +235,54 @@ function packIco(frames: { size: number; png: Buffer }[]): Buffer {
   return Buffer.concat([header, ...entries, ...frames.map((f) => f.png)]);
 }
 
+/**
+ * S12 (R2 del perfil) · el CUADRADO más grande que cabe en un maestro de `W×H`, centrado en su punto focal (fracciones) y sin salirse.
+ * Un maestro cuyo lado corto no llega a `side` rompe: un derivado nunca amplía.
+ */
+function squareCrop(W: number, H: number, focus: { x: number; y: number }, side: number, where: string) {
+  const c = Math.min(W, H);
+  if (c < side) throw new Error(`[media] ${where}: lado corto ${c} px < ${side} px del perfil del lote: un derivado nunca amplía`);
+  const left = Math.min(W - c, Math.max(0, Math.round(focus.x * W - c / 2)));
+  const top = Math.min(H - c, Math.max(0, Math.round(focus.y * H - c / 2)));
+  return { left, top, c };
+}
+
+/** Dimensiones de la pista de vídeo de un maestro (ffprobe). */
+function probeSize(abs: string): { w: number; h: number } {
+  const out = execFileSync('ffprobe', ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', abs], { encoding: 'utf8' }).trim();
+  const [w, h] = out.split(',').map(Number);
+  return { w, h };
+}
+
+/** Un medio de lote → su derivado (S12): imagen → JPEG cuadrado; vídeo → H.264 cuadrado, sin audio, a lo sumo `videoMaxSeconds`. */
+async function encodeBatchMember(m: BatchMember): Promise<{ bytes: Buffer; budgetBytes: number; streams?: string; note: string }> {
+  const P = FIELD_BATCH_PROFILE;
+  const where = `${m.batch}/${m.file}`;
+  if (m.kind === 'image') {
+    const meta = await sharp(m.abs).metadata();
+    const { left, top, c } = squareCrop(meta.width ?? 0, meta.height ?? 0, m.focus, P.side, where);
+    const bytes = await sharp(m.abs)
+      .rotate() // la orientación EXIF se aplica antes de recortar (el foco se declara sobre la imagen tal como se ve)
+      .extract({ left, top, width: c, height: c })
+      .resize(P.side, P.side, { fit: 'fill', kernel: 'lanczos3' })
+      .jpeg({ quality: P.imageQuality, mozjpeg: true, chromaSubsampling: '4:4:4' })
+      .toBuffer();
+    return { bytes, budgetBytes: P.imageBudgetBytes, note: `caja ${c}×${c} en (${left}, ${top}) del maestro ${meta.width}×${meta.height}, foco ${focusLabel(m.focus)}` };
+  }
+  const { w, h } = probeSize(m.abs);
+  const { left, top, c } = squareCrop(w, h, m.focus, P.side, where);
+  const vf = ['-vf', `crop=${c}:${c}:${left}:${top},scale=${P.side}:${P.side}:flags=lanczos`];
+  const args = ['-i', m.abs, '-t', String(P.videoMaxSeconds), ...VIDEO_COMMON, ...vf, '-c:v', 'libx264', '-preset', 'slow', '-crf', String(P.videoQuality), '-profile:v', 'high', '-level', '4.0', '-threads', '1', '-movflags', '+faststart', '-f', 'mp4'];
+  const bytes = runFfmpeg(args, 'mp4');
+  const tmp = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'bbw-media-')), 'probe.mp4');
+  fs.writeFileSync(tmp, bytes);
+  const streams = probeStreams(tmp);
+  fs.rmSync(path.dirname(tmp), { recursive: true, force: true });
+  if (/audio:/.test(streams)) throw new Error(`[media] ${where}: el derivado conserva una pista de audio (${streams}); la capa del campo no lleva audio (D-BBW-24)`);
+  if (!streams.includes(`${P.side}x${P.side}`)) throw new Error(`[media] ${where}: dimensiones ${streams} ≠ ${P.side}×${P.side}`);
+  return { bytes, budgetBytes: P.videoBudgetBytes, streams, note: `caja ${c}×${c} en (${left}, ${top}) del maestro ${w}×${h}, foco ${focusLabel(m.focus)}, ≤ ${P.videoMaxSeconds} s` };
+}
+
 function profileLabel(p: Profile): string {
   switch (p.kind) {
     case 'svg-copy':
@@ -271,7 +323,10 @@ async function main(): Promise<void> {
     if (masters[id].kind !== 'raster') throw new Error(`[media] el maestro "${id}" no es raster: este perfil no lo admite`);
     return loadedRaster.get(id) ?? (loadedRaster.set(id, loadRasterMaster(id)), loadedRaster.get(id)!);
   };
-  const needsFfmpeg = (Object.values(derivatives) as Derivative[]).some((d) => d.profile.kind === 'video' || d.profile.kind === 'poster');
+  const batchRead = readBatches();
+  if (batchRead.problems.length) throw new Error(`[media] lotes del campo:\n  ${batchRead.problems.join('\n  ')}`);
+  const needsFfmpeg =
+    (Object.values(derivatives) as Derivative[]).some((d) => d.profile.kind === 'video' || d.profile.kind === 'poster') || batchRead.members.some((m) => m.kind === 'video');
   const ffmpeg = needsFfmpeg ? ffmpegVersion() : undefined;
 
   const publicDir = path.join(REPO_ROOT, PUBLIC_DIR);
@@ -418,6 +473,33 @@ async function main(): Promise<void> {
     }
   }
 
+  // S12 (R2 del perfil): lotes del campo — un derivado cuadrado por medio de la carpeta del uso, sellado con su maestro y su punto focal
+  const batchOut: { m: BatchMember; path: string; bytes: Buffer; budgetBytes: number; streams?: string }[] = [];
+  for (const m of batchRead.members) {
+    const out = await encodeBatchMember(m);
+    const rel = fieldBatchPath(m.batch, m.name, m.kind, FIELD_BATCH_PROFILE.side);
+    const pct = ((out.bytes.length / out.budgetBytes) * 100).toFixed(0);
+    if (out.bytes.length > out.budgetBytes) throw new Error(`[media] ${rel}: ${out.bytes.length} B supera el presupuesto del lote (${out.budgetBytes} B, ${pct} %)`);
+    batchOut.push({ m, path: rel, bytes: out.bytes, budgetBytes: out.budgetBytes, streams: out.streams });
+    notes.push(`lote ${m.batch} · ${rel}: ${out.note} → ${out.bytes.length} B = ${pct} % del presupuesto${out.streams ? ` · ${out.streams}` : ''}`);
+  }
+  lock.batches = {};
+  for (const b of Object.keys(fieldBatches)) lock.batches[b] = {};
+  for (const o of batchOut) {
+    fs.writeFileSync(path.join(publicDir, o.path), o.bytes);
+    lock.batches[o.m.batch][o.m.name] = {
+      master: { file: o.m.file, sha256: sha256(fs.readFileSync(o.m.abs)) },
+      kind: o.m.kind,
+      focus: focusLabel(o.m.focus),
+      path: `${PUBLIC_DIR}/${o.path}`,
+      profile: `field-batch ${FIELD_BATCH_PROFILE.side}×${FIELD_BATCH_PROFILE.side} ${o.m.kind === 'image' ? `jpeg q ${FIELD_BATCH_PROFILE.imageQuality}` : `h264 crf ${FIELD_BATCH_PROFILE.videoQuality} ≤ ${FIELD_BATCH_PROFILE.videoMaxSeconds} s sin audio`}`,
+      sha256: sha256(o.bytes),
+      bytes: o.bytes.length,
+      budgetBytes: o.budgetBytes,
+      ...(o.streams ? { streams: o.streams } : {}),
+    };
+  }
+
   // escritura de derivados + lock
   for (const id of ordered) {
     const d = derivatives[id];
@@ -508,6 +590,16 @@ async function main(): Promise<void> {
     ...Object.entries(mediaSets).map(([setId, set]) => `  ${setId}: [${set.members.map((m) => `"${m}"`).join(', ')}],`),
     '} as const;',
     '',
+    '/** Lotes del campo (S12, R2 del perfil): por uso, los medios de `media/masters/campo/<uso>/` en orden de nombre, recortados al cuadrado',
+    ' *  por su punto focal (`content/site.json` → `$.fieldMedia`). Lote vacío = `[]` = el campo de hoy. Lo consume la capa de medios del campo. */',
+    'export const fieldBatches = {',
+    ...Object.keys(fieldBatches).map((b) => {
+      const items = batchOut.filter((o) => o.m.batch === b);
+      if (items.length === 0) return `  ${b}: [],`;
+      return [`  ${b}: [`, ...items.map((o) => `    { id: "${o.m.name}", kind: "${o.m.kind}", src: "/${o.path}", type: "${o.m.kind === 'image' ? 'image/jpeg' : 'video/mp4'}", side: ${FIELD_BATCH_PROFILE.side} },`), '  ],'].join('\n');
+    }),
+    '} as const satisfies Record<string, readonly { id: string; kind: "image" | "video"; src: string; type: string; side: number }[]>;',
+    '',
     '/** Rigs (M1c): anatomía derivada de un maestro vectorial (perfil `rig` del registro); la consume el motor S9 al arrancar. */',
     'export const rigs = {',
     ...rigEntries,
@@ -518,6 +610,7 @@ async function main(): Promise<void> {
   lock.generated = { path: GENERATED_FILE, sha256: sha256(generated) };
   fs.writeFileSync(path.join(REPO_ROOT, LOCK_FILE), stableJson(lock));
 
+  console.log(`[media-build] lotes del campo: ${Object.keys(fieldBatches).map((b) => `${b} = ${batchOut.filter((o) => o.m.batch === b).length} medio(s)`).join(' · ')}`);
   console.log(`[media-build] OK — ${Object.keys(lock.masters).length} maestro(s) → ${ordered.length} derivado(s) en ${PUBLIC_DIR}/ + ${GENERATED_FILE} (${iconEntries.length} vectores inline, ${rigEntries.length} rig(s)); superficie ${SURFACE_TOKEN} = ${surface.srgb} (oklch ${surface.oklch.L} ${surface.oklch.C} ${surface.oklch.H}); sharp ${lock.tool.sharp} / vips ${lock.tool.vips}${lock.tool.ffmpeg ? ` / ffmpeg ${lock.tool.ffmpeg}` : ''}; lock → ${LOCK_FILE}`);
   for (const n of notes) console.log(`  · ${n}`);
 }

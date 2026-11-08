@@ -4,6 +4,7 @@ import { Icon } from "@/components/atoms/Icon";
 import { HeroBackdrop } from "@/components/molecules/HeroBackdrop";
 import { HeroParticles } from "@/components/molecules/HeroParticles";
 import { CriterioField } from "@/components/molecules/CriterioField";
+import { fieldBatch } from "@/media";
 import styles from "./HeroSection.module.css";
 
 /**
@@ -18,13 +19,17 @@ import styles from "./HeroSection.module.css";
  * S3b (D-BBW-89, 2026-11-07): el cuerpo pasa de dos párrafos a UNO (`paragraph`), que sigue siendo la línea de referencia del campo de
  *   puntos (`data-field-line`: S8 lee su interlineado y el centro de su primera línea, BEHAVIOR.md §11). Sale el segundo párrafo con su
  *   retardo de entrada (I-6); nada más cambia.
+ * R2 del perfil (S12, 2026-11-08): si la sección declara `fieldMedia` (un uso con lote en el puerto de medios) y el lote trae medios, el campo
+ *   los recibe; sin la llave o con lote vacío el campo es el de siempre (el inicio no declara ninguno).
  */
 export function HeroSection({ section }: { section: HeroSectionData }) {
   const headingId = `${section.id}-heading`;
+  const batch = section.fieldMedia ? fieldBatch(section.fieldMedia) : [];
   return (
     <section id={section.id} className={styles.hero} aria-labelledby={headingId} data-component="bbf-hero">
       <HeroBackdrop />
-      <CriterioField className={styles.stage} />
+      {/* la prop solo existe con medios: sin ellos el payload del inicio es el de antes (un `media: undefined` viajaría como `$undefined`) */}
+      <CriterioField className={styles.stage} {...(batch.length > 0 ? { media: batch } : {})} />
       <div className={styles.veil} aria-hidden="true" />
       <HeroParticles />
       <div className={styles.text}>

@@ -52,6 +52,13 @@ export type SiteDocument = {
    * declarativa en `./entity-fields.ts`; validación en `./entity.ts`; esquema exportado en `content/site.schema.json`.
    */
   entity: EntityBlock;
+  /**
+   * PUNTOS FOCALES DE LOS LOTES DEL CAMPO (S12, R2 del perfil, modelo v3.15; OPCIONAL): `{ <uso>: { <nombre del medio>: { x, y } } }`, fracciones
+   * del ancho y del alto del maestro. El guion de medios recorta cada medio al cuadrado más grande que cabe centrado en este punto (por
+   * defecto, el centro: un medio sin entrada no necesita escribirse). El USO y el NOMBRE son los de la carpeta `media/masters/campo/<uso>/`;
+   * la guardia de medios rompe si se nombra un medio que no está o si el punto cambió sin regenerar (docs/system/MEDIA.md §11).
+   */
+  fieldMedia?: Record<string, Record<string, { x: number; y: number }>>;
 };
 
 const HTML_RE = /<\/?[a-zA-Z!]/;
@@ -77,7 +84,7 @@ function checkText(v: unknown, path: string, problems: Problem[]): void {
 export function validateSite(v: unknown): Problem[] {
   const problems: Problem[] = [];
   if (!isRecord(v)) return [{ path: "$", message: "el documento debe ser un objeto" }];
-  const allowed = ["brand", "role", "email", "legalForm", "links", "entity"];
+  const allowed = ["brand", "role", "email", "legalForm", "links", "entity", "fieldMedia"];
   for (const k of Object.keys(v)) {
     if (!allowed.includes(k)) problems.push({ path: `$.${k}`, message: `llave desconocida (el modelo no la admite)` });
   }
@@ -100,10 +107,38 @@ export function validateSite(v: unknown): Problem[] {
       problems.push({ path: `$.links.${k}`, message: `"${String(url)}" no es una dirección absoluta y cifrada (https://…)` });
     }
   }
+  // S12 (R2 del perfil): puntos focales de los lotes del campo, opcionales; uso y nombre con la forma de la carpeta, x/y en [0, 1]
+  if ("fieldMedia" in v) {
+    if (!isRecord(v.fieldMedia)) problems.push({ path: "$.fieldMedia", message: `debe ser un objeto { uso: { medio: { x, y } } }` });
+    else
+      for (const [batch, entries] of Object.entries(v.fieldMedia)) {
+        if (!/^[a-z][a-z0-9-]*$/.test(batch)) problems.push({ path: `$.fieldMedia.${batch}`, message: `nombre de uso inválido` });
+        if (!isRecord(entries)) {
+          problems.push({ path: `$.fieldMedia.${batch}`, message: `debe ser un objeto { medio: { x, y } }` });
+          continue;
+        }
+        for (const [name, f] of Object.entries(entries)) {
+          const where = `$.fieldMedia.${batch}.${name}`;
+          if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) problems.push({ path: where, message: `nombre de medio inválido (el del archivo, sin extensión)` });
+          if (!isRecord(f) || Object.keys(f).sort().join() !== "x,y") {
+            problems.push({ path: where, message: `debe ser exactamente { x, y }` });
+            continue;
+          }
+          for (const k of ["x", "y"] as const) {
+            const n = f[k];
+            if (typeof n !== "number" || !Number.isFinite(n) || n < 0 || n > 1) problems.push({ path: `${where}.${k}`, message: `debe ser una fracción entre 0 y 1` });
+          }
+        }
+      }
+  }
   // S2: el bloque de entidad, contra su descripción (estados, clases, referencias a $.links y al puerto de medios, fuente única)
   problems.push(...validateEntity(v.entity, Object.keys(v.links).filter((k) => k !== "contact"), { brand: v.brand, role: v.role, email: v.email }));
   return problems;
 }
+
+/** Puntos focales de los lotes del campo (S12), tal cual el documento; vacío si no declara ninguno. Lo lee el guion de medios. */
+export const fieldMediaFocus: Readonly<Record<string, Readonly<Record<string, { x: number; y: number }>> | undefined>> =
+  ((document as { fieldMedia?: Record<string, Record<string, { x: number; y: number }>> }).fieldMedia ?? {});
 
 /** El documento tal cual, para que el puerto lo valide (fail-closed) y la guardia lo informe. */
 export const siteDocument: unknown = document;

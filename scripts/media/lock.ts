@@ -24,6 +24,18 @@ export type LockDerivative = {
   /** fase 6d (vídeo): pistas del derivado verificadas con ffprobe al generar; un fondo decorativo no lleva audio (D-BBW-24) */
   streams?: string;
 };
+export type LockBatchMember = {
+  master: { file: string; sha256: string };
+  kind: 'image' | 'video';
+  /** `x,y` del contenido con el que se recortó: si el contenido cambia y no se regenera, la guardia lo dice (R9) */
+  focus: string;
+  path: string;
+  profile: string;
+  sha256: string;
+  bytes: number;
+  budgetBytes: number;
+  streams?: string;
+};
 export type LockFile = {
   generatedBy: string;
   /** `ffmpeg` solo existe cuando hay derivados de vídeo (fase 6d): versión que los generó; la guardia R5 la compara con la instalada */
@@ -33,6 +45,8 @@ export type LockFile = {
   derivatives: Record<string, LockDerivative>;
   /** M1c: rigs (anatomía derivada de un maestro vectorial, escrita en generated.ts): huella del JSON derivado, por id del registro */
   rigs?: Record<string, { master: string; profile: string; sha256: string }>;
+  /** S12 (R2 del perfil): lotes del campo, por uso y por nombre del medio: maestro, punto focal y derivado sellados (la guardia los recalcula) */
+  batches?: Record<string, Record<string, LockBatchMember>>;
   generated: { path: string; sha256: string };
 };
 

@@ -127,6 +127,24 @@ export function buildSiteSchema(linkKeys: readonly string[], mediaIds: readonly 
         additionalProperties: { type: "string", pattern: "^https://[^\\s]+$" },
         "x-cms": "repeater",
       },
+      fieldMedia: {
+        type: "object",
+        description:
+          "OPCIONAL (S12, modelo v3.15). Puntos focales de los medios de los lotes del campo: { uso: { nombre del medio: { x, y } } }, fracciones del ancho y del alto del maestro. " +
+          "El guion de medios recorta cada medio al cuadrado mayor centrado en ese punto; sin entrada, el centro. Uso y nombre = la carpeta media/masters/campo/<uso>/ y el archivo sin extensión.",
+        propertyNames: { pattern: "^[a-z][a-z0-9-]*$" },
+        additionalProperties: {
+          type: "object",
+          propertyNames: { pattern: "^[a-z0-9][a-z0-9-]*$" },
+          additionalProperties: {
+            type: "object",
+            additionalProperties: false,
+            required: ["x", "y"],
+            properties: { x: { type: "number", minimum: 0, maximum: 1 }, y: { type: "number", minimum: 0, maximum: 1 } },
+          },
+        },
+        "x-cms": "media-focus",
+      },
       entity: {
         type: "object",
         description:

@@ -3,12 +3,12 @@ id: BBW-MEDIA-CONTRACT
 title: "Contrato del puerto de medios — brandbrain-web"
 type: canon
 status: VIGENTE
-version: 1.6
+version: 1.7
 owner_repo: brandbrain-web
 subject_repo: brandbrain-web
 created: 2026-09-17
 updated: 2026-11-08
-verified_against_code: 2026-11-08@feat/perfil-p1 (v1.6: maestro del retrato = `zavala-1` (1792×2400) con el nombre del rol, perfil `jpeg-crop` por PUNTO FOCAL `focusY`, recortes de 1200; scripts/media/build.ts · src/media/{registry,generated}.ts · media/derivatives.lock.json) · 2026-11-07@feat/posicionamiento-s3c (v1.5: maestro raster `portrait.jpg`, perfil `jpeg-crop`, conjunto `mediaSets.portrait` generado en src/media/generated.ts; scripts/media/build.ts · src/media/{registry,index,generated}.ts) · 2026-11-06@fix/m1d-imagotipo-identico (v1.4: rig derivado con línea central exacta, M1d) · 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
+verified_against_code: 2026-11-08@feat/perfil-r2 (v1.7: §11 LOTES DEL CAMPO — carpeta por uso `media/masters/campo/<uso>/`, perfil `field-batch` (cuadrado por punto focal del contenido, 480 px, JPEG/H.264), `fieldBatches` en generated.ts y en el lock, guardia R9/R10 y R1–R6 sobre cada medio; scripts/media/{build,batches,lock}.ts · scripts/lint/check-media.ts · src/media/{registry,index,generated}.ts) · 2026-11-08@feat/perfil-p1 (v1.6: maestro del retrato = `zavala-1` (1792×2400) con el nombre del rol, perfil `jpeg-crop` por PUNTO FOCAL `focusY`, recortes de 1200; scripts/media/build.ts · src/media/{registry,generated}.ts · media/derivatives.lock.json) · 2026-11-07@feat/posicionamiento-s3c (v1.5: maestro raster `portrait.jpg`, perfil `jpeg-crop`, conjunto `mediaSets.portrait` generado en src/media/generated.ts; scripts/media/build.ts · src/media/{registry,index,generated}.ts) · 2026-11-06@fix/m1d-imagotipo-identico (v1.4: rig derivado con línea central exacta, M1d) · 2026-11-05@feat/m1-imagotipo-vivo (v1.3: §9 rig del imagotipo vivo como maestro de configuración, sin derivados, verificado por guardia R10; M1, `DESPACHO-BBW-2026-11-05-M1-imagotipo-vivo`) · 2026-09-29@feat/video-del-heroe-nuevo-maestro (v1.2: maestro nuevo del vídeo del héroe, el anterior conservado como variante `-registro` sin derivados, comparación de formatos rehecha; v1.1: vídeo del héroe con maestro de registro, perfiles video/poster, ffmpeg como herramienta de desarrollo, guardia R5 ampliada y R6 presupuesto; v1.0: media/masters/ · src/media/registry.ts · scripts/media/build.ts · scripts/lint/check-media.ts · media/derivatives.lock.json · public/ · src/media/generated.ts)
 supersedes: []
 superseded_by: null
 related: [BBW-PORTS, BBW-PLAN-CONSTRUCCION, BBW-CONTENT-MODEL, D-BBW-21, D-BBW-24, D-BBW-02, D-BBW-03, D-BBW-09]
@@ -158,6 +158,24 @@ como metadato inerte.
 | Conjunto | `mediaSets.portrait` = los tres, en orden, declarado en el registro y **escrito en `generated.ts`** (los consumidores lo leen de allí: `src/media/index.ts` lo importan componentes cliente y el registro no debe viajar al navegador — medido en S3c: importarlo metía el registro entero en el fragmento compartido). `MEDIA_IDENTIFIERS` = derivados + conjuntos (lo que la entidad puede referenciar); `mediaMembers(id)` = los derivados que nombra |
 | Uso | La página de perfil muestra el PRIMERO en un `<img>` real (Google no indexa imágenes de CSS) con sus dimensiones intrínsecas; `Person.image` emite los tres |
 
+## §11 — Lotes del campo (S12, R2 del perfil · 2026-11-08; P-BBW-98 §3.2, D-BBW-96)
+
+La capa de medios del campo S8 (BEHAVIOR.md §15) toma sus medios de un **lote**: la carpeta de un USO. Lo que cambia frente a §5 es que **nadie
+escribe la lista** de un lote: la carpeta ES la lista.
+
+| | |
+|---|---|
+| Dónde | `media/masters/campo/<uso>/` (hoy un uso declarado: `perfil`). Cada archivo de la carpeta es un maestro del lote, en **orden de nombre**. Carpeta ausente o vacía = **lote vacío** = el campo de hoy (la capa ni se descarga). |
+| Declaración | `src/media/registry.ts` → `fieldBatches` (el uso existe) + `FIELD_BATCH_PROFILE` (común). Un subdirectorio de `campo/` sin uso declarado rompe (R10). |
+| Nombre | El del archivo sin extensión, `^[a-z0-9][a-z0-9-]*$` (`zavala-1.jpg`): es el que cita el punto focal y el que se lee en el lock. Extensiones: imagen `.jpg .jpeg .png .webp`, vídeo `.mp4 .mov .webm`; otra rompe (R10). |
+| Punto focal | **Lo declara el CONTENIDO** (despacho R2 §2.2): `content/site.json` → `$.fieldMedia.<uso>.<nombre> = { x, y }` (fracciones del ancho y del alto del maestro, tal como se ve: la orientación EXIF se aplica antes). **Sin entrada, el centro.** Un punto de un medio que no está en la carpeta rompe (R10). |
+| Perfil `field-batch` | El **cuadrado más grande** que cabe en el maestro, **centrado en su punto focal** y sin salirse, escalado a **480×480** (lanczos3; nunca amplía: un maestro de lado corto < 480 rompe). Imagen → JPEG q 82 (mozjpeg, 4:4:4, sin metadatos), **≤ 80 000 B**. Vídeo → H.264 (los parámetros del perfil `video`: CRF 23, preset slow, High 4.0, un hilo, `+faststart`, bitexact) **sin audio**, recortado igual, **≤ 8 s**, **≤ 600 000 B**; el guion lo sondea (sin pista de audio, 480×480). **Una sola proporción para todos**: cualquier medio sirve en cualquier caja de la capa, que es cuadrada. Lado 480 = el tope de la capa a 2× en la ventana más grande medida (1920×1080 → 199,8 px CSS). |
+| Derivado | `public/campo-<uso>-<nombre>-480x480.(jpg\|mp4)` (rol · uso · dimensión; el nombre distingue los miembros). |
+| Puerto | `generated.ts` → `fieldBatches.<uso> = [{ id, kind, src, type, side }]`; `src/media/index.ts` → `fieldBatch(uso)` (`[]` si vacío) y `FIELD_BATCH_IDS` (lo que el contenido puede citar en `HeroSection.fieldMedia`). |
+| Lock | `batches.<uso>.<nombre>` = maestro (archivo + sha256), clase, **punto focal sellado** (`x,y`), ruta, perfil, sha256, bytes y presupuesto del derivado (y pistas, si es vídeo). `tool.ffmpeg` aparece cuando un lote trae vídeo. |
+| Guardia | `check-media.ts`: **R1** maestro del lote ⇔ lock · **R2** derivado ⇔ lock · **R3** el lock lista exactamente los medios de cada carpeta y los usos declarados · **R4** el derivado cuenta como declarado · **R6** presupuesto por archivo · **R9** el punto focal del contenido es el sellado (cambiarlo sin `pnpm media:build` rompe: el recorte ya no corresponde) · **R10** forma de la carpeta. Vistas fallar en `OUTPUT-BBW-2026-11-08-R2-perfil-capa-de-medios` §4. |
+| Cómo se cambia | Subir/quitar/reemplazar un archivo de la carpeta (o mover su punto focal en `site.json`) → `pnpm media:build` → `pnpm lint:media`. Commit de maestro, contenido, lock, derivado y `generated.ts` juntos. Quién corre `media:build` cuando edita alguien no técnico sigue abierto (P-BBW-98 §7.10). |
+
 ## §9 — Rig del imagotipo vivo (perfil `rig` → `src/media/generated.ts`, M1c · 2026-11-06)
 
 El rig del imagotipo vivo (S9) **es un derivado, no un maestro** (M1c corrige a M1 §0.1 y a la v1.3 de este contrato): se deriva del maestro
@@ -179,4 +197,4 @@ regenerar rompe R1 (hash) y R10c.
 **Cómo se modifica:** nunca a mano. Cambia el maestro o el perfil → `pnpm media:build` → `pnpm lint:rig`.
 
 ---
-*BBW-MEDIA-CONTRACT v1.6 · `docs/system/MEDIA.md` · 2026-11-08 (v1.6: §10 maestro `zavala-1`, punto focal, recortes de 1200; P1) · 2026-11-07 (v1.5: §10 retrato, perfil `jpeg-crop` y conjuntos de recortes; S3c) · 2026-11-06 (v1.4: §9 el rig pasa de maestro de configuración a derivado del perfil `rig`, sellado en el lock; M1c, `DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`) · v1.3: 2026-11-05 (M1) · v1.2: 2026-09-29 (`DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`) · v1.1 fase 6d: D-BBW-24 · nace en la fase 6c (D-BBW-21)*
+*BBW-MEDIA-CONTRACT v1.7 · `docs/system/MEDIA.md` · 2026-11-08 (v1.7: §11 lotes del campo, perfil `field-batch`, R9/R10; R2 del perfil) · 2026-11-08 (v1.6: §10 maestro `zavala-1`, punto focal, recortes de 1200; P1) · 2026-11-07 (v1.5: §10 retrato, perfil `jpeg-crop` y conjuntos de recortes; S3c) · 2026-11-06 (v1.4: §9 el rig pasa de maestro de configuración a derivado del perfil `rig`, sellado en el lock; M1c, `DESPACHO-BBW-2026-11-05-M1c-imagotipo-vivo-motor-y-guardia`) · v1.3: 2026-11-05 (M1) · v1.2: 2026-09-29 (`DESPACHO-BBW-2026-09-29-video-del-heroe-nuevo-maestro`) · v1.1 fase 6d: D-BBW-24 · nace en la fase 6c (D-BBW-21)*

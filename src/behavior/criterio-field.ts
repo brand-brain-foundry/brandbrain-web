@@ -480,8 +480,27 @@ export function readLine(
 
 // ── 3 · MOTOR ─────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Arranca el campo sobre `canvas` (que llena `plate`). Devuelve la función que lo detiene y limpia. */
-export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement, line: HTMLElement | null): () => void {
+/**
+ * CAPA OPCIONAL SOBRE EL CAMPO (S12, R2 del perfil · 2026-11-08; BEHAVIOR.md §15). La implementa `src/behavior/field-media.ts` (la capa de
+ * medios) y el componente solo la pasa cuando la sección declara un lote con medios. SIN CAPA EL MOTOR ES EL DE SIEMPRE: ninguna de las
+ * ramas de abajo se ejecuta (cada gancho es un `null` comprobado), no hay observador de vista y el cuadro sale idéntico (R12c del output R2).
+ * Con capa: (1) la capa pinta sus medios ANTES de los puntos y devuelve las celdas que tapan, donde no se pinta ningún punto salvo el cursor;
+ * (2) devuelve también la RESERVA DEL TEXTO (celdas bajo el texto, donde no se pinta nada: ni punto ni medio); (3) fuera de vista el bucle se
+ * detiene igual que con la pestaña oculta (D-BBW-97: la animación vive solo en la sección) y la capa pausa sus vídeos.
+ */
+export type FieldLayer = {
+  /** el campo cambió de geometría (arranque, tamaño de la placa, fuentes) */
+  layout(f: Field): void;
+  /** celdas (índice fila × columnas + columna) donde no se pinta ningún punto; null = ninguna */
+  reserve(f: Field): Uint8Array | null;
+  /** pinta los medios armados en el instante `t` y devuelve las celdas que tapan; null = ninguna. Nunca se llama en la quietud. */
+  paint(ctx: CanvasRenderingContext2D, f: Field, t: number, qs: (Query | null)[]): Uint8Array | null;
+  /** el bucle arranca (true) o se detiene (false): la capa reanuda o pausa sus vídeos */
+  running(on: boolean): void;
+};
+
+/** Arranca el campo sobre `canvas` (que llena `plate`). Devuelve la función que lo detiene y limpia. `layer` = la capa opcional (S12). */
+export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement, line: HTMLElement | null, layer: FieldLayer | null = null): () => void {
   const ctx = canvas.getContext("2d");
   if (!ctx) return () => {};
   let field: Field | null = null;
@@ -490,6 +509,8 @@ export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement
   let pausedAt: number | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let lastT = 0;
+  /** ¿se ve la sección? Solo lo mide un observador cuando hay capa (D-BBW-97); sin capa vale siempre true, como hasta hoy */
+  let inView = true;
 
   const layout = () => {
     const w = plate.clientWidth;
@@ -501,6 +522,7 @@ export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement
     const { lineHeight, lineOffset, textRight } = readLine(plate, line);
     field = createField(geometry(w, h, lineHeight, lineOffset, textRight, readView(plate), readMidShare()));
     colors = readColors(plate);
+    if (layer) layer.layout(field);
   };
 
   const paint = (t: number, synchronized = false) => {
@@ -508,11 +530,17 @@ export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement
     const f = field;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const inset = (f.g.pitch - C.DOT) / 2;
+    // S12: sin capa los dos son null y el `dot` de abajo es el de siempre
+    const reserve = layer ? layer.reserve(f) : null;
+    const covered = layer && !synchronized ? layer.paint(ctx, f, t, activeQueries(f, t)) : null;
+    const cols = f.g.cols;
     let current = -1;
     frame(
       f,
       t,
       (col, row, ink) => {
+        if (reserve !== null && reserve[row * cols + col]) return;
+        if (covered !== null && ink !== INK.cursor && covered[row * cols + col]) return;
         if (ink !== current) {
           ctx.fillStyle = colors[ink];
           current = ink;
@@ -543,21 +571,29 @@ export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement
   const start = () => {
     if (isStill()) return still();
     layout();
-    if (timer === undefined) tick();
+    if (timer === undefined) {
+      if (layer) layer.running(true);
+      tick();
+    }
   };
   const stop = () => {
     if (timer !== undefined) clearTimeout(timer);
     timer = undefined;
   };
 
+  /** una sola política para la pestaña oculta y (con capa) la sección fuera de vista: el reloj se congela y al volver sigue donde iba */
   const onVisibility = () => {
-    if (document.hidden) {
-      pausedAt = performance.now();
+    if (document.hidden || !inView) {
+      if (pausedAt === null) pausedAt = performance.now();
       stop();
+      if (layer) layer.running(false);
     } else if (pausedAt !== null) {
       t0 += performance.now() - pausedAt;
       pausedAt = null;
-      if (!isStill()) tick();
+      if (!isStill()) {
+        if (layer) layer.running(true);
+        tick();
+      }
     }
   };
 
@@ -568,11 +604,21 @@ export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement
   resize.observe(plate);
   document.addEventListener("visibilitychange", onVisibility);
   document.fonts?.ready.then(() => (isStill() ? still() : layout()));
+  // D-BBW-97 (con capa): la animación vive solo en su sección; fuera de vista se detiene como con la pestaña oculta
+  const view = layer
+    ? new IntersectionObserver((entries) => {
+        inView = entries[entries.length - 1].isIntersecting;
+        onVisibility();
+      })
+    : null;
+  view?.observe(plate.closest("section") ?? plate);
 
   start();
 
   return () => {
     stop();
+    if (layer) layer.running(false);
+    view?.disconnect();
     resize.disconnect();
     document.removeEventListener("visibilitychange", onVisibility);
   };

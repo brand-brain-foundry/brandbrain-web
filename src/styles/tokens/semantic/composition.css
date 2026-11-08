@@ -47,6 +47,12 @@
      la máscara sigue fundiendo hasta el borde de la caja, con menos de la mitad de la tinta; lo que de ahí caiga bajo el titular lo juzga la
      medida de contraste bajo el texto (I-8, ≥ 5,65 en el peor píxel), no la construcción. */
   --bbf-stage-reach: calc(var(--bbf-stage-height) * var(--bbf-stage-mask-mid-share) / 2);
+  /* TOPE DE LOS MEDIOS DEL CAMPO (R2 del perfil, 2026-11-08; ajuste de Zavala de las 11:04: en escritorio los medios salían demasiado grandes,
+     se solapaban y formaban siempre la misma línea). El lado de un medio de la capa S12 es el menor entre su caja escaneada y ESTE tope: la
+     mitad del alcance visible de su zona (la parada media de la máscara) a lo largo del lado corto de la ventana pequeña. En la vista de dos
+     zonas cada zona tiene la mitad del lado corto; en la de una, todo. Medido con las madres de hoy: 1440×900 → 166,5 px · 1920×1080 → 199,8 ·
+     390×844 → 144,3 (en el teléfono la caja escaneada ya era menor: no lo encoge). Lo lee el módulo por una sonda (src/behavior/field-media.ts). */
+  --bbf-field-media-cap: calc(100svmin * var(--bbf-stage-mask-mid-share) / (2 * var(--bbf-stage-zones)));
   /* DÓNDE VIVE EL ARTE (D-BBW-47). El escenario deja de estar siempre centrado: en la vista de dos zonas su centro se va al
      medio de la zona derecha. Es el DESTINO lo que cambia, no el algoritmo: el seguimiento del sujeto (behavior/subject-tracking.ts)
      sigue llevando el centroide al centro DE SU ESCENARIO con la misma traslación acotada y la misma holgura, y por eso ni las
