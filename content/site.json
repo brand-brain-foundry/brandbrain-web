@@ -8,6 +8,7 @@
     "studio": "https://purakasaka.com",
     "works": "https://branddesignerpro.com/clientes/",
     "linkedin": "https://www.linkedin.com/in/zavalacubas/",
+    "linkedinSkills": "https://www.linkedin.com/in/zavalacubas/details/skills/",
     "github": "https://github.com/zavala-brander",
     "credly": "https://www.credly.com/badges/10fa2218-eacc-41bc-bf78-273b8f6248ca/public_url",
     "aepd": "https://www.aepd.es"
@@ -23,10 +24,7 @@
       "status": "aprobado",
       "value": "Christian Zavala Cubas es estratega de sistemas de IA para marcas. Con cada empresa rediseña la forma de trabajar y define el contexto, el conocimiento y el gobierno para que los agentes de IA de esa empresa decidan con el criterio de su marca."
     },
-    "descriptionLong": {
-      "status": "aprobado",
-      "value": "Diseño sistemas de IA con criterio de marca. Los agentes de IA ya pueden decidir y actuar con autonomía; lo que casi siempre les falta es saber cómo decide la marca. Por eso mi trabajo empieza antes de cualquier herramienta. Primero entiendo la estrategia de la empresa y, con su equipo, rediseñamos cómo se trabaja, porque la IA que se añade a procesos pensados para otra época rara vez da lo que promete. Ahí se resuelve lo importante: qué decisiones le dejamos a la IA, cómo las recuperamos si hace falta y quién más debería participar en decidirlo. Solo entonces pongo por escrito el criterio de la marca (sus creencias, su voz, sus reglas y lo que sabe) y diseño el contexto y el gobierno con los que trabajan los agentes. Ese criterio es de la empresa: si cambia de herramienta o de proveedor, se lo lleva. Un ejemplo es Sivar Brains, un proyecto conjunto con Sivar Films que diseñé y construí: una plataforma multimarca que genera, diseña y publica el contenido de cada marca con su propio criterio. Llegué aquí desde la marca: más de 20 años entre DDB, Ogilvy, Trópico Brand Growers, Pura kaSaka y mi trabajo por cuenta propia. Trabajo en remoto desde Valencia, con empresas de habla hispana."
-    },
+    "descriptionLong": { "status": "aprobado" },
     "knowsAbout": {
       "status": "aprobado",
       "value": [

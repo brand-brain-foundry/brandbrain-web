@@ -14,6 +14,8 @@
  * `/metodo` o `/casos` no tenían sitio en él; y sus banderas (`indexed`, `inSitemap`, `measured`) eran por página y no gobernaban el
  * `<meta robots>`. Ahora todo eso lo declara el tipo, una vez.
  *
+ * CAMBIAR LA RUTA DE UNA PÁGINA = su slug nuevo aquí + el viejo en `RETIRED_ROUTES` (con sus 301 en `public/_redirects`, R6).
+ *
  * AÑADIR UNA PÁGINA = una fila aquí + su documento en `content/` + un `page.tsx` de dos líneas (`src/seo/metadata.ts`) + su redirección
  * sin prefijo en `public/_redirects` (R6). Una fila sin documento rompe el build; un `page.tsx` sin fila rompe el typecheck (`PageId`)
  * y la guardia R7 sobre `out/` (`scripts/lint/check-seo.ts`).
@@ -56,9 +58,9 @@ export const PAGES = [
     // la marca + la categoría EXACTA de D-BBW-81 (que no se acorta) suman 61 caracteres; el valor no se escribe aquí: sale del contenido
     titleLengthException: { length: 61, reason: "el título propio de la portada es la repetición exacta de la categoría (D-BBW-81)", decision: "D-BBW-87" },
   },
-  // la página de perfil (S3c, D-BBW-90): la dirección canónica de la persona (`Person.url`)
+  // la página de perfil (S3c, D-BBW-90; ruta «perfil» desde P1, D-BBW-107): la dirección canónica de la persona (`Person.url`)
   // R1 (D-BBW-96): el fondo del perfil es la variante verde del inicio
-  { id: "quien",       slug: "quien",       type: "profile", backdrop: "verde" },
+  { id: "perfil",      slug: "perfil",      type: "profile", backdrop: "verde" },
   { id: "aviso-legal", slug: "aviso-legal", type: "legal-restricted", footerOrder: 0 },
   { id: "privacidad",  slug: "privacidad",  type: "legal",            footerOrder: 1 },
   { id: "cookies",     slug: "cookies",     type: "legal",            footerOrder: 2 },
@@ -69,6 +71,27 @@ export type RegisteredPage = (typeof PAGES)[number];
 
 /** Los identificadores registrados: un `page.tsx` que pida otro no compila. */
 export type PageId = RegisteredPage["id"];
+
+/**
+ * RUTAS RETIRADAS (P1, D-BBW-107): un slug que FUE de una página y ya no lo es, con la página que lo sustituye. No se sirve ninguna página en él
+ * (R7a: lo servido = el registro); el borde lo redirige con un 301 de UN salto a la ruta vigente de su sustituta, tanto sin prefijo (`/quien`)
+ * como con cada locale publicado (`/es/quien/`). La guardia R6 (`scripts/lint/check-content.ts`) exige esas líneas en `public/_redirects` y que
+ * el slug retirado no vuelva a usarse en el registro. Retirar una ruta = mover su slug aquí, nunca borrarlo: los enlaces de fuera siguen vivos.
+ */
+export type RetiredRoute = {
+  /** el slug que dejó de servirse */
+  readonly slug: string;
+  /** la página que lo sustituye (su ruta vigente es el destino del 301) */
+  readonly replacedBy: PageId;
+  /** la decisión que lo retiró */
+  readonly decision: string;
+};
+
+/** Las rutas retiradas, con su sustituta (P1). */
+export const RETIRED_ROUTES = [
+  // «Quién» pasa a «Perfil» (P1, D-BBW-107; enmienda la ruta de D-BBW-90): /quien y /es/quien/ → /es/perfil/
+  { slug: "quien", replacedBy: "perfil", decision: "D-BBW-107" },
+] as const satisfies readonly RetiredRoute[];
 
 const PAGE_IDS: readonly string[] = PAGES.map((p) => p.id);
 

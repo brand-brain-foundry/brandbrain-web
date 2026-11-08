@@ -86,6 +86,13 @@ export type Visibility =
 /** Tipo de campo en un gestor de contenido (tabla «campo → campo del gestor», CONTENT_MODEL.md). */
 export type CmsField = "short-text" | "long-text" | "email" | "tags" | "repeater" | "media" | "multi-reference";
 
+/**
+ * Las FÓRMULAS de los campos derivados, cerradas (P1). `profileApproach` = «Cómo trabajo» de la página de perfil (la del tipo `profile`,
+ * `PROFILE_PAGE`): entrada + tarjetas en orden + trayectoria, por `deriveApproachText` (`./schema.ts`).
+ */
+export const DERIVATION_RULES = ["profileApproach"] as const;
+export type DerivationRule = (typeof DERIVATION_RULES)[number];
+
 export type EntityFieldSpec = {
   /** clase del valor */
   readonly kind: EntityFieldKind;
@@ -93,7 +100,16 @@ export type EntityFieldSpec = {
    * dónde vive el valor: `site` = una llave de primer nivel del documento del sitio, que el bloque REFERENCIA y nunca copia (escribir
    * `value` en el bloque rompe la compilación: I-1); `own` = en el propio bloque, bajo `value`.
    */
-  readonly source: { readonly kind: "site"; readonly key: "brand" | "role" | "email" } | { readonly kind: "own" };
+  readonly source:
+    | { readonly kind: "site"; readonly key: "brand" | "role" | "email" }
+    | { readonly kind: "own" }
+    /**
+     * `derived` (P1, D-BBW-109): el valor NO se escribe en ningún sitio; se CALCULA por una fórmula declarada sobre el contenido de una página
+     * (`rule`). Escribir `value` en el bloque rompe la compilación (sería el texto dos veces, I-1). La calcula el PUERTO (servidor, lee el
+     * documento de la página: `src/content/index.ts` → `getDerivedEntityText`) y la guardia de contenido la imprime; este módulo y el de la
+     * entidad no la calculan porque viajan al navegador (la barra del consentimiento importa el documento del sitio) y no leen archivos.
+     */
+    | { readonly kind: "derived"; readonly rule: DerivationRule };
   /**
    * mientras el estado sea `heredado` y el campo no tenga valor propio, de dónde se toma el valor (hoy solo la descripción, que `Person.description`
    * emite desde la `meta.description` de la portada; la sesión C le da fuente propia). Con `inheritedFrom`, un `value` propio en estado
@@ -191,11 +207,11 @@ export const ENTITY_FIELDS = {
   },
   descriptionLong: {
     kind: "text",
-    source: { kind: "own" },
+    source: { kind: "derived", rule: "profileApproach" },
     translatable: true,
     cms: "long-text",
     visible: "none",
-    doc: "Descripción larga de la persona, en primera persona (PERFIL-CZC §5.3; D-BBW-84, D-BBW-88): el bloque «Cómo trabajo» de la página de perfil la referencia. No se emite en los datos estructurados.",
+    doc: "Descripción larga de la persona, en primera persona (PERFIL-CZC §5.3; D-BBW-84, D-BBW-88). DERIVADA (P1, D-BBW-109): es la unión, por fórmula, de la entrada, las tarjetas y la trayectoria de «Cómo trabajo» en la página de perfil, que son su fuente; aquí no se escribe. No se emite en los datos estructurados.",
   },
   knowsAbout: {
     kind: "textList",
