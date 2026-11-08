@@ -115,12 +115,15 @@
 
   /* LADO DEL RETRATO de la página de perfil (S3c, D-BBW-91): era 252 px = 3 × el paso-21. Desde P2 (D-BBW-103) es el DIÁMETRO del círculo
      del cierre, el mismo en las dos vistas. P2b (D-BBW-111, «retrato más pequeño»): la misma fórmula un peldaño abajo en la escala de espacio,
-     240 px = 3 × el paso-20; P2b-216 (elección de Zavala entre 240 y 216): otro peldaño, 216 px = 3 × el paso-18. Sus derivados (216 y 432,
-     MEDIA §10, perfil `jpeg-disc`) LEEN este lado: se declara una sola vez y no se redefine por vista. */
-  --bbf-profile-portrait-size: calc(var(--bbf-space-18) * 3);
+     240 px = 3 × el paso-20; P2b-216 (elección de Zavala entre 240 y 216): otro peldaño, 216 px = 3 × el paso-18. P2c (enmienda de D-BBW-111):
+     el retrato sale de encima de la frase y pasa a AVATAR dentro del botón del correo; su diámetro es la ALTURA INTERIOR de ese botón: el alto
+     (`space-12`, el de las llamadas del héroe) menos lo que lo separa de su interior, que no es relleno vertical (no tiene) sino el contorno de
+     `line-sm` arriba y abajo: 48 − 2 = 46 px. Si cambia el alto o el contorno del botón (`.button` de ProfileSection.module.css), cambia aquí.
+     Sus derivados (46 y 92, MEDIA §10, perfil `jpeg-disc`) LEEN este lado: se declara una sola vez y no se redefine por vista. */
+  --bbf-profile-portrait-size: calc(var(--bbf-space-12) - var(--bbf-line-sm) * 2);
   /* P2 (D-BBW-99 y despacho P2 §2.3): el rótulo de «Cómo trabajo» queda FIJO bajo la cabecera mientras se recorre la sección en la vista amplia;
-     en una zona, nada fijo. El cierre (P2b, D-BBW-111, enmienda de la composición B de D-BBW-103): UNA columna apilada (retrato → frase madre
-     → botones) en las dos vistas; en la amplia todo centrado, en una zona el mismo orden alineado al inicio. Un solo rol (palabra clave válida
+     en una zona, nada fijo. El cierre (P2b, D-BBW-111, enmienda de la composición B de D-BBW-103; P2c: el retrato pasa al botón del correo):
+     UNA columna apilada (frase madre → botones) en las dos vistas; en la amplia todo centrado, en una zona el mismo orden alineado al inicio. Un solo rol (palabra clave válida
      a la vez en `align-items`, `justify-content` y `text-align`). */
   --bbf-profile-how-head-position: sticky;
   --bbf-profile-close-align: center;

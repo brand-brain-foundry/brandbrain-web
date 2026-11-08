@@ -213,20 +213,20 @@
       "width": 1200
     },
     "portraitDisc1x": {
-      "height": 216,
+      "height": 46,
       "master": "portrait",
-      "path": "public/portrait-216x216.jpg",
+      "path": "public/portrait-46x46.jpg",
       "profile": "jpeg-disc 1:1 lado --bbf-profile-portrait-size × 1 foco-y 0.42 q 82",
-      "sha256": "c25d4d5ff06e6040c6870931655ea9912cb5189384eb0a9311bb9f1e87d82135",
-      "width": 216
+      "sha256": "1e1bc7c41e0a8a4eb36141a863c7460f4daac4265ff4677dbd3fb786cbf0dec8",
+      "width": 46
     },
     "portraitDisc2x": {
-      "height": 432,
+      "height": 92,
       "master": "portrait",
-      "path": "public/portrait-432x432.jpg",
+      "path": "public/portrait-92x92.jpg",
       "profile": "jpeg-disc 1:1 lado --bbf-profile-portrait-size × 2 foco-y 0.42 q 82",
-      "sha256": "e1d0646a9bf83418a3fde756b37e317449d153ee1c22fab401979e9edd5d091b",
-      "width": 432
+      "sha256": "0bb190bb8cf80aeef46f2ee960a229feba78c484e4ce0d0704d374e3d37a401d",
+      "width": 92
     },
     "share": {
       "height": 630,
@@ -239,7 +239,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "626b291f5ad4b3b53eff07a09c98987853c2c93d58a799e73ecdc4669b40c0e4"
+    "sha256": "f8d91139a2ab49efa84f2dbfa8ab0f96396e5081b5e2a0609245dffbcec253f0"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {

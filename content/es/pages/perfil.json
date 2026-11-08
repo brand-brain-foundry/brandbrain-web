@@ -10,7 +10,7 @@
       "heading": "{{role}}",
       "lead": { "entity": "description" },
       "fieldMedia": "perfil",
-      "portrait": { "media": { "entity": "image" }, "alt": "{{brand}}" },
+      "portrait": { "media": { "entity": "image" } },
       "approach": {
         "heading": "Cómo trabajo",
         "intro": [
