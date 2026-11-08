@@ -1,6 +1,60 @@
 {
   "batches": {
-    "perfil": {}
+    "perfil": {
+      "christian-3": {
+        "budgetBytes": 80000,
+        "bytes": 31860,
+        "focus": "0.54,0.33",
+        "kind": "image",
+        "master": {
+          "file": "christian-3.jpg",
+          "sha256": "5f86f4bb6d710bb56c49e281420527563ede100065e597e4239a9d7c182a4fe8"
+        },
+        "path": "public/campo-perfil-christian-3-480x480.jpg",
+        "profile": "field-batch 480×480 jpeg q 82",
+        "sha256": "e9396a954fde2700ead150813ee562cf427cbaee15fc4e67c168a5f96a6d006d"
+      },
+      "crystal-fish-with-human-eye": {
+        "budgetBytes": 600000,
+        "bytes": 415675,
+        "focus": "0.41,0.53",
+        "kind": "video",
+        "master": {
+          "file": "crystal-fish-with-human-eye.mp4",
+          "sha256": "51cca5755257a668b59b4467a4ba1067239c44a7073de9da33b22d3ae04b36fd"
+        },
+        "path": "public/campo-perfil-crystal-fish-with-human-eye-480x480.mp4",
+        "profile": "field-batch 480×480 h264 crf 23 ≤ 8 s sin audio",
+        "sha256": "3047938906d7adfabc269e650cc2022355de4a7cb14c0807beaaa393df7fad52",
+        "streams": "video:h264 480x480"
+      },
+      "sc": {
+        "budgetBytes": 80000,
+        "bytes": 28037,
+        "focus": "0.51,0.46",
+        "kind": "image",
+        "master": {
+          "file": "sc.jpg",
+          "sha256": "be813324fe91d08577f4fe7de219c0834251985f7de6e3da04813de6b57546f0"
+        },
+        "path": "public/campo-perfil-sc-480x480.jpg",
+        "profile": "field-batch 480×480 jpeg q 82",
+        "sha256": "549943668745874214248e5e1ee71cec5ad3cd99d2b39722b6ef3e9749994183"
+      },
+      "zavala-1": {
+        "budgetBytes": 80000,
+        "bytes": 18940,
+        "focus": "0.49,0.42",
+        "kind": "image",
+        "master": {
+          "file": "zavala-1.jpg",
+          "sha256": "1b14b1038cabd28356ce2709291f782590f199683abef6c0ce8c0515252785f1"
+        },
+        "path": "public/campo-perfil-zavala-1-480x480.jpg",
+        "profile": "field-batch 480×480 jpeg q 82",
+        "sha256": "fe056230ba3267b74ee06e5f0a026b9cfdbdccc730d80ec457ac408bb4f1e1e8"
+      }
+    }
   },
   "derivatives": {
     "appleTouchIcon": {
@@ -122,7 +176,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "4e0da9b582a4276716af12a4f060d31c131b08c4cd5a9743111f51b89630b465"
+    "sha256": "d8a60b7a7616d5c14d7c6d2e0bf758aac55bb7daee183c68252adcdf66399a8c"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -180,6 +234,7 @@
     "token": "--bbf-surface-base"
   },
   "tool": {
+    "ffmpeg": "9.0.2",
     "sharp": "0.35.4",
     "vips": "8.18.6"
   }
