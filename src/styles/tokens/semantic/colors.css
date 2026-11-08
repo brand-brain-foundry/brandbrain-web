@@ -29,11 +29,11 @@
      no por la mayoría de las muestras**, igual que D-BBW-25 la juzga por el peor píxel y no por el píxel medio. Un solo fotograma por
      debajo es un incumplimiento, no ruido. `accent-200` sube la banda entera y deja el margen fuera del alcance de la oscilación. */
   --bbf-text-on-base-accent: var(--bbf-color-accent-200);
-  /* P2 del perfil: SUPERFICIES TENUES de las pastillas y de la ranura del icono, derivadas del texto y del acento por mezcla (no son colores
-     nuevos: un 5 % del texto en reposo, un 10 % al pasar, un 12 % del acento en la ranura; valores de P0b medidos con el texto encima ≥ 17,8). */
+  /* P2 del perfil: SUPERFICIES TENUES de las pastillas, derivadas del texto por mezcla (no son colores nuevos: un 5 % del texto en reposo,
+     un 10 % al pasar; valores de P0b medidos con el texto encima ≥ 17,8). La ranura del icono (12 % del acento) salió con el hueco en la
+     integración: pastillas de solo texto hasta P3, que la repone con el icono. */
   --bbf-surface-chip: color-mix(in oklch, var(--bbf-text-on-base) 5%, transparent);
   --bbf-surface-chip-hover: color-mix(in oklch, var(--bbf-text-on-base) 10%, transparent);
-  --bbf-surface-chip-slot: color-mix(in oklch, var(--bbf-text-on-base-accent) 12%, transparent);
 
   /* D-BBW-70 · LOS TRES ROLES SE RE-APUNTAN UN PELDAÑO, y no por gusto: la madre del acento se mudó del paso 300 al 400, así que dejar
      `--bbf-accent` en el 300 habría servido un tinte MÁS CLARO que el color que Zavala eligió. Lo que se conserva es la RELACIÓN con la

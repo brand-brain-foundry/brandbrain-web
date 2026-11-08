@@ -26,8 +26,9 @@ const stepNumber = (i: number) => String(i + 1).padStart(2, "0");
  *      sin botones ni partículas (D-BBW-105) y EN FLUJO (sin el hueco del pie superpuesto en el teléfono; su final se funde con el negro).
  *   2. «CÓMO TRABAJO» (D-BBW-99): la entrada y la línea de tiempo centradas en la columna de lectura; nodos 01–04 y «De dónde vengo»; el
  *      rótulo queda fijo mientras se recorre en la vista amplia (rol de vista). Las tarjetas con sus tramos enlazados (D-BBW-109).
- *   3. ESPECIALIDADES (D-BBW-100): pastillas a todo lo ancho; hueco del icono a la izquierda con su tamaño final (vacío hasta P3: nunca un
- *      icono dibujado aquí, MEDIA §1), `knowsAbout` literal a la derecha, toda la pastilla enlaza a la llave común; nombre accesible = su texto.
+ *   3. ESPECIALIDADES (D-BBW-100): pastillas a todo lo ancho, DE SOLO TEXTO hasta P3 (Zavala 2026-11-08, despacho de integración: el perfil se
+ *      publica sin iconos y sin hueco reservado; P3 trae el icono y su sitio en su propia PR, MEDIA §1), `knowsAbout` literal, toda la pastilla
+ *      enlaza a la llave común; nombre accesible = su texto.
  *   4. PROYECTOS (D-BBW-102): tres fichas estrechas, ventana 4:3 de radio moderado y el texto DEBAJO. En la ventana, el CLIP que cita el
  *      contenido (P4: `<video preload="none" poster>` por el puerto, `mediaClip`): en reposo el póster, sin descargar el vídeo; cuándo se mueve lo
  *      decide S14 (`src/behavior/card-video.ts`, BEHAVIOR.md §17). Sin clip, la superficie tenue.
@@ -89,8 +90,6 @@ export function ProfileSection({ section, locale }: { section: ProfileSectionTyp
             {section.specialties.items.map((item) => (
               <li key={item} data-reveal="">
                 <a href={skills} className={styles.chip} data-hover="text" {...outbound(skills)}>
-                  {/* el hueco del icono con su tamaño final; vacío hasta P3 (los maestros los exporta el diseño, D-BBW-101) */}
-                  <span className={styles.chipSlot} aria-hidden="true" data-icon-slot="" />
                   <span className={styles.chipLabel}>{item}</span>
                   <Icon name="arrowUpRight" className={styles.chipArrow} />
                 </a>
