@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Locale } from "@/config/site";
 import { splitEmphasis, type ProfileSection as ProfileSectionType, type ProfileSpan } from "@/content/schema";
 import { identity } from "@/content/site";
-import { media, mediaMembers } from "@/media";
+import { media, mediaClip, mediaMembers } from "@/media";
 import { hrefOf } from "@/components/link-target";
 import { Icon } from "@/components/atoms/Icon";
 import { ProfileMotion } from "@/components/organisms/ProfileMotion";
@@ -28,7 +28,9 @@ const stepNumber = (i: number) => String(i + 1).padStart(2, "0");
  *      rótulo queda fijo mientras se recorre en la vista amplia (rol de vista). Las tarjetas con sus tramos enlazados (D-BBW-109).
  *   3. ESPECIALIDADES (D-BBW-100): pastillas a todo lo ancho; hueco del icono a la izquierda con su tamaño final (vacío hasta P3: nunca un
  *      icono dibujado aquí, MEDIA §1), `knowsAbout` literal a la derecha, toda la pastilla enlaza a la llave común; nombre accesible = su texto.
- *   4. PROYECTOS (D-BBW-102): tres fichas estrechas, ventana 4:3 de radio moderado (vacía, superficie tenue, hasta P4) y el texto DEBAJO.
+ *   4. PROYECTOS (D-BBW-102): tres fichas estrechas, ventana 4:3 de radio moderado y el texto DEBAJO. En la ventana, el CLIP que cita el
+ *      contenido (P4: `<video preload="none" poster>` por el puerto, `mediaClip`): en reposo el póster, sin descargar el vídeo; cuándo se mueve lo
+ *      decide S14 (`src/behavior/card-video.ts`, BEHAVIOR.md §17). Sin clip, la superficie tenue.
  *   5. EL CIERRE B (D-BBW-103/104): retrato en círculo (`<img>` real con `alt`; el recorte 1:1 servido al tamaño mostrado por `srcset`, 1× y
  *      2×; el de 1200 queda de `src` porque `Person.image` lo cita y R7g lo busca), la frase madre a escala de titular con la segunda parte en
  *      acento (dos tramos EN LÍNEA: el `innerText` no se parte) y los botones de contacto sin título.
@@ -104,11 +106,30 @@ export function ProfileSection({ section, locale }: { section: ProfileSectionTyp
           <ul className={styles.cards}>
             {section.projects.items.map((project) => {
               const href = identity.links[project.link];
+              const clip = project.media ? mediaClip(project.media) : undefined;
               return (
                 <li key={project.id} data-reveal="">
                   <a href={href} className={styles.card} data-hover="text" {...outbound(href)}>
-                    {/* la ventana 4:3 del vídeo de la ficha: superficie tenue hasta P4 (póster + vídeo por el puerto de medios) */}
-                    <span className={styles.cardWindow} aria-hidden="true" data-card-window="" />
+                    {/* la ventana 4:3 de la ficha (P4): el clip del puerto de medios, decorativo (el nombre accesible es el texto de la ficha) */}
+                    <span className={styles.cardWindow} aria-hidden="true" data-card-window="">
+                      {clip && (
+                        <video
+                          className={styles.cardVideo}
+                          poster={clip.poster.src}
+                          width={clip.video.width}
+                          height={clip.video.height}
+                          muted
+                          playsInline
+                          preload="none"
+                          disablePictureInPicture
+                          disableRemotePlayback
+                          tabIndex={-1}
+                          data-card-video=""
+                        >
+                          <source src={clip.video.src} type={clip.video.type} />
+                        </video>
+                      )}
+                    </span>
                     <span className={styles.cardName}>
                       {project.name}
                       <Icon name="arrowUpRight" className={styles.cardArrow} />

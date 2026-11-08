@@ -65,6 +65,69 @@
       "sha256": "0a72d6c2a8f621b412a4bb4f3f203f131feb91cbb73c1edb74a68c0d052b20aa",
       "width": 180
     },
+    "cardAgencyPoster": {
+      "budgetBytes": 60000,
+      "bytes": 20440,
+      "height": 480,
+      "master": "cardAgency",
+      "path": "public/card-agency-poster-640x480.jpg",
+      "profile": "poster jpeg 640×480 recorte center q 80 fotograma 0 ≤ 60000 B",
+      "sha256": "2e910792bfa66e6034b058217d7c8338c765ea22e1660004ad4ca59ef0658264",
+      "width": 640
+    },
+    "cardAgencyVideo": {
+      "budgetBytes": 900000,
+      "bytes": 577211,
+      "height": 480,
+      "master": "cardAgency",
+      "path": "public/card-agency-640x480.mp4",
+      "profile": "video h264 640×480 recorte center crf 23 sin audio ≤ 900000 B",
+      "sha256": "1a21bf4760a28adb917a8aa12a7010bdfa11704527b960a0fd5dfe78e960f786",
+      "streams": "video:h264 640x480",
+      "width": 640
+    },
+    "cardStudioPoster": {
+      "budgetBytes": 60000,
+      "bytes": 29889,
+      "height": 480,
+      "master": "cardStudio",
+      "path": "public/card-studio-poster-640x480.jpg",
+      "profile": "poster jpeg 640×480 recorte center q 80 fotograma 0 ≤ 60000 B",
+      "sha256": "13d18c3f6f1eec4e2d783d6aa385a4c0a89abe0f82c6f60d1edfb6008f8e755a",
+      "width": 640
+    },
+    "cardStudioVideo": {
+      "budgetBytes": 900000,
+      "bytes": 717771,
+      "height": 480,
+      "master": "cardStudio",
+      "path": "public/card-studio-640x480.mp4",
+      "profile": "video h264 640×480 recorte center crf 23 sin audio ≤ 900000 B",
+      "sha256": "4e490bc4287f2af16df9316ee982dfad56ef0a17cb55056cb7edb761c89e021d",
+      "streams": "video:h264 640x480",
+      "width": 640
+    },
+    "cardWorksPoster": {
+      "budgetBytes": 60000,
+      "bytes": 22316,
+      "height": 480,
+      "master": "cardWorks",
+      "path": "public/card-works-poster-640x480.jpg",
+      "profile": "poster jpeg 640×480 recorte center q 80 fotograma 0 ≤ 60000 B",
+      "sha256": "9db303e66064f8548f3e85137ff5d35030dfb746be208661181051848362f338",
+      "width": 640
+    },
+    "cardWorksVideo": {
+      "budgetBytes": 900000,
+      "bytes": 615657,
+      "height": 480,
+      "master": "cardWorks",
+      "path": "public/card-works-640x480.mp4",
+      "profile": "video h264 640×480 recorte center crf 23 sin audio ≤ 900000 B",
+      "sha256": "a7746c29649f107f7dde0afec6c46d5c2366a0957faf2c45f404c99f5e5dc5b9",
+      "streams": "video:h264 640x480",
+      "width": 640
+    },
     "favicon": {
       "master": "brandIcon",
       "path": "public/favicon.ico",
@@ -176,7 +239,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "b351d55bd41e73d286315677bcb1ee2df6e591ccfce012df24265582fee62e0b"
+    "sha256": "626b291f5ad4b3b53eff07a09c98987853c2c93d58a799e73ecdc4669b40c0e4"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
@@ -192,6 +255,18 @@
       "file": "brand-icon.svg",
       "paint": "#9299c6",
       "sha256": "8cf6fb57414e3f43e09b32703f3a4b07ed60b063fbcf1638363d0d28a89a6b8b"
+    },
+    "cardAgency": {
+      "file": "card-agency.mp4",
+      "sha256": "b8ff430de5b5b781ee99b96f9671a75c1ba19fcd4afb0f7b9e83c91240e455a1"
+    },
+    "cardStudio": {
+      "file": "card-studio.mp4",
+      "sha256": "0349cbdc7432c36c3d367c815a6a795c231c006b5d40c222a59bbe9f25cff48d"
+    },
+    "cardWorks": {
+      "file": "card-works.mp4",
+      "sha256": "dbe606a1ddfed6a44f8a241cafa357e6f0d3bcd1ae61262e7837641a98129bbc"
     },
     "gcFoundational": {
       "file": "gc-foundational.png",

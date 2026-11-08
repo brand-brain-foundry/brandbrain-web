@@ -6,7 +6,7 @@
 export { media, surfaceColor, inlineIcons, rigs } from "./generated";
 export { mediaSets } from "./generated";
 // los conjuntos llegan GENERADOS (no del registro): este índice lo importan componentes cliente y el registro no debe viajar al navegador
-import { inlineIcons as icons, media as derived, mediaSets as sets, fieldBatches as batches } from "./generated";
+import { inlineIcons as icons, media as derived, mediaSets as sets, mediaClips as clips, fieldBatches as batches } from "./generated";
 
 /** Los identificadores que la entidad puede referenciar: los derivados y los conjuntos de recortes (S3c). */
 export const MEDIA_IDENTIFIERS: readonly string[] = [...Object.keys(derived), ...Object.keys(sets)];
@@ -16,6 +16,20 @@ export function mediaMembers(id: string): { src: string; width?: number; height?
   if (Object.prototype.hasOwnProperty.call(sets, id)) return sets[id as keyof typeof sets].map((m) => derived[m]);
   if (Object.prototype.hasOwnProperty.call(derived, id)) return [derived[id as keyof typeof derived]];
   return [];
+}
+
+/** Un clip (P4 del perfil): el vídeo y su póster (fotograma 0), con la ruta, el tipo y las dimensiones intrínsecas de cada uno. */
+export type MediaClip = {
+  readonly video: { readonly src: string; readonly type: string; readonly width: number; readonly height: number };
+  readonly poster: { readonly src: string; readonly width: number; readonly height: number };
+};
+/** Los clips que un documento de contenido puede citar (`projects.items[].media`). */
+export const MEDIA_CLIP_IDS: readonly string[] = Object.keys(clips);
+/** El clip de un identificador; `undefined` si no existe. */
+export function mediaClip(id: string): MediaClip | undefined {
+  if (!Object.prototype.hasOwnProperty.call(clips, id)) return undefined;
+  const c = clips[id as keyof typeof clips];
+  return { video: derived[c.video], poster: derived[c.poster] };
 }
 
 export type InlineIconName = keyof typeof icons;

@@ -58,7 +58,7 @@
  */
 import { isLinkKey, type LinkKey } from "./site";
 import { isPageId } from "../config/pages";
-import { FIELD_BATCH_IDS } from "../media";
+import { FIELD_BATCH_IDS, MEDIA_CLIP_IDS } from "../media";
 import { ENTITY_FIELDS, fieldSpec, type EntityFieldKey, type EntityFieldKind } from "./entity-fields";
 
 /** Colecciones con un documento por slug (`content/<locale>/<colección>/<slug>.json`). */
@@ -323,7 +323,11 @@ export type ProfileApproach = {
 export type ProfileClosing = { text: string; emphasisFrom: string };
 
 /** Un proyecto de la página de perfil: nombre (enlazado), su línea y la llave del destino. */
-export type ProfileProject = { id: string; name: string; text: string; link: LinkKey };
+/**
+ * Un proyecto de la página de perfil. `media` (OPCIONAL, P4 del perfil · D-BBW-102): el CLIP del puerto de medios (vídeo + póster, `mediaClips`
+ * del registro) que llena la ventana 4:3 de la ficha; sin la llave, la ventana queda en la superficie tenue.
+ */
+export type ProfileProject = { id: string; name: string; text: string; link: LinkKey; media?: string };
 
 /**
  * LA PÁGINA DE PERFIL (S3c, D-BBW-90; insumo CONTENIDO-PERFIL-WEB v1.0 §3). Los textos de la persona REFERENCIAN la entidad en el documento
@@ -723,11 +727,14 @@ function checkProfileSection(v: Record<string, unknown>, path: string, problems:
       items.forEach((it, i) => {
         const p = `${path}.projects.items[${i}]`;
         if (!isRecord(it)) return void problems.push({ path: p, message: `debe ser un objeto { id, name, text, link }` });
-        checkKeys(it, ["id", "name", "text", "link"], p, problems);
+        checkKeys(it, ["id", "name", "text", "link"], p, problems, ["media"]);
         checkId(it.id, `${p}.id`, seen, problems);
         if (typeof it.name === "string") checkSpanString(it.name, `${p}.name`, problems); else problems.push({ path: `${p}.name`, message: `debe ser texto` });
         if (typeof it.text === "string") checkSpanString(it.text, `${p}.text`, problems); else problems.push({ path: `${p}.text`, message: `debe ser texto` });
         if (typeof it.link !== "string" || !isLinkKey(it.link)) problems.push({ path: `${p}.link`, message: `"${String(it.link)}" no es una llave de enlace (content/site.json)` });
+        if ("media" in it && (typeof it.media !== "string" || !MEDIA_CLIP_IDS.includes(it.media))) {
+          problems.push({ path: `${p}.media`, message: `"${String(it.media)}" no es un clip del puerto de medios (declarados en src/media/registry.ts → mediaClips: ${MEDIA_CLIP_IDS.join(", ")})` });
+        }
       });
     }
   }

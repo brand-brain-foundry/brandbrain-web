@@ -22,6 +22,12 @@ export const media = {
   portrait16x9: { src: "/portrait-1200x675.jpg", type: "image/jpeg", width: 1200, height: 675, sizes: "1200x675" },
   portraitDisc1x: { src: "/portrait-216x216.jpg", type: "image/jpeg", width: 216, height: 216, sizes: "216x216" },
   portraitDisc2x: { src: "/portrait-432x432.jpg", type: "image/jpeg", width: 432, height: 432, sizes: "432x432" },
+  cardAgencyVideo: { src: "/card-agency-640x480.mp4", type: "video/mp4", width: 640, height: 480, sizes: "640x480" },
+  cardAgencyPoster: { src: "/card-agency-poster-640x480.jpg", type: "image/jpeg", width: 640, height: 480, sizes: "640x480" },
+  cardStudioVideo: { src: "/card-studio-640x480.mp4", type: "video/mp4", width: 640, height: 480, sizes: "640x480" },
+  cardStudioPoster: { src: "/card-studio-poster-640x480.jpg", type: "image/jpeg", width: 640, height: 480, sizes: "640x480" },
+  cardWorksVideo: { src: "/card-works-640x480.mp4", type: "video/mp4", width: 640, height: 480, sizes: "640x480" },
+  cardWorksPoster: { src: "/card-works-poster-640x480.jpg", type: "image/jpeg", width: 640, height: 480, sizes: "640x480" },
   gcFoundational72: { src: "/gc-foundational-72.png", type: "image/png", width: 72, height: 72, sizes: "72x72" },
   gcFoundational144: { src: "/gc-foundational-144.png", type: "image/png", width: 144, height: 144, sizes: "144x144" },
   manifest: { src: "/manifest.webmanifest", type: "application/manifest+json" },
@@ -39,6 +45,13 @@ export const inlineIcons = {
 /** Conjuntos de medios (S3c): un identificador → los derivados del mismo maestro, en orden (declarados en `mediaSets` del registro). */
 export const mediaSets = {
   portrait: ["portrait1x1", "portrait4x3", "portrait16x9"],
+} as const;
+
+/** Clips (P4 del perfil): un identificador → el vídeo y su póster (fotograma 0), derivados del mismo maestro (`mediaClips` del registro). */
+export const mediaClips = {
+  cardAgency: { video: "cardAgencyVideo", poster: "cardAgencyPoster" },
+  cardStudio: { video: "cardStudioVideo", poster: "cardStudioPoster" },
+  cardWorks: { video: "cardWorksVideo", poster: "cardWorksPoster" },
 } as const;
 
 /** Lotes del campo (S12, R2 del perfil): por uso, los medios de `media/masters/campo/<uso>/` en orden de nombre, recortados al cuadrado

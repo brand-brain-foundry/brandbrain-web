@@ -16,7 +16,12 @@
  * QUIETUD (D-BBW-31): con movimiento reducido (rol `--bbf-motion-reveal-play-state` en `paused`, semantic/motion.css; se LEE, nunca se repite la
  * consulta) no se arma nada y la línea queda llena: todo visible y quieto desde el primer fotograma.
  * CONSTANTES: tabla en docs/system/BEHAVIOR.md §16; clase por D-DOC-13 §2.
+ *
+ * P4 (S14): este es también el punto de entrada del VÍDEO DE LAS FICHAS (`./card-video`, BEHAVIOR.md §17), un sistema aparte con su quietud propia
+ * que viaja en el MISMO trozo diferido: `ProfileMotion` (cliente común a todas las páginas) no cambia y el inicio no descarga ninguno de los dos.
  */
+import { startCardVideos } from "./card-video";
+
 export const PROFILE_REVEAL = Object.freeze({
   /** fracción del bloque que tiene que verse para que entre · plantilla · P0b (`threshold` 0,15) */
   THRESHOLD: 0.15,
@@ -31,8 +36,18 @@ export const PROFILE_REVEAL = Object.freeze({
 const ARMED = "data-reveal-armed";
 const IN = "data-reveal-in";
 
-/** Arranca las apariciones y la línea de tiempo dentro de `root`. Devuelve la limpieza. */
+/** Arranca las apariciones y la línea de tiempo (S13) y el vídeo de las fichas (S14) dentro de `root`. Devuelve la limpieza de los dos. */
 export function startProfileReveal(root: HTMLElement): () => void {
+  const stopVideos = startCardVideos(root);
+  const stopReveal = startReveal(root);
+  return () => {
+    stopVideos();
+    stopReveal();
+  };
+}
+
+/** S13: apariciones y línea de tiempo. */
+function startReveal(root: HTMLElement): () => void {
   const doc = root.ownerDocument;
   const win = doc.defaultView;
   if (!win || typeof win.IntersectionObserver !== "function") return () => {};

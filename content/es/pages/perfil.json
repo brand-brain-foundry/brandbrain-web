@@ -61,9 +61,9 @@
       "projects": {
         "heading": "Proyectos",
         "items": [
-          { "id": "agency", "name": "Sivar Brains", "text": "plataforma multimarca que diseñé y construí, un proyecto conjunto con Sivar Films.", "link": "agency" },
-          { "id": "studio", "name": "Pura kaSaka", "text": "estudio de animación que fundé; cuenta historias para marcas en redes y sitios web.", "link": "studio" },
-          { "id": "works", "name": "Trabajo anterior", "text": "identidades y campañas de mi etapa de diseño de marca.", "link": "works" }
+          { "id": "agency", "name": "Sivar Brains", "text": "plataforma multimarca que diseñé y construí, un proyecto conjunto con Sivar Films.", "link": "agency", "media": "cardAgency" },
+          { "id": "studio", "name": "Pura kaSaka", "text": "estudio de animación que fundé; cuenta historias para marcas en redes y sitios web.", "link": "studio", "media": "cardStudio" },
+          { "id": "works", "name": "Trabajo anterior", "text": "identidades y campañas de mi etapa de diseño de marca.", "link": "works", "media": "cardWorks" }
         ]
       },
       "contact": {
