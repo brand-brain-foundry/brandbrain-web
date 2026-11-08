@@ -49,6 +49,12 @@
  *   · el bloque `credentials` («Certificación», «Ver insignia») SALE: la credencial se lee en la línea de la trayectoria, enlazada.
  *   · `closing` pasa de texto a `{ text, emphasisFrom }`: la frase madre sigue citada una vez (`{{motto}}`) y `emphasisFrom` dice desde qué
  *     palabra va el énfasis (D-BBW-104). Es una decisión EDITORIAL (qué se subraya), como `case`; cómo se pinta lo decide el sistema.
+ * P2 · perfil, maqueta (D-BBW-96…109, v3.16 del modelo, cambio NO aditivo):
+ *   · la apertura de la página es el HÉROE DEL INICIO reutilizado: `heading` pasa a ser el CARGO (`{{role}}`, el único `<h1>`) y `lead` su
+ *     párrafo (la frase definitoria, que nombra a la persona); la llave `role` SALE (era la línea del cargo bajo el nombre, I-6).
+ *   · `fieldMedia` (el uso del lote del campo, como en `hero`) entra como llave admitida de `profile`.
+ *   · `contact` pierde `heading`: los botones del cierre no llevan título (D2 del perfil); queda `{ links }`.
+ *   · `specialties` gana `link`: la llave del destino común de las pastillas (`linkedinSkills`), como `ctaSecondaryLink` en el héroe.
  */
 import { isLinkKey, type LinkKey } from "./site";
 import { isPageId } from "../config/pages";
@@ -328,22 +334,22 @@ export type ProfileProject = { id: string; name: string; text: string; link: Lin
 export type ProfileSection = {
   type: "profile";
   id: string;
-  /** el `<h1>`: el nombre (`{{brand}}`) */
+  /** el `<h1>` de la apertura (el héroe del inicio reutilizado, P2): el cargo (`{{role}}`) */
   heading: string;
-  /** la línea bajo el `<h1>`: el cargo (`{{role}}`) */
-  role: string;
-  /** la frase definitoria (`{ entity: "description" }`) */
+  /** el párrafo de la apertura: la frase definitoria (`{ entity: "description" }`), que nombra a la persona; línea de referencia del campo */
   lead: string;
+  /** OPCIONAL (P2, como `HeroSection.fieldMedia`): el uso cuyo lote del campo lleva la apertura; sin la llave o con lote vacío, el campo de siempre */
+  fieldMedia?: string;
   /** el retrato: `media` = el identificador del puerto de medios citado de `$.entity.image`; `alt` = su texto alternativo */
   portrait: { media: string; alt: string };
   /** «Cómo trabajo» (P1): entrada, tarjetas y trayectoria; la fuente de la que se deriva `descriptionLong` */
   approach: ProfileApproach;
-  /** «Especialidades»: encabezado y las materias (`{ entity: "knowsAbout" }`) */
-  specialties: { heading: string; items: string[] };
+  /** «Especialidades»: encabezado, las materias (`{ entity: "knowsAbout" }`) y la llave del destino común de las pastillas (P2: `linkedinSkills`) */
+  specialties: { heading: string; items: string[]; link: LinkKey };
   /** «Proyectos»: encabezado y los proyectos */
   projects: { heading: string; items: ProfileProject[] };
-  /** «Contacto»: encabezado y los enlaces (el correo y los perfiles) */
-  contact: { heading: string; links: LinkItem[] };
+  /** los botones de contacto del cierre (el correo y los perfiles), sin título (P2) */
+  contact: { links: LinkItem[] };
   /** el cierre de la página: la frase madre (`{{motto}}`) y desde qué palabra va el énfasis */
   closing: ProfileClosing;
   /** fecha de publicación de la página (AAAA-MM-DD) → `dateCreated` */
@@ -384,13 +390,13 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SECTION_KEYS: Record<SectionType, readonly string[]> = {
   hero: ["type", "id", "heading", "paragraph", "ctaPrimary", "ctaSecondary", "ctaSecondaryLink"],
   legal: ["type", "id", "heading", "intro", "blocks", "updated"],
-  profile: ["type", "id", "heading", "role", "lead", "portrait", "approach", "specialties", "projects", "contact", "closing", "published", "updated"],
+  profile: ["type", "id", "heading", "lead", "portrait", "approach", "specialties", "projects", "contact", "closing", "published", "updated"],
 };
 /** llaves ADMITIDAS (no obligatorias) por tipo de sección: hoy solo la acción de la página legal (v3.8). */
 const SECTION_OPTIONAL_KEYS: Record<SectionType, readonly string[]> = {
   hero: ["fieldMedia"],
   legal: ["action"],
-  profile: [],
+  profile: ["fieldMedia"],
 };
 
 function isRecord(v: unknown): v is Record<string, unknown> {
@@ -687,10 +693,17 @@ export function splitEmphasis(text: string, word: string): [string, string] | nu
   return before.length > 0 ? [before, from] : null;
 }
 
+/** `fieldMedia` (opcional en `hero` y `profile`): un uso con lote declarado en el registro de medios. */
+function checkFieldMedia(v: Record<string, unknown>, path: string, problems: Problem[]): void {
+  if ("fieldMedia" in v && (typeof v.fieldMedia !== "string" || !FIELD_BATCH_IDS.includes(v.fieldMedia))) {
+    problems.push({ path: `${path}.fieldMedia`, message: `"${String(v.fieldMedia)}" no es un uso con lote del campo (declarados en src/media/registry.ts → fieldBatches: ${FIELD_BATCH_IDS.join(", ")})` });
+  }
+}
+
 /** La sección de la página de perfil, tal como se ESCRIBE (con referencias a la entidad sin resolver). */
 function checkProfileSection(v: Record<string, unknown>, path: string, problems: Problem[]): void {
   checkText(v.heading, `${path}.heading`, problems);
-  checkText(v.role, `${path}.role`, problems);
+  checkFieldMedia(v, path, problems);
   checkEntityRef(v.lead, `${path}.lead`, ["text"], problems);
   if (isRecord(v.portrait)) {
     checkKeys(v.portrait, ["media", "alt"], `${path}.portrait`, problems);
@@ -698,7 +711,10 @@ function checkProfileSection(v: Record<string, unknown>, path: string, problems:
     checkText(v.portrait.alt, `${path}.portrait.alt`, problems);
   } else problems.push({ path: `${path}.portrait`, message: `debe ser un objeto { media, alt }` });
   if (checkHeaded(v.approach, `${path}.approach`, ["heading", "intro", "steps", "background"], problems)) checkApproach(v.approach, `${path}.approach`, problems);
-  if (checkHeaded(v.specialties, `${path}.specialties`, ["heading", "items"], problems)) checkEntityRef(v.specialties.items, `${path}.specialties.items`, ["textList"], problems);
+  if (checkHeaded(v.specialties, `${path}.specialties`, ["heading", "items", "link"], problems)) {
+    checkEntityRef(v.specialties.items, `${path}.specialties.items`, ["textList"], problems);
+    if (typeof v.specialties.link !== "string" || !isLinkKey(v.specialties.link)) problems.push({ path: `${path}.specialties.link`, message: `"${String(v.specialties.link)}" no es una llave de enlace (content/site.json)` });
+  }
   if (checkHeaded(v.projects, `${path}.projects`, ["heading", "items"], problems)) {
     const items = v.projects.items;
     if (!Array.isArray(items) || items.length === 0) problems.push({ path: `${path}.projects.items`, message: `debe ser una lista no vacía de { id, name, text, link }` });
@@ -715,7 +731,7 @@ function checkProfileSection(v: Record<string, unknown>, path: string, problems:
       });
     }
   }
-  if (checkHeaded(v.contact, `${path}.contact`, ["heading", "links"], problems)) checkLinkItems(v.contact.links, `${path}.contact.links`, problems);
+  if (checkHeaded(v.contact, `${path}.contact`, ["links"], problems)) checkLinkItems(v.contact.links, `${path}.contact.links`, problems);
   if (isRecord(v.closing)) {
     checkKeys(v.closing, ["text", "emphasisFrom"], `${path}.closing`, problems);
     checkText(v.closing.text, `${path}.closing.text`, problems);
@@ -848,9 +864,7 @@ function checkSection(v: unknown, path: string, seen: Set<string>, problems: Pro
     return;
   }
   if (type === "profile") return checkProfileSection(v, path, problems);
-  if ("fieldMedia" in v && (typeof v.fieldMedia !== "string" || !FIELD_BATCH_IDS.includes(v.fieldMedia))) {
-    problems.push({ path: `${path}.fieldMedia`, message: `"${String(v.fieldMedia)}" no es un uso con lote del campo (declarados en src/media/registry.ts → fieldBatches: ${FIELD_BATCH_IDS.join(", ")})` });
-  }
+  checkFieldMedia(v, path, problems);
   for (const k of keys) {
     if (k === "type" || k === "id") continue;
     if (k === "ctaPrimary" || k === "ctaSecondary") {

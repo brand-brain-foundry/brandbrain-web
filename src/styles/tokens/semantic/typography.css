@@ -175,4 +175,25 @@
   --bbf-type-legal-tracking-mixed: var(--bbf-tracking-1);
   --bbf-type-legal-shadow: var(--bbf-shadow-sm);
 
+  /* P2 del perfil (D-BBW-96…109; jerarquía de P0b §2): tres roles nuevos, cada uno a un paso de la escala y de la misma familia de texto.
+     · lead: la entrada de «Cómo trabajo», una declaración a escala de titular pequeño (`size-2`), interlineado y tracking de encabezado.
+     · statement: la frase madre del cierre, a escala de titular (`size-5`), interlineado de display (líneas cortas, balanceadas).
+     · caption: el texto de las pastillas y la línea de las fichas, un paso por debajo del cuerpo (`size-n1`, sobre el suelo), sin el tracking
+       ancho de `label` (que es para caja alta). */
+  --bbf-type-lead-family: var(--bbf-font-text);
+  --bbf-type-lead-size: var(--bbf-size-2);
+  --bbf-type-lead-weight: var(--bbf-weight-text-regular);
+  --bbf-type-lead-leading: var(--bbf-leading-heading);
+  --bbf-type-lead-tracking: var(--bbf-tracking-heading);
+  --bbf-type-statement-family: var(--bbf-font-text);
+  --bbf-type-statement-size: var(--bbf-size-5);
+  --bbf-type-statement-weight: var(--bbf-weight-text-regular);
+  --bbf-type-statement-leading: var(--bbf-leading-display);
+  --bbf-type-statement-tracking: var(--bbf-tracking-heading);
+  --bbf-type-caption-family: var(--bbf-font-text);
+  --bbf-type-caption-size: var(--bbf-size-n1);
+  --bbf-type-caption-weight: var(--bbf-weight-text-regular);
+  --bbf-type-caption-leading: var(--bbf-leading-heading);
+  --bbf-type-caption-tracking: var(--bbf-tracking-0);
+
 }

@@ -1,78 +1,289 @@
 /**
- * ProfileSection — lo PROPIO de la página de perfil (S3c, D-BBW-90). La columna, los encabezados, el cuerpo, las listas y los enlaces en prosa
- * son los de la sección legal (`../LegalSection/LegalSection.module.css`, reutilizada por el componente: una maqueta de texto, una hoja).
- * Solo consume tokens `var(--bbf-*)`: ningún color, tamaño ni espacio escritos a mano.
+ * ProfileSection — la página de perfil BAJO su apertura (P2, D-BBW-96…109). La apertura es `HeroSection` y tiene su hoja; aquí, el flujo de la
+ * página: «Cómo trabajo», especialidades, proyectos y el cierre. Solo consume tokens `var(--bbf-*)`: ningún color, tamaño, espacio, duración
+ * ni consulta de vista escritos a mano (las dos composiciones por vista llegan por roles de semantic/viewport.css; las rejillas se reparten
+ * solas por relleno automático contra anchos de semantic/composition.css). Sale la maqueta de texto de S3c (I-6): esta hoja ya no reutiliza
+ * la de la sección legal.
  */
 
-/* ── LA LÍNEA DEL CARGO, bajo el <h1> ───────────────────── */
-.role {
-  margin-block: calc(-1 * var(--bbf-space-6)) var(--bbf-space-8);
-  color: var(--bbf-text-on-base-secondary);
-  font-family: var(--bbf-type-subheading-family);
-  font-size: var(--bbf-type-subheading-size);
-  font-weight: var(--bbf-type-subheading-weight);
-  line-height: var(--bbf-type-subheading-leading);
-  letter-spacing: var(--bbf-type-subheading-tracking);
+/* ── EL FLUJO: un solo ancho centrado bajo el héroe, fondo quieto (la superficie), secciones separadas por aire, sin bandas ni cajas ── */
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-profile-section-gap);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: calc(var(--bbf-profile-flow-width) + var(--bbf-space-page) * 2);
+  margin-inline: auto;
+  padding: var(--bbf-profile-section-gap) var(--bbf-space-page);
 }
 
-/* ── EL RETRATO ─────────────────────────────────────────── */
-/* Cuadrado al lado del rol `--bbf-profile-portrait-size`; nunca más ancho que la columna. Las dimensiones intrínsecas viajan en el <img>
-   (sin salto de composición); aquí solo el tamaño de presentación. */
-.portrait {
-  display: block;
-  width: var(--bbf-profile-portrait-size);
-  max-width: 100%;
-  height: auto;
-  margin-block-end: var(--bbf-space-8);
+/* el rótulo de sección (rol `kicker`), con una regla fina que lo prolonga */
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: var(--bbf-space-4);
+  margin: 0;
+  color: var(--bbf-text-on-base-accent);
+  font-family: var(--bbf-type-kicker-family);
+  font-size: var(--bbf-type-kicker-size);
+  font-weight: var(--bbf-type-kicker-weight);
+  line-height: var(--bbf-type-kicker-leading);
+  letter-spacing: var(--bbf-type-kicker-tracking);
+  text-transform: uppercase;
 }
 
-/* ── PROYECTOS: el nombre enlazado y sus dos puntos ─────── */
-/* Los dos puntos son puntuación de la lista, no copy: los pone el sistema tras el nombre (como el «·» del pie). */
-.projectName {
-  font-weight: var(--bbf-type-button-weight);
+.kicker::after {
+  content: "";
+  flex: 0 1 var(--bbf-space-24);
+  height: var(--bbf-line-sm);
+  background: var(--bbf-line-on-base);
 }
 
-.projectName::after {
-  content: ":";
+.wide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-10);
 }
 
-/* ── CÓMO TRABAJO: tarjetas como bloques de texto (P1; la maqueta llega en P2) ── */
-/* Lista ordenada: el número de cada tarjeta es su orden en el contenido; hasta P2 no se pinta marcador. */
+/* ── «CÓMO TRABAJO» (D-BBW-99): todo centrado en la columna de lectura; el rótulo FIJO en la vista amplia (rol de vista) ─────────────── */
+.how {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-10);
+  width: 100%;
+  max-width: var(--bbf-legal-max-width);
+  margin-inline: auto;
+}
+
+/* fijo bajo el borde de la ventana mientras se recorre la sección; sobre la superficie lisa de la página, así que el texto que pasa por
+   debajo se oculta sin que se vea ninguna banda */
+.howKicker {
+  position: var(--bbf-profile-how-head-position);
+  top: 0;
+  z-index: var(--bbf-layer-content);
+  padding-block: var(--bbf-space-page) var(--bbf-space-4);
+  margin-block-start: calc(-1 * var(--bbf-space-page));
+  background: var(--bbf-surface-base);
+}
+
+.intro {
+  margin: 0;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-lead-family);
+  font-size: var(--bbf-type-lead-size);
+  font-weight: var(--bbf-type-lead-weight);
+  line-height: var(--bbf-type-lead-leading);
+  letter-spacing: var(--bbf-type-lead-tracking);
+  text-wrap: pretty;
+}
+
+/* la línea: pista + relleno (scaleY por `--bbf-timeline-progress`, que pone S13; sin JS = llena) */
+.timeline {
+  --bbf-timeline-rail: var(--bbf-space-12);
+  --bbf-timeline-node: var(--bbf-space-3);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-14);
+  margin-block-start: var(--bbf-space-4);
+}
+
+.timeline::before,
+.timeline::after {
+  content: "";
+  position: absolute;
+  inset-block: var(--bbf-space-1);
+  inset-inline-start: calc((var(--bbf-timeline-node) - var(--bbf-line-sm)) / 2);
+  width: var(--bbf-line-sm);
+  background: var(--bbf-line-on-base);
+  transform-origin: top;
+}
+
+.timeline::after {
+  background: var(--bbf-text-on-base-accent);
+  transform: scaleY(var(--bbf-timeline-progress, 1));
+  transition: transform var(--bbf-motion-reveal-duration) var(--bbf-motion-enter-ease);
+}
+
 .steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-14);
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
-.stepTitle {
-  margin-block: var(--bbf-space-6) var(--bbf-space-2);
-  color: var(--bbf-text-on-base);
-  font-family: var(--bbf-type-body-family);
-  font-size: var(--bbf-type-body-size);
-  font-weight: var(--bbf-type-button-weight);
-  line-height: var(--bbf-type-body-leading);
-  letter-spacing: var(--bbf-type-body-tracking);
+.step {
+  position: relative;
+  padding-inline-start: var(--bbf-timeline-rail);
 }
 
-/* ── CONTACTO: enlaces en una fila que parte ────────────── */
-.contactLinks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--bbf-space-2) var(--bbf-space-6);
-  padding: 0;
+.node {
+  position: absolute;
+  inset-block-start: var(--bbf-space-1);
+  inset-inline-start: 0;
+  z-index: 1;
+  box-sizing: border-box;
+  width: var(--bbf-timeline-node);
+  height: var(--bbf-timeline-node);
+  border: var(--bbf-line-sm) solid var(--bbf-text-on-base-accent);
+  border-radius: var(--bbf-radius-full);
+  background: var(--bbf-surface-base);
+  transition: background-color var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+/* el paso leído llena su nodo; el origen («De dónde vengo») lo lleva lleno siempre */
+.step[data-passed] .node,
+.nodeOrigin {
+  background: var(--bbf-text-on-base-accent);
+}
+
+.stepNumber {
+  display: block;
   margin-block-end: var(--bbf-space-3);
-  list-style: none;
+  color: var(--bbf-text-on-base-accent);
+  font-family: var(--bbf-type-kicker-family);
+  font-size: var(--bbf-type-kicker-size);
+  font-weight: var(--bbf-type-kicker-weight);
+  line-height: var(--bbf-type-kicker-leading);
+  letter-spacing: var(--bbf-type-kicker-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepTitle {
+  margin: 0 0 var(--bbf-space-3);
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-subheading-family);
+  font-size: var(--bbf-type-subheading-size);
+  font-weight: var(--bbf-type-subheading-weight);
+  line-height: var(--bbf-type-subheading-leading);
+  letter-spacing: var(--bbf-type-subheading-tracking);
+  text-wrap: balance;
+}
+
+.stepText {
+  margin: 0;
+  color: var(--bbf-text-on-base-secondary);
   font-family: var(--bbf-type-body-family);
   font-size: var(--bbf-type-body-size);
   font-weight: var(--bbf-type-body-weight);
   line-height: var(--bbf-type-body-leading);
   letter-spacing: var(--bbf-type-body-tracking);
+  text-wrap: pretty;
 }
 
-/* ── EL CIERRE: la frase madre; desde la palabra que el contenido declara, en el acento del texto (D-BBW-104) ── */
-.closing {
-  margin-block-start: var(--bbf-space-10);
+/* los enlaces en tramos (pinta `renderSpan`, con la clase de la hoja legal): aquí en el color del texto, con el subrayado del sistema */
+.stepText a {
   color: var(--bbf-text-on-base);
+}
+
+/* ── ESPECIALIDADES (D-BBW-100): pastillas a todo lo ancho; rejilla de relleno automático (4 · 2 · 1 sin consultas) ───────────────── */
+.chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--bbf-profile-chip-min)), 1fr));
+  gap: var(--bbf-space-4);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: var(--bbf-space-4);
+  box-sizing: border-box;
+  height: 100%;
+  min-height: var(--bbf-space-16);
+  padding: var(--bbf-space-2) var(--bbf-space-5) var(--bbf-space-2) var(--bbf-space-2);
+  border-radius: var(--bbf-radius-pill);
+  background-color: var(--bbf-surface-chip);
+  color: var(--bbf-text-on-base);
+  text-decoration: none;
+}
+
+.chip:is(:hover, :focus-visible) {
+  background-color: var(--bbf-surface-chip-hover);
+}
+
+/* el hueco del icono: su tamaño final (`space-12`, el icono a `space-8` dentro), vacío hasta P3; un anillo neutro, no un icono */
+.chipSlot {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--bbf-space-12);
+  height: var(--bbf-space-12);
+  border-radius: var(--bbf-radius-full);
+  background: var(--bbf-surface-chip-slot);
+  color: var(--bbf-text-on-base-accent);
+}
+
+.chipSlot:empty::before {
+  content: "";
+  width: var(--bbf-space-3);
+  height: var(--bbf-space-3);
+  border-radius: var(--bbf-radius-full);
+  box-shadow: inset 0 0 0 var(--bbf-line-sm) currentColor;
+}
+
+.chipLabel {
+  flex: 1;
+  font-family: var(--bbf-type-caption-family);
+  font-size: var(--bbf-type-caption-size);
+  font-weight: var(--bbf-type-caption-weight);
+  line-height: var(--bbf-type-caption-leading);
+  letter-spacing: var(--bbf-type-caption-tracking);
+  text-wrap: balance;
+}
+
+/* la flecha saliente: entra al pasar con puntero fino; en táctil (o con foco) está siempre (rol de vista `--bbf-hover-fine`) */
+.chipArrow {
+  flex: none;
+  width: var(--bbf-space-4);
+  height: var(--bbf-space-4);
+  stroke-width: var(--bbf-line-toggle);
+  opacity: calc(1 - var(--bbf-hover-fine));
+  transition: opacity var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.chip:is(:hover, :focus-visible) .chipArrow {
+  opacity: 1;
+}
+
+/* ── PROYECTOS (D-BBW-102): fichas estrechas, ventana 4:3 de radio moderado y el texto DEBAJO; no ocupan el ancho ───────────────────── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--bbf-profile-card-min)), var(--bbf-profile-card-max)));
+  gap: var(--bbf-space-10) var(--bbf-space-8);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bbf-space-2);
+  color: var(--bbf-text-on-base);
+  text-decoration: none;
+}
+
+/* la ventana del vídeo (P4): mientras tanto, la superficie tenue de las pastillas */
+.cardWindow {
+  display: block;
+  margin-block-end: var(--bbf-space-3);
+  aspect-ratio: 4 / 3;
+  border-radius: var(--bbf-radius-card);
+  background: var(--bbf-surface-chip);
+  overflow: hidden;
+}
+
+.cardName {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bbf-space-2);
   font-family: var(--bbf-type-subheading-family);
   font-size: var(--bbf-type-subheading-size);
   font-weight: var(--bbf-type-subheading-weight);
@@ -80,6 +291,130 @@
   letter-spacing: var(--bbf-type-subheading-tracking);
 }
 
+.cardArrow {
+  flex: none;
+  width: var(--bbf-space-4);
+  height: var(--bbf-space-4);
+  stroke-width: var(--bbf-line-toggle);
+  transition: transform var(--bbf-motion-link-duration) var(--bbf-motion-link-ease);
+}
+
+.card:is(:hover, :focus-visible) .cardArrow {
+  transform: translate(var(--bbf-space-half), calc(-1 * var(--bbf-space-half)));
+}
+
+/* la línea de la ficha se escribe en minúscula (seguía al nombre en la lista de S3c); como línea suelta empieza en mayúscula: lo pone el sistema */
+.cardLine {
+  display: block;
+  color: var(--bbf-text-on-base-secondary);
+  font-family: var(--bbf-type-caption-family);
+  font-size: var(--bbf-type-caption-size);
+  font-weight: var(--bbf-type-caption-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-caption-tracking);
+  text-wrap: pretty;
+}
+
+.cardLine::first-letter {
+  text-transform: uppercase;
+}
+
+/* ── EL CIERRE B (D-BBW-103/104): retrato en círculo + frase madre a escala de titular + botones; dos columnas o apilado (rol de vista) ── */
+.closing {
+  display: grid;
+  grid-template-columns: var(--bbf-profile-close-columns);
+  align-items: center;
+  gap: var(--bbf-space-10) var(--bbf-space-16);
+  padding-block-start: var(--bbf-space-12);
+}
+
+.portrait {
+  display: block;
+  width: var(--bbf-profile-portrait-size);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--bbf-radius-full);
+  object-fit: cover;
+}
+
+.closingBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--bbf-space-10);
+}
+
+.statement {
+  max-width: 16ch;
+  margin: 0;
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-statement-family);
+  font-size: var(--bbf-type-statement-size);
+  font-weight: var(--bbf-type-statement-weight);
+  line-height: var(--bbf-type-statement-leading);
+  letter-spacing: var(--bbf-type-statement-tracking);
+  text-wrap: balance;
+}
+
+/* los dos tramos van EN LÍNEA: un bloque partiría la frase para quien la extrae (P0b) */
 .emphasis {
   color: var(--bbf-text-on-base-accent);
+}
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--bbf-space-4);
+}
+
+/* la geometría de las llamadas del héroe por los mismos tokens (48 de alto, relleno `space-7`, píldora, contorno de 1 px); no comparte hoja
+   con ellas (son enlaces de otra sección), como el átomo `Button`. El hover de color lo pone el sistema por `data-hover`. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bbf-space-2);
+  box-sizing: border-box;
+  height: var(--bbf-space-12);
+  padding-inline: var(--bbf-space-7);
+  border: var(--bbf-line-sm) solid var(--bbf-text-on-base);
+  border-radius: var(--bbf-radius-pill);
+  font-family: var(--bbf-type-button-family);
+  font-size: var(--bbf-type-button-size);
+  font-weight: var(--bbf-type-button-weight);
+  letter-spacing: var(--bbf-type-button-tracking);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.buttonPrimary {
+  background: var(--bbf-text-on-base);
+  color: var(--bbf-surface-base);
+}
+
+.buttonSecondary {
+  background: transparent;
+  color: var(--bbf-text-on-base);
+}
+
+.buttonArrow {
+  flex: none;
+  width: var(--bbf-space-4);
+  height: var(--bbf-space-4);
+  stroke-width: var(--bbf-line-toggle);
+}
+
+/* ── APARICIONES (S13): lo armado por el módulo espera fuera de vista; entra una vez, escalonado. Sin JS ni con movimiento reducido no se
+   arma nada: todo visible y quieto. ─────────────────────────────────────────────────────────────────────────────────────────────── */
+.flow [data-reveal] {
+  transition:
+    opacity var(--bbf-motion-reveal-duration) var(--bbf-motion-enter-ease),
+    transform var(--bbf-motion-reveal-duration) var(--bbf-motion-enter-ease);
+  transition-delay: calc(var(--bbf-reveal-index, 0) * var(--bbf-motion-reveal-stagger));
+}
+
+.flow [data-reveal-armed]:not([data-reveal-in]) {
+  opacity: 0;
+  transform: translateY(var(--bbf-motion-reveal-shift));
 }

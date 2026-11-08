@@ -105,4 +105,19 @@
   --bbf-bar-side: max(var(--bbf-space-safe), clamp(var(--bbf-space-4), var(--bbf-bar-side-slope), var(--bbf-space-10)));
   --bbf-bar-gap: var(--bbf-space-6);
   --bbf-bar-gap-narrow: clamp(var(--bbf-space-3), var(--bbf-bar-gap-narrow-slope), var(--bbf-space-6));
+
+  /* ── P2 · LA PÁGINA DE PERFIL BAJO SU APERTURA (D-BBW-96…109; medidas de P0b §2/§5, por fórmula) ───────────────────────────────────────
+     · flujo: el ancho de la página bajo el héroe, 3,5 × `space-85` (1190 px), dentro del margen de página.
+     · separación entre secciones: entre `space-24` y `space-40`, 16 % del alto de la ventana pequeña (el ritmo de P0b).
+     · ficha: la anchura máxima de una ficha de proyecto, 0,9 × `space-85` (306 px), y su mínima, 0,75 × `space-85` (255 px): con la
+       rejilla de relleno automático salen tres en fila en escritorio, dos en la tableta y una en el teléfono sin ninguna consulta.
+     · pastilla: la anchura mínima de una pastilla, la misma 0,75 × `space-85`: cuatro por fila en el flujo, dos en la tableta, una en el teléfono.
+     · RADIO DE TARJETA (residual de P0b §5): el sistema solo tenía `full` y `pill`; el radio moderado de la ventana de las fichas es un
+       peldaño de la escala de espaciado (`space-4`, 16 px), no una madre nueva. */
+  --bbf-profile-flow-width: calc(var(--bbf-space-85) * 3.5);
+  --bbf-profile-section-gap: clamp(var(--bbf-space-24), 16svh, var(--bbf-space-40));
+  --bbf-profile-card-max: calc(var(--bbf-space-85) * 0.9);
+  --bbf-profile-card-min: calc(var(--bbf-space-85) * 0.75);
+  --bbf-profile-chip-min: calc(var(--bbf-space-85) * 0.75);
+  --bbf-radius-card: var(--bbf-space-4);
 }

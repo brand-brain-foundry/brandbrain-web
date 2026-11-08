@@ -746,6 +746,8 @@
                 "portrait1x1",
                 "portrait4x3",
                 "portrait16x9",
+                "portraitDisc1x",
+                "portraitDisc2x",
                 "gcFoundational72",
                 "gcFoundational144",
                 "manifest",
