@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { site, isLocale } from "@/config/site";
 import { getGlobal } from "@/content";
+import { identity } from "@/content/site";
+import type { ConsentDocument } from "@/content/schema";
 import { media, surfaceColor } from "@/media";
 import { textFont } from "@/styles/fonts/text";
 import { SkipLink } from "@/components/atoms/SkipLink";
@@ -56,6 +58,15 @@ export const metadata: Metadata = {
  * Layout del locale (fase 6b): cromo persistente (Eje B, organisms) desde lo global del contenido (`getGlobal`, falla cerrado en build) +
  * enlace de salto al contenido como primer elemento enfocable. La página pone el `<main>`.
  */
+/**
+ * Los destinos externos que cita el texto del banner de consentimiento, resueltos aquí (servidor) para que la barra, que es de cliente, no
+ * importe la identidad y con ella todo `content/site.json` (P2 del perfil, §2.8). Sin ninguno, la prop no existe (el payload es el de antes).
+ */
+function consentLinks(consent: ConsentDocument): { links?: Record<string, string> } {
+  const keys = consent.banner.text.flatMap((span) => (typeof span === "object" && "link" in span ? [span.link] : []));
+  return keys.length > 0 ? { links: Object.fromEntries(keys.map((k) => [k, identity.links[k]])) } : {};
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -76,7 +87,7 @@ export default async function LocaleLayout({
         <Footer global={global} locale={locale} />
         {/* CONSENTIMIENTO (P-BBW-82): la barra y el panel van en el HTML de todas las páginas, la barra oculta; el cliente solo
             la muestra si no hay elección válida. Después del pie en el DOM: es lo último que se lee y lo primero que se decide. */}
-        <ConsentBar consent={global.consent} />
+        <ConsentBar consent={global.consent} {...consentLinks(global.consent)} />
         {/* S11 DESARME (P-BBW-83; opt-in desde M3, P-BBW-84): un solo cableador cliente para los enlaces y botones marcados con `data-scatter`; sin markup. */}
         <GlyphScatter />
       </body>

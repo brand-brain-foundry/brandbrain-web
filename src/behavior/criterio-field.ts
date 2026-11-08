@@ -581,7 +581,7 @@ export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement
     timer = undefined;
   };
 
-  /** una sola política para la pestaña oculta y (con capa) la sección fuera de vista: el reloj se congela y al volver sigue donde iba */
+  /** una sola política para la pestaña oculta y la sección fuera de vista: el reloj se congela y al volver sigue donde iba */
   const onVisibility = () => {
     if (document.hidden || !inView) {
       if (pausedAt === null) pausedAt = performance.now();
@@ -604,13 +604,15 @@ export function startCriterioField(canvas: HTMLCanvasElement, plate: HTMLElement
   resize.observe(plate);
   document.addEventListener("visibilitychange", onVisibility);
   document.fonts?.ready.then(() => (isStill() ? still() : layout()));
-  // D-BBW-97 (con capa): la animación vive solo en su sección; fuera de vista se detiene como con la pestaña oculta
-  const view = layer
-    ? new IntersectionObserver((entries) => {
-        inView = entries[entries.length - 1].isIntersecting;
-        onVisibility();
-      })
-    : null;
+  // D-BBW-97: la animación vive solo en su sección; fuera de vista se detiene como con la pestaña oculta. R2 lo ataba a la capa; P2 lo hace
+  // general (el perfil abre con el lote vacío y su sección 1 sale de la vista al leer). En el inicio el héroe ES la página y nunca sale de vista.
+  const view =
+    typeof IntersectionObserver === "function"
+      ? new IntersectionObserver((entries) => {
+          inView = entries[entries.length - 1].isIntersecting;
+          onVisibility();
+        })
+      : null;
   view?.observe(plate.closest("section") ?? plate);
 
   start();

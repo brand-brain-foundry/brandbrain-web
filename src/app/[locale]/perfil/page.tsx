@@ -28,8 +28,9 @@ export default async function PerfilPage({
   const where = `pages/${PAGE} (${locale})`;
   return (
     <WithStructuredData locale={locale} id={PAGE} page={page}>
-      {/* R1 (D-BBW-96): la variante de color del fondo sale del registro; la hereda el fondo de cualquier sección de la página */}
-      <main id={MAIN_ID} data-component="bbf-main" data-backdrop={pageBackdrop(PAGE)}>
+      {/* R1 (D-BBW-96): la variante de color del fondo sale del registro; la hereda el fondo de cualquier sección de la página.
+          P2: página larga → el pie va en el flujo, debajo del cierre, no superpuesto (Footer.module.css) */}
+      <main id={MAIN_ID} data-component="bbf-main" data-backdrop={pageBackdrop(PAGE)} data-footer="flow">
         {page.sections.map((section) => renderSection(section, where, locale))}
       </main>
     </WithStructuredData>

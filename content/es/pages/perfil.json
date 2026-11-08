@@ -7,9 +7,9 @@
     {
       "type": "profile",
       "id": "perfil",
-      "heading": "{{brand}}",
-      "role": "{{role}}",
+      "heading": "{{role}}",
       "lead": { "entity": "description" },
+      "fieldMedia": "perfil",
       "portrait": { "media": { "entity": "image" }, "alt": "{{brand}}" },
       "approach": {
         "heading": "Cómo trabajo",
@@ -57,7 +57,7 @@
           ]
         }
       },
-      "specialties": { "heading": "Especialidades", "items": { "entity": "knowsAbout" } },
+      "specialties": { "heading": "Especialidades", "items": { "entity": "knowsAbout" }, "link": "linkedinSkills" },
       "projects": {
         "heading": "Proyectos",
         "items": [
@@ -67,7 +67,6 @@
         ]
       },
       "contact": {
-        "heading": "Contacto",
         "links": [
           { "id": "email", "label": "{{email}}", "link": "contact" },
           { "id": "linkedin", "label": { "global": "linkLabels.linkedin" }, "link": "linkedin" }

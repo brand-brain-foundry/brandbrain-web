@@ -21,17 +21,25 @@ import styles from "./HeroSection.module.css";
  *   retardo de entrada (I-6); nada más cambia.
  * R2 del perfil (S12, 2026-11-08): si la sección declara `fieldMedia` (un uso con lote en el puerto de medios) y el lote trae medios, el campo
  *   los recibe; sin la llave o con lote vacío el campo es el de siempre (el inicio no declara ninguno).
+ * P2 del perfil (D-BBW-96…109, 2026-11-08): la APERTURA de la página de perfil es este mismo componente, no una copia. Lo que la apertura no
+ *   lleva se apaga por props que el inicio no pasa: sin botones (D5, `HeroContent` sin las tres llaves de llamada), sin partículas (D6,
+ *   `particles={false}`) y en FLUJO (`flow`: la página sigue debajo, así que el héroe no reserva el pie superpuesto ni exige una ventana en el
+ *   teléfono, y su final se funde con la superficie). Sin esas props el marcado del inicio es el de siempre, byte a byte.
  */
-export function HeroSection({ section }: { section: HeroSectionData }) {
+/** Lo que el héroe pinta: el `<h1>`, el párrafo y, si vienen las tres llaves, las dos llamadas a la acción (la apertura del perfil no las trae). */
+export type HeroContent = Pick<HeroSectionData, "id" | "heading" | "paragraph" | "fieldMedia"> &
+  (Pick<HeroSectionData, "ctaPrimary" | "ctaSecondary" | "ctaSecondaryLink"> | { ctaPrimary?: undefined; ctaSecondary?: undefined; ctaSecondaryLink?: undefined });
+
+export function HeroSection({ section, particles = true, flow = false }: { section: HeroContent; particles?: boolean; flow?: boolean }) {
   const headingId = `${section.id}-heading`;
   const batch = section.fieldMedia ? fieldBatch(section.fieldMedia) : [];
   return (
-    <section id={section.id} className={styles.hero} aria-labelledby={headingId} data-component="bbf-hero">
+    <section id={section.id} className={flow ? `${styles.hero} ${styles.flow}` : styles.hero} aria-labelledby={headingId} data-component="bbf-hero">
       <HeroBackdrop />
       {/* la prop solo existe con medios: sin ellos el payload del inicio es el de antes (un `media: undefined` viajaría como `$undefined`) */}
       <CriterioField className={styles.stage} {...(batch.length > 0 ? { media: batch } : {})} />
       <div className={styles.veil} aria-hidden="true" />
-      <HeroParticles />
+      {particles && <HeroParticles />}
       <div className={styles.text}>
         <div className={styles.block}>
           <h1 id={headingId} className={styles.heading} data-enter="">
@@ -40,6 +48,7 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
           <p className={styles.body} data-enter="" data-field-line="">
             {section.paragraph}
           </p>
+          {section.ctaPrimary !== undefined && (
           <div className={styles.ctas} data-enter="">
             {/* 2026-11-02 (orden de Zavala): primero el perfil de LinkedIn y después «Hablemos»; cada botón conserva su estilo.
                 S11 (M2, P-BBW-83; M3, P-BBW-84): se MARCAN con su tipo de piel (`data-hover`: hover de color del sistema) y con `data-scatter`
@@ -53,6 +62,7 @@ export function HeroSection({ section }: { section: HeroSectionData }) {
               <Icon name="arrowRight" className={styles.arrow} />
             </a>
           </div>
+          )}
         </div>
       </div>
     </section>

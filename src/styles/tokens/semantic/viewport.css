@@ -86,6 +86,13 @@
      No usan la reserva del héroe, que en el teléfono guarda la banda del campo de puntos. */
   --bbf-legal-inset-top: calc(var(--bbf-hero-head-reserve) + var(--bbf-space-page));
   --bbf-hero-flex: 1 0 auto;
+  /* EL HÉROE EN FLUJO (P2 del perfil, D-BBW-96…109): cuando el héroe ABRE una página que sigue debajo (el perfil), el pie no va superpuesto
+     sobre él y la página no termina en él. En la vista de DOS zonas la composición es la del inicio (una ventana, el bloque centrado entre las
+     dos reservas): los dos roles valen lo mismo que los del inicio. En la de UNA zona cambian (ver el corte): ese par era el hueco grande
+     entre la sección 1 y la 2 en el teléfono. El fundido del final mide `space-40`: la parte baja del héroe se apaga hacia la superficie. */
+  --bbf-hero-flow-min-block: 100svh;
+  --bbf-hero-flow-inset-bottom: var(--bbf-hero-text-inset-bottom);
+  --bbf-hero-flow-fade: var(--bbf-space-40);
 
   /* Las llamadas a la acción del cuerpo (2026-11-02): en fila en dos zonas; apiladas a todo el ancho del bloque en una. */
   --bbf-hero-ctas-direction: row;
@@ -106,9 +113,14 @@
      Los componentes lo consumen por este rol, nunca como un número escrito a mano. */
   --bbf-legal-max-width: calc(var(--bbf-space-21) * 8);
 
-  /* LADO DEL RETRATO de la página de perfil (S3c, D-BBW-91): 252 px = 3 × el paso-21, tres octavos de la columna de lectura. El derivado
-     mide 600 (más de 2× para pantallas densas); el componente lo consume por este rol. */
+  /* LADO DEL RETRATO de la página de perfil (S3c, D-BBW-91): 252 px = 3 × el paso-21, tres octavos de la columna de lectura. Desde P2
+     (D-BBW-103) es el DIÁMETRO del círculo del cierre, el mismo en las dos vistas; sus derivados (252 y 504, MEDIA §10) salen de este lado. */
   --bbf-profile-portrait-size: calc(var(--bbf-space-21) * 3);
+  /* P2 (D-BBW-99 y despacho P2 §2.3): el rótulo de «Cómo trabajo» queda FIJO bajo la cabecera mientras se recorre la sección en la vista amplia;
+     en una zona, nada fijo. El cierre (composición B, D-BBW-103): retrato en círculo a la izquierda y frase + botones a la derecha; en una
+     zona se apilan. */
+  --bbf-profile-how-head-position: sticky;
+  --bbf-profile-close-columns: auto minmax(0, 1fr);
 
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
@@ -212,6 +224,16 @@
        sigue fundiendo bajo el titular lo juzga la medida de contraste (I-8), que no baja de lo medido en PR#58. */
     --bbf-hero-text-inset-top: calc(var(--bbf-stage-anchor-y) + var(--bbf-stage-reach) + var(--bbf-space-3));
     --bbf-hero-flex: 1 0 auto;
+    /* EL HÉROE EN FLUJO EN EL TELÉFONO (P2 del perfil; ajuste de Zavala sobre P0b: «sin el hueco grande entre la sección 1 y la 2»). El hueco
+       eran dos reservas que el inicio necesita y una página larga no: (1) el alto mínimo de una ventana (`100svh`), que con el texto anclado
+       al pie deja vacío todo lo que el escenario y el texto no llenan, y (2) la reserva inferior del pie superpuesto (el sello, tres líneas y
+       dos márgenes). En flujo el alto lo da el contenido (escenario dibujado + texto) y la reserva inferior baja a un margen de página: el
+       ritmo hasta la sección 2 lo pone la separación entre secciones de la página, como entre las demás. */
+    --bbf-hero-flow-min-block: 0;
+    --bbf-hero-flow-inset-bottom: var(--bbf-space-page);
+
+    --bbf-profile-how-head-position: static;
+    --bbf-profile-close-columns: minmax(0, 1fr);
 
     --bbf-hero-ctas-direction: column;
     --bbf-hero-ctas-width: 100%;

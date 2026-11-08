@@ -30,6 +30,16 @@
   pointer-events: none;
 }
 
+/* P2 del perfil: EN UNA PÁGINA LARGA EL PIE VUELVE AL FLUJO. En el inicio va superpuesto al héroe (absoluto al pie del documento, que es una
+   ventana); en una página que sigue debajo de su apertura, superpuesto tapaba el último bloque (medido a 390: el sello sobre el botón
+   «LinkedIn» del cierre del perfil). La página lo declara en su `<main>` (`data-footer="flow"`); sin la marca, el pie de siempre. La separación
+   al borde inferior es la misma que tiene superpuesto (`--bbf-bar-bottom`). */
+:global(body:has(main[data-footer="flow"])) .footer {
+  position: relative;
+  bottom: auto;
+  padding-block-end: var(--bbf-bar-bottom);
+}
+
 .legal {
   --bbf-enter-delay: var(--bbf-motion-enter-delay-legal);
 

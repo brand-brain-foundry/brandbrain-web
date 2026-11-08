@@ -145,6 +145,15 @@ const PORTRAIT_CROP = (aspect: readonly [number, number]) =>
   ({ kind: "jpeg-crop", aspect, width: 1200, focusY: 0.42, quality: 90, minPixels: 50_000 }) as const;
 
 /**
+ * EL RETRATO DEL CIERRE (P2, D2 del perfil): el MISMO recorte 1:1 (mismo maestro, mismo punto focal), servido al tamaño al que se MUESTRA. El
+ * círculo mide `--bbf-profile-portrait-size` (3 × `space-21` = 252 px CSS, semantic/viewport.css) y la densidad de píxel se ACOTA a 2: dos
+ * derivados, 1× y 2× (252 y 504 px), en el `srcset` del `<img>`. El de 1200 (157 KB) queda como `src` y como miembro de `Person.image`
+ * (Google pide ≥ 50 000 píxeles por recorte; el navegador que entiende `srcset` no lo descarga). `quality` 82: la de los medios del campo.
+ */
+const PORTRAIT_DISC = (width: number) =>
+  ({ kind: "jpeg-crop", aspect: [1, 1], width, focusY: 0.42, quality: 82, minPixels: 50_000 }) as const;
+
+/**
  * CONJUNTO VIGENTE de iconos y manifiesto (industria verificada en vivo 2026-09-17: evilmartians.com "How to favicon", web.dev
  * "maskable-icon", MDN "Define app icons") + la imagen para compartir (developers.facebook.com: ≥ 1200×630, 1,91:1).
  * Sin los tamaños obsoletos (16/32/48/96 sueltos, la docena de Apple, tiles de Windows): servir peticiones que ya nadie hace.
@@ -186,6 +195,8 @@ const _derivativesConst = {
   portrait1x1: { master: "portrait", path: "portrait-1200x1200.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil, el círculo del cierre y Person.image)" },
   portrait4x3: { master: "portrait", path: "portrait-1200x900.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
   portrait16x9: { master: "portrait", path: "portrait-1200x675.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
+  portraitDisc1x: { master: "portrait", path: "portrait-252x252.jpg", profile: PORTRAIT_DISC(252), role: "retrato del cierre en círculo, 1× (P2)" },
+  portraitDisc2x: { master: "portrait", path: "portrait-504x504.jpg", profile: PORTRAIT_DISC(504), role: "retrato del cierre en círculo, 2× (P2)" },
   gcFoundational72: { master: "gcFoundational", path: "gc-foundational-72.png", profile: { kind: "png-resize", size: 72 }, role: "sello del pie, 72 px (1×)" },
   gcFoundational144: { master: "gcFoundational", path: "gc-foundational-144.png", profile: { kind: "png-resize", size: 144 }, role: "sello del pie, 144 px (2×, pantalla de alta densidad)" },
 } as const satisfies Record<string, Derivative>;

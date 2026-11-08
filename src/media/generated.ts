@@ -20,6 +20,8 @@ export const media = {
   portrait1x1: { src: "/portrait-1200x1200.jpg", type: "image/jpeg", width: 1200, height: 1200, sizes: "1200x1200" },
   portrait4x3: { src: "/portrait-1200x900.jpg", type: "image/jpeg", width: 1200, height: 900, sizes: "1200x900" },
   portrait16x9: { src: "/portrait-1200x675.jpg", type: "image/jpeg", width: 1200, height: 675, sizes: "1200x675" },
+  portraitDisc1x: { src: "/portrait-252x252.jpg", type: "image/jpeg", width: 252, height: 252, sizes: "252x252" },
+  portraitDisc2x: { src: "/portrait-504x504.jpg", type: "image/jpeg", width: 504, height: 504, sizes: "504x504" },
   gcFoundational72: { src: "/gc-foundational-72.png", type: "image/png", width: 72, height: 72, sizes: "72x72" },
   gcFoundational144: { src: "/gc-foundational-144.png", type: "image/png", width: 144, height: 144, sizes: "144x144" },
   manifest: { src: "/manifest.webmanifest", type: "application/manifest+json" },

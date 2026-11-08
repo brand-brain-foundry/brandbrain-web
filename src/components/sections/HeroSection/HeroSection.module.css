@@ -35,6 +35,28 @@
   text-align: start;
 }
 
+/* EN FLUJO (P2 del perfil): el héroe abre una página que sigue debajo. Dos roles de vista sustituyen a los del inicio (semantic/viewport.css,
+   donde está la razón): el alto mínimo y la reserva inferior, que en el inicio guardan el pie SUPERPUESTO y la ventana entera y aquí no tienen
+   qué guardar (en el teléfono eran el hueco grande entre la sección 1 y la 2). En la vista de dos zonas valen lo mismo que en el inicio.
+   Su final se funde con la superficie en la capa del velo (sin banda ni corte: la animación vive aquí y se apaga hacia el negro). */
+.flow {
+  --bbf-hero-text-inset-bottom: var(--bbf-hero-flow-inset-bottom);
+  --bbf-hero-text-min-block: var(--bbf-hero-flow-min-block);
+
+  min-height: var(--bbf-hero-flow-min-block);
+}
+
+.flow::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: var(--bbf-layer-veil);
+  height: var(--bbf-hero-flow-fade);
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--bbf-surface-base));
+}
+
 .veil {
   position: absolute;
   inset: 0;

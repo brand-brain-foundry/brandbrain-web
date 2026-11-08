@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import type { ConsentDocument, Span } from "@/content/schema";
-import { identity } from "@/content/site";
 import { analytics, shouldMeasure } from "@/analytics/port";
 import { BAR_AVOID_THRESHOLD, barAvoidRootMargin, isCoveredByBar, readConsent, writeConsent } from "@/behavior/consent";
 import { Button } from "@/components/atoms/Button";
@@ -35,8 +34,15 @@ function getSnapshot(): Snapshot {
 }
 const getServerSnapshot = (): Snapshot => "unknown";
 
+/**
+ * Los destinos externos que cita el texto del banner, resueltos EN EL SERVIDOR (P2 del perfil, despacho §2.8): este componente es de cliente y,
+ * si importara la identidad (`@/content/site`), viajaría al navegador TODO `content/site.json` (con la entidad) en un fragmento de todas las
+ * páginas. El layout le pasa solo las llaves que el texto usa (hoy ninguna: la prop no existe y el documento servido es el de antes).
+ */
+type ConsentLinks = Readonly<Record<string, string>>;
+
 /** Un tramo del texto del banner, ya resuelto por el puerto: texto, enlace interno `{ path }` o externo `{ link }`. */
-function renderSpan(span: Span, key: number) {
+function renderSpan(span: Span, key: number, links: ConsentLinks) {
   if (typeof span === "string") return span;
   if ("path" in span) {
     return (
@@ -47,7 +53,7 @@ function renderSpan(span: Span, key: number) {
   }
   if ("link" in span) {
     return (
-      <a key={key} href={identity.links[span.link]} className={styles.link} data-hover="prose" target="_blank" rel="noopener noreferrer">
+      <a key={key} href={links[span.link]} className={styles.link} data-hover="prose" target="_blank" rel="noopener noreferrer">
         {span.text}
       </a>
     );
@@ -87,7 +93,7 @@ function renderSpan(span: Span, key: number) {
  *     LEE en CSS; nadie vuelve a calcular si la barra tapa algo (I-6). Sin JavaScript o con elección guardada la marca no existe (I-4).
  *   · Sin animación de entrada, con o sin movimiento reducido (I-9).
  */
-export function ConsentBar({ consent }: { consent: ConsentDocument }) {
+export function ConsentBar({ consent, links = {} }: { consent: ConsentDocument; links?: ConsentLinks }) {
   const snapshot = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   // Si el navegador no deja guardar, la instantánea sigue en «sin decidir»: la barra se retira solo en esta vista y nada se carga.
   const [dismissed, setDismissed] = useState(false);
@@ -219,7 +225,7 @@ export function ConsentBar({ consent }: { consent: ConsentDocument }) {
   return (
     <>
       <section ref={bar} className={styles.bar} hidden={!visible} aria-label={consent.banner.label} data-component="bbf-consent-bar">
-        <p className={styles.text}>{consent.banner.text.map((span, i) => renderSpan(span, i))}</p>
+        <p className={styles.text}>{consent.banner.text.map((span, i) => renderSpan(span, i, links))}</p>
         <div className={styles.actions}>
           <Button onClick={() => decide(false)}>{consent.banner.reject}</Button>
           <Button onClick={() => decide(true)}>{consent.banner.accept}</Button>

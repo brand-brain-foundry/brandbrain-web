@@ -95,6 +95,22 @@
       "sha256": "31c738838e657a07da1ff16d6df4ed410d61fd5861eea1b04ef3671eb33e0ca5",
       "width": 1200
     },
+    "portraitDisc1x": {
+      "height": 252,
+      "master": "portrait",
+      "path": "public/portrait-252x252.jpg",
+      "profile": "jpeg-crop 1:1 ancho 252 foco-y 0.42 q 82 ≥ 50000 px",
+      "sha256": "22f0751893a71063e04dc29daa81c7da2fc167a9cd8fb3207dc9ef706883955a",
+      "width": 252
+    },
+    "portraitDisc2x": {
+      "height": 504,
+      "master": "portrait",
+      "path": "public/portrait-504x504.jpg",
+      "profile": "jpeg-crop 1:1 ancho 504 foco-y 0.42 q 82 ≥ 50000 px",
+      "sha256": "bb601065f962aba985707f6917cf04f2b9380597691288eddd552ab418fe06db",
+      "width": 504
+    },
     "share": {
       "height": 630,
       "master": "brandIcon",
@@ -106,7 +122,7 @@
   },
   "generated": {
     "path": "src/media/generated.ts",
-    "sha256": "ddcd19eb08867bacaa4aa33bf6610d509ff1bc54999c7ba03814cf07e766f8c9"
+    "sha256": "4e0da9b582a4276716af12a4f060d31c131b08c4cd5a9743111f51b89630b465"
   },
   "generatedBy": "scripts/media/build.ts (pnpm media:build)",
   "masters": {
