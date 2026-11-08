@@ -23,10 +23,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { publishedLocales, type Locale } from "../config/site";
-import { isPageId, pageRoute } from "../config/pages";
+import { isPageId, pageRoute, PROFILE_PAGE } from "../config/pages";
 import {
   GLOBAL_DOCUMENT,
   collections,
+  deriveApproachText,
+  splitEmphasis,
   validateGlobal,
   validatePage,
   type Collection,
@@ -40,7 +42,7 @@ import { siteDocument, validateSite } from "./site";
 import { findBlockedEntitySubstitutions, findUndeclaredSubstitutions, resolveDocument, RESTRICTED_SUBSTITUTION_KEYS } from "./substitutions";
 import { getLegalIdentity } from "./legal-identity";
 import { entityStatus, entityValue } from "./entity";
-import { ENTITY_FIELDS, type EntityFieldKey } from "./entity-fields";
+import { ENTITY_FIELDS, fieldSpec, type EntityFieldKey } from "./entity-fields";
 
 export const CONTENT_ROOT = join(process.cwd(), "content");
 
@@ -85,6 +87,7 @@ function resolveRefs<T>(doc: T, locale: Locale, global: GlobalDocument, pageLabe
       if (!(key in ENTITY_FIELDS)) throw new Error(`[content] ${path}: "${key}" no es un campo de la entidad (src/content/entity-fields.ts)`);
       const status = entityStatus(key as EntityFieldKey);
       if (status !== 'aprobado') throw new Error(`[content] ${path}: la referencia a entity.${key} está BLOQUEADA (estado "${status}"): solo se cita lo aprobado en content/site.json (S3c)`);
+      if (fieldSpec(key as EntityFieldKey).source.kind === 'derived') return getDerivedEntityText(locale, key as EntityFieldKey) as T;
       return entityValue(key as EntityFieldKey) as T;
     }
     if ('page' in r && 'text' in r && typeof r.page === 'string' && Object.keys(r).length === 2) {
@@ -225,6 +228,39 @@ export function getGlobal(locale: Locale): GlobalDocument {
   return resolveRefs(substituted, locale, substituted, legalPageLabels(substituted));
 }
 
+/**
+ * EL VALOR DE UN CAMPO DERIVADO DE LA ENTIDAD (P1, D-BBW-109). Nadie lo escribe: se calcula con su fórmula sobre el documento de la página que
+ * es su fuente, ya validado y sustituido. Hoy una fórmula, `profileApproach`: `descriptionLong` = «Cómo trabajo» de la página de perfil
+ * (`deriveApproachText`). Vive en el puerto porque lee un archivo; el módulo de la entidad viaja al navegador y no puede. Un campo que no sea
+ * derivado devuelve su valor de siempre.
+ */
+export function getDerivedEntityText(locale: Locale, key: EntityFieldKey): string | undefined {
+  const spec = fieldSpec(key);
+  if (spec.source.kind !== "derived") {
+    const v = entityValue(key);
+    return typeof v === "string" ? v : undefined;
+  }
+  assertPublished(locale);
+  const rel = `${locale}/${collections.pages}/${PROFILE_PAGE}.json`;
+  const doc = readJson(rel);
+  failOn(validatePage(doc), rel);
+  const section = substitute(doc as PageDocument, rel).sections.find((s) => s.type === "profile");
+  if (!section || section.type !== "profile") throw new Error(`[content] content/${rel}: entity.${key} se deriva de «Cómo trabajo» (${spec.source.rule}) y la página de perfil no tiene sección "profile"`);
+  const text = deriveApproachText(section.approach);
+  if (text.length === 0 && entityStatus(key) === "aprobado") throw new Error(`[content] content/${rel}: entity.${key} está aprobado y su fórmula (${spec.source.rule}) da un texto vacío`);
+  return text.length > 0 ? text : undefined;
+}
+
+/** El corte del énfasis de cada cierre de perfil (D-BBW-104): la palabra tiene que estar UNA vez en la frase ya resuelta; si no, rompe el build. */
+function failOnEmphasis(doc: PageDocument, relPath: string): void {
+  doc.sections.forEach((s, i) => {
+    if (s.type !== "profile") return;
+    if (!splitEmphasis(s.closing.text, s.closing.emphasisFrom)) {
+      throw new Error(`[content] content/${relPath}: $.sections[${i}].closing.emphasisFrom "${s.closing.emphasisFrom}" no aparece UNA vez como palabra entera (y no la primera) en la frase «${s.closing.text}» (D-BBW-104)`);
+    }
+  });
+}
+
 /** Página de la colección `pages` para un locale publicado. */
 export function getPage(locale: Locale, slug: string): PageDocument {
   assertPublished(locale);
@@ -241,6 +277,7 @@ export function getPage(locale: Locale, slug: string): PageDocument {
   // Paso 2: resolver referencias { page: slug } → { text, path } y { global: ruta } → texto, contra el documento global validado
   const global = getGlobal(locale);
   const withRefs = resolveRefs(substituted, locale, global, legalPageLabels(global));
+  failOnEmphasis(withRefs, rel);
 
   // Paso 3: generar updatedLabel en las secciones legales desde global.legal.updatedLabel + updated formateado
   return addUpdatedLabels(withRefs, global.legal.updatedLabel.trim(), locale);

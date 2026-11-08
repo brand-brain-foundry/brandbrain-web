@@ -250,7 +250,7 @@ function profileLabel(p: Profile): string {
     case 'png-resize':
       return `png-resize ${p.size}×${p.size}`;
     case 'jpeg-crop':
-      return `jpeg-crop ${p.aspect[0]}:${p.aspect[1]} ancho ${p.width} ancla-y ${p.anchorY} q ${p.quality} ≥ ${p.minPixels} px`;
+      return `jpeg-crop ${p.aspect[0]}:${p.aspect[1]} ancho ${p.width} foco-y ${p.focusY} q ${p.quality} ≥ ${p.minPixels} px`;
   }
 }
 
@@ -332,7 +332,8 @@ async function main(): Promise<void> {
       continue;
     }
     if (p.kind === 'jpeg-crop') {
-      // S3c (D-BBW-91): la caja más grande de proporción `aspect` dentro del maestro, centrada en x, colocada en y por `anchorY`; escalada a
+      // S3c (D-BBW-91; P1, D-BBW-103): la caja más grande de proporción `aspect` dentro del maestro, centrada en x y CENTRADA EN y SOBRE EL
+      // PUNTO FOCAL `focusY` (fracción del alto del maestro), sin salirse del maestro; escalada a
       // `width` sin ampliar; JPEG sin metadatos (sharp no copia EXIF/IPTC/ICC salvo que se pida: el derivado sale en sRGB y sin datos de origen).
       const rm = raster(d.master);
       const meta = await sharp(rm.bytes).metadata();
@@ -343,7 +344,7 @@ async function main(): Promise<void> {
       let ch = Math.round((W * ah) / aw);
       if (ch > H) { ch = H; cw = Math.round((H * aw) / ah); }
       const left = Math.round((W - cw) / 2);
-      const top = Math.round(p.anchorY * (H - ch));
+      const top = Math.min(H - ch, Math.max(0, Math.round(p.focusY * H - ch / 2)));
       if (p.width > cw) throw new Error(`[media] ${d.path}: el ancho del perfil (${p.width}) amplía el maestro (${cw} px de caja): un derivado nunca amplía`);
       const outW = p.width;
       const outH = Math.round((p.width * ah) / aw);

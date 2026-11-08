@@ -36,10 +36,22 @@
   content: ":";
 }
 
-/* ── CREDENCIAL: «nombre · emisor» ──────────────────────── */
-.credentialIssuer::before {
-  content: " · ";
-  white-space: pre;
+/* ── CÓMO TRABAJO: tarjetas como bloques de texto (P1; la maqueta llega en P2) ── */
+/* Lista ordenada: el número de cada tarjeta es su orden en el contenido; hasta P2 no se pinta marcador. */
+.steps {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.stepTitle {
+  margin-block: var(--bbf-space-6) var(--bbf-space-2);
+  color: var(--bbf-text-on-base);
+  font-family: var(--bbf-type-body-family);
+  font-size: var(--bbf-type-body-size);
+  font-weight: var(--bbf-type-button-weight);
+  line-height: var(--bbf-type-body-leading);
+  letter-spacing: var(--bbf-type-body-tracking);
 }
 
 /* ── CONTACTO: enlaces en una fila que parte ────────────── */
@@ -57,7 +69,7 @@
   letter-spacing: var(--bbf-type-body-tracking);
 }
 
-/* ── EL CIERRE: la frase madre ──────────────────────────── */
+/* ── EL CIERRE: la frase madre; desde la palabra que el contenido declara, en el acento del texto (D-BBW-104) ── */
 .closing {
   margin-block-start: var(--bbf-space-10);
   color: var(--bbf-text-on-base);
@@ -66,4 +78,8 @@
   font-weight: var(--bbf-type-subheading-weight);
   line-height: var(--bbf-type-subheading-leading);
   letter-spacing: var(--bbf-type-subheading-tracking);
+}
+
+.emphasis {
+  color: var(--bbf-text-on-base-accent);
 }

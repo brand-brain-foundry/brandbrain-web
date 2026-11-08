@@ -461,7 +461,7 @@
         },
         "descriptionLong": {
           "type": "object",
-          "description": "Descripción larga de la persona, en primera persona (PERFIL-CZC §5.3; D-BBW-84, D-BBW-88): el bloque «Cómo trabajo» de la página de perfil la referencia. No se emite en los datos estructurados.",
+          "description": "Descripción larga de la persona, en primera persona (PERFIL-CZC §5.3; D-BBW-84, D-BBW-88). DERIVADA (P1, D-BBW-109): es la unión, por fórmula, de la entrada, las tarjetas y la trayectoria de «Cómo trabajo» en la página de perfil, que son su fuente; aquí no se escribe. No se emite en los datos estructurados.",
           "additionalProperties": false,
           "required": [
             "status"
@@ -469,70 +469,19 @@
           "x-kind": "text",
           "x-cms": "long-text",
           "x-translatable": true,
-          "x-source": "$.entity.descriptionLong.value",
+          "x-source": "derived:profileApproach",
+          "x-derived-from": "pages/<página de perfil>.sections[profile].approach (intro + steps[].text + background.text)",
+          "readOnly": true,
           "properties": {
             "status": {
               "type": "string",
               "enum": [
                 "aprobado",
-                "heredado",
                 "pendiente"
               ],
               "description": "aprobado: decidido por Zavala · heredado: existe pero viene de otro sitio · pendiente: declarado y vacío."
-            },
-            "value": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^(?![\\s\\S]*<\\/?[a-zA-Z!])",
-              "description": "Texto plano, no vacío, sin HTML."
             }
-          },
-          "allOf": [
-            {
-              "if": {
-                "properties": {
-                  "status": {
-                    "const": "pendiente"
-                  }
-                }
-              },
-              "then": {
-                "not": {
-                  "required": [
-                    "value"
-                  ]
-                }
-              }
-            },
-            {
-              "if": {
-                "properties": {
-                  "status": {
-                    "const": "aprobado"
-                  }
-                }
-              },
-              "then": {
-                "required": [
-                  "value"
-                ]
-              }
-            },
-            {
-              "if": {
-                "properties": {
-                  "status": {
-                    "const": "heredado"
-                  }
-                }
-              },
-              "then": {
-                "required": [
-                  "value"
-                ]
-              }
-            }
-          ]
+          }
         },
         "knowsAbout": {
           "type": "object",
@@ -670,6 +619,7 @@
                       "studio",
                       "works",
                       "linkedin",
+                      "linkedinSkills",
                       "github",
                       "credly",
                       "aepd"
@@ -940,6 +890,7 @@
                   "studio",
                   "works",
                   "linkedin",
+                  "linkedinSkills",
                   "github",
                   "credly",
                   "aepd"
@@ -1033,6 +984,7 @@
                       "studio",
                       "works",
                       "linkedin",
+                      "linkedinSkills",
                       "github",
                       "credly",
                       "aepd"

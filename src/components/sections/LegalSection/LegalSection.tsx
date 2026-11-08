@@ -16,8 +16,9 @@ const LEGAL_ACTIONS: { [K in LegalActionKind]: ComponentType<{ label: string }> 
 
 /** Resuelve un tramo a un nodo React: texto simple, enlace externo (fuente única) o enlace interno resuelto. M3 (P-BBW-84): el enlace en prosa solo
  * se MARCA con su tipo (`data-hover="prose"`): subrayado y hover de color (acento → un paso más oscuro) los pone el sistema (base/document.css).
- * SIN `data-scatter`: las legales no se desarman. */
-function renderSpan(span: Span, key: number) {
+ * SIN `data-scatter`: las legales no se desarman. P1: lo reutiliza la página de perfil para los tramos de «Cómo trabajo» (una forma de pintar un
+ * tramo en todo el sitio). */
+export function renderSpan(span: Span, key: number) {
   if (typeof span === "string") return span;
   if ("path" in span) {
     // { text, path } — enlace interno generado por el puerto desde { page: slug }

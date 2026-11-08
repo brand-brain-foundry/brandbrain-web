@@ -56,15 +56,16 @@ export const masters = {
     origin: "handoff de la home nueva (handoff-diseno/assets/gc-foundational.png), copiado byte a byte el 2026-11-01; traído a esta rama desde 3a62247 el 2026-11-02",
   },
   /**
-   * EL RETRATO (S3c, D-BBW-91). Foto de la persona entregada por Zavala con el despacho de la página de perfil (insumo
-   * `retrato-zavala-cubas-600.jpg`): JPEG sRGB 600×600, sin datos de ubicación (EXIF solo con la resolución; IPTC vacío). Vive UNA vez aquí;
+   * EL RETRATO (S3c, D-BBW-91; maestro nuevo en P1, D-BBW-103). Foto de la persona entregada por Zavala (`zavala-1`, 1792×2400, en blanco y
+   * negro sobre fondo blanco). El archivo conserva el nombre del ROL (`portrait.jpg`, MEDIA.md §1: los maestros se nombran por rol, nunca por
+   * versión ni por contenido); de dónde viene lo dice `origin`. Vive UNA vez aquí;
    * la entidad (`$.entity.image`) lo referencia por su CONJUNTO de recortes (`mediaSets.portrait`) y un lote futuro del campo de imágenes
    * (serie R) lo referenciará también, sin duplicarlo.
    */
   portrait: {
     file: "portrait.jpg",
     kind: "raster",
-    origin: "insumo de DESPACHO-BBW-2026-11-07-S3c-pagina-de-perfil (retrato-zavala-cubas-600.jpg, 222 544 B, 600×600), copiado byte a byte el 2026-11-07",
+    origin: "zavala-1.jpg de la carpeta de la capa del perfil en Drive, descargado por Zavala a media-entrantes/perfil/capa/ («zavala-1 2.jpg», 1 893 711 B, JPEG sRGB 1792×2400, sin GPS) y copiado byte a byte el 2026-11-08 (DESPACHO-BBW-2026-11-08-P1, D-BBW-103). Sustituye al retrato de 600×600 de S3c, que sale en el mismo commit (I-6)",
   },
   toggleArmTop: { file: "toggle-arm-top.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo superior del conmutador 34×6), 2026-09-17" },
   toggleArmBottom: { file: "toggle-arm-bottom.svg", kind: "svg", origin: "diseño inventariado (N0 §2.3, brazo inferior del conmutador 34×6), 2026-09-17" },
@@ -125,18 +126,23 @@ export type Profile =
   /** Redimensiona un maestro raster (PNG/JPEG) a `size`×`size` con su transparencia. Herramienta: sharp. */
   | { kind: "png-resize"; size: number }
   /**
-   * RECORTE POR FÓRMULA de un maestro raster (S3c, D-BBW-91): la caja más grande de proporción `aspect` que cabe en el maestro, centrada en
-   * horizontal y colocada en vertical por `anchorY` (y = anchorY × (alto del maestro − alto de la caja); 0 = arriba, 1 = abajo), escalada a
+   * RECORTE POR FÓRMULA de un maestro raster (S3c, D-BBW-91; punto focal desde P1, D-BBW-103): la caja más grande de proporción `aspect` que
+   * cabe en el maestro, centrada en horizontal y CENTRADA EN VERTICAL SOBRE EL PUNTO FOCAL `focusY` (fracción del alto del maestro: y = focusY ×
+   * alto − alto de la caja / 2, acotada a [0, alto − alto de la caja]), escalada a
    * `width` de ancho (alto = round(width × aspect[1] / aspect[0])) sin AMPLIAR nunca el maestro, y codificada en JPEG `quality` sin metadatos.
    * `minPixels`: el área mínima que el uso exige (Google, ProfilePage: ≥ 50 000 píxeles por recorte); el guion rompe si no se alcanza.
    */
-  | { kind: "jpeg-crop"; aspect: readonly [number, number]; width: number; anchorY: number; quality: number; minPixels: number };
+  | { kind: "jpeg-crop"; aspect: readonly [number, number]; width: number; focusY: number; quality: number; minPixels: number };
 
 export type Derivative = { master: MasterId; path: string; profile: Profile; role: string };
 
-/** El perfil de los recortes del retrato: una fórmula, tres proporciones (S3c). */
+/**
+ * El perfil de los recortes del retrato: una fórmula, tres proporciones (S3c). P1 (D-BBW-103): maestro `zavala-1` de 1792×2400, recortes de
+ * 1200 de ancho (el máximo pedido; ninguno amplía: la caja más estrecha mide 1792) y el PUNTO FOCAL en el centro de la cara, medido sobre el
+ * maestro (`focusY`), en vez de un ancla única: con un maestro vertical, un ancla común cortaba el pelo en el 1:1 o la barbilla en el 16:9.
+ */
 const PORTRAIT_CROP = (aspect: readonly [number, number]) =>
-  ({ kind: "jpeg-crop", aspect, width: 600, anchorY: 0.15, quality: 90, minPixels: 50_000 }) as const;
+  ({ kind: "jpeg-crop", aspect, width: 1200, focusY: 0.42, quality: 90, minPixels: 50_000 }) as const;
 
 /**
  * CONJUNTO VIGENTE de iconos y manifiesto (industria verificada en vivo 2026-09-17: evilmartians.com "How to favicon", web.dev
@@ -175,11 +181,11 @@ const _derivativesConst = {
   /* 2026-11-02 (orden de Zavala): el pez sale del héroe y el campo de puntos ocupa su escenario. Salen los tres derivados del vídeo
      (720p, 360p y póster) con su único consumidor, `HeroMedia`. Los DOS MAESTROS se conservan declarados y sellados, sin derivados, como
      ya se hacía con `heroLoopRegistro`: el pez puede volver con regenerar sus derivados, sin buscar el archivo en el historial. */
-  /* EL RETRATO (S3c, D-BBW-91): tres recortes del mismo maestro, 1:1, 4:3 y 16:9 (Google, ProfilePage: «16x9, 4x3 y 1x1», ≥ 50 000 píxeles
-     cada uno). Ancho = el del maestro (600: no se amplía). `anchorY` 0,15 deja la cara entera en los tres (medido sobre el maestro). */
-  portrait1x1: { master: "portrait", path: "portrait-600x600.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil y de Person.image)" },
-  portrait4x3: { master: "portrait", path: "portrait-600x450.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
-  portrait16x9: { master: "portrait", path: "portrait-600x338.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
+  /* EL RETRATO (S3c, D-BBW-91; P1, D-BBW-103): tres recortes del mismo maestro, 1:1, 4:3 y 16:9 (Google, ProfilePage: «16x9, 4x3 y 1x1»,
+     ≥ 50 000 píxeles cada uno), de 1200 de ancho. El 1:1 sostiene el retrato circular del cierre (P2). `focusY` 0,42 = el centro de la cara (medido: frente a barbilla entera en los tres; el 16:9 recorta el pelo, que no cabe en un 16:9 de un maestro vertical). */
+  portrait1x1: { master: "portrait", path: "portrait-1200x1200.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil, el círculo del cierre y Person.image)" },
+  portrait4x3: { master: "portrait", path: "portrait-1200x900.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
+  portrait16x9: { master: "portrait", path: "portrait-1200x675.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
   gcFoundational72: { master: "gcFoundational", path: "gc-foundational-72.png", profile: { kind: "png-resize", size: 72 }, role: "sello del pie, 72 px (1×)" },
   gcFoundational144: { master: "gcFoundational", path: "gc-foundational-144.png", profile: { kind: "png-resize", size: 144 }, role: "sello del pie, 144 px (2×, pantalla de alta densidad)" },
 } as const satisfies Record<string, Derivative>;
