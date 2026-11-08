@@ -113,14 +113,16 @@
      Los componentes lo consumen por este rol, nunca como un número escrito a mano. */
   --bbf-legal-max-width: calc(var(--bbf-space-21) * 8);
 
-  /* LADO DEL RETRATO de la página de perfil (S3c, D-BBW-91): 252 px = 3 × el paso-21, tres octavos de la columna de lectura. Desde P2
-     (D-BBW-103) es el DIÁMETRO del círculo del cierre, el mismo en las dos vistas; sus derivados (252 y 504, MEDIA §10) salen de este lado. */
-  --bbf-profile-portrait-size: calc(var(--bbf-space-21) * 3);
+  /* LADO DEL RETRATO de la página de perfil (S3c, D-BBW-91): era 252 px = 3 × el paso-21. Desde P2 (D-BBW-103) es el DIÁMETRO del círculo
+     del cierre, el mismo en las dos vistas. P2b (D-BBW-111, «retrato más pequeño»): la misma fórmula un peldaño abajo en la escala de espacio,
+     240 px = 3 × el paso-20; sus derivados (240 y 480, MEDIA §10) salen de este lado. */
+  --bbf-profile-portrait-size: calc(var(--bbf-space-20) * 3);
   /* P2 (D-BBW-99 y despacho P2 §2.3): el rótulo de «Cómo trabajo» queda FIJO bajo la cabecera mientras se recorre la sección en la vista amplia;
-     en una zona, nada fijo. El cierre (composición B, D-BBW-103): retrato en círculo a la izquierda y frase + botones a la derecha; en una
-     zona se apilan. */
+     en una zona, nada fijo. El cierre (P2b, D-BBW-111, enmienda de la composición B de D-BBW-103): UNA columna apilada (retrato → frase madre
+     → botones) en las dos vistas; en la amplia todo centrado, en una zona el mismo orden alineado al inicio. Un solo rol (palabra clave válida
+     a la vez en `align-items`, `justify-content` y `text-align`). */
   --bbf-profile-how-head-position: sticky;
-  --bbf-profile-close-columns: auto minmax(0, 1fr);
+  --bbf-profile-close-align: center;
 
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
@@ -233,7 +235,7 @@
     --bbf-hero-flow-inset-bottom: var(--bbf-space-page);
 
     --bbf-profile-how-head-position: static;
-    --bbf-profile-close-columns: minmax(0, 1fr);
+    --bbf-profile-close-align: start;
 
     --bbf-hero-ctas-direction: column;
     --bbf-hero-ctas-width: 100%;
