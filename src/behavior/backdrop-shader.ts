@@ -21,9 +21,10 @@
  * constantes de abajo (un solo hogar: la constante y el sombreador no pueden discrepar); la identidad con `blob-bg.js` se demuestra en el
  * output de la fase 6i renderizando ambos con los mismos uniformes y comparando píxel a píxel.
  *
- * TOKENS QUE LEE (nunca los repite; D-BBW-30): ninguno por valor. El reposo y el respaldo (D-BBW-33) son la superficie base, que aplica el
- * CSS del contenedor (`--bbf-surface-base`) cuando el lienzo no dibuja; la quietud (D-BBW-31) la lee el componente por el rol
- * `--bbf-motion-glow-play-state`. Los doce colores del algoritmo son VALOR DE MARCA (D-BBW-35): viven aquí marcados, con la rampa vista
+ * TOKENS QUE LEE (nunca los repite; D-BBW-30): UNO por valor desde R1 (D-BBW-96): el GIRO DE TONO de la página, rol `--bbf-backdrop-hue-turn`
+ * (`readHueTurn`, abajo), cuya madre por variante deriva de los tonos primitivos (`primitives/colors.css`). El reposo y el respaldo (D-BBW-33)
+ * son la superficie base, que aplica el CSS del contenedor (`--bbf-surface-base`) cuando el lienzo no dibuja; la quietud (D-BBW-31) la lee el
+ * componente por el rol `--bbf-motion-glow-play-state`. Los doce colores del algoritmo son VALOR DE MARCA (D-BBW-35): viven aquí marcados, con la rampa vista
  * equivalente al lado (D-BBW-27: `sea` es el verde de los lóbulos tras el proceso; `deep`, el azul), y ningún estilo los consume.
  *
  * CONSTANTES DE ALGORITMO (no son tokens). Clase por D-DOC-13 §2 en cada línea: estático · plantilla · dinámico.
@@ -329,6 +330,76 @@ void main(){
   O = vec4(col, 1.0);
 }`;
 
+// ── R1 · VARIANTE DE COLOR POR PÁGINA (D-BBW-96; BEHAVIOR §4.1) ─────────────────────────────────────────────────────────────────────────
+/**
+ * El GIRO DE TONO del color VISTO: en la pasada final, tras el techo de tono y antes del grano, cada píxel pasa de sRGB codificado a lineal
+ * → OKLab → gira su ángulo de tono `uHue` grados con claridad y croma intactos → vuelve. Por eso el contraste del campo no cambia (la claridad
+ * es la misma) y los doce vec3 de marca (D-BBW-35) no se tocan: la variante se DERIVA en la salida. Girar los vec3 antes del proceso NO gira el
+ * color visto (exposición, tonemapeo y techo no conservan el tono; output R §4, alternativa (d)).
+ *
+ * EL INICIO ES IDÉNTICO POR CONSTRUCCIÓN: el programa del inicio sigue siendo `GLSL_FINAL`, byte a byte el de antes (la guardia R12a fija su
+ * huella); el programa girado es OTRO (`GLSL_FINAL_TURNED`), generado insertando dos tramos en anclas únicas de `GLSL_FINAL`, y solo se compila
+ * cuando el giro de la página no es 0. Con giro 0 no hay uniforme nuevo, ni rama, ni coste.
+ *
+ * Constantes: las matrices sRGB lineal ⇄ OKLab de Björn Ottosson (2020, dominio público) y la curva de transferencia sRGB (IEC 61966-2-1).
+ * Clase: estático. Mismo código que el prototipo de R (`r-campo/prototipo/src/backdrop-shader.ts`, `hueRotate`).
+ */
+const HUE_TURN_GLSL = {
+  /** se inserta tras `out vec4 O;`: el uniforme y las funciones */
+  decl: `
+uniform float uHue;
+vec3 toLin(vec3 c){ return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c)); }
+vec3 toSrgb(vec3 c){ return mix(c * 12.92, 1.055 * pow(c, vec3(1.0 / 2.4)) - 0.055, step(0.0031308, c)); }
+vec3 hueRotate(vec3 srgb, float deg){
+  vec3 c = toLin(clamp(srgb, 0.0, 1.0));
+  float l = pow(0.4122214708*c.r + 0.5363325363*c.g + 0.0514459929*c.b, 1.0/3.0);
+  float m = pow(0.2119034982*c.r + 0.6806995451*c.g + 0.1073969566*c.b, 1.0/3.0);
+  float s = pow(0.0883024619*c.r + 0.2817188376*c.g + 0.6299787005*c.b, 1.0/3.0);
+  float L = 0.2104542553*l + 0.7936177850*m - 0.0040720468*s;
+  float a = 1.9779984951*l - 2.4285922050*m + 0.4505937099*s;
+  float b = 0.0259040371*l + 0.7827717662*m - 0.8086757660*s;
+  float h = atan(b, a) + radians(deg); float C = length(vec2(a, b));
+  a = C * cos(h); b = C * sin(h);
+  float l_ = L + 0.3963377774*a + 0.2158037573*b, m_ = L - 0.1055613458*a - 0.0638541728*b, s_ = L - 0.0894841775*a - 1.2914855480*b;
+  l = l_*l_*l_; m = m_*m_*m_; s = s_*s_*s_;
+  vec3 lin = vec3(4.0767416621*l - 3.3077115913*m + 0.2309699292*s, -1.2684380046*l + 2.6097574011*m - 0.3413193965*s, -0.0041960863*l - 0.7034186147*m + 1.7076147010*s);
+  return clamp(toSrgb(clamp(lin, 0.0, 1.0)), 0.0, 1.0);
+}`,
+  /** se inserta tras el techo de tono y antes del grano */
+  apply: `
+  col = hueRotate(col, uHue);`,
+  /** anclas en `GLSL_FINAL` (cada una aparece exactamente una vez; si no, el módulo no carga) */
+  afterDecl: "out vec4 O;",
+  afterCap: "col = min(col, vec3(",
+} as const;
+
+/** inserta `text` justo DESPUÉS de la primera línea que contiene `anchor` (que debe aparecer una sola vez) */
+function insertAfterLine(src: string, anchor: string, text: string): string {
+  const at = src.indexOf(anchor);
+  if (at < 0 || src.indexOf(anchor, at + 1) >= 0) throw new Error(`[backdrop-shader] el ancla del giro no es única en GLSL_FINAL: ${JSON.stringify(anchor)}`);
+  const eol = src.indexOf("\n", at + 1);
+  return src.slice(0, eol) + text + src.slice(eol);
+}
+
+/** Pasada 4 con el giro de tono del color visto (solo se compila si el giro de la página ≠ 0). */
+export const GLSL_FINAL_TURNED = insertAfterLine(
+  insertAfterLine(GLSL_FINAL, HUE_TURN_GLSL.afterCap, HUE_TURN_GLSL.apply),
+  HUE_TURN_GLSL.afterDecl,
+  HUE_TURN_GLSL.decl,
+);
+
+/** El rol de página que declara el giro (semantic/colors.css; registrado como `<number>` para que `getComputedStyle` lo dé evaluado). */
+export const HUE_TURN_ROLE = "--bbf-backdrop-hue-turn";
+
+/**
+ * MIDE EL DOM: el giro de tono (grados) que la página declara para el fondo que cuelga de `el`. 0 = el inicio. Un valor no numérico o ausente
+ * (rol sin registrar, hoja sin cargar) cuenta como 0: el fallo seguro es el inicio, nunca un color a medias.
+ */
+export function readHueTurn(el: Element): number {
+  const v = parseFloat(getComputedStyle(el).getPropertyValue(HUE_TURN_ROLE));
+  return Number.isFinite(v) ? v : 0;
+}
+
 // ── Renderizador (toca la GPU) ───────────────────────────────────────────────────────────────────────────────────────
 export type BackdropSize = { W: number; H: number; bw: number; bh: number; dpr: number };
 export type Backdrop = {
@@ -354,7 +425,9 @@ function locations(gl: WebGL2RenderingContext, p: WebGLProgram, names: readonly 
  * Crea el sombreador sobre un lienzo. Devuelve `null` si el navegador no ofrece WebGL2 o no compila: el llamante deja la superficie base
  * (D-BBW-33; el diseño hacía `background:#000`, bb:L218). Bloque de trabajo de bb:L208-352 sin el DOM sombra ni el bucle (van en el componente).
  */
-export function createBackdrop(canvas: HTMLCanvasElement): Backdrop | null {
+export function createBackdrop(canvas: HTMLCanvasElement, hueTurnDeg = 0): Backdrop | null {
+  /** R1: con giro 0 el programa del inicio, intacto; con otro, el girado (D-BBW-96) */
+  const turned = hueTurnDeg !== 0;
   const gl = canvas.getContext("webgl2", { ...C.CONTEXT }) as WebGL2RenderingContext | null;
   if (!gl) return null;
 
@@ -387,11 +460,11 @@ export function createBackdrop(canvas: HTMLCanvasElement): Backdrop | null {
   };
   const pBase = link(GLSL_BASE);
   const pBlur = link(GLSL_BLUR);
-  const pFinal = link(GLSL_FINAL);
+  const pFinal = link(turned ? GLSL_FINAL_TURNED : GLSL_FINAL);
   if (!pBase || !pBlur || !pFinal) return null;
   const uBase = locations(gl, pBase, ["uComp", "uRes", "uTime"]);
   const uBlur = locations(gl, pBlur, ["uComp", "uRes", "uTime", "uTex", "uDir", "uSigma"]);
-  const uFinal = locations(gl, pFinal, ["uComp", "uRes", "uTime", "uTex", "uBlurCenter", "uAmount", "uExposure", "uGrade", "uNoise", "uCore"]);
+  const uFinal = locations(gl, pFinal, ["uComp", "uRes", "uTime", "uTex", "uBlurCenter", "uAmount", "uExposure", "uGrade", "uNoise", "uCore", ...(turned ? ["uHue"] : [])]);
   const vao = gl.createVertexArray();
 
   const makeTarget = (): Target | null => {
@@ -484,6 +557,7 @@ export function createBackdrop(canvas: HTMLCanvasElement): Backdrop | null {
       gl.uniform1f(uFinal.uGrade, C.INSTANCE.grade);
       gl.uniform1f(uFinal.uNoise, C.INSTANCE.noise);
       gl.uniform1f(uFinal.uCore, C.INSTANCE.core);
+      if (turned) gl.uniform1f(uFinal.uHue, hueTurnDeg);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, A.tex);
       gl.uniform1i(uFinal.uTex, 0);

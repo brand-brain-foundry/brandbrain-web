@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && pnpm lint:seo",
+    "build": "next build && pnpm lint:seo && pnpm lint:backdrop --served",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
     "lint:color": "tsx scripts/lint/check-color-tokens.ts",
@@ -19,11 +19,12 @@
     "lint:rig": "tsx scripts/lint/check-brand-mark-rig.ts",
     "lint:scatter": "tsx scripts/lint/check-glyph-scatter.ts",
     "lint:seo": "tsx scripts/lint/check-seo.ts",
+    "lint:backdrop": "tsx scripts/lint/check-backdrop.ts",
     "content:schema": "tsx scripts/content/export-schema.ts",
     "media:build": "tsx scripts/media/build.ts",
     "preview": "pnpm build && tsx scripts/preview/serve.ts",
     "preview:serve": "tsx scripts/preview/serve.ts",
-    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:type-system && pnpm lint:content && pnpm lint:legal && pnpm lint:media && pnpm lint:budget && pnpm lint:rig && pnpm lint:scatter",
+    "guard": "pnpm lint:color && pnpm lint:typo && pnpm lint:type-system && pnpm lint:content && pnpm lint:legal && pnpm lint:media && pnpm lint:budget && pnpm lint:rig && pnpm lint:scatter && pnpm lint:backdrop",
     "check": "pnpm typecheck && pnpm lint && pnpm guard"
   },
   "dependencies": {

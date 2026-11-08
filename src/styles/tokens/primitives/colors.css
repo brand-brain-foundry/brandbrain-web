@@ -137,4 +137,10 @@
   --bbf-color-deep-700: oklch(calc(var(--bbf-color-deep-l) + var(--bbf-color-deep-span-up) * 0.125) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
   --bbf-color-deep-800: oklch(var(--bbf-color-deep-l) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
   --bbf-color-deep-900: oklch(calc(var(--bbf-color-deep-l) - var(--bbf-color-deep-span-down) * 1) var(--bbf-color-deep-c) var(--bbf-color-deep-h));
+
+  /* ── R1 · GIROS DE TONO DEL FONDO POR VARIANTE (D-BBW-96; BEHAVIOR §4.1) · una madre por variante, DERIVADA de los tonos primitivos ──
+     El sombreador del fondo gira el ángulo de tono del color VISTO (OKLab, claridad y croma intactos) estos grados. Ningún número nuevo:
+     la variante `verde` lleva el azul visto (`deep`) al verde de marca (`sea`) → Δh = H_sea − H_deep. Una variante nueva = una madre aquí
+     (por fórmula; si no cae en una, DESIGN_EXCEPTIONS) + su selector en semantic/colors.css + su nombre en src/config/backdrops.ts (R12). */
+  --bbf-color-backdrop-turn-verde: calc(var(--bbf-color-sea-h) - var(--bbf-color-deep-h));
 }

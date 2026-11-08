@@ -107,3 +107,18 @@
   --bbf-selection-surface: var(--bbf-accent);
   --bbf-selection-text: var(--bbf-surface-base);
 }
+
+/* ── R1 · GIRO DE TONO DEL FONDO POR PÁGINA (D-BBW-96; BEHAVIOR §4.1) ──
+   El rol lo LEE el sombreador del fondo (`readHueTurn`, src/behavior/backdrop-shader.ts) en el elemento del lienzo. Registrado como número
+   por la misma razón que `--bbf-lockup-avail`: sin registrar, `getComputedStyle` devolvería el `calc()` sin evaluar. 0 = el inicio (valor
+   inicial: una página que no declara variante pinta el fondo del inicio con su programa intacto). La página declara su variante en el
+   registro (`src/config/pages.ts`, campo `backdrop`) y su `<main>` lleva `data-backdrop`; cada variante declarada tiene aquí su selector (R12). */
+@property --bbf-backdrop-hue-turn {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+[data-backdrop="verde"] {
+  --bbf-backdrop-hue-turn: var(--bbf-color-backdrop-turn-verde);
+}

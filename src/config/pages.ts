@@ -20,6 +20,7 @@
  */
 import { site, type Locale } from "./site";
 import { PAGE_TYPES, type PageType, type PageTypeRules } from "./page-types";
+import type { BackdropVariant } from "./backdrops";
 
 export type PageEntry = {
   /** identificador de la página = nombre de su documento de contenido; para las legales coincide con el slug */
@@ -38,6 +39,12 @@ export type PageEntry = {
    * (`pageTitleException`); la guardia no escribe ningún número.
    */
   readonly titleLengthException?: { readonly length: number; readonly reason: string; readonly decision: string };
+  /**
+   * VARIANTE DE COLOR DEL FONDO (R1, D-BBW-96): el nombre de una variante de `./backdrops.ts`; el `<main>` de la página lo lleva en
+   * `data-backdrop` y el sombreador gira el tono del color visto lo que diga su madre. AUSENTE = el fondo del inicio (giro 0). La portada no
+   * puede declararla (R12: el inicio no cambia).
+   */
+  readonly backdrop?: BackdropVariant;
 };
 
 /** Las páginas del sitio. El orden de este array es el orden del mapa del sitio. */
@@ -50,7 +57,8 @@ export const PAGES = [
     titleLengthException: { length: 61, reason: "el título propio de la portada es la repetición exacta de la categoría (D-BBW-81)", decision: "D-BBW-87" },
   },
   // la página de perfil (S3c, D-BBW-90): la dirección canónica de la persona (`Person.url`)
-  { id: "quien",       slug: "quien",       type: "profile" },
+  // R1 (D-BBW-96): el fondo del perfil es la variante verde del inicio
+  { id: "quien",       slug: "quien",       type: "profile", backdrop: "verde" },
   { id: "aviso-legal", slug: "aviso-legal", type: "legal-restricted", footerOrder: 0 },
   { id: "privacidad",  slug: "privacidad",  type: "legal",            footerOrder: 1 },
   { id: "cookies",     slug: "cookies",     type: "legal",            footerOrder: 2 },
@@ -84,6 +92,12 @@ export function pageRules(id: PageId): PageTypeRules {
 export function pageTitleException(id: PageId): PageEntry["titleLengthException"] {
   const entry: PageEntry = pageEntry(id);
   return entry.titleLengthException;
+}
+
+/** La variante de color del fondo que declara la página (R1, D-BBW-96), o `undefined` = el fondo del inicio. */
+export function pageBackdrop(id: PageId): BackdropVariant | undefined {
+  const entry: PageEntry = pageEntry(id);
+  return entry.backdrop;
 }
 
 /** Ruta canónica de una página para un locale, con la barra final que emite el build: `/es/` · `/es/privacidad/`. */
