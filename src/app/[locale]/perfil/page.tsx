@@ -8,16 +8,16 @@ import { renderSection } from "@/components/sections";
 import { MAIN_ID } from "@/components/main-id";
 
 /** La página que este archivo sirve, por su identificador del registro (`src/config/pages.ts`): uno que no esté registrado no compila. */
-const PAGE = "quien" satisfies PageId;
+const PAGE = "perfil" satisfies PageId;
 
 /**
- * LA PÁGINA DE PERFIL (S3c, D-BBW-90). Tipo `profile`: indexable, en el mapa del sitio, y la ÚNICA que declara el `Person` completo
- * (`ProfilePage`, `src/seo/jsonld.ts`). Metadatos por el constructor único; el texto sale de `content/<locale>/pages/quien.json`, que cita
+ * LA PÁGINA DE PERFIL (S3c, D-BBW-90; ruta `/es/perfil/` desde P1, D-BBW-107). Tipo `profile`: indexable, en el mapa del sitio, y la ÚNICA que declara el `Person` completo
+ * (`ProfilePage`, `src/seo/jsonld.ts`). Metadatos por el constructor único; el texto sale de `content/<locale>/pages/perfil.json`, que cita
  * la entidad de `content/site.json`.
  */
 export const generateMetadata = pageMetadataFor(PAGE);
 
-export default async function QuienPage({
+export default async function PerfilPage({
   params,
 }: {
   params: Promise<{ locale: string }>;

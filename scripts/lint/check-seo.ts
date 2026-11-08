@@ -381,8 +381,15 @@ function notVisible(key: EntityFieldKey, emitted: unknown, html: string, h: Head
       break;
     case 'href': {
       // una lista de direcciones (`sameAs`) o de credenciales, o una credencial sola (S3c): de cada una, su dirección
-      const urls = (Array.isArray(emitted) ? emitted : [emitted]).map((x) => (typeof x === 'string' ? x : String((x as { url?: unknown }).url)));
+      const items = Array.isArray(emitted) ? emitted : [emitted];
+      const urls = items.map((x) => (typeof x === 'string' ? x : String((x as { url?: unknown }).url)));
       for (const u of urls) if (!hasHref(u)) missing.push(u);
+      // P1 (D-BBW-109): una credencial se lee en una frase de la página: su nombre y su emisor, literales en el texto visible
+      for (const x of items) {
+        if (typeof x === 'string') continue;
+        const c = x as { name?: unknown; recognizedBy?: { name?: unknown } };
+        for (const t of [c.name, c.recognizedBy?.name]) if (typeof t === 'string' && !h.text.includes(t)) missing.push(`«${t}» en el texto visible`);
+      }
       break;
     }
     case 'img': {

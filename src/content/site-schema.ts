@@ -78,6 +78,15 @@ function fieldSchema(key: string, spec: EntityFieldSpec, linkKeys: readonly stri
       properties: { status: { ...status, enum: ENTITY_STATUSES.filter((s) => s !== "pendiente") } },
     };
   }
+  if (spec.source.kind === "derived") {
+    return {
+      ...base,
+      "x-source": `derived:${spec.source.rule}`,
+      "x-derived-from": "pages/<página de perfil>.sections[profile].approach (intro + steps[].text + background.text)",
+      readOnly: true,
+      properties: { status: { ...status, enum: ENTITY_STATUSES.filter((s) => s !== "heredado") } },
+    };
+  }
   const value = valueSchema(spec, linkKeys, mediaIds);
   const conditions: Json[] = [
     { if: { properties: { status: { const: "pendiente" } } }, then: { not: { required: ["value"] } } },
