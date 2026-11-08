@@ -132,7 +132,15 @@ export type Profile =
    * `width` de ancho (alto = round(width × aspect[1] / aspect[0])) sin AMPLIAR nunca el maestro, y codificada en JPEG `quality` sin metadatos.
    * `minPixels`: el área mínima que el uso exige (Google, ProfilePage: ≥ 50 000 píxeles por recorte); el guion rompe si no se alcanza.
    */
-  | { kind: "jpeg-crop"; aspect: readonly [number, number]; width: number; focusY: number; quality: number; minPixels: number };
+  | { kind: "jpeg-crop"; aspect: readonly [number, number]; width: number; focusY: number; quality: number; minPixels: number }
+  /**
+   * DISCO DE MUESTRA (P2b-216, D-BBW-111): el MISMO recorte 1:1 por punto focal que `jpeg-crop`, pero para una imagen que solo se MUESTRA y
+   * que NINGÚN dato estructurado declara. Su suelo no es el de Google (≥ 50 000 px, que gobierna `Person.image`), sino el de la pantalla: el
+   * lado es EXACTAMENTE el del rol `sizeToken` (resuelto de los tokens, nunca escrito a mano) × `density`, de modo que cubre su caja a esa
+   * densidad sin que el navegador amplíe. Menos que eso se vería borroso; más es descarga que no se ve. Nunca amplía el maestro.
+   * Fuera de su uso, la guardia lo rechaza (R11 de `check-media.ts`): no puede ser miembro de un conjunto ni lo puede referenciar la entidad.
+   */
+  | { kind: "jpeg-disc"; sizeToken: string; density: 1 | 2; focusY: number; quality: number };
 
 export type Derivative = { master: MasterId; path: string; profile: Profile; role: string };
 
@@ -145,14 +153,15 @@ const PORTRAIT_CROP = (aspect: readonly [number, number]) =>
   ({ kind: "jpeg-crop", aspect, width: 1200, focusY: 0.42, quality: 90, minPixels: 50_000 }) as const;
 
 /**
- * EL RETRATO DEL CIERRE (P2, D2 del perfil): el MISMO recorte 1:1 (mismo maestro, mismo punto focal), servido al tamaño al que se MUESTRA. El
- * círculo mide `--bbf-profile-portrait-size` (3 × `space-20` = 240 px CSS desde P2b, D-BBW-111; era 3 × `space-21` = 252) y la densidad de
- * píxel se ACOTA a 2: dos derivados, 1× y 2× (240 y 480 px), en el `srcset` del `<img>`. El peldaño siguiente (3 × `space-18` = 216) no
- * cabe en este perfil: su 1× (46 656 px) queda bajo `minPixels`. El de 1200 (157 KB) queda como `src` y como miembro de `Person.image`
- * (Google pide ≥ 50 000 píxeles por recorte; el navegador que entiende `srcset` no lo descarga). `quality` 82: la de los medios del campo.
+ * EL RETRATO DEL CIERRE (P2, D2 del perfil; P2b, D-BBW-111): el MISMO recorte 1:1 (mismo maestro, mismo punto focal), servido al tamaño al que
+ * se MUESTRA. El círculo mide `--bbf-profile-portrait-size` (3 × `space-18` = 216 px CSS desde P2b-216, elección de Zavala; era 240 en P2b y
+ * 252 en P2) y la densidad de píxel se ACOTA a 2: dos derivados, 1× y 2× (216 y 432 px), en el `srcset` del `<img>`. Perfil propio `jpeg-disc`
+ * (no `jpeg-crop`): el suelo de 50 000 px es de Google para las imágenes de los datos estructurados y este disco no está en ellos; el suyo es
+ * cubrir su caja. El de 1200 (157 KB) queda como `src` y como miembro de `Person.image`; el navegador que entiende `srcset` no lo descarga.
+ * `quality` 82: la de los medios del campo.
  */
-const PORTRAIT_DISC = (width: number) =>
-  ({ kind: "jpeg-crop", aspect: [1, 1], width, focusY: 0.42, quality: 82, minPixels: 50_000 }) as const;
+const PORTRAIT_DISC = (density: 1 | 2) =>
+  ({ kind: "jpeg-disc", sizeToken: "--bbf-profile-portrait-size", density, focusY: 0.42, quality: 82 }) as const;
 
 /**
  * CONJUNTO VIGENTE de iconos y manifiesto (industria verificada en vivo 2026-09-17: evilmartians.com "How to favicon", web.dev
@@ -196,8 +205,8 @@ const _derivativesConst = {
   portrait1x1: { master: "portrait", path: "portrait-1200x1200.jpg", profile: PORTRAIT_CROP([1, 1]), role: "retrato 1:1 (la imagen de la página de perfil, el círculo del cierre y Person.image)" },
   portrait4x3: { master: "portrait", path: "portrait-1200x900.jpg", profile: PORTRAIT_CROP([4, 3]), role: "retrato 4:3 (Person.image)" },
   portrait16x9: { master: "portrait", path: "portrait-1200x675.jpg", profile: PORTRAIT_CROP([16, 9]), role: "retrato 16:9 (Person.image)" },
-  portraitDisc1x: { master: "portrait", path: "portrait-240x240.jpg", profile: PORTRAIT_DISC(240), role: "retrato del cierre en círculo, 1× (P2; 240 desde P2b)" },
-  portraitDisc2x: { master: "portrait", path: "portrait-480x480.jpg", profile: PORTRAIT_DISC(480), role: "retrato del cierre en círculo, 2× (P2; 480 desde P2b)" },
+  portraitDisc1x: { master: "portrait", path: "portrait-216x216.jpg", profile: PORTRAIT_DISC(1), role: "retrato del cierre en círculo, 1× (P2; 216 desde P2b-216)" },
+  portraitDisc2x: { master: "portrait", path: "portrait-432x432.jpg", profile: PORTRAIT_DISC(2), role: "retrato del cierre en círculo, 2× (P2; 432 desde P2b-216)" },
   gcFoundational72: { master: "gcFoundational", path: "gc-foundational-72.png", profile: { kind: "png-resize", size: 72 }, role: "sello del pie, 72 px (1×)" },
   gcFoundational144: { master: "gcFoundational", path: "gc-foundational-144.png", profile: { kind: "png-resize", size: 144 }, role: "sello del pie, 144 px (2×, pantalla de alta densidad)" },
 } as const satisfies Record<string, Derivative>;

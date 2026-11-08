@@ -53,7 +53,7 @@ import {
   type Profile,
 } from '../../src/media/registry';
 import { REPO_ROOT, sha256, stableJson, type LockFile } from './lock';
-import { resolveColorToken } from './tokens';
+import { resolveColorToken, resolveLengthToken } from './tokens';
 import { deriveRig } from './brand-icon-rig';
 import { readBatches, focusLabel, type BatchMember } from './batches';
 
@@ -303,6 +303,8 @@ function profileLabel(p: Profile): string {
       return `png-resize ${p.size}×${p.size}`;
     case 'jpeg-crop':
       return `jpeg-crop ${p.aspect[0]}:${p.aspect[1]} ancho ${p.width} foco-y ${p.focusY} q ${p.quality} ≥ ${p.minPixels} px`;
+    case 'jpeg-disc':
+      return `jpeg-disc 1:1 lado ${p.sizeToken} × ${p.density} foco-y ${p.focusY} q ${p.quality}`;
   }
 }
 
@@ -386,31 +388,36 @@ async function main(): Promise<void> {
       notes.push(`${d.path}: ${out.bytes.length} B = ${pct} % del presupuesto ${p.budgetBytes} B${out.streams ? ` · ${out.streams}` : ''}`);
       continue;
     }
-    if (p.kind === 'jpeg-crop') {
+    if (p.kind === 'jpeg-crop' || p.kind === 'jpeg-disc') {
       // S3c (D-BBW-91; P1, D-BBW-103): la caja más grande de proporción `aspect` dentro del maestro, centrada en x y CENTRADA EN y SOBRE EL
       // PUNTO FOCAL `focusY` (fracción del alto del maestro), sin salirse del maestro; escalada a
       // `width` sin ampliar; JPEG sin metadatos (sharp no copia EXIF/IPTC/ICC salvo que se pida: el derivado sale en sRGB y sin datos de origen).
+      // `jpeg-disc` (P2b-216, D-BBW-111): la misma caja 1:1; el ancho NO se escribe: sale del rol de longitud × la densidad, y ese es su suelo.
+      const disc = p.kind === 'jpeg-disc';
+      const [aw, ah] = disc ? ([1, 1] as const) : p.aspect;
+      const width = disc ? resolveLengthToken(p.sizeToken) * p.density : p.width;
+      if (!Number.isInteger(width) || width <= 0) throw new Error(`[media] ${d.path}: el lado resuelto (${width}) no es un número entero de píxeles`);
       const rm = raster(d.master);
       const meta = await sharp(rm.bytes).metadata();
       const W = meta.width ?? 0;
       const H = meta.height ?? 0;
-      const [aw, ah] = p.aspect;
       let cw = W;
       let ch = Math.round((W * ah) / aw);
       if (ch > H) { ch = H; cw = Math.round((H * aw) / ah); }
       const left = Math.round((W - cw) / 2);
       const top = Math.min(H - ch, Math.max(0, Math.round(p.focusY * H - ch / 2)));
-      if (p.width > cw) throw new Error(`[media] ${d.path}: el ancho del perfil (${p.width}) amplía el maestro (${cw} px de caja): un derivado nunca amplía`);
-      const outW = p.width;
-      const outH = Math.round((p.width * ah) / aw);
-      if (outW * outH < p.minPixels) throw new Error(`[media] ${d.path}: ${outW}×${outH} = ${outW * outH} píxeles, por debajo del mínimo del uso (${p.minPixels})`);
+      if (width > cw) throw new Error(`[media] ${d.path}: el ancho del perfil (${width}) amplía el maestro (${cw} px de caja): un derivado nunca amplía`);
+      const outW = width;
+      const outH = Math.round((width * ah) / aw);
+      if (!disc && outW * outH < p.minPixels) throw new Error(`[media] ${d.path}: ${outW}×${outH} = ${outW * outH} píxeles, por debajo del mínimo del uso (${p.minPixels})`);
+      if (disc && !d.path.endsWith(`-${outW}x${outH}.jpg`)) throw new Error(`[media] ${d.path}: el nombre no dice el lado resuelto (${outW}×${outH} = ${p.sizeToken} × ${p.density}); renombrar el derivado en el registro`);
       const jpg = await sharp(rm.bytes)
         .extract({ left, top, width: cw, height: ch })
         .resize(outW, outH, { fit: 'fill', kernel: 'lanczos3' })
         .jpeg({ quality: p.quality, mozjpeg: true, chromaSubsampling: '4:4:4' })
         .toBuffer();
       outputs.set(id, { bytes: jpg, width: outW, height: outH });
-      notes.push(`${d.path}: caja ${cw}×${ch} en (${left}, ${top}) del maestro ${W}×${H} → ${outW}×${outH} = ${outW * outH} px (≥ ${p.minPixels})`);
+      notes.push(`${d.path}: caja ${cw}×${ch} en (${left}, ${top}) del maestro ${W}×${H} → ${outW}×${outH} = ${outW * outH} px (${disc ? `= ${p.sizeToken} × ${p.density}, suelo del disco` : `≥ ${p.minPixels}`})`);
       continue;
     }
     if (p.kind === 'png-resize') {
@@ -470,6 +477,7 @@ async function main(): Promise<void> {
       const dd = derivatives[m as DerivativeId];
       if (!dd) throw new Error(`[media] conjunto "${setId}": el miembro "${m}" no es un derivado del registro`);
       if (dd.master !== set.master) throw new Error(`[media] conjunto "${setId}": el miembro "${m}" sale del maestro "${dd.master}", no de "${set.master}"`);
+      if (dd.profile.kind === 'jpeg-disc') throw new Error(`[media] conjunto "${setId}": el miembro "${m}" es un disco de muestra (jpeg-disc): un conjunto lo emiten los datos estructurados y el disco no cumple su suelo (R11)`);
     }
   }
 
@@ -536,7 +544,7 @@ async function main(): Promise<void> {
                 ? pk.format === 'jpeg'
                   ? 'image/jpeg'
                   : 'image/webp'
-                : pk.kind === 'jpeg-crop'
+                : pk.kind === 'jpeg-crop' || pk.kind === 'jpeg-disc'
                   ? 'image/jpeg'
                   : 'image/png';
     const fields = [`src: "/${d.path}"`, `type: "${type}"`];
