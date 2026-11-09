@@ -278,11 +278,11 @@ export function fieldSpec(key: EntityFieldKey): EntityFieldSpec {
 
 /**
  * EL MÍNIMO para que la página de perfil se declare `ProfilePage` (D-BBW-116: nombre, URL e imagen visibles; la URL es la de la página, siempre
- * presente). `description` y `sameAs` son opcionales: se emiten si están visibles y su ausencia no suprime `ProfilePage` (Google, «ProfilePage
- * structured data», act. 2026-09-08: `name` obligatorio). Se activa cuando TODOS se EMITAN (aprobados y visibles en esa página); sin él, la
- * página emite solo el `Person`.
+ * presente). `sameAs` sigue obligatorio como antes de D-BBW-116 (que no lo libera). `description` es opcional: se emite si está visible y su
+ * ausencia no suprime `ProfilePage` (Google, «ProfilePage structured data», act. 2026-09-08: `name` obligatorio). Se activa cuando TODOS se
+ * EMITAN (aprobados y visibles en esa página); sin él, la página emite solo el `Person`.
  */
-export const PROFILE_PAGE_MINIMUM = ["name", "image"] as const satisfies readonly EntityFieldKey[];
+export const PROFILE_PAGE_MINIMUM = ["name", "image", "sameAs"] as const satisfies readonly EntityFieldKey[];
 
 /** Categorías de credencial admitidas (`EducationalOccupationalCredential.credentialCategory`), cerradas. S3c: la de la credencial de la página de perfil. */
 export const CREDENTIAL_CATEGORIES = ["certification"] as const;

@@ -95,7 +95,7 @@
     },
     "entity": {
       "type": "object",
-      "description": "Lo que hace citable a la persona. Cada campo con su estado; un campo entra en los datos estructurados solo si está aprobado y es visible en la página. ProfilePage se activa cuando están aprobados: name, image.",
+      "description": "Lo que hace citable a la persona. Cada campo con su estado; un campo entra en los datos estructurados solo si está aprobado y es visible en la página. ProfilePage se activa cuando están aprobados: name, image, sameAs.",
       "additionalProperties": false,
       "required": [
         "name",
