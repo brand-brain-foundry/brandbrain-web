@@ -340,7 +340,7 @@ export type ProfileSection = {
   id: string;
   /** el `<h1>` de la apertura (el héroe del inicio reutilizado, P2): el cargo (`{{role}}`) */
   heading: string;
-  /** el párrafo de la apertura: la frase definitoria (`{ entity: "description" }`), que nombra a la persona; línea de referencia del campo */
+  /** el párrafo de la apertura: copy propio de la página, en primera persona (D-BBW-116; ya no cita `$.entity.description`); línea de referencia del campo */
   lead: string;
   /** OPCIONAL (P2, como `HeroSection.fieldMedia`): el uso cuyo lote del campo lleva la apertura; sin la llave o con lote vacío, el campo de siempre */
   fieldMedia?: string;
@@ -709,7 +709,7 @@ function checkFieldMedia(v: Record<string, unknown>, path: string, problems: Pro
 function checkProfileSection(v: Record<string, unknown>, path: string, problems: Problem[]): void {
   checkText(v.heading, `${path}.heading`, problems);
   checkFieldMedia(v, path, problems);
-  checkEntityRef(v.lead, `${path}.lead`, ["text"], problems);
+  checkText(v.lead, `${path}.lead`, problems);
   if (isRecord(v.portrait)) {
     checkKeys(v.portrait, ["media"], `${path}.portrait`, problems);
     checkEntityRef(v.portrait.media, `${path}.portrait.media`, ["media"], problems);

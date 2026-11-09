@@ -203,7 +203,7 @@ export const ENTITY_FIELDS = {
     translatable: true,
     cms: "long-text",
     visible: "text",
-    doc: "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Visible en la entrada de la página de perfil (S3c), que la referencia. Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
+    doc: "La frase definitoria de la persona (Person.description; PERFIL-CZC §2.1, D-BBW-81/82/84/86): en tercera persona, la que un buscador o un modelo puede extraer tal cual. Desde D-BBW-116 ninguna página la muestra (la entrada del perfil es copy propio en primera persona), así que `Person.description` no se emite; su ausencia no suprime ProfilePage. Si volviera a heredarse, tomaría la meta.description de la portada, como antes de S2.",
   },
   descriptionLong: {
     kind: "text",
@@ -277,11 +277,12 @@ export function fieldSpec(key: EntityFieldKey): EntityFieldSpec {
 }
 
 /**
- * EL MÍNIMO para que la página de perfil se declare `ProfilePage` (Google, «ProfilePage structured data», act. 2026-09-08: `mainEntity` con
- * `name` obligatorio; recomendados `description`, `sameAs`, `image`). Se activa cuando TODOS se EMITAN (aprobados y visibles en esa página);
- * sin él, la página emite solo el `Person`.
+ * EL MÍNIMO para que la página de perfil se declare `ProfilePage` (D-BBW-116: nombre, URL e imagen visibles; la URL es la de la página, siempre
+ * presente). `sameAs` sigue obligatorio como antes de D-BBW-116 (que no lo libera). `description` es opcional: se emite si está visible y su
+ * ausencia no suprime `ProfilePage` (Google, «ProfilePage structured data», act. 2026-09-08: `name` obligatorio). Se activa cuando TODOS se
+ * EMITAN (aprobados y visibles en esa página); sin él, la página emite solo el `Person`.
  */
-export const PROFILE_PAGE_MINIMUM = ["name", "description", "sameAs"] as const satisfies readonly EntityFieldKey[];
+export const PROFILE_PAGE_MINIMUM = ["name", "image", "sameAs"] as const satisfies readonly EntityFieldKey[];
 
 /** Categorías de credencial admitidas (`EducationalOccupationalCredential.credentialCategory`), cerradas. S3c: la de la credencial de la página de perfil. */
 export const CREDENTIAL_CATEGORIES = ["certification"] as const;
