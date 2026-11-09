@@ -29,9 +29,10 @@ import { mediaMembers } from "@/media";
  * en `entity-fields.ts`), y la regla de arriba se vuelve mecánica: un campo se emite solo si está `aprobado` Y ES VISIBLE en la página que
  * emite el grafo —visibilidad decidida al construir desde la capa de contenido (`visibilityContext`: el cuerpo de la página + el documento
  * global; S3) y confirmada por R7g sobre el HTML—, o si ya se emitía antes de S2 y sigue `heredado`. Lo `pendiente` no se emite. Lo aprobado y
- * todavía sin sección (`description`, `alternateName`…) tampoco: entra el día que una sección lo escriba, sin tocar este archivo.
- * `ProfilePage` (`mainEntity` → la `Person`) se añade al grafo cuando el mínimo de la entidad se emite (`PROFILE_PAGE_MINIMUM`); hoy no:
- * `description` está aprobada y espera la sección «Quién» (S3b).
+ * sin texto visible (`description`, `alternateName`…) tampoco: entra el día que una sección lo escriba, sin tocar este archivo. Desde
+ * D-BBW-116 la entrada del perfil es copy propio en primera persona, así que `description` no es visible en ninguna página y no se emite.
+ * `ProfilePage` (`mainEntity` → la `Person`) se añade al grafo cuando el mínimo de la entidad se emite (`PROFILE_PAGE_MINIMUM`: nombre,
+ * imagen y `sameAs`; la URL es la de la página); `description` es opcional y su ausencia no lo suprime (D-BBW-116).
  *
  * EL SUJETO DEL SITIO ES UNA `Person`, NO UNA `Organization` (D-BBW-58). La biblia estratégica v2 §2 convierte este sitio en la práctica
  * profesional de una persona y «Brand Brain Foundry» en el nombre del MÉTODO. Declarar una organización con el nombre de una persona sería
