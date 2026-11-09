@@ -8,7 +8,7 @@
       "type": "profile",
       "id": "perfil",
       "heading": "{{role}}",
-      "lead": "Soy estratega de sistemas de IA para marcas. Con cada empresa rediseño la forma de trabajar y defino el contexto, el conocimiento y el gobierno para que sus agentes de IA decidan con el criterio de su marca.",
+      "lead": "Soy {{brand}}. Con cada empresa rediseño la forma de trabajar y defino el contexto, el conocimiento y el gobierno para que sus agentes de IA decidan con el criterio de su marca.",
       "fieldMedia": "perfil",
       "portrait": { "media": { "entity": "image" } },
       "approach": {
