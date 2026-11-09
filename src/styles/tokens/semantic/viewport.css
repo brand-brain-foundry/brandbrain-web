@@ -121,12 +121,21 @@
      `line-sm` arriba y abajo: 48 − 2 = 46 px. Si cambia el alto o el contorno del botón (`.button` de ProfileSection.module.css), cambia aquí.
      Sus derivados (46 y 92, MEDIA §10, perfil `jpeg-disc`) LEEN este lado: se declara una sola vez y no se redefine por vista. */
   --bbf-profile-portrait-size: calc(var(--bbf-space-12) - var(--bbf-line-sm) * 2);
-  /* P2 (D-BBW-99 y despacho P2 §2.3): el rótulo de «Cómo trabajo» queda FIJO bajo la cabecera mientras se recorre la sección en la vista amplia;
-     en una zona, nada fijo. El cierre (P2b, D-BBW-111, enmienda de la composición B de D-BBW-103; P2c: el retrato pasa al botón del correo):
+  /* El cierre (P2b, D-BBW-111, enmienda de la composición B de D-BBW-103; P2c: el retrato pasa al botón del correo):
      UNA columna apilada (frase madre → botones) en las dos vistas; en la amplia todo centrado, en una zona el mismo orden alineado al inicio. Un solo rol (palabra clave válida
-     a la vez en `align-items`, `justify-content` y `text-align`). */
-  --bbf-profile-how-head-position: sticky;
+     a la vez en `align-items`, `justify-content` y `text-align`).
+     2026-11-09 (D-BBW-121, enmienda de D-BBW-99): SALE el rol `--bbf-profile-how-head-position` (sticky en la vista amplia, static en una zona).
+     El rótulo de «Cómo trabajo» queda en flujo en todas las vistas; un rol que ya no varía entre vistas no es un rol (I-6). */
   --bbf-profile-close-align: center;
+  /* SUBIDA DE LA SECCIÓN 2 DEL PERFIL (2026-11-09, D-BBW-119 y D-BBW-120; decisión de Zavala: «la sección 2 sube y se superpone al aire vacío de la sección 1,
+     empezando donde termina la zona activa del campo; la sección 1 no se toca»). En la vista de DOS zonas el héroe en flujo mide una ventana
+     (`--bbf-hero-flow-min-block`) y la zona activa del campo termina en el ancla del escenario más su ALCANCE DIBUJADO (la parada media de la
+     máscara, `--bbf-stage-reach`): alto × proporción del ancla + alcance. La sección 2 sube lo que queda por debajo de ese borde:
+     −(alto × (1 − proporción) − alcance). Todo derivado de las madres (`--bbf-stage-anchor-y-split-share`, `--bbf-stage-mask-mid-share`).
+     Fuera del héroe no hay contenedor de tamaño, así que `cqh`/`cqw` del alcance caen a las unidades de la ventana PEQUEÑA, que son la caja del
+     héroe mientras mida una ventana; si en una ventana baja el héroe creciera por su contenido, la sección 2 quedaría por DEBAJO del borde
+     (del lado seguro), nunca por encima. En una zona vale 0 (corte de abajo): el móvil no cambia. */
+  --bbf-profile-flow-lift: calc(-1 * (var(--bbf-hero-flow-min-block) * (1 - var(--bbf-stage-anchor-y-split-share)) - var(--bbf-stage-reach)));
 
   --bbf-nav-inline-display: flex;
   --bbf-nav-panel-display: none;
@@ -238,8 +247,8 @@
     --bbf-hero-flow-min-block: 0;
     --bbf-hero-flow-inset-bottom: var(--bbf-space-page);
 
-    --bbf-profile-how-head-position: static;
     --bbf-profile-close-align: start;
+    --bbf-profile-flow-lift: 0;
 
     --bbf-hero-ctas-direction: column;
     --bbf-hero-ctas-width: 100%;

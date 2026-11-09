@@ -6,8 +6,14 @@
  * la de la sección legal.
  */
 
-/* ── EL FLUJO: un solo ancho centrado bajo el héroe, fondo quieto (la superficie), secciones separadas por aire, sin bandas ni cajas ── */
+/* ── EL FLUJO: un solo ancho centrado bajo el héroe, fondo quieto (la superficie), secciones separadas por aire, sin bandas ni cajas ──
+   2026-11-09 (D-BBW-119/120): en la vista de dos zonas SUBE sobre el aire vacío del héroe hasta el borde de la zona activa del campo (rol de
+   vista `--bbf-profile-flow-lift`, semantic/viewport.css; 0 en una zona). Va por ENCIMA del héroe en el apilamiento y sin fondo propio: el
+   fondo de la sección 1 se sigue viendo detrás. */
 .flow {
+  position: relative;
+  z-index: var(--bbf-layer-content);
+  margin-block-start: var(--bbf-profile-flow-lift);
   display: flex;
   flex-direction: column;
   gap: var(--bbf-profile-section-gap);
@@ -46,7 +52,7 @@
   gap: var(--bbf-space-10);
 }
 
-/* ── «CÓMO TRABAJO» (D-BBW-99): todo centrado en la columna de lectura; el rótulo FIJO en la vista amplia (rol de vista) ─────────────── */
+/* ── «CÓMO TRABAJO» (D-BBW-99): todo centrado en la columna de lectura ─────────────────────────────────────────────────────────────── */
 .how {
   display: flex;
   flex-direction: column;
@@ -56,15 +62,11 @@
   margin-inline: auto;
 }
 
-/* fijo bajo el borde de la ventana mientras se recorre la sección; sobre la superficie lisa de la página, así que el texto que pasa por
-   debajo se oculta sin que se vea ninguna banda */
+/* 2026-11-09 (D-BBW-121, enmienda de D-BBW-99): el rótulo deja de ser fijo y queda EN FLUJO en todas las vistas, sin fondo propio (en la vista
+   amplia sube sobre el héroe y una banda de superficie se vería encima del campo). Sale lo que solo servía al fijo: posición, `top`, capa,
+   fondo y el par relleno superior / margen negativo de un margen de página (se anulaban: el alto en flujo no cambia). Queda el aire inferior. */
 .howKicker {
-  position: var(--bbf-profile-how-head-position);
-  top: 0;
-  z-index: var(--bbf-layer-content);
-  padding-block: var(--bbf-space-page) var(--bbf-space-4);
-  margin-block-start: calc(-1 * var(--bbf-space-page));
-  background: var(--bbf-surface-base);
+  padding-block-end: var(--bbf-space-4);
 }
 
 .intro {
