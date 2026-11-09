@@ -25,7 +25,7 @@ const stepNumber = (i: number) => String(i + 1).padStart(2, "0");
  *      (línea de referencia del campo), el lote del campo que declara el contenido (`fieldMedia`, S12), fondo verde por el registro (D-BBW-96),
  *      sin botones ni partículas (D-BBW-105) y EN FLUJO (sin el hueco del pie superpuesto en el teléfono; su final se funde con el negro).
  *   2. «CÓMO TRABAJO» (D-BBW-99): la entrada y la línea de tiempo centradas en la columna de lectura; nodos 01–04 y «De dónde vengo»; el
- *      rótulo queda fijo mientras se recorre en la vista amplia (rol de vista). Las tarjetas con sus tramos enlazados (D-BBW-109).
+ *      rótulo va en flujo en todas las vistas (D-BBW-121); en la vista amplia la sección sube sobre el aire del héroe (D-BBW-119). Las tarjetas con sus tramos enlazados (D-BBW-109).
  *   3. ESPECIALIDADES (D-BBW-100): pastillas a todo lo ancho, DE SOLO TEXTO hasta P3 (Zavala 2026-11-08, despacho de integración: el perfil se
  *      publica sin iconos y sin hueco reservado; P3 trae el icono y su sitio en su propia PR, MEDIA §1), `knowsAbout` literal, toda la pastilla
  *      enlaza a la llave común; nombre accesible = su texto.

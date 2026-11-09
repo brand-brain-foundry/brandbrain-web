@@ -61,8 +61,13 @@
          en 420: **cero solape con 2 px de holgura**. A 41 % todavía quedaban 699 px de tinta dentro del bloque. A 780, holgura de 11 px.
          Estable en tres muestreos distintos (6, 8 y 14 muestras). Con 40 % la holgura sería 6 px, pero eso ya es subir más de lo
          necesario.
-       · `-split`  = **43 %**, el valor del diseño, sin tocar. */
-  --bbf-stage-anchor-y-split: 43%;
+       · `-split`  = **43 %**, el valor del diseño, sin tocar.
+     2026-11-09 (perfil, hueco entre la sección 1 y la 2; decisión de Zavala (a), D-BBW-120): la madre se PARTE como la de la máscara
+     (`--bbf-stage-mask-mid-share` → `--bbf-stage-mask-mid`): la PROPORCIÓN es la madre y el porcentaje se deriva de ella. Mismo valor; el
+     inicio no cambia. Hace falta la proporción porque un `%` fuera del héroe no se resuelve contra su alto (en un margen, contra el ANCHO), y la
+     subida de la sección 2 del perfil (`--bbf-profile-flow-lift`, semantic/viewport.css) necesita el factor: alto × (1 − proporción). */
+  --bbf-stage-anchor-y-split-share: 0.43;
+  --bbf-stage-anchor-y-split: calc(var(--bbf-stage-anchor-y-split-share) * 100%);
   /* D-BBW-62 — el ancla de la vista de una zona pasó de PORCENTAJE a la unidad de ventana pequeña (`40.5svh`) para que el arte no bajara
      persiguiendo al texto cuando el héroe crece. 2026-11-06 (cierre legal y héroe móvil): esa madre `--bbf-stage-anchor-y-single` SE RETIRA
      (I-6). El 40,5 % se había medido contra la tinta del pez bajo el bloque de texto (D-BBW-57), y el pez ya no está: en la vista de UNA zona el
